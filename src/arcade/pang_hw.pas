@@ -1,12 +1,10 @@
 unit pang_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,kabuki_decript,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,oki6295,sound_engine,eepromser,ym_2413;
+uses rom_engine;
 
 function iniciar_pang:boolean;
 
-implementation
 const
         //Pang
         pang_rom:array[0..1] of tipo_roms=(
@@ -14,9 +12,9 @@ const
         pang_oki:tipo_roms=(n:'bb1.bin';l:$20000;p:0;crc:$c52e5b8e);
         pang_sprites:array[0..1] of tipo_roms=(
         (n:'bb10.bin';l:$20000;p:0;crc:$fdba4f6e),(n:'bb9.bin';l:$20000;p:$20000;crc:$39f47a63));
-        pang_char:array[0..3] of tipo_roms=(
+        pang_char:array[0..4] of tipo_roms=(
         (n:'pang_09.bin';l:$20000;p:0;crc:$3a5883f5),(n:'bb3.bin';l:$20000;p:$20000;crc:$79a8ed08),
-        (n:'pang_11.bin';l:$20000;p:$80000;crc:$166a16ae),(n:'bb5.bin';l:$20000;p:$a0000;crc:$2fb3db6c));
+        (n:'pang_11.bin';l:$20000;p:$80000;crc:$166a16ae),(n:'bb5.bin';l:$20000;p:$a0000;crc:$2fb3db6c),());
         //Super Pang
         spang_rom:array[0..2] of tipo_roms=(
         (n:'spe_06.rom';l:$8000;p:0;crc:$1af106fb),(n:'spe_07.rom';l:$20000;p:$10000;crc:$208b5f54),
@@ -24,10 +22,15 @@ const
         spang_oki:tipo_roms=(n:'spe_01.rom';l:$20000;p:0;crc:$2d19c133);
         spang_sprites:array[0..1] of tipo_roms=(
         (n:'spj10_2k.bin';l:$20000;p:0;crc:$eedd0ade),(n:'spj09_1k.bin';l:$20000;p:$20000;crc:$04b41b75));
-        spang_char:array[0..3] of tipo_roms=(
-        (n:'spe_02.rom';l:$20000;p:0;crc:$63c9dfd2),(n:'03.f2';l:$20000;p:$20000;crc:$3ae28bc1),
-        (n:'spe_04.rom';l:$20000;p:$80000;crc:$9d7b225b),(n:'05.g2';l:$20000;p:$a0000;crc:$4a060884));
         spang_eeprom:tipo_roms=(n:'eeprom-spang.bin';l:$80;p:0;crc:$deae1291);
+        spang_char:array[0..4] of tipo_roms=(
+        (n:'spe_02.rom';l:$20000;p:0;crc:$63c9dfd2),(n:'03.f2';l:$20000;p:$20000;crc:$3ae28bc1),
+        (n:'spe_04.rom';l:$20000;p:$80000;crc:$9d7b225b),(n:'05.g2';l:$20000;p:$a0000;crc:$4a060884),());
+
+implementation
+uses nz80,kabuki_decript,main_engine,controls_engine,gfx_engine,pal_engine,
+     oki6295,sound_engine,eepromser,ym_2413;
+
 var
  mem_rom_op,mem_rom_dat:array[0..$f,0..$3fff] of byte;
  mem_dat:array[0..$7fff] of byte;
@@ -95,7 +98,6 @@ procedure pang_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_pang;

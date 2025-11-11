@@ -1,21 +1,22 @@
 unit twins_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nec_v20_v30,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ay_8910,misc_functions,i2cmem,file_engine;
+uses rom_engine;
 
 function iniciar_twins:boolean;
 
-implementation
 const
-        twins_rom:array[0..1] of tipo_roms=(
-        (n:'2.u8';l:$80000;p:0;crc:$1ec942b0),(n:'1.u9';l:$80000;p:1;crc:$4417ff34));
-        twins_nv:tipo_roms=(n:'24c02.u15';l:$100;p:0;crc:$2ff05b0e);
-        twinsed1_rom:array[0..1] of tipo_roms=(
-        (n:'1.bin';l:$80000;p:0;crc:$d5ef7b0d),(n:'2.bin';l:$80000;p:1;crc:$8a5392f4));
-        hotblock_rom:array[0..1] of tipo_roms=(
-        (n:'hotblk5.ic4';l:$80000;p:0;crc:$5f90f776),(n:'hotblk6.ic5';l:$80000;p:$80000;crc:$3176d231));
+        twins_rom:array[0..2] of tipo_roms=(
+        (n:'2.u8';l:$80000;p:0;crc:$1ec942b0),(n:'1.u9';l:$80000;p:1;crc:$4417ff34),());
+        twins_nv:array[0..1] of tipo_roms=((n:'24c02.u15';l:$100;p:0;crc:$2ff05b0e),());
+        twinsed1_rom:array[0..2] of tipo_roms=(
+        (n:'1.bin';l:$80000;p:0;crc:$d5ef7b0d),(n:'2.bin';l:$80000;p:1;crc:$8a5392f4),());
+        hotblock_rom:array[0..2] of tipo_roms=(
+        (n:'hotblk5.ic4';l:$80000;p:0;crc:$5f90f776),(n:'hotblk6.ic5';l:$80000;p:$80000;crc:$3176d231),());
+
+implementation
+uses nec_v20_v30,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ay_8910,misc_functions,i2cmem,file_engine;
 
 var
  main_rom:array[0..$fffff] of byte;
@@ -78,7 +79,6 @@ procedure twins_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 311 do begin
     eventos_twins;

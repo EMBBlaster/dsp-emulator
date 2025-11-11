@@ -1,7 +1,7 @@
-unit tap_tzx;
+ï»¿unit tap_tzx;
 {
  - Version 4
-     - Añadido el bloque $4b para MSX
+     - AÃ±adido el bloque $4b para MSX
      - Simplificado el proceso de hacer la onda completa
      - Corregido la creacion de un grupo cuando ya hay otro abierto
  - Version 3.5.3
@@ -27,9 +27,7 @@ unit tap_tzx;
      - Limpieza del bloque $19
 }
 interface
-uses nz80,{$IFDEF WINDOWS}windows,{$ENDIF}grids,dialogs,main_engine,
-     spectrum_misc,sysutils,lenguaje,misc_functions,tape_window,file_engine,
-     lenslock,samples,sound_engine;
+uses grids,dialogs,sysutils,nz80,main_engine;
 
 const
     MAX_TZX=$3fff;
@@ -131,7 +129,9 @@ function abrir_t64(data:pbyte;long:dword):boolean;
 function abrir_cas(datos:pbyte;long:integer):boolean;
 
 implementation
-uses spectrum_48k,spectrum_128k,spectrum_3,commodore64,principal;
+uses spectrum_48k,spectrum_128k,spectrum_3,commodore64,principal,msx1,
+     spectrum_misc,lenguaje,misc_functions,tape_window,file_engine,
+     lenslock,samples,sound_engine;
 
 const
     TZX_CLOCK_PAUSE=3500;
@@ -305,7 +305,7 @@ case cinta_tzx.datos_tzx[cinta_tzx.indice_cinta].tipo_bloque of
                   tzx_contador_datos:=tzx_contador_datos+1;
                   datos_totales_tzx:=datos_totales_tzx+1;
                   inc(tzx_datos_p); //incremento el byte en los datos
-                  if tzx_contador_datos<cinta_tzx.datos_tzx[cinta_tzx.indice_cinta].lbloque then begin  //¿se ha acabado?
+                  if tzx_contador_datos<cinta_tzx.datos_tzx[cinta_tzx.indice_cinta].lbloque then begin  //Â¿se ha acabado?
                     if tzx_contador_datos=(cinta_tzx.datos_tzx[cinta_tzx.indice_cinta].lbloque-1) then tzx_ultimo_bit:=1 shl (8-cinta_tzx.datos_tzx[cinta_tzx.indice_cinta].lbyte);
                     cinta_tzx.bit_actual:=$80;
                     if (tzx_datos_p^ and $80)<>0 then cinta_tzx.value:=$40 else cinta_tzx.value:=0;
@@ -803,6 +803,7 @@ lenslok.activo:=false;
 lenslok.indice:=255;
 while cinta_tzx.datos_tzx[indice].tipo_bloque<>$fe do begin
   case cinta_tzx.datos_tzx[indice].crc32 of
+   //$13088ece:cinta_tzx.datos_tzx[indice-1].lbloque:=32;
    $92DC40D8:var_spectrum.sd_1:=true; //Camelot Warriors con SD1
    $45169147,$ead7b3a9:begin //TT RACER
               lenslok.indice:=6;
@@ -853,9 +854,11 @@ var
   indice:byte;
   cadena:string;
   tap_header:^ttap_header;
+  key_first:boolean;
 begin
 abrir_tap:=false;
 if datos=nil then exit;
+key_first:=true;
 getmem(tap_header,sizeof(ttap_header));
 vaciar_cintas;
 indice:=0;       //posicion de la cinta
@@ -891,11 +894,23 @@ while longitud<long do begin
         inc(datos);
         //Por defecto pongo como nombre 'datos'
         cadena:=leng.cinta[2];
+        if key_first then key_type:=2;
         case tap_header.flag of
-            0:if tap_header.size>18 then begin //Pongo el nombre si hay mas de 18!
-                  cadena:=leng.cinta[0]+': '+tap_header.file_name; //cabecera
+            0:begin
+                //Cabecera --> Pongo el nombre si hay mas de 18!
+                if tap_header.size>18 then cadena:=leng.cinta[0]+': '+tap_header.file_name;
+                if key_first then begin
+                  key_type:=1;
+                  key_first:=false;
                 end;
-            $ff:cadena:=leng.cinta[1]; //bytes
+              end;
+            $ff:begin //bytes
+                  cadena:=leng.cinta[1];
+                  if key_first then begin
+                    key_type:=0;
+                    key_first:=false;
+                  end;
+                end;
         end;
         tape_window1.stringgrid1.Cells[0,indice]:=cadena;
         tape_window1.stringgrid1.Cells[1,indice]:=inttostr(tap_header.size);
@@ -1198,7 +1213,7 @@ var
   f:word;
 begin
 abrir_cdt:=abrir_tzx(data,long);
-if cinta_tzx.datos_tzx[0].tipo_bloque<>$20 then begin
+if (cinta_tzx.datos_tzx[0].tipo_bloque<>$20) then begin
   tape_window1.stringgrid1.RowCount:=tape_window1.stringgrid1.RowCount+1;
   for f:=cinta_tzx.total_bloques downto 1 do begin
     cinta_tzx.datos_tzx[f]:=cinta_tzx.datos_tzx[f-1];
@@ -1225,6 +1240,13 @@ if cinta_tzx.datos_tzx[0].tipo_bloque<>$20 then begin
   cinta_tzx.total_bloques:=cinta_tzx.total_bloques+1;
   siguiente_bloque_tzx;
 end;
+if ((cinta_tzx.datos_tzx[0].tipo_bloque=$20) and (cinta_tzx.datos_tzx[0].lpausa<2000*TZX_CLOCK_PAUSE)) then begin
+  cinta_tzx.indice_cinta:=0;
+  cinta_tzx.datos_tzx[0].lpausa:=2000*TZX_CLOCK_PAUSE;
+  tape_window1.stringgrid1.Cells[0,0]:=leng.cinta[9];
+  tape_window1.stringgrid1.Cells[1,0]:='2000ms.';
+  siguiente_bloque_tzx;
+end;
 end;
 
 function abrir_tzx(data:pbyte;long:integer):boolean;
@@ -1234,7 +1256,7 @@ var
   ptemp:pbyte;
   cadena,cadena2,nombre_grupo:string;
   tempb,selector:byte;
-  fin_grupo:boolean;
+  fin_grupo,first_msx:boolean;
   crc_grupo:dword;
   pulsos:array[0..$ffff] of word;
   simbolos:array[0..$1f] of tsimbolos;
@@ -1253,6 +1275,7 @@ var
 begin
 abrir_tzx:=false;
 if data=nil then exit;
+first_msx:=true;
 getmem(tzx_header,sizeof(ttzx_header));
 copymemory(tzx_header,data,10);
 //si no es una cinta TZX me salgo
@@ -1437,7 +1460,7 @@ while longitud<long do begin
                             //Y ahora relaciono repeticiones con simbolos
                             for f:=1 to tzx_type_19.totp do begin
                               pulsos_total:=0;
-                              //¿que simbolo es?
+                              //Â¿que simbolo es?
                               tempb:=data^;
                               inc(data);inc(longitud);
                               //cuantas veces lo repito?
@@ -1486,7 +1509,7 @@ while longitud<long do begin
                               2:if (tzx_type_19.totd mod 8)<>0 then cinta_tzx.datos_tzx[temp].lbloque:=(tzx_type_19.totd div 8)+1
                                   else cinta_tzx.datos_tzx[temp].lbloque:=(tzx_type_19.totd div 8);
                               256:cinta_tzx.datos_tzx[temp].lbloque:=tzx_type_19.totd;
-                                else MessageDlg('Simbolos div extraño!! '+inttostr(asd_tzx), mtInformation,[mbOk], 0);
+                                else MessageDlg('Simbolos div extraÃ±o!! '+inttostr(asd_tzx), mtInformation,[mbOk], 0);
                             end;
                             cinta_tzx.datos_tzx[temp].tipo_bloque:=$19;
                             getmem(cinta_tzx.datos_tzx[temp].datos,cinta_tzx.datos_tzx[temp].lbloque);
@@ -1519,7 +1542,7 @@ while longitud<long do begin
                             if tzx_gen_word.valor=0 then begin
                                 cadena:=leng.cinta[8]; //STOP the tape
                                 cadena2:=' ';
-                                cinta_tzx.datos_tzx[temp-1].lpausa:=0;
+                                if temp<>0 then cinta_tzx.datos_tzx[temp-1].lpausa:=0;
                             end else begin
                                 cadena:=leng.cinta[9]; //Pausa
                                 cadena2:=inttostr(tzx_gen_word.valor)+'ms.';
@@ -1723,6 +1746,7 @@ while longitud<long do begin
                             copymemory(cinta_tzx.datos_tzx[temp].datos,data,cinta_tzx.datos_tzx[temp].lbloque);
                             inc(data,cinta_tzx.datos_tzx[temp].lbloque);inc(longitud,cinta_tzx.datos_tzx[temp].lbloque);
                             ptemp:=cinta_tzx.datos_tzx[temp].datos;inc(ptemp,10);
+                            if first_msx then key_type:=3;
                             case cinta_tzx.datos_tzx[temp].datos^ of
                               $d0:begin
                                   cadena:='MSX MC "';
@@ -1731,6 +1755,7 @@ while longitud<long do begin
                                     inc(ptemp);
                                   end;
                                   cadena:=cadena+'"';
+                                  if first_msx then key_type:=0;
                                 end;
                               $d3:begin
                                   cadena:='MSX Basic "';
@@ -1739,6 +1764,7 @@ while longitud<long do begin
                                     inc(ptemp);
                                   end;
                                   cadena:=cadena+'"';
+                                  if first_msx then key_type:=1;
                                 end;
                               $ea:begin
                                  cadena:='MSX Run "';
@@ -1747,14 +1773,16 @@ while longitud<long do begin
                                     inc(ptemp);
                                   end;
                                   cadena:=cadena+'"';
+                                  if first_msx then key_type:=2;
                                   end;
                               else cadena:='MSX Data';
                             end;
                             inc(long_final,cinta_tzx.datos_tzx[temp].lbloque);
                           end;
+                          first_msx:=false;
                           freemem(tzx_type_4b);
                         end;
-                    $5A:begin //glue
+                    $5a:begin //glue
                           cinta_tzx.datos_tzx[temp].tipo_bloque:=$5a;
                           getmem(cinta_tzx.datos_tzx[temp].datos,1);
                           inc(data,9);inc(longitud,9);
@@ -2468,10 +2496,11 @@ var
   f,indice:byte;
   cadena:string;
   ptemp,ptempd:pbyte;
-  salir:boolean;
+  salir,first_msx:boolean;
 begin
 abrir_cas:=false;
 if datos=nil then exit;
+first_msx:=true;
 ptempd:=datos;
 vaciar_cintas;
 indice:=0;
@@ -2513,6 +2542,7 @@ while longitud<long do begin
           getmem(cinta_tzx.datos_tzx[indice].datos,long_init);
           copymemory(cinta_tzx.datos_tzx[indice].datos,ptemp,long_init);
           ptemp:=cinta_tzx.datos_tzx[indice].datos;inc(ptemp,10);
+          if first_msx then key_type:=3;
           case cinta_tzx.datos_tzx[indice].datos^ of
             $d0:begin
                   cadena:='MSX MC "';
@@ -2521,6 +2551,7 @@ while longitud<long do begin
                     inc(ptemp);
                   end;
                   cadena:=cadena+'"';
+                  if first_msx then key_type:=0;
                 end;
             $d3:begin
                   cadena:='MSX Basic "';
@@ -2529,6 +2560,7 @@ while longitud<long do begin
                     inc(ptemp);
                   end;
                   cadena:=cadena+'"';
+                  if first_msx then key_type:=1;
                 end;
             $ea:begin
                   cadena:='MSX Run "';
@@ -2537,9 +2569,11 @@ while longitud<long do begin
                     inc(ptemp);
                   end;
                   cadena:=cadena+'"';
+                  if first_msx then key_type:=2;
                 end;
             else cadena:='MSX Data';
           end;
+          first_msx:=false;
           tape_window1.stringgrid1.Cells[0,indice]:=cadena;
           tape_window1.stringgrid1.Cells[1,indice]:=inttostr(long_init);
           //tape_window1.stringgrid1.Cells[2,temp]:=inttohex(cinta_tzx.datos_tzx[temp].crc32,8);

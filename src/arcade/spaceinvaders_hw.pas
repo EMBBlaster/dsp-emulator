@@ -1,22 +1,23 @@
 unit spaceinvaders_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,
-     samples,pal_engine,sound_engine,qsnapshot;
+uses rom_engine,samples;
 
 function iniciar_spaceinv:boolean;
 
+const
+        spaceinv_rom:array[0..4] of tipo_roms=(
+        (n:'invaders.h';l:$800;p:0;crc:$734f5ad8),(n:'invaders.g';l:$800;p:$800;crc:$6bfaca4a),
+        (n:'invaders.f';l:$800;p:$1000;crc:$0ccead96),(n:'invaders.e';l:$800;p:$1800;crc:$14e538b0),());
+        spaceinv_samples:array[0..9] of tipo_nombre_samples=(
+        (nombre:'1.wav'),(nombre:'2.wav'),(nombre:'3.wav'),(nombre:'4.wav'),(nombre:'5.wav'),
+        (nombre:'6.wav'),(nombre:'7.wav'),(nombre:'8.wav'),(nombre:'9.wav'),());
+
 implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     qsnapshot;
 
 const
-        spaceinv_rom:array[0..3] of tipo_roms=(
-        (n:'invaders.h';l:$800;p:0;crc:$734f5ad8),(n:'invaders.g';l:$800;p:$800;crc:$6bfaca4a),
-        (n:'invaders.f';l:$800;p:$1000;crc:$0ccead96),(n:'invaders.e';l:$800;p:$1800;crc:$14e538b0));
-        spaceinv_samples:array[0..8] of tipo_nombre_samples=(
-        (nombre:'1.wav'),(nombre:'2.wav'),(nombre:'3.wav'),(nombre:'4.wav'),(nombre:'5.wav'),
-        (nombre:'6.wav'),(nombre:'7.wav'),(nombre:'8.wav'),(nombre:'9.wav'));
-        //DIP
         spaceinv_dip:array [0..2] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','6')),
         (mask:8;name:'Bonus Life';number:2;val2:(8,0);name2:('1000','1500')),
@@ -61,14 +62,16 @@ end;
 procedure eventos_spaceinv;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=9;
   //P1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or $40;
   //System
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 or 4;
 end;
 end;
 
@@ -76,7 +79,6 @@ procedure spaceinv_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
     eventos_spaceinv;

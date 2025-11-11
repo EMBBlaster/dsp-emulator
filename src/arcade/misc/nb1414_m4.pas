@@ -1,7 +1,6 @@
-unit nb1414_m4;
+﻿unit nb1414_m4;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}gfx_engine;
 
 type
   tnb1414_m4=class
@@ -29,6 +28,7 @@ var
   nb1414m4_0:tnb1414_m4;
 
 implementation
+uses gfx_engine;
 
 constructor tnb1414_m4.create(memoria:pbyte);
 begin
@@ -91,10 +91,10 @@ begin
      fl_cond:=self.frame and $10; // for insert coin "flickering"
      if(self.mem[$f]=0) then begin
          dst:=((self.rom[$01] shl 8) or self.rom[$02]) and $3fff;
-	 self.dma($3,dst,$10,fl_cond);
+	       self.dma($3,dst,$10,fl_cond);
      end else begin
-         dst:=((self.rom[$49] shl 8) or self.rom[$4a]) and $3fff;
-	 self.dma($4b,dst,$18,1);
+        dst:=((self.rom[$49] shl 8) or self.rom[$4a]) and $3fff;
+	      self.dma($4b,dst,$18,1);
      end;
 end;
 
@@ -117,9 +117,9 @@ begin
        dst:=((self.rom[$7b] shl 8) or self.rom[$7c]) and $3fff;
        dma($7d,dst,$18,fl_cond);
   end else if(credit_count>1) then begin //ONE OR TWO PLAYERS
-               dst:= ((self.rom[$ad] shl 8) or self.rom[$ae]) and $3fff;
-	       dma($af,dst,$18,fl_cond);
-	   end;
+              dst:= ((self.rom[$ad] shl 8) or self.rom[$ae]) and $3fff;
+	            dma($af,dst,$18,fl_cond);
+	         end;
 end;
 
 procedure tnb1414_m4.fill(dst:word;tile,pal:byte);
@@ -127,9 +127,9 @@ var
   f:word;
 begin
      for f:=0 to $3ff do begin
-         if (f+dst)<18 then continue; //avoid param overwrite
-	 self.mem[f+dst]:=tile;
-	 self.mem[f+dst+$400]:=pal;
+        if (f+dst)<18 then continue; //avoid param overwrite
+        self.mem[f+dst]:=tile;
+	      self.mem[f+dst+$400]:=pal;
      end;
 end;
 
@@ -199,20 +199,20 @@ begin
        dst:=((self.rom[$10d] shl 8) or self.rom[$10e]) and $3fff;
        self.kozure_score_msg(dst,0);
        if(command and $80)<>0 then begin
-           // 2p-msg
-           dst:=((self.rom[$117] shl 8) or self.rom[$118]) and $3fff;
-	   self.dma($0119,dst,8,byte((command and 2)=0));
-           // 2p score
-	   dst:=((self.rom[$129] shl 8) or self.rom[$12a]) and $3fff;
-	   self.kozure_score_msg(dst,1);
+          // 2p-msg
+          dst:=((self.rom[$117] shl 8) or self.rom[$118]) and $3fff;
+	        self.dma($0119,dst,8,byte((command and 2)=0));
+          // 2p score
+	        dst:=((self.rom[$129] shl 8) or self.rom[$12a]) and $3fff;
+	        self.kozure_score_msg(dst,1);
        end;
   end else begin
         dst:=((self.rom[$133] shl 8) or self.rom[$134]) and $3fff;
         // game over
-	self.dma($135,dst,$10,byte((command and 1)=0));
-	self.insert_coin_msg;
+	      self.dma($135,dst,$10,byte((command and 1)=0));
+	      self.insert_coin_msg;
         // TODO: either one of these two disables credit display
-	if((command and $18)= 0) then self.credit_msg;
+	      if((command and $18)= 0) then self.credit_msg;
   end;
 end;
 
@@ -225,7 +225,7 @@ begin
        res:=((self.mem[(f shr 1)+5+src_base*3] shr (not(f and 1)*4)) and $f);
        if ((first_digit<>0) or (res<>0)) then begin
           self.mem[f+dst]:=res+$30;
-	  first_digit:=1;
+	        first_digit:=1;
        end else self.mem[f+dst]:=$20;
        self.mem[f+dst+$400]:=self.rom[$10f+(src_base*$1c)+f];
    end;

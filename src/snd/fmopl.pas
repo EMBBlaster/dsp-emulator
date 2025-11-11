@@ -1,7 +1,7 @@
 unit fmopl;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}math;
+uses math,main_engine;
 
 const
 CLEAR_LINE=0;

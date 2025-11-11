@@ -1,13 +1,10 @@
-unit crystalcastles_hw;
+﻿unit crystalcastles_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,pokey,file_engine;
+uses rom_engine;
 
 function iniciar_ccastles:boolean;
 
-implementation
 const
         ccastles_rom:array[0..4] of tipo_roms=(
         (n:'136022-403.1k';l:$2000;p:$2000;crc:$81471ae5),(n:'136022-404.1l';l:$2000;p:$0;crc:$820daf29),
@@ -15,9 +12,13 @@ const
         (n:'136022-101.1f';l:$2000;p:$6000;crc:$e2e17236));
         ccastles_sprites:array[0..1] of tipo_roms=(
         (n:'136022-106.8d';l:$2000;p:$0;crc:$9d1d89fc),(n:'136022-107.8b';l:$2000;p:$2000;crc:$39960b7d));
-        ccastles_pal:array[0..3] of tipo_roms=(
+        ccastles_pal:array[0..4] of tipo_roms=(
         (n:'82s129-136022-108.7k';l:$100;p:$0;crc:$6ed31e3b),(n:'82s129-136022-109.6l';l:$100;p:$100;crc:$b3515f1a),
-        (n:'82s129-136022-110.11l';l:$100;p:$200;crc:$068bdc7e),(n:'82s129-136022-111.10k';l:$100;p:$300;crc:$c29c18d9));
+        (n:'82s129-136022-110.11l';l:$100;p:$200;crc:$068bdc7e),(n:'82s129-136022-111.10k';l:$100;p:$300;crc:$c29c18d9),());
+
+implementation
+uses m6502,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     pokey,file_engine;
 
 var
   rom_bank:array[0..1,0..$3fff] of byte;
@@ -123,16 +124,18 @@ end;
 
 procedure eventos_ccastles;
 begin
-if main_vars.service1 then marcade.in0:=marcade.in0 and $ef else marcade.in0:=marcade.in0 or $10;
 if event.arcade then begin
+  marcade.in0:=$df or (marcade.in0 and $20);
+  marcade.in1:=$df;
   //in0
-  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fe else marcade.in0:=marcade.in0 or 1;
-  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $bf else marcade.in0:=marcade.in0 or $40;
-  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $7f else marcade.in0:=marcade.in0 or $80;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fd;
+  if main_vars.service1 then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $7f;
   //in1
-  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $f7 else marcade.in1:=marcade.in1 or 8;
-  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $ef else marcade.in1:=marcade.in1 or $10;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $ef;
 end;
 end;
 
@@ -140,7 +143,6 @@ procedure principal_ccastles;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_ccastles;

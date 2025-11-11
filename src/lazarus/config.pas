@@ -5,9 +5,7 @@ unit config;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ComCtrls,spectrum_misc,sound_engine,main_engine,lenguaje,lib_sdl2,
-  z80pio,z80daisy,z80_sp,timer_engine,misc_functions;
+  Classes, LResources, Forms, Controls,StdCtrls;
 
 type
 
@@ -17,13 +15,18 @@ type
     Button1: TButton;
     Button2: TButton;
     Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
     Edit1: TEdit;
-    GroupBox1: TGroupBox;
+    Edit2: TEdit;
+    Edit3: TEdit;
     GroupBox10: TGroupBox;
     GroupBox11: TGroupBox;
     GroupBox12: TGroupBox;
     GroupBox13: TGroupBox;
     GroupBox14: TGroupBox;
+    GroupBox15: TGroupBox;
+    GroupBox16: TGroupBox;
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
@@ -74,89 +77,13 @@ var
   ConfigSP:TConfigSP;
 
 implementation
-uses principal,spectrum_48k,spectrum_128k,lenslock;
+uses spectrumconfig_misc,misc_functions;
 
 { TConfigSP }
 
 procedure TConfigSP.Button1Click(Sender: TObject);
-var
-  new_audio:byte;
-  necesita_reset:boolean;
 begin
-necesita_reset:=false;
-with ConfigSP do begin
-  var_spectrum.issue2:=radiobutton1.Checked;
-  if radiobutton3.Checked then var_spectrum.tipo_joy:=JKEMPSTON
-    else if radiobutton4.Checked then var_spectrum.tipo_joy:=JCURSOR
-      else if radiobutton5.Checked then var_spectrum.tipo_joy:=JSINCLAIR1
-        else if radiobutton6.Checked then var_spectrum.tipo_joy:=JSINCLAIR2
-          else if radiobutton25.Checked then var_spectrum.tipo_joy:=JFULLER;
-  if radiobutton7.checked then borde.tipo:=0;
-  if RadioButton8.Checked then begin
-    borde.tipo:=1;
-    borde.borde_spectrum:=borde_normal;
-  end;
-  if radiobutton9.Checked then begin
-    borde.tipo:=2;
-    fillchar(borde.buffer,71136,16);
-    case main_vars.tipo_maquina of
-      0,5:borde.borde_spectrum:=borde_48_full;
-      1,2,3,4:borde.borde_spectrum:=borde_128_full;
-    end;
-  end;
-  var_spectrum.audio_load:=radiobutton21.Checked;
-  var_spectrum.turbo_sound:=radiobutton26.checked;
-  if not(var_spectrum.turbo_sound) then var_spectrum.ay_select:=0;
-  if radiobutton10.Checked then mouse.tipo:=MNONE
-    else if radiobutton11.Checked then mouse.tipo:=MGUNSTICK
-      else if radiobutton19.Checked then mouse.tipo:=MKEMPSTON
-        else if radiobutton20.Checked then mouse.tipo:=MAMX;
-  if (mouse.tipo<>0) then sdl_showcursor(1)
-    else sdl_showcursor(0);
-  if mouse.tipo=3 then begin
-    pio_0:=tz80pio.create;
-    pio_0.change_calls(pio_int_main,pio_read_porta,nil,nil,pio_read_portb,nil,nil);
-    z80daisy_init(Z80_PIO0_TYPE);
-    pio_0.reset;
-    spec_z80.enable_daisy;
-  end;
-  lenslok.activo:=radiobutton12.Checked;
-  if lenslok.activo then lenslock1.Show;
-  if RadioButton14.Checked then new_audio:=0;
-  if RadioButton15.Checked then new_audio:=1;
-  if RadioButton16.Checked then new_audio:=2;
-  //Speaker oversample
-  var_spectrum.speaker_oversample:=radiobutton17.Checked;
-  timers.timer[var_spectrum.speaker_timer].time_final:=sound_status.cpu_clock/(FREQ_BASE_AUDIO*(1+(7*byte(var_spectrum.speaker_oversample))));
-  timers.reset(var_spectrum.speaker_timer);
-  if new_audio<>var_spectrum.audio_128k then begin
-    var_spectrum.audio_128k:=new_audio;
-    close_audio;
-    case var_spectrum.audio_128k of
-      0:iniciar_audio(false);
-      1,2:iniciar_audio(true);
-    end;
-  end;
-  case main_vars.tipo_maquina of
-    0,5:if Edit1.text<>Directory.spectrum_48 then begin
-        Directory.spectrum_48:=Edit1.text;
-        necesita_reset:=true;
-        end;
-    1,4:if Edit1.text<>Directory.spectrum_128 then begin
-        Directory.spectrum_128:=Edit1.text;
-        necesita_reset:=true;
-        end;
-    2,3:if Edit1.text<>Directory.spectrum_3 then begin
-        Directory.spectrum_3:=Edit1.text;
-        necesita_reset:=true;
-        end;
-  end;
-end;
-if necesita_reset then begin
-  main_vars.driver_ok:=llamadas_maquina.iniciar;
-  if not(main_vars.driver_ok) then principal1.Ejecutar1click(nil);
-end;
-ulaplus.enabled:=radiobutton23.checked;
+spectrumconfig_button1;
 close;
 end;
 
@@ -182,73 +109,7 @@ end;
 
 procedure TConfigSP.FormShow(Sender: TObject);
 begin
-if ((main_vars.tipo_maquina=0) or (main_vars.tipo_maquina=5)) then begin
-    if var_spectrum.issue2 then radiobutton1.Checked:=true else radiobutton2.Checked:=true;
-    groupbox8.Enabled:=false;
-    groupbox13.Enabled:=false;
-    radiobutton14.Enabled:=false;
-    radiobutton15.Enabled:=false;
-    radiobutton16.Enabled:=false;
-    groupbox3.Enabled:=true;
-    radiobutton1.Enabled:=true;
-    radiobutton2.Enabled:=true;
-end else begin
-    groupbox3.Enabled:=false;
-    radiobutton1.Enabled:=false;
-    radiobutton2.Enabled:=false;
-    groupbox8.Enabled:=true;
-    radiobutton14.Enabled:=true;
-    radiobutton15.Enabled:=true;
-    radiobutton16.Enabled:=true;
-end;
-  //Las otras opciones
-  if var_spectrum.tipo_joy=JKEMPSTON then radiobutton3.checked:=true
-    else if var_spectrum.tipo_joy=JCURSOR then radiobutton4.checked:=true
-      else if var_spectrum.tipo_joy=JSINCLAIR1 then radiobutton5.checked:=true
-        else if var_spectrum.tipo_joy=JSINCLAIR2 then radiobutton6.checked:=true
-          else if var_spectrum.tipo_joy=JFULLER then radiobutton25.checked:=true;
-  if ulaplus.enabled then radiobutton23.Checked:=true
-    else radiobutton24.Checked:=true;
-  //emulacion del borde
-  case borde.tipo  of
-    0:radiobutton7.Checked:=true;
-    1:radiobutton8.Checked:=true;
-    2:radiobutton9.checked:=true;
-  end;
-  //Seleccion de raton
-  case mouse.tipo of
-     0:radiobutton10.Checked:=true;
-     1:radiobutton11.Checked:=true;
-     2:radiobutton19.Checked:=true;
-     3:radiobutton20.Checked:=true;
-  end;
-  //Speaker oversample
-  if var_spectrum.speaker_oversample then radiobutton17.Checked:=true
-    else radiobutton18.Checked:=true;
-  //Tape audio
-  if var_spectrum.audio_load then radiobutton21.Checked:=true
-    else radiobutton22.Checked:=true;
-  //Turbo Sound
-  if var_spectrum.turbo_sound then radiobutton26.Checked:=true
-    else radiobutton27.Checked:=true;
-  case main_vars.tipo_maquina of
-    0,5:edit1.Text:=Directory.spectrum_48;
-    1,4:edit1.Text:=Directory.spectrum_128;
-    2,3:edit1.Text:=Directory.spectrum_3;
-  end;
-  //Lenslock
-  groupbox7.Enabled:=true;
-  radiobutton12.Enabled:=true;
-  radiobutton13.Enabled:=true;
-  if lenslok.activo then radiobutton12.Checked:=true
-    else radiobutton13.Checked:=true;
-  //Audio 128K
-  case var_spectrum.audio_128k of
-    0:radiobutton14.Checked:=true;
-    1:radiobutton15.Checked:=true;
-    2:radiobutton16.Checked:=true;
-  end;
-Button2.Caption:=leng.mensajes[8];
+spectrumconfig_show;
 end;
 
 initialization

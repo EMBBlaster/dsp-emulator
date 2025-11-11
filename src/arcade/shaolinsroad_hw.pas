@@ -1,13 +1,10 @@
 unit shaolinsroad_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,main_engine,controls_engine,sn_76496,gfx_engine,rom_engine,
-     pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_shaolin:boolean;
 
-implementation
 const
         shaolin_rom:array[0..2] of tipo_roms=(
         (n:'477-l03.d9';l:$2000;p:$6000;crc:$2598dfdd),(n:'477-l04.d10';l:$4000;p:$8000;crc:$0cf0351a),
@@ -16,11 +13,16 @@ const
         (n:'shaolins.a10';l:$2000;p:0;crc:$ff18a7ed),(n:'shaolins.a11';l:$2000;p:$2000;crc:$5f53ae61));
         shaolin_sprites:array[0..1] of tipo_roms=(
         (n:'477-k02.h15';l:$4000;p:0;crc:$b94e645b),(n:'477-k01.h14';l:$4000;p:$4000;crc:$61bbf797));
-        shaolin_pal:array[0..4] of tipo_roms=(
+        shaolin_pal:array[0..5] of tipo_roms=(
         (n:'477j10.a12';l:$100;p:0;crc:$b09db4b4),(n:'477j11.a13';l:$100;p:$100;crc:$270a2bf3),
         (n:'477j12.a14';l:$100;p:$200;crc:$83e95ea8),(n:'477j09.b8';l:$100;p:$300;crc:$aa900724),
-        (n:'477j08.f16';l:$100;p:$400;crc:$80009cf5));
-        //Dip
+        (n:'477j08.f16';l:$100;p:$400;crc:$80009cf5),());
+
+implementation
+uses m6809,main_engine,controls_engine,sn_76496,gfx_engine,pal_engine,
+     sound_engine,qsnapshot;
+
+const
         shaolin_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('2','3','5','7')),
         (mask:4;name:'Cabinet';number:2;val2:(0,4);name2:('Upright','Cocktail')),
@@ -71,25 +73,28 @@ end;
 procedure eventos_shaolin;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //P2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //SYS
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef;
 end;
 end;
 
@@ -97,7 +102,6 @@ procedure shaolin_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=240 then begin
@@ -247,13 +251,13 @@ screen_init(1,256,256);
 screen_init(2,256,256,false,true);
 iniciar_video(224,256);
 //Main CPU
-m6809_0:=cpu_m6809.Create(18432000 div 12,TCPU_MC6809E);
+m6809_0:=cpu_m6809.create(18432000 div 12,TCPU_MC6809E);
 m6809_0.change_ram_calls(shaolin_getbyte,shaolin_putbyte);
 m6809_0.init_sound(shaolin_sound);
 if not(roms_load(@memoria,shaolin_rom)) then exit;
 //Sound Chip
-sn_76496_0:=sn76496_chip.Create(18432000 div 12);
-sn_76496_1:=sn76496_chip.Create(18432000 div 6);
+sn_76496_0:=sn76496_chip.create(18432000 div 12);
+sn_76496_1:=sn76496_chip.create(18432000 div 6);
 //convertir chars
 if not(roms_load(@memoria_temp,shaolin_char)) then exit;
 init_gfx(0,8,8,512);

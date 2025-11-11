@@ -1,13 +1,10 @@
 unit timepilot_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     konami_snd,sound_engine;
+uses rom_engine;
 
 function timepilot_iniciar:boolean;
 
-implementation
 const
     timepilot_rom:array[0..2] of tipo_roms=(
     (n:'tm1';l:$2000;p:0;crc:$1551f1b9),(n:'tm2';l:$2000;p:$2000;crc:$58636cb5),
@@ -15,11 +12,16 @@ const
     timepilot_char:tipo_roms=(n:'tm6';l:$2000;p:0;crc:$c2507f40);
     timepilot_sprt:array[0..1] of tipo_roms=(
     (n:'tm4';l:$2000;p:0;crc:$7e437c3e),(n:'tm5';l:$2000;p:$2000;crc:$e8ca87b9));
-    timepilot_pal:array[0..3] of tipo_roms=(
-    (n:'timeplt.b4';l:$20;p:0;crc:$34c91839),(n:'timeplt.b5';l:$20;p:$20;crc:$463b2b07),
-    (n:'timeplt.e9';l:$100;p:$40;crc:$4bbb2150),(n:'timeplt.e12';l:$100;p:$140;crc:$f7b7663e));
     timepilot_sound:tipo_roms=(n:'tm7';l:$1000;p:0;crc:$d66da813);
-    //Dip
+    timepilot_pal:array[0..4] of tipo_roms=(
+    (n:'timeplt.b4';l:$20;p:0;crc:$34c91839),(n:'timeplt.b5';l:$20;p:$20;crc:$463b2b07),
+    (n:'timeplt.e9';l:$100;p:$40;crc:$4bbb2150),(n:'timeplt.e12';l:$100;p:$140;crc:$f7b7663e),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,konami_snd,
+     sound_engine;
+
+const
     timepilot_dip_a:array [0..1] of def_dip2=(
     (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
     (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
@@ -79,29 +81,31 @@ end;
 procedure eventos_timepilot;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //Sys
-  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe else marcade.in0:=marcade.in0 or 1;
-  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7 else marcade.in0:=marcade.in0 or 8;
-  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef else marcade.in0:=marcade.in0 or $10;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef;
   //P1
-  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe else marcade.in1:=marcade.in1 or 1;
-  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd else marcade.in1:=marcade.in1 or 2;
-  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb else marcade.in1:=marcade.in1 or 4;
-  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7 else marcade.in1:=marcade.in1 or 8;
-  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef else marcade.in1:=marcade.in1 or $10;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
   //P2
-  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe else marcade.in2:=marcade.in2 or 1;
-  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd else marcade.in2:=marcade.in2 or 2;
-  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fb else marcade.in2:=marcade.in2 or 4;
-  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $f7 else marcade.in2:=marcade.in2 or 8;
-  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef else marcade.in2:=marcade.in2 or $10;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
 end;
 end;
 
 procedure timepilot_principal;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for scan_line:=0 to 255 do begin
     //Pinto linea a linea
@@ -221,7 +225,7 @@ iniciar_video(256,224);
 z80_0:=cpu_z80.create(3072000);
 z80_0.change_ram_calls(timepilot_getbyte,timepilot_putbyte);
 //Sound Chip
-konamisnd_0:=konamisnd_chip.create(2,TIPO_TIMEPLT,1789772);
+konamisnd_0:=konamisnd_chip.create(TIPO_TIMEPLT);
 if not(roms_load(@konamisnd_0.memoria,timepilot_sound)) then exit;
 //Cargar las roms...
 if not(roms_load(@memoria,timepilot_rom)) then exit;

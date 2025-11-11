@@ -4,7 +4,7 @@ interface
 uses
   lib_sdl2,Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls,
   Forms, Dialogs, ExtCtrls, StdCtrls, Buttons,main_engine,spectrum_128k,
-  spectrum_3,tape_window,vars_hide;
+  spectrum_3,tape_window;
 
 const
   decode_lenslok:array[0..8,0..15] of shortint=(

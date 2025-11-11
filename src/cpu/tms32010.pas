@@ -1,8 +1,7 @@
 unit tms32010;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,vars_hide,cpu_misc;
+uses main_engine,dialogs,sysutils,cpu_misc;
 
 type
         band_tms32010=record

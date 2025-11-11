@@ -1,14 +1,13 @@
 unit genesis;
-interface
 
-uses nz80,m68000,{$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,controls_engine,sega_315_5313,sysutils,rom_engine,
-     misc_functions,sound_engine,file_engine,dialogs;
+interface
+uses sysutils,dialogs;
 
 procedure cargar_genesis;
 
 implementation
-uses principal;
+uses principal,nz80,m68000,main_engine,controls_engine,sega_315_5313,rom_engine,
+     misc_functions,sound_engine,file_engine;
 
 var
   ram:array[0..$7fff] of word;
@@ -21,7 +20,6 @@ var
   frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 frame_s:=z80_0.tframes;
 while EmuStatus=EsRunning do begin
@@ -205,7 +203,6 @@ procedure cargar_genesis;
 begin
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.iniciar:=iniciar_genesis;
 llamadas_maquina.bucle_general:=genesis_principal;
 llamadas_maquina.close:=cerrar_genesis;

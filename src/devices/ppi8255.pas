@@ -1,7 +1,7 @@
 unit ppi8255;
 
 interface
-{$IFDEF WINDOWS}uses windows;{$ELSE IF}uses main_engine;{$ENDIF}
+uses main_engine;
 
 type
   tread_port_8255=function:byte;

@@ -8,9 +8,9 @@ object config_arcade: Tconfig_arcade
   ClientWidth = 810
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
+  Font.Color = clDefault
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Default'
   Font.Style = []
   KeyPreview = True
   Position = poDesktopCenter
@@ -24,6 +24,12 @@ object config_arcade: Tconfig_arcade
     Width = 257
     Height = 297
     Caption = 'DIP A'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 2
   end
   object Button1: TButton
@@ -52,6 +58,12 @@ object config_arcade: Tconfig_arcade
     Width = 257
     Height = 297
     Caption = 'DIP B'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 3
     Visible = False
   end
@@ -61,6 +73,12 @@ object config_arcade: Tconfig_arcade
     Width = 257
     Height = 297
     Caption = 'DIP C'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 4
     Visible = False
   end

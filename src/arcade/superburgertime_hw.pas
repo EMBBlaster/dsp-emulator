@@ -1,21 +1,31 @@
 unit superburgertime_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine,hu6280,deco_16ic,deco_decr,deco_common;
+uses rom_engine;
 
 function iniciar_supbtime:boolean;
 
-implementation
 const
         supbtime_rom:array[0..1] of tipo_roms=(
         (n:'gk03';l:$20000;p:0;crc:$aeaeed61),(n:'gk04';l:$20000;p:1;crc:$2bc5a4eb));
         supbtime_sound:tipo_roms=(n:'gc06.bin';l:$10000;p:0;crc:$e0e6c0f4);
         supbtime_char:tipo_roms=(n:'mae02.bin';l:$80000;p:0;crc:$a715cca0);
         supbtime_oki:tipo_roms=(n:'gc05.bin';l:$20000;p:0;crc:$2f2246ff);
-        supbtime_sprites:array[0..1] of tipo_roms=(
-        (n:'mae00.bin';l:$80000;p:1;crc:$30043094),(n:'mae01.bin';l:$80000;p:0;crc:$434af3fb));
+        supbtime_sprites:array[0..2] of tipo_roms=(
+        (n:'mae00.bin';l:$80000;p:1;crc:$30043094),(n:'mae01.bin';l:$80000;p:0;crc:$434af3fb),());
+        tumblep_rom:array[0..1] of tipo_roms=(
+        (n:'hl00-1.f12';l:$40000;p:0;crc:$fd697c1b),(n:'hl01-1.f13';l:$40000;p:1;crc:$d5a62a3f));
+        tumblep_sound:tipo_roms=(n:'hl02-.f16';l:$10000;p:0;crc:$a5cab888);
+        tumblep_char:tipo_roms=(n:'map-02.rom';l:$80000;p:0;crc:$dfceaa26);
+        tumblep_oki:tipo_roms=(n:'hl03-.j15';l:$20000;p:0;crc:$01b81da0);
+        tumblep_sprites:array[0..2] of tipo_roms=(
+        (n:'map-01.rom';l:$80000;p:0;crc:$e81ffa09),(n:'map-00.rom';l:$80000;p:1;crc:$8c879cfe),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine,hu6280,deco_16ic,deco_decr,deco_common;
+
+const
         supbtime_dip_a:array [0..8] of def_dip=(
         (mask:1;name:'Cabinet';number:2;dip:((dip_val:1;dip_name:'Cocktail'),(dip_val:$0;dip_name:'Upright'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:2;name:'Flip Screen';number:2;dip:((dip_val:2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -25,13 +35,6 @@ const
         (mask:$200;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$200;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$3000;name:'Difficulty';number:4;dip:((dip_val:$1000;dip_name:'Easy'),(dip_val:$3000;dip_name:'Normal'),(dip_val:$2000;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c000;name:'Lives';number:4;dip:((dip_val:$8000;dip_name:'1'),(dip_val:$0;dip_name:'2'),(dip_val:$c000;dip_name:'3'),(dip_val:$4000;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        tumblep_rom:array[0..1] of tipo_roms=(
-        (n:'hl00-1.f12';l:$40000;p:0;crc:$fd697c1b),(n:'hl01-1.f13';l:$40000;p:1;crc:$d5a62a3f));
-        tumblep_sound:tipo_roms=(n:'hl02-.f16';l:$10000;p:0;crc:$a5cab888);
-        tumblep_char:tipo_roms=(n:'map-02.rom';l:$80000;p:0;crc:$dfceaa26);
-        tumblep_oki:tipo_roms=(n:'hl03-.j15';l:$20000;p:0;crc:$01b81da0);
-        tumblep_sprites:array[0..1] of tipo_roms=(
-        (n:'map-01.rom';l:$80000;p:0;crc:$e81ffa09),(n:'map-00.rom';l:$80000;p:1;crc:$8c879cfe));
         tumblep_dip_a:array [0..8] of def_dip=(
         (mask:1;name:'Start Price';number:2;dip:((dip_val:1;dip_name:'1 Coin'),(dip_val:$0;dip_name:'2 Coin'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:2;name:'Flip Screen';number:2;dip:((dip_val:2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -93,7 +96,6 @@ procedure supbtime_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 273 do begin
    case f of

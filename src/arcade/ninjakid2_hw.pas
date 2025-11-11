@@ -1,13 +1,9 @@
 unit ninjakid2_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ym_2203,gfx_engine,rom_engine,
-     pal_engine,mc8123,sound_engine,timer_engine,dac;
+uses rom_engine;
 
 function iniciar_upl:boolean;
-
-implementation
 
 const
         //Ninja Kid II
@@ -19,24 +15,10 @@ const
         ninjakid2_fgtiles:tipo_roms=(n:'12.5n';l:$8000;p:0;crc:$db5657a9);
         ninjakid2_sprites:array[0..1] of tipo_roms=(
         (n:'8.6l';l:$10000;p:0;crc:$1b79c50a),(n:'7.6n';l:$10000;p:$10000;crc:$0be5cd13));
-        ninjakid2_bgtiles:array[0..1] of tipo_roms=(
-        (n:'11.2n';l:$10000;p:0;crc:$41a714b3),(n:'10.2r';l:$10000;p:$10000;crc:$c913c4ab));
         ninjakid2_snd_key:tipo_roms=(n:'ninjakd2.key';l:$2000;p:0;crc:$ec25318f);
         ninjakid2_pcm_rom:tipo_roms=(n:'9.6c';l:$10000;p:0;crc:$c1d2d170);
-        //DIP
-        ninjakid2_dip_a:array [0..7] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$6;name:'Bonus Life';number:4;dip:((dip_val:$4;dip_name:'20K 50K+'),(dip_val:$6;dip_name:'30K 50K+'),(dip_val:$2;dip_name:'50K 50K+'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$8;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Difficulty';number:2;dip:((dip_val:$20;dip_name:'Normal'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Lives';number:2;dip:((dip_val:$40;dip_name:'3'),(dip_val:$0;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Language';number:2;dip:((dip_val:$0;dip_name:'English'),(dip_val:$80;dip_name:'Japanese'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        ninjakid2_dip_b:array [0..4] of def_dip=(
-        (mask:$2;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$2;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Credit Service';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$18;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'2C 1C/6C 4C'),(dip_val:$18;dip_name:'1C 1C/3C 4C'),(dip_val:$10;dip_name:'1C 2C/2C 6C'),(dip_val:$8;dip_name:'1C 3C/3C 12C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$e0;name:'Coin B';number:8;dip:((dip_val:$80;dip_name:'1C 4C'),(dip_val:$0;dip_name:'5C 1C/15C 4C'),(dip_val:$20;dip_name:'4C 1C/12C 4C'),(dip_val:$40;dip_name:'3C 1C/9C 4C'),(dip_val:$60;dip_name:'2C 1C/6C 4C'),(dip_val:$e0;dip_name:'1C 1C/3C 4C'),(dip_val:$c0;dip_name:'1C 2C/2C 6C'),(dip_val:$a0;dip_name:'1C 3C/3C 12C'),(),(),(),(),(),(),(),())),());
+        ninjakid2_bgtiles:array[0..2] of tipo_roms=(
+        (n:'11.2n';l:$10000;p:0;crc:$41a714b3),(n:'10.2r';l:$10000;p:$10000;crc:$c913c4ab),());
         //Ark Area
         aarea_rom:array[0..4] of tipo_roms=(
         (n:'arkarea.008';l:$8000;p:0;crc:$1ce1b5b9),(n:'arkarea.009';l:$8000;p:$8000;crc:$db1c81d1),
@@ -47,17 +29,9 @@ const
         aarea_sprites:array[0..2] of tipo_roms=(
         (n:'arkarea.007';l:$10000;p:0;crc:$d5684a27),(n:'arkarea.006';l:$10000;p:$10000;crc:$2c0567d6),
         (n:'arkarea.005';l:$10000;p:$20000;crc:$9886004d));
-        aarea_bgtiles:array[0..2] of tipo_roms=(
+        aarea_bgtiles:array[0..3] of tipo_roms=(
         (n:'arkarea.003';l:$10000;p:0;crc:$6f45a308),(n:'arkarea.002';l:$10000;p:$10000;crc:$051d3482),
-        (n:'arkarea.001';l:$10000;p:$20000;crc:$09d11ab7));
-        //DIP
-        aarea_dip_a:array [0..6] of def_dip=(
-        (mask:$3;name:'Coinage';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Flip Screen';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Difficulty';number:2;dip:((dip_val:$20;dip_name:'Normal'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Bonus Life';number:2;dip:((dip_val:$40;dip_name:'50K 50K+'),(dip_val:$0;dip_name:'100K 100K+'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Lives';number:2;dip:((dip_val:$80;dip_name:'3'),(dip_val:$0;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'arkarea.001';l:$10000;p:$20000;crc:$09d11ab7),());
         //Mutant Night
         mnight_rom:array[0..4] of tipo_roms=(
         (n:'1.j19';l:$8000;p:0;crc:$56678d14),(n:'2.j17';l:$8000;p:$8000;crc:$2a73f88e),
@@ -68,20 +42,9 @@ const
         mnight_sprites:array[0..2] of tipo_roms=(
         (n:'9.e11';l:$10000;p:0;crc:$4883059c),(n:'8.e12';l:$10000;p:$10000;crc:$02b91445),
         (n:'7.e14';l:$10000;p:$20000;crc:$9f08d160));
-        mnight_bgtiles:array[0..2] of tipo_roms=(
+        mnight_bgtiles:array[0..3] of tipo_roms=(
         (n:'12.b20';l:$10000;p:0;crc:$4d37e0f4),(n:'11.b22';l:$10000;p:$10000;crc:$b22cbbd3),
-        (n:'10.b23';l:$10000;p:$20000;crc:$65714070));
-        //DIP
-        mnight_dip_a:array [0..7] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Bonus Life';number:2;dip:((dip_val:$2;dip_name:'30K 50K+'),(dip_val:$0;dip_name:'50K 80K+'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Difficulty';number:2;dip:((dip_val:$4;dip_name:'Normal'),(dip_val:$0;dip_name:'Difficult'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Infinite Lives';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$10;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Demo Sounds';number:2;dip:((dip_val:$20;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c0;name:'Lives';number:4;dip:((dip_val:$80;dip_name:'2'),(dip_val:$c0;dip_name:'3'),(dip_val:$40;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        mnight_dip_b:array [0..1] of def_dip=(
-        (mask:$e0;name:'Coinage';number:8;dip:((dip_val:$80;dip_name:'1C 4C'),(dip_val:$0;dip_name:'5C 1C'),(dip_val:$20;dip_name:'4C 1C'),(dip_val:$40;dip_name:'3C 1C'),(dip_val:$60;dip_name:'2C 1C'),(dip_val:$e0;dip_name:'1C 1C'),(dip_val:$c0;dip_name:'1C 2C'),(dip_val:$a0;dip_name:'1C 3C'),(),(),(),(),(),(),(),())),());
+        (n:'10.b23';l:$10000;p:$20000;crc:$65714070),());
         //Atomic Robo-Kid
         robokid_rom:array[0..3] of tipo_roms=(
         (n:'robokid1.18j';l:$10000;p:0;crc:$378c21fc),(n:'robokid2.18k';l:$10000;p:$10000;crc:$ddef8c5a),
@@ -101,10 +64,46 @@ const
         (n:'robokid.15c';l:$10000;p:$20000;crc:$7de67ebb),(n:'robokid.16c';l:$10000;p:$30000;crc:$53c0e582),
         (n:'robokid.17c';l:$10000;p:$40000;crc:$0cae5a1e),(n:'robokid.18c';l:$10000;p:$50000;crc:$56ac7c8a),
         (n:'robokid.15d';l:$10000;p:$60000;crc:$cd632a4d),(n:'robokid.16d';l:$10000;p:$70000;crc:$18d92b2b));
-        robokid_bgtiles2:array[0..5] of tipo_roms=(
+        robokid_bgtiles2:array[0..6] of tipo_roms=(
         (n:'robokid.12a';l:$10000;p:0;crc:$e64d1c10),(n:'robokid.14a';l:$10000;p:$10000;crc:$8f9371e4),
         (n:'robokid.15a';l:$10000;p:$20000;crc:$469204e7),(n:'robokid.16a';l:$10000;p:$30000;crc:$4e340815),
-        (n:'robokid.17a';l:$10000;p:$40000;crc:$f0863106),(n:'robokid.18a';l:$10000;p:$50000;crc:$fdff7441));
+        (n:'robokid.17a';l:$10000;p:$40000;crc:$f0863106),(n:'robokid.18a';l:$10000;p:$50000;crc:$fdff7441),());
+
+implementation
+uses nz80,main_engine,controls_engine,ym_2203,gfx_engine,pal_engine,mc8123,
+     sound_engine,timer_engine,dac;
+
+const
+        ninjakid2_dip_a:array [0..7] of def_dip=(
+        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$6;name:'Bonus Life';number:4;dip:((dip_val:$4;dip_name:'20K 50K+'),(dip_val:$6;dip_name:'30K 50K+'),(dip_val:$2;dip_name:'50K 50K+'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$8;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Difficulty';number:2;dip:((dip_val:$20;dip_name:'Normal'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Lives';number:2;dip:((dip_val:$40;dip_name:'3'),(dip_val:$0;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Language';number:2;dip:((dip_val:$0;dip_name:'English'),(dip_val:$80;dip_name:'Japanese'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        ninjakid2_dip_b:array [0..4] of def_dip=(
+        (mask:$2;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$2;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Credit Service';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$18;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'2C 1C/6C 4C'),(dip_val:$18;dip_name:'1C 1C/3C 4C'),(dip_val:$10;dip_name:'1C 2C/2C 6C'),(dip_val:$8;dip_name:'1C 3C/3C 12C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$e0;name:'Coin B';number:8;dip:((dip_val:$80;dip_name:'1C 4C'),(dip_val:$0;dip_name:'5C 1C/15C 4C'),(dip_val:$20;dip_name:'4C 1C/12C 4C'),(dip_val:$40;dip_name:'3C 1C/9C 4C'),(dip_val:$60;dip_name:'2C 1C/6C 4C'),(dip_val:$e0;dip_name:'1C 1C/3C 4C'),(dip_val:$c0;dip_name:'1C 2C/2C 6C'),(dip_val:$a0;dip_name:'1C 3C/3C 12C'),(),(),(),(),(),(),(),())),());
+        aarea_dip_a:array [0..6] of def_dip=(
+        (mask:$3;name:'Coinage';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Flip Screen';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Difficulty';number:2;dip:((dip_val:$20;dip_name:'Normal'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Bonus Life';number:2;dip:((dip_val:$40;dip_name:'50K 50K+'),(dip_val:$0;dip_name:'100K 100K+'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Lives';number:2;dip:((dip_val:$80;dip_name:'3'),(dip_val:$0;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        mnight_dip_a:array [0..7] of def_dip=(
+        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$2;name:'Bonus Life';number:2;dip:((dip_val:$2;dip_name:'30K 50K+'),(dip_val:$0;dip_name:'50K 80K+'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Difficulty';number:2;dip:((dip_val:$4;dip_name:'Normal'),(dip_val:$0;dip_name:'Difficult'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8;name:'Infinite Lives';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$10;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Demo Sounds';number:2;dip:((dip_val:$20;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$c0;name:'Lives';number:4;dip:((dip_val:$80;dip_name:'2'),(dip_val:$c0;dip_name:'3'),(dip_val:$40;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        mnight_dip_b:array [0..1] of def_dip=(
+        (mask:$e0;name:'Coinage';number:8;dip:((dip_val:$80;dip_name:'1C 4C'),(dip_val:$0;dip_name:'5C 1C'),(dip_val:$20;dip_name:'4C 1C'),(dip_val:$40;dip_name:'3C 1C'),(dip_val:$60;dip_name:'2C 1C'),(dip_val:$e0;dip_name:'1C 1C'),(dip_val:$c0;dip_name:'1C 2C'),(dip_val:$a0;dip_name:'1C 3C'),(),(),(),(),(),(),(),())),());
         robokid_dip_a:array [0..7] of def_dip=(
         (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$2;name:'Bonus Life';number:2;dip:((dip_val:$2;dip_name:'50K 100K+'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -390,7 +389,6 @@ procedure upl_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_upl;

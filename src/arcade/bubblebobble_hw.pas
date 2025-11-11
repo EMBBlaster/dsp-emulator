@@ -1,12 +1,10 @@
 unit bubblebobble_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ym_2203,ym_3812,
-     m680x,rom_engine,pal_engine,sound_engine,taito_68705;
+uses rom_engine;
 
 function iniciar_bublbobl:boolean;
 
-implementation
 const
         bublbobl_rom:array[0..1] of tipo_roms=(
         (n:'a78-06-1.51';l:$8000;p:0;crc:$567934b6),(n:'a78-05-1.52';l:$10000;p:$8000;crc:$9f8ee242));
@@ -20,7 +18,7 @@ const
         (n:'a78-19.34';l:$8000;p:$60000;crc:$66e9438c),(n:'a78-20.35';l:$8000;p:$68000;crc:$9ef863ad));
         bublbobl_snd:tipo_roms=(n:'a78-07.46';l:$8000;p:0;crc:$4f9a26e8);
         bublbobl_prom:tipo_roms=(n:'a71-25.41';l:$100;p:0;crc:$2d0f8545);
-        bublbobl_mcu:tipo_roms=(n:'a78-01.17';l:$1000;p:0;crc:$b1bfb53d);
+        bublbobl_mcu:array[0..1] of tipo_roms=((n:'a78-01.17';l:$1000;p:0;crc:$b1bfb53d),());
         //Tokio
         tokio_rom:array[0..4] of tipo_roms=(
         (n:'a71-02-1.ic4';l:$8000;p:0;crc:$bb8dabd7),(n:'a71-03-1.ic5';l:$8000;p:$8000;crc:$ee49b383),
@@ -38,12 +36,17 @@ const
         (n:'a71-22.ic36';l:$8000;p:$70000;crc:$fb98eac0),(n:'a71-23.ic37';l:$8000;p:$78000;crc:$30bd46ad));
         tokio_snd:tipo_roms=(n:'a71-07.ic10';l:$8000;p:0;crc:$f298cc7b);
         tokio_prom:tipo_roms=(n:'a71-25.ic41';l:$100;p:0;crc:$2d0f8545);
-        tokio_mcu:tipo_roms=(n:'a71__24.ic57';l:$800;p:0;crc:$0f4b25de);
+        tokio_mcu:array[0..1] of tipo_roms=((n:'a71__24.ic57';l:$800;p:0;crc:$0f4b25de),());
         //Super Bobble Bobble
-        sboblbobl_rom:array[0..2] of tipo_roms=(
+        sboblbobl_rom:array[0..3] of tipo_roms=(
         (n:'1c.bin';l:$8000;p:0;crc:$f304152a),(n:'1a.bin';l:$8000;p:$8000;crc:$0865209c),
-        (n:'1b.bin';l:$8000;p:$10000;crc:$1f29b5c0));
-        //Dip
+        (n:'1b.bin';l:$8000;p:$10000;crc:$1f29b5c0),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ym_2203,ym_3812,
+     m680x,pal_engine,sound_engine,taito_68705;
+
+const
         bublbobl_dip_a:array [0..4] of def_dip2=(
         (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
         (mask:5;name:'Mode';number:4;val4:(4,5,1,0);name4:('Game - English','Game - Japanese','Test (Grid and Inputs)','Test (RAM and Sound)/Pause')),
@@ -124,22 +127,24 @@ end;
 procedure eventos_bublbobl;
 begin
 if event.arcade then begin
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $bf;
   //P2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.down[0] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.up[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[0] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[0] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $bf;
   //SYS
   if arcade_input.coin[0] then  marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
   if arcade_input.coin[1] then  marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
@@ -149,20 +154,22 @@ end;
 procedure eventos_sboblbobl;
 begin
 if event.arcade then begin
+  marcade.in0:=$f3;
+  marcade.in1:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then  marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.coin[1] then  marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then  marcade.in0:=marcade.in0 or 4;
+  if arcade_input.coin[1] then  marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
   //P2
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $bf;
 end;
 end;
 
@@ -170,7 +177,6 @@ procedure bublbobl_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
   eventos_bublbobl;
@@ -200,7 +206,6 @@ procedure tokio_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
   eventos_bublbobl;
@@ -229,7 +234,6 @@ procedure sbublbobl_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
   eventos_sboblbobl;

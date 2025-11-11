@@ -1,13 +1,10 @@
 unit jackal_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_jackal:boolean;
 
-implementation
 const
         jackal_rom:array[0..1] of tipo_roms=(
         (n:'j-v02.rom';l:$10000;p:0;crc:$0b7e0584),(n:'j-v03.rom';l:$4000;p:$10000;crc:$3e0dfb83));
@@ -15,12 +12,17 @@ const
         (n:'631t04.bin';l:$20000;p:0;crc:$457f42f0),(n:'631t05.bin';l:$20000;p:1;crc:$732b3fc1),
         (n:'631t06.bin';l:$20000;p:$40000;crc:$2d10e56e),(n:'631t07.bin';l:$20000;p:$40001;crc:$4961c397));
         jackal_sound:tipo_roms=(n:'631t01.bin';l:$8000;p:$8000;crc:$b189af6a);
-        jackal_proms:array[0..1] of tipo_roms=(
-        (n:'631r08.bpr';l:$100;p:0;crc:$7553a172),(n:'631r09.bpr';l:$100;p:$100;crc:$a74dd86c));
-        //Dip
+        jackal_proms:array[0..2] of tipo_roms=(
+        (n:'631r08.bpr';l:$100;p:0;crc:$7553a172),(n:'631r09.bpr';l:$100;p:$100;crc:$a74dd86c),());
+
+implementation
+uses m6809,main_engine,controls_engine,gfx_engine,ym_2151,pal_engine,
+     sound_engine;
+
+const
         jackal_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
-        (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','No Coin B')));
+        (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
         jackal_dip_b:array [0..3] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('2','3','4','7')),
         (mask:$18;name:'Bonus Life';number:4;val4:($18,$10,8,0);name4:('30K 150K','50K 200K','30K','50K')),
@@ -39,7 +41,6 @@ var
  irq_enable:boolean;
 
 procedure update_video_jackal;
-
 procedure draw_sprites(bank:byte;pos:word);
 var
   sn1,sn2,attr,a,b,c,d,flipx_v,flipy_v:byte;
@@ -92,7 +93,6 @@ begin
 			end;
   end;
 end;
-
 var
   x,y,f,nchar:word;
   atrib:byte;
@@ -128,25 +128,28 @@ end;
 procedure eventos_jackal;
 begin
 if event.arcade then begin
+  marcade.in0:=$1f;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //P2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //SYSTEM
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef;
 end;
 end;
 
@@ -154,7 +157,6 @@ procedure jackal_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     if f=240 then begin
@@ -229,7 +231,6 @@ end;
 end;
 
 procedure sound_putbyte(direccion:word;valor:byte);
-
 procedure cambiar_color(dir:word);
 var
   data:word;
@@ -245,7 +246,6 @@ begin
   //color no cambia en cuando lo pinta
   if ((dir>$ff) and (dir<$200)) then fillchar(gfx[0].buffer,$400,1);
 end;
-
 begin
 case direccion of
   $2000:ym2151_0.reg(valor);

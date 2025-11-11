@@ -1,12 +1,10 @@
 unit wardner_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,tms32010,ym_3812,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_wardnerhw:boolean;
 
-implementation
 const
         wardner_rom:array[0..3] of tipo_roms=(
         (n:'wardner.17';l:$8000;p:0;crc:$c5dd56fd),(n:'b25-18.rom';l:$10000;p:$8000;crc:$9aab8ee2),
@@ -24,11 +22,17 @@ const
         wardner_bg_tiles:array[0..3] of tipo_roms=(
         (n:'b25-08.rom';l:$8000;p:0;crc:$883ccaa3),(n:'b25-11.rom';l:$8000;p:$8000;crc:$d6ebd510),
         (n:'b25-10.rom';l:$8000;p:$10000;crc:$b9a61e81),(n:'b25-09.rom';l:$8000;p:$18000;crc:$585411b7));
-        wardner_mcu_rom:array[0..7] of tipo_roms=(
+        wardner_mcu_rom:array[0..8] of tipo_roms=(
         (n:'82s137.1d';l:$400;p:0;crc:$cc5b3f53),(n:'82s137.1e';l:$400;p:$400;crc:$47351d55),
         (n:'82s137.3d';l:$400;p:$800;crc:$70b537b9),(n:'82s137.3e';l:$400;p:$c00;crc:$6edb2de8),
         (n:'82s131.3b';l:$200;p:$1000;crc:$9dfffaff),(n:'82s131.3a';l:$200;p:$1200;crc:$712bad47),
-        (n:'82s131.2a';l:$200;p:$1400;crc:$ac843ca6),(n:'82s131.1a';l:$200;p:$1600;crc:$50452ff8));
+        (n:'82s131.2a';l:$200;p:$1400;crc:$ac843ca6),(n:'82s131.1a';l:$200;p:$1600;crc:$50452ff8),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,tms32010,ym_3812,pal_engine,
+     sound_engine;
+
+const
         wardner_dip_a:array [0..4] of def_dip2=(
         (mask:$1;name:'Cabinet';number:2;val2:(1,0);name2:('Upright','Cocktail')),
         (mask:$2;name:'Flip Screen';number:2;val2:(0,2);name2:('Off','On')),
@@ -126,25 +130,28 @@ end;
 procedure eventos_wardner;
 begin
 if event.arcade then begin
+  marcade.in0:=0 or (marcade.in0 and $80);
+  marcade.in1:=0;
+  marcade.in2:=0;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 or $20;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 or 8) else marcade.in2:=(marcade.in2 and $f7);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 or 8;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 or $20;
   //SYS
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $40;
 end;
 end;
 
@@ -152,7 +159,6 @@ procedure wardnerhw_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 285 do begin
     case f of
@@ -281,7 +287,6 @@ end;
 end;
 
 procedure wardner_putbyte(direccion:word;valor:byte);
-
 procedure cambiar_color(numero:word);
 var
   tmp_color:word;
@@ -299,7 +304,6 @@ begin
     $600..$6ff:buffer_color[(numero shr 3) and $1f]:=true;
   end;
 end;
-
 begin
 case direccion of
   0..$6fff:;
@@ -525,8 +529,6 @@ gfx[3].trans[0]:=true;
 gfx_set_desc_data(4,0,32*8,0*2048*32*8,1*2048*32*8,2*2048*32*8,3*2048*32*8);
 convert_gfx(3,0,@memoria_temp,@ps_x,@ps_y,false,false);
 //DIP
-marcade.dswa:=1;
-marcade.dswb:=0;
 init_dips(1,wardner_dip_a,1);
 init_dips(2,wardner_dip_b,0);
 //final

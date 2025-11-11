@@ -1,13 +1,10 @@
 unit streetfighter_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,sound_engine,timer_engine,msm5205;
+uses rom_engine;
 
 function iniciar_sfighter:boolean;
 
-implementation
 const
         sfighter_rom:array[0..5] of tipo_roms=(
         (n:'sfd-19.2a';l:$10000;p:0;crc:$faaf6255),(n:'sfd-22.2c';l:$10000;p:$1;crc:$e1fe3519),
@@ -35,9 +32,14 @@ const
         (n:'sf-10.4h';l:$20000;p:$180000;crc:$91c41c50),(n:'sf-05.3f';l:$20000;p:$1a0000;crc:$538c7cbe));
         sfighter_tile_map1:array[0..1] of tipo_roms=(
         (n:'sf-37.4h';l:$10000;p:0;crc:$23d09d3d),(n:'sf-36.3h';l:$10000;p:$10000;crc:$ea16df6c));
-        sfighter_tile_map2:array[0..1] of tipo_roms=(
-        (n:'sf-32.3g';l:$10000;p:$0;crc:$72df2bd9),(n:'sf-33.4g';l:$10000;p:$10000;crc:$3e99d3d5));
-        //Dip
+        sfighter_tile_map2:array[0..2] of tipo_roms=(
+        (n:'sf-32.3g';l:$10000;p:$0;crc:$72df2bd9),(n:'sf-33.4g';l:$10000;p:$10000;crc:$3e99d3d5),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,pal_engine,
+     sound_engine,timer_engine,msm5205;
+
+const
         sfighter_dip_a:array [0..7] of def_dip=(
         (mask:$7;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$1;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 4C'),(dip_val:$3;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
         (mask:$38;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$8;dip_name:'3C 1C'),(dip_val:$10;dip_name:'2C 1C'),(dip_val:$38;dip_name:'1C 1C'),(dip_val:$30;dip_name:'1C 2C'),(dip_val:$28;dip_name:'1C 3C'),(dip_val:$20;dip_name:'1C 4C'),(dip_val:$18;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
@@ -199,7 +201,6 @@ var
   frame_m,frame_s,frame_a:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 frame_s:=z80_1.tframes;
 frame_a:=z80_0.tframes;

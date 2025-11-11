@@ -1,23 +1,25 @@
 unit legendkage_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ym_2203,rom_engine,
-     pal_engine,sound_engine,taito_68705;
+uses rom_engine;
 
 function iniciar_lk_hw:boolean;
 
-implementation
 const
-        lk_rom:array[0..1] of tipo_roms=(
+        legendkage_rom:array[0..1] of tipo_roms=(
         (n:'a54-01-2.37';l:$8000;p:0;crc:$60fd9734),(n:'a54-02-2.38';l:$8000;p:$8000;crc:$878a25ce));
-        lk_snd:tipo_roms=(n:'a54-04.54';l:$8000;p:0;crc:$541faf9a);
-        lk_mcu:tipo_roms=(n:'a54-09.53';l:$800;p:0;crc:$0e8b8846);
-        lk_data:tipo_roms=(n:'a54-03.51';l:$4000;p:0;crc:$493e76d8);
-        lk_char:array[0..3] of tipo_roms=(
+        legendkage_snd:tipo_roms=(n:'a54-04.54';l:$8000;p:0;crc:$541faf9a);
+        legendkage_mcu:tipo_roms=(n:'a54-09.53';l:$800;p:0;crc:$0e8b8846);
+        legendkage_data:tipo_roms=(n:'a54-03.51';l:$4000;p:0;crc:$493e76d8);
+        legendkage_char:array[0..4] of tipo_roms=(
         (n:'a54-05-1.84';l:$4000;p:0;crc:$0033c06a),(n:'a54-06-1.85';l:$4000;p:$4000;crc:$9f04d9ad),
-        (n:'a54-07-1.86';l:$4000;p:$8000;crc:$b20561a4),(n:'a54-08-1.87';l:$4000;p:$c000;crc:$3ff3b230));
-        //Dip
+        (n:'a54-07-1.86';l:$4000;p:$8000;crc:$b20561a4),(n:'a54-08-1.87';l:$4000;p:$c000;crc:$3ff3b230),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ym_2203,pal_engine,
+     sound_engine,taito_68705;
+
+const
         lk_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Bonus Life';number:4;val4:(3,2,1,0);name4:('200K 700K 500K+','200K 900K 700K+','300K 1000K 700K+','300K 1300K 1000K+')),
         (mask:4;name:'Free Play';number:2;val2:(4,0);name2:('Off','On')),
@@ -148,7 +150,6 @@ procedure lk_hw_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_lk_hw;
@@ -359,23 +360,23 @@ iniciar_video(240,224);
 z80_0:=cpu_z80.create(6000000);
 z80_0.change_ram_calls(lk_getbyte,lk_putbyte);
 z80_0.change_io_calls(lk_inbyte,nil);
-if not(roms_load(@memoria,lk_rom)) then exit;
+if not(roms_load(@memoria,legendkage_rom)) then exit;
 //Sound CPU
 z80_1:=cpu_z80.create(4000000);
 z80_1.change_ram_calls(snd_lk_hw_getbyte,snd_lk_hw_putbyte);
 z80_1.init_sound(lk_hw_sound_update);
-if not(roms_load(@mem_snd,lk_snd)) then exit;
+if not(roms_load(@mem_snd,legendkage_snd)) then exit;
 //MCU CPU
 taito_68705_0:=taito_68705p.create(3000000);
-if not(roms_load(taito_68705_0.get_rom_addr,lk_mcu)) then exit;
+if not(roms_load(taito_68705_0.get_rom_addr,legendkage_mcu)) then exit;
 //Sound Chips
 ym2203_0:=ym2203_chip.create(4000000);
 ym2203_0.change_irq_calls(snd_irq);
 ym2203_1:=ym2203_chip.create(4000000);
 //cargar data
-if not(roms_load(@mem_data,lk_data)) then exit;
+if not(roms_load(@mem_data,legendkage_data)) then exit;
 //convertir chars
-if not(roms_load(@memoria_temp,lk_char)) then exit;
+if not(roms_load(@memoria_temp,legendkage_char)) then exit;
 init_gfx(0,8,8,$800);
 gfx[0].trans[0]:=true;
 gfx_set_desc_data(4,0,8*8,$800*8*8*1,$800*8*8*0,$800*8*8*3,$800*8*8*2);

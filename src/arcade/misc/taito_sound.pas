@@ -1,8 +1,7 @@
 unit taito_sound;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}nz80,main_engine,ym_2151,
-     msm5205,ym_2203;
+uses nz80,main_engine,ym_2151,msm5205,ym_2203;
 
 type
   tc0140syt_chip=class
@@ -12,7 +11,7 @@ type
       z80:cpu_z80;
       ym2151:ym2151_chip;
       snd_rom:array[0..$7fff] of byte;
-      snd_bank_rom:array[0..3,$0..$3fff] of byte;
+      snd_bank_rom:array[0..3,0..$3fff] of byte;
       procedure port_w(valor:byte);
       procedure comm_w(valor:byte);
       function comm_r:byte;
@@ -32,7 +31,7 @@ type
   	  nmi_req:boolean;
       sound_bank:byte;
       frame:single;
-      adpcm_b,adpcm_c:array[0..5] of byte;
+      adpcm_b,adpcm_c:array[0..7] of byte;
       sound_type:byte;
       procedure interrupt_controller;
   end;
@@ -124,16 +123,16 @@ case direccion of
   $a000:tc0140syt_0.slave_port_w(valor);
   $a001:tc0140syt_0.slave_comm_w(valor);
   $b000..$b006:begin
-                  tc0140syt_0.adpcm_b[direccion and $7]:=valor;
-                	if ((direccion and $7)=$04) then begin
+                  tc0140syt_0.adpcm_b[direccion and 7]:=valor;
+                	if ((direccion and 7)=4) then begin
                 		msm5205_0.pos:=(tc0140syt_0.adpcm_b[0]+(tc0140syt_0.adpcm_b[1] shl 8))*16;
                 		msm5205_0.end_:=(tc0140syt_0.adpcm_b[2]+(tc0140syt_0.adpcm_b[3] shl 8))*16;
                 		msm5205_0.reset_w(false);
                   end;
 	             end;
   $c000..$c006:begin
-                  tc0140syt_0.adpcm_c[direccion and $7]:=valor;
-                	if ((direccion and $7)=$04) then begin
+                  tc0140syt_0.adpcm_c[direccion and 7]:=valor;
+                	if ((direccion and 7)=4) then begin
                 		msm5205_1.pos:=(tc0140syt_0.adpcm_c[0]+(tc0140syt_0.adpcm_c[1] shl 8))*16;
                 		msm5205_1.end_:=(tc0140syt_0.adpcm_c[2]+(tc0140syt_0.adpcm_c[3] shl 8))*16;
                 		msm5205_1.reset_w(false);
@@ -323,8 +322,8 @@ begin
   self.nmi_req:=false;
   self.z80.reset;
   self.frame:=self.z80.tframes;
-  fillchar(self.adpcm_b,6,0);
-  fillchar(self.adpcm_c,6,0);
+  fillchar(self.adpcm_b,8,0);
+  fillchar(self.adpcm_c,8,0);
   case self.sound_type of
     SOUND_RASTAN:begin
                       self.ym2151.reset;
@@ -357,27 +356,27 @@ procedure tc0140syt_chip.comm_w(valor:byte);
 begin
 	valor:=valor and $f;
 	case self.mainmode of
-		$00:begin		// mode #0
+		0:begin		// mode #0
 			    self.slavedata[self.mainmode]:=valor;
           self.mainmode:=self.mainmode+1;
 			  end;
-		$01:begin		// mode #1
+		1:begin		// mode #1
     			self.slavedata[self.mainmode]:=valor;
           self.mainmode:=self.mainmode+1;
 		    	self.status:=self.status or TC0140SYT_PORT01_FULL;
     			self.nmi_req:=true;
         end;
-		$02:begin		// mode #2
+		2:begin		// mode #2
 			    self.slavedata[self.mainmode]:=valor;
           self.mainmode:=self.mainmode+1;
 			  end;
-		$03:begin		// mode #3
+		3:begin		// mode #3
     			self.slavedata[self.mainmode]:=valor;
           self.mainmode:=self.mainmode+1;
     			self.status:=self.status or TC0140SYT_PORT23_FULL;
           self.nmi_req:=true;
         end;
-		$04:begin		// port status
+		4:begin		// port status
     			// this does a hi-lo transition to reset the sound cpu */
     			if (valor<>0) then self.reset;
             //cpu_spin(space->cpu); /* otherwise no sound in driftout */
@@ -388,25 +387,25 @@ end;
 function tc0140syt_chip.comm_r:byte;
 begin
 	case self.mainmode of
-		$00:begin		// mode #0
+		0:begin		// mode #0
 			    comm_r:=self.masterdata[self.mainmode];
           self.mainmode:=self.mainmode+1;
         end;
-		$01:begin		// mode #1
+		1:begin		// mode #1
     			self.status:=self.status and not(TC0140SYT_PORT01_FULL_MASTER);
 			    comm_r:=self.masterdata[self.mainmode];
           self.mainmode:=self.mainmode+1;
         end;
-		$02:begin		// mode #2
+		2:begin		// mode #2
 			    comm_r:=self.masterdata[self.mainmode];
           self.mainmode:=self.mainmode+1;
         end;
-		$03:begin		// mode #3
+		3:begin		// mode #3
     			self.status:=self.status and not(TC0140SYT_PORT23_FULL_MASTER);
 		    	comm_r:=self.masterdata[self.mainmode];
           self.mainmode:=self.mainmode+1;
         end;
-		$04:comm_r:=self.status;		// port status
+		4:comm_r:=self.status;		// port status
 		  else comm_r:=0;
 	end;
 end;
@@ -427,31 +426,31 @@ end;
 
 procedure tc0140syt_chip.slave_comm_w(valor:byte);
 begin
-	valor:=valor and $0f;
+	valor:=valor and $f;
 	case self.submode of
-		$00:begin		// mode #0
+		0:begin		// mode #0
     			self.masterdata[self.submode]:=valor;
           self.submode:=self.submode+1;
         end;
-		$01:begin		// mode #1
+		1:begin		// mode #1
     			self.masterdata[self.submode]:=valor;
           self.submode:=self.submode+1;
     			self.status:=self.status or TC0140SYT_PORT01_FULL_MASTER;
     			//cpu_spin(space->cpu); /* writing should take longer than emulated, so spin */
 			  end;
-		$02:begin		// mode #2
+		2:begin		// mode #2
     			self.masterdata[self.submode]:=valor;
           self.submode:=self.submode+1;
 			  end;
-		$03:begin		// mode #3
+		3:begin		// mode #3
     			self.masterdata[self.submode]:=valor;
           self.submode:=self.submode+1;
     			self.status:=self.status or TC0140SYT_PORT23_FULL_MASTER;
 			    //cpu_spin(space->cpu); /* writing should take longer than emulated, so spin */
 			  end;
-		$04:;		// port status
-		$05:self.nmi_enabled:=false;		// nmi disable
-		$06:self.nmi_enabled:=true;		// nmi enable
+		4:;		// port status
+		5:self.nmi_enabled:=false;		// nmi disable
+		6:self.nmi_enabled:=true;		// nmi enable
 	end;
 	Interrupt_Controller;
 end;
@@ -461,25 +460,25 @@ var
   res:byte;
 begin
 	case self.submode of
-		$00:begin		// mode #0
+		0:begin		// mode #0
     			res:=self.slavedata[self.submode];
           self.submode:=self.submode+1;
 			  end;
-		$01:begin		// mode #1
+		1:begin		// mode #1
     			self.status:=self.status and not(TC0140SYT_PORT01_FULL);
 		    	res:=self.slavedata[self.submode];
           self.submode:=self.submode+1;
         end;
-		02:begin		// mode #2
+		2:begin		// mode #2
     			res:=self.slavedata[self.submode];
           self.submode:=self.submode+1;
 			 end;
-		$03:begin		// mode #3
+		3:begin		// mode #3
     			self.status:=self.status and not(TC0140SYT_PORT23_FULL);
     			res:=self.slavedata[self.submode];
           self.submode:=self.submode+1;
         end;
-		$04:res:= self.status;		// port status
+		4:res:= self.status;		// port status
     	 else res:=0;
     end;
 	Interrupt_Controller;

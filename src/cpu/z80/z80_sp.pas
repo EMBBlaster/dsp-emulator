@@ -1,7 +1,7 @@
-unit z80_sp;
+﻿unit z80_sp;
 
 interface
-uses main_engine,nz80,z80daisy,vars_hide,timer_engine;
+uses nz80;
 
 type
  tretraso=procedure(direccion:word);
@@ -29,7 +29,7 @@ var
   spec_z80:cpu_z80_sp;
 
 implementation
-uses spectrum_misc;
+uses spectrum_misc,main_engine,z80daisy,timer_engine,cpu_misc;
 
 procedure cpu_z80_sp.change_retraso_call(retraso:tretraso;retraso_puerto:tretraso_puerto);
 begin
@@ -3694,7 +3694,7 @@ case instruccion of
                   r.wz:=r.pc+1;
                 end;
         end;
-        $b3:begin //otir a�adido el dia 18-09-04 >16t o 21t<
+        $b3:begin //otir añadido el dia 18-09-04 >16t o 21t<
                 self.contador:=self.contador+1;
                 temp:=spec_getbyte(r.hl.w);
                 r.bc.h:=r.bc.h-1;

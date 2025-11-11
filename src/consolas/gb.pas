@@ -1,10 +1,12 @@
-unit gb;
+Ôªøunit gb;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}lr35902,file_engine,
-     main_engine,controls_engine,gfx_engine,timer_engine,sysutils,gb_sound,
-     rom_engine,misc_functions,pal_engine,gb_mappers,sound_engine,
-     config_gb,forms;
+uses forms,sysutils,rom_engine;
+
+function iniciar_gb:boolean;
+procedure gb_change_model(gbc,unlicensed:boolean);
+procedure gb_change_timer;
+procedure gb_set_pal;
 
 type
   tgameboy_machine=record
@@ -26,12 +28,10 @@ type
     joy_val:byte;
   end;
 
-function iniciar_gb:boolean;
-procedure gb_change_model(gbc,unlicensed:boolean);
-procedure gb_change_timer;
-procedure gb_set_pal;
-
 const
+  gameboy_rom:array [0..1] of tipo_roms=((n:'dmg_boot.bin';l:$100;p:0;crc:$59c8598e),());
+  gbcolor_rom:array[0..2] of tipo_roms=(
+  (n:'gbc_boot.1';l:$100;p:0;crc:$779ea374),(n:'gbc_boot.2';l:$700;p:$200;crc:$f741807d),());
   GB_CLOCK=4194304;
 
 var
@@ -40,15 +40,14 @@ var
   gb_timer:byte;
 
 implementation
-uses principal,snapshot;
+uses principal,snapshot,lr35902,file_engine,main_engine,controls_engine,
+     gfx_engine,timer_engine,gb_sound,misc_functions,pal_engine,gb_mappers,
+     sound_engine;
 
 const
   color_pal:array[0..1,0..3] of tcolor=(
   ((r:$9b;g:$bc;b:$0f),(r:$8b;g:$ac;b:$0f),(r:$30;g:$62;b:$30),(r:$0f;g:$38;b:$0f)),
   ((r:$ff;g:$ff;b:$ff),(r:$aa;g:$aa;b:$aa),(r:$55;g:$55;b:$55),(r:0;g:0;b:0)));
-  gb_rom:tipo_roms=(n:'dmg_boot.bin';l:$100;p:0;crc:$59c8598e);
-  gbc_rom:array[0..1] of tipo_roms=(
-  (n:'gbc_boot.1';l:$100;p:0;crc:$779ea374),(n:'gbc_boot.2';l:$700;p:$200;crc:$f741807d));
 
 type
   tgameboy_calls=record
@@ -934,15 +933,11 @@ end;
 end;
 
 procedure gb_principal;
-var
-  frame_m:single;
 begin
-init_controls(false,false,false,true);
-frame_m:=lr35902_0.tframes;
 while EmuStatus=EsRunning do begin
   while gb_0.linea_actual<>154 do begin
-    lr35902_0.run(frame_m);
-    frame_m:=frame_m+lr35902_0.tframes-lr35902_0.contador;
+    lr35902_0.run(frame_main);
+    frame_main:=frame_main+lr35902_0.tframes-lr35902_0.contador;
     if gb_0.linea_actual<144 then gb_calls.video_render;  //Modos 2-3-0
     gb_0.linea_actual:=gb_0.linea_actual+1;
   end;
@@ -1009,7 +1004,7 @@ if gb_0.oam_dma then begin
   if gb_0.oam_dma_pos>=160 then gb_0.oam_dma:=false;
 end;
 if not(gb_0.lcd_ena) then exit;
-//CUIDADO! Cuando se activa la IRQ en la linea del LCD ya no se aceptan m·s IRQ en la misma linea!!
+//CUIDADO! Cuando se activa la IRQ en la linea del LCD ya no se aceptan m√°s IRQ en la misma linea!!
 //Esto se llama STAT IRQ glitch
 case lr35902_0.contador of
   0:begin
@@ -1132,6 +1127,7 @@ var
   f:byte;
 begin
  lr35902_0.reset;
+ frame_main:=lr35902_0.tframes;
  gb_snd_0.reset;
  sound_engine_change_clock(GB_CLOCK);
  gb_0.scroll_x:=0;
@@ -1292,14 +1288,14 @@ if gbc then begin //GameBoy Color
   gb_calls.video_render:=update_video_gbc;
   gb_0.is_gbc:=true;
   lr35902_0.change_despues_instruccion(gbc_despues_instruccion);
-  if not(unlicensed) then gb_0.rom_exist:=roms_load(@gb_0.bios_rom[0],gbc_rom,false,true,'gbcolor.zip');
+  if not(unlicensed) then gb_0.rom_exist:=roms_load(@gb_0.bios_rom[0],gbcolor_rom,false,true,'gbcolor.zip');
 end else begin
   gb_calls.read_io:=leer_io;
   gb_calls.write_io:=escribe_io;
   gb_calls.video_render:=update_video_gb;
   gb_0.is_gbc:=false;
   lr35902_0.change_despues_instruccion(gb_despues_instruccion);
-  if not(unlicensed) then gb_0.rom_exist:=roms_load(@gb_0.bios_rom[0],gb_rom,false);
+  if not(unlicensed) then gb_0.rom_exist:=roms_load(@gb_0.bios_rom[0],gameboy_rom,false);
 end;
 gb_set_pal;
 //Cambio la velocidad de la CPU! Si reseteo la CPU da igual, pero si cargo un snapshot no
@@ -1355,12 +1351,12 @@ begin
       ptemp:=datos;
       //Copiar datos del cartucho
       copymemory(@gb_head,ptemp,sizeof(tgb_head));
-      //Comprobar si est· el logo de nintendo... Si no est·, unlicensed
+      //Comprobar si est√° el logo de nintendo... Si no est√°, unlicensed
       for f:=0 to $2f do begin
         unlicensed:=(main_logo[f]<>gb_head.logo[f]);
         if unlicensed then break;
       end;
-      //Detectar variantes extraÒas...
+      //Detectar variantes extra√±as...
       if gb_head.title='WISDOM TREE' then gb_head.cart_type:=$c0
         else if ((gb_head.title='') and (gb_head.cart_type=0) and (gb_head.rom_size=0) and (longitud>32768)) then gb_head.cart_type:=$c0;
       fillchar(gb_mapper_0.rom_bank,sizeof(gb_mapper_0.rom_bank),0);
@@ -1411,7 +1407,6 @@ begin
 iniciar_audio(true);
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(2,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=gb_principal;
 llamadas_maquina.close:=cerrar_gb;
 llamadas_maquina.reset:=reset_gb;

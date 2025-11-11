@@ -1,13 +1,10 @@
-unit mugsmashers_hw;
+﻿unit mugsmashers_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     nz80,oki6295,sound_engine,ym_2151;
+uses rom_engine;
 
 function iniciar_mugsmash:boolean;
 
-implementation
 const
         mugsmash_rom:array[0..1] of tipo_roms=(
         (n:'mugs_04.bin';l:$40000;p:0;crc:$2498fd27),(n:'mugs_05.bin';l:$40000;p:1;crc:$95efb40b));
@@ -19,9 +16,14 @@ const
         (n:'mugs_11.bin';l:$80000;p:0;crc:$1c9f5acf),(n:'mugs_10.bin';l:$80000;p:1;crc:$6b3c22d9),
         (n:'mugs_09.bin';l:$80000;p:$100000;crc:$4e9490f3),(n:'mugs_08.bin';l:$80000;p:$100001;crc:$716328d5),
         (n:'mugs_07.bin';l:$80000;p:$200000;crc:$9e3167fd),(n:'mugs_06.bin';l:$80000;p:$200001;crc:$8df75d29));
-        mugsmash_oki:array[0..1] of tipo_roms=(
-        (n:'mugs_02.bin';l:$20000;p:0;crc:$f92a7f4a),(n:'mugs_01.bin';l:$20000;p:$20000;crc:$1a3a0b39));
-        //Dip
+        mugsmash_oki:array[0..2] of tipo_roms=(
+        (n:'mugs_02.bin';l:$20000;p:0;crc:$f92a7f4a),(n:'mugs_01.bin';l:$20000;p:$20000;crc:$1a3a0b39),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,nz80,oki6295,
+     sound_engine,ym_2151;
+
+const
         mugsmash_dip_a:array [0..3] of def_dip2=(
         (mask:$100;name:'Draw Objects';number:2;val2:($100,0);name2:('Off','On')),
         (mask:$200;name:'Freeze';number:2;val2:($200,0);name2:('Off','On')),
@@ -114,7 +116,6 @@ procedure mugsmash_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
    eventos_mugsmash;

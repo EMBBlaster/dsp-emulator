@@ -1,10 +1,10 @@
-unit exedexes_hw;
+﻿unit exedexes_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,sn_76496,ay_8910,
-     rom_engine,pal_engine,sound_engine,timer_engine;
+uses rom_engine;
+
 function iniciar_exedexes_hw:boolean;
-implementation
+
 const
         exedexes_rom:array[0..2] of tipo_roms=(
         (n:'11m_ee04.bin';l:$4000;p:0;crc:$44140dbd),(n:'10m_ee03.bin';l:$4000;p:$4000;crc:$bf72cfba),
@@ -21,8 +21,14 @@ const
         exedexes_tiles1:tipo_roms=(n:'h01_ee08.bin';l:$4000;p:0;crc:$96a65c1d);
         exedexes_tiles2:array[0..1] of tipo_roms=(
         (n:'a03_ee06.bin';l:$4000;p:0;crc:$6039bdd1),(n:'a02_ee05.bin';l:$4000;p:$4000;crc:$b32d8252));
-        exedexes_tilesbg_pos:array[0..1] of tipo_roms=(
-        (n:'c01_ee07.bin';l:$4000;p:0;crc:$3625a68d),(n:'h04_ee09.bin';l:$2000;p:$4000;crc:$6057c907));
+        exedexes_tilesbg_pos:array[0..2] of tipo_roms=(
+        (n:'c01_ee07.bin';l:$4000;p:0;crc:$3625a68d),(n:'h04_ee09.bin';l:$2000;p:$4000;crc:$6057c907),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,sn_76496,ay_8910,pal_engine,
+     sound_engine,timer_engine;
+
+const
         exedexes_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Difficulty';number:4;val4:(2,3,1,0);name4:('Easy','Normal','Hard','Hardest')),
         (mask:$c;name:'Lives';number:4;val4:(8,4,$c,0);name4:('1','2','3','5')),
@@ -89,25 +95,28 @@ end;
 procedure eventos_exedexes;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //SYS
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $7f;
 end;
 end;
 
@@ -115,7 +124,6 @@ procedure exedexes_hw_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     case f of

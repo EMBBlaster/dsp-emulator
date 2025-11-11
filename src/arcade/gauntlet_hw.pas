@@ -1,13 +1,10 @@
 unit gauntlet_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,m68000,main_engine,controls_engine,gfx_engine,rom_engine,pokey,
-     pal_engine,sound_engine,slapstic,ym_2151,atari_mo,file_engine;
+uses rom_engine;
 
 function iniciar_gauntlet:boolean;
 
-implementation
 const
         gauntlet_rom:array[0..5] of tipo_roms=(
         (n:'136041-507.9a';l:$8000;p:0;crc:$8784133f),(n:'136041-508.9b';l:$8000;p:$1;crc:$2843bde3),
@@ -16,14 +13,11 @@ const
         gauntlet_sound:array[0..1] of tipo_roms=(
         (n:'136037-120.16r';l:$4000;p:$4000;crc:$6ee7f3cc),(n:'136037-119.16s';l:$8000;p:$8000;crc:$fa19861f));
         gauntlet_char:tipo_roms=(n:'136037-104.6p';l:$4000;p:0;crc:$6c276a1d);
-        gauntlet_back:array[0..7] of tipo_roms=(
+        gauntlet_back:array[0..8] of tipo_roms=(
         (n:'136037-111.1a';l:$8000;p:0;crc:$91700f33),(n:'136037-112.1b';l:$8000;p:$8000;crc:$869330be),
         (n:'136037-113.1l';l:$8000;p:$10000;crc:$d497d0a8),(n:'136037-114.1mn';l:$8000;p:$18000;crc:$29ef9882),
         (n:'136037-115.2a';l:$8000;p:$20000;crc:$9510b898),(n:'136037-116.2b';l:$8000;p:$28000;crc:$11e0ac5b),
-        (n:'136037-117.2l';l:$8000;p:$30000;crc:$29a5db41),(n:'136037-118.2mn';l:$8000;p:$38000;crc:$8bf3b263));
-        gauntlet_proms:array[0..2] of tipo_roms=(
-        (n:'74s472-136037-101.7u';l:$200;p:0;crc:$2964f76f),(n:'74s472-136037-102.5l';l:$200;p:$200;crc:$4d4fec6c),
-        (n:'74s287-136037-103.4r';l:$100;p:$400;crc:$6c5ccf08));
+        (n:'136037-117.2l';l:$8000;p:$30000;crc:$29a5db41),(n:'136037-118.2mn';l:$8000;p:$38000;crc:$8bf3b263),());
         //Gauntlet II
         gauntlet2_rom:array[0..7] of tipo_roms=(
         (n:'136037-1307.9a';l:$8000;p:0;crc:$46fe8743),(n:'136037-1308.9b';l:$8000;p:$1;crc:$276e15c4),
@@ -33,7 +27,7 @@ const
         gauntlet2_sound:array[0..1] of tipo_roms=(
         (n:'136043-1120.16r';l:$4000;p:$4000;crc:$5c731006),(n:'136043-1119.16s';l:$8000;p:$8000;crc:$dc3591e7));
         gauntlet2_char:tipo_roms=(n:'136043-1104.6p';l:$4000;p:0;crc:$bddc3dfc);
-        gauntlet2_back:array[0..15] of tipo_roms=(
+        gauntlet2_back:array[0..16] of tipo_roms=(
         (n:'136043-1111.1a';l:$8000;p:0;crc:$09df6e23),(n:'136037-112.1b';l:$8000;p:$8000;crc:$869330be),
         (n:'136043-1123.1c';l:$4000;p:$10000;crc:$e4c98f01),(n:'136043-1123.1c';l:$4000;p:$14000;crc:$e4c98f01),
         (n:'136043-1113.1l';l:$8000;p:$18000;crc:$33cb476e),(n:'136037-114.1mn';l:$8000;p:$20000;crc:$29ef9882),
@@ -41,11 +35,13 @@ const
         (n:'136043-1115.2a';l:$8000;p:$30000;crc:$f71e2503),(n:'136037-116.2b';l:$8000;p:$38000;crc:$11e0ac5b),
         (n:'136043-1125.2c';l:$4000;p:$40000;crc:$d9c2c2d1),(n:'136043-1125.2c';l:$4000;p:$44000;crc:$d9c2c2d1),
         (n:'136043-1117.2l';l:$8000;p:$48000;crc:$9e30b2e9),(n:'136037-118.2mn';l:$8000;p:$50000;crc:$8bf3b263),
-        (n:'136043-1126.2p';l:$4000;p:$58000;crc:$a32c732a),(n:'136043-1126.2p';l:$4000;p:$5c000;crc:$a32c732a));
-        gauntlet2_proms:array[0..2] of tipo_roms=(
-        (n:'74s472-136037-101.7u';l:$200;p:0;crc:$2964f76f),(n:'74s472-136037-102.5l';l:$200;p:$200;crc:$4d4fec6c),
-        (n:'82s129-136043-1103.4r';l:$100;p:$400;crc:$32ae1fa9));
-        //DIP
+        (n:'136043-1126.2p';l:$4000;p:$58000;crc:$a32c732a),(n:'136043-1126.2p';l:$4000;p:$5c000;crc:$a32c732a),());
+
+implementation
+uses m6502,m68000,main_engine,controls_engine,gfx_engine,pokey,pal_engine,
+     sound_engine,slapstic,ym_2151,atari_mo,file_engine;
+
+const
         gauntlet_dip:def_dip2=(mask:8;name:'Service';number:2;val2:(8,0);name2:('Off','On'));
         gauntlet_mo_config:atari_motion_objects_config=(
         	gfxindex:1;               // index to which gfx system
@@ -142,23 +138,26 @@ end;
 procedure eventos_gauntlet;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $ff7f;
   //P2
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $ff7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $ffbf;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $ff7f;
   //Audio CPU
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $f7;
 end;
 end;
 
@@ -167,7 +166,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
     eventos_gauntlet;

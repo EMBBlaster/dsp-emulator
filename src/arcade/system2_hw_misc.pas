@@ -1,15 +1,10 @@
 unit system2_hw_misc;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,gfx_engine,nz80,sn_76496,controls_engine,rom_engine,
-     pal_engine,sound_engine,ppi8255,timer_engine;
+uses rom_engine;
 
 function iniciar_system2:boolean;
 procedure system2_principal;
-
-implementation
-uses system1_hw;
 
 const
     //Wonder Boy in Monster Land
@@ -23,17 +18,10 @@ const
     wbml_sprites:array[0..3] of tipo_roms=(
     (n:'epr11028.87';l:$8000;p:0;crc:$af0b3972),(n:'epr11027.86';l:$8000;p:$8000;crc:$277d8f1d),
     (n:'epr11030.89';l:$8000;p:$10000;crc:$f05ffc76),(n:'epr11029.88';l:$8000;p:$18000;crc:$cedc9c61));
-    wbml_proms:array[0..2] of tipo_roms=(
-    (n:'pr11026.20';l:$100;p:0;crc:$27057298),(n:'pr11025.14';l:$100;p:$100;crc:$41e4d86b),
-    (n:'pr11024.8';l:$100;p:$200;crc:$08d71954));
     wbml_video_prom:tipo_roms=(n:'pr5317.37';l:$100;p:0;crc:$648350b8);
-    wbml_dip_a:array [0..6] of def_dip=(
-    (mask:$1;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$1;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-    (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$2;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-    (mask:$c;name:'Lives';number:4;dip:((dip_val:$4;dip_name:'3'),(dip_val:$c;dip_name:'4'),(dip_val:$8;dip_name:'5'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),(),(),(),(),())),
-    (mask:$10;name:'Bonus Life';number:2;dip:((dip_val:$10;dip_name:'30K 100K 200K'),(dip_val:$0;dip_name:'50K 150K 250K'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-    (mask:$20;name:'Difficulty';number:2;dip:((dip_val:$20;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-    (mask:$40;name:'Test Mode';number:2;dip:((dip_val:$40;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+    wbml_proms:array[0..3] of tipo_roms=(
+    (n:'pr11026.20';l:$100;p:0;crc:$27057298),(n:'pr11025.14';l:$100;p:$100;crc:$41e4d86b),
+    (n:'pr11024.8';l:$100;p:$200;crc:$08d71954),());
     //Choplifter
     choplift_rom:array[0..2] of tipo_roms=(
     (n:'epr-7152.ic90';l:$8000;p:0;crc:$fe49d83e),(n:'epr-7153.ic91';l:$8000;p:$8000;crc:$48697666),
@@ -45,10 +33,23 @@ const
     choplift_sprites:array[0..3] of tipo_roms=(
     (n:'epr-7121.ic87';l:$8000;p:0;crc:$f2b88f73),(n:'epr-7120.ic86';l:$8000;p:$8000;crc:$517d7fd3),
     (n:'epr-7123.ic89';l:$8000;p:$10000;crc:$8f16a303),(n:'epr-7122.ic88';l:$8000;p:$18000;crc:$7c93f160));
-    choplift_proms:array[0..2] of tipo_roms=(
-    (n:'pr7119.ic20';l:$100;p:0;crc:$b2a8260f),(n:'pr7118.ic14';l:$100;p:$100;crc:$693e20c7),
-    (n:'pr7117.ic8';l:$100;p:$200;crc:$4124307e));
     choplift_video_prom:tipo_roms=(n:'pr5317.ic28';l:$100;p:0;crc:$648350b8);
+    choplift_proms:array[0..3] of tipo_roms=(
+    (n:'pr7119.ic20';l:$100;p:0;crc:$b2a8260f),(n:'pr7118.ic14';l:$100;p:$100;crc:$693e20c7),
+    (n:'pr7117.ic8';l:$100;p:$200;crc:$4124307e),());
+
+implementation
+uses main_engine,gfx_engine,nz80,sn_76496,controls_engine,pal_engine,
+     sound_engine,ppi8255,timer_engine,system1_hw;
+
+const
+    wbml_dip_a:array [0..6] of def_dip=(
+    (mask:$1;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$1;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+    (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$2;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+    (mask:$c;name:'Lives';number:4;dip:((dip_val:$4;dip_name:'3'),(dip_val:$c;dip_name:'4'),(dip_val:$8;dip_name:'5'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),(),(),(),(),())),
+    (mask:$10;name:'Bonus Life';number:2;dip:((dip_val:$10;dip_name:'30K 100K 200K'),(dip_val:$0;dip_name:'50K 150K 250K'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+    (mask:$20;name:'Difficulty';number:2;dip:((dip_val:$20;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+    (mask:$40;name:'Test Mode';number:2;dip:((dip_val:$40;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
     choplift_dip_a:array [0..5] of def_dip=(
     (mask:$1;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$1;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
     (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -86,7 +87,6 @@ procedure system2_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 259 do begin
     eventos_system2;

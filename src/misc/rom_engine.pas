@@ -1,8 +1,7 @@
 unit rom_engine;
 
 interface
-uses {$IFDEF windows}windows,{$ENDIF}
-     sysutils,dialogs,file_engine,main_engine;
+uses main_engine,sysutils,dialogs;
 
 type
   tipo_roms=record
@@ -16,17 +15,23 @@ type
 function carga_rom_zip(nombre_zip,nombre_rom:string;donde:pbyte;longitud,crc:integer;warning:boolean):boolean;
 function carga_rom_zip_crc(nombre_zip,nombre_rom:string;donde:pointer;longitud:integer;crc:dword;warning:boolean=true):boolean;
 function roms_load(sitio:pbyte;const ctipo_roms:array of tipo_roms;warning:boolean=true;parent:boolean=false;nombre:string=''):boolean;
-function roms_load16b(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
-function roms_load16w(sitio:pword;const ctipo_roms:array of tipo_roms):boolean;
+function roms_load16b(sitio:pbyte;const ctipo_roms:array of tipo_roms;warning:boolean=true;parent:boolean=false;nombre:string=''):boolean;
+function roms_load16w(sitio:pword;const ctipo_roms:array of tipo_roms;warning:boolean=true;parent:boolean=false;nombre:string=''):boolean;
 function roms_load32b(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
 function roms_load32b_b(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
 function roms_load32dw(sitio:pdword;const ctipo_roms:array of tipo_roms):boolean;
 function roms_load64b(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
 function roms_load_swap_word(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
 function roms_load64b_b(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
+//Rom Export
+procedure export_roms;
+procedure export_samples;
 
 implementation
-uses init_games;
+uses init_games,file_engine,lenguaje,misc_functions,samples;
+
+var
+  fichero:textfile;
 
 function carga_rom_zip(nombre_zip,nombre_rom:string;donde:pbyte;longitud,crc:integer;warning:boolean):boolean;
 var
@@ -83,6 +88,7 @@ if parent then nombre_zip:=nombre
 roms_load:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     ptemp:=sitio;
     inc(ptemp,ctipo_roms[f].p);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
@@ -92,23 +98,25 @@ end;
 roms_load:=true;
 end;
 
-function roms_load16b(sitio:pbyte;const ctipo_roms:array of tipo_roms):boolean;
+function roms_load16b(sitio:pbyte;const ctipo_roms:array of tipo_roms;warning:boolean=true;parent:boolean=false;nombre:string=''):boolean;
 var
   ptemp,ptemp2,mem_temp:pbyte;
   h:dword;
   nombre_zip,dir:string;
   f,roms_size:word;
 begin
-nombre_zip:=rom_zip_name;
+if parent then nombre_zip:=nombre
+  else nombre_zip:=rom_zip_name;
 roms_load16b:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     //Creo un puntero byte
     getmem(mem_temp,ctipo_roms[f].l);
     //Cargo los datos como byte
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
-    if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc)) then
-      if not(carga_rom_zip(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc,true)) then exit;
+    if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc,warning)) then
+      if not(carga_rom_zip(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc,warning)) then exit;
     //Los convierto a word
     ptemp2:=mem_temp;
     ptemp:=sitio;
@@ -123,7 +131,7 @@ end;
 roms_load16b:=true;
 end;
 
-function roms_load16w(sitio:pword;const ctipo_roms:array of tipo_roms):boolean;
+function roms_load16w(sitio:pword;const ctipo_roms:array of tipo_roms;warning:boolean=true;parent:boolean=false;nombre:string=''):boolean;
 var
   ptemp:pword;
   ptemp2,mem_temp:pbyte;
@@ -132,15 +140,17 @@ var
   f,roms_size,valor:word;
   nombre_zip,dir:string;
 begin
-nombre_zip:=rom_zip_name;
+if parent then nombre_zip:=nombre
+  else nombre_zip:=rom_zip_name;
 roms_load16w:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     //Cargo los datos en tipo byte
     getmem(mem_temp,ctipo_roms[f].l);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
-    if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc)) then
-      if not(carga_rom_zip(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc,true)) then exit;
+    if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc,warning)) then
+      if not(carga_rom_zip(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc,warning)) then exit;
     //Y ahora los pongo como word
     ptemp2:=mem_temp;
     ptemp:=sitio;
@@ -169,6 +179,7 @@ nombre_zip:=rom_zip_name;
 roms_load32b:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     getmem(mem_temp,ctipo_roms[f].l);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
     if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc)) then
@@ -200,6 +211,7 @@ nombre_zip:=rom_zip_name;
 roms_load32b_b:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     getmem(mem_temp,ctipo_roms[f].l);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
     if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc)) then
@@ -229,6 +241,7 @@ nombre_zip:=rom_zip_name;
 roms_load32dw:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     //Cargo los datos en tipo byte
     getmem(mem_temp,ctipo_roms[f].l);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
@@ -265,6 +278,7 @@ nombre_zip:=rom_zip_name;
 roms_load64b:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     getmem(mem_temp,ctipo_roms[f].l);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
     if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc)) then
@@ -296,6 +310,7 @@ nombre_zip:=rom_zip_name;
 roms_load_swap_word:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     ptemp:=sitio;
     inc(ptemp,ctipo_roms[f].p);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
@@ -323,6 +338,7 @@ nombre_zip:=rom_zip_name;
 roms_load64b_b:=false;
 roms_size:=length(ctipo_roms);
 for f:=0 to (roms_size-1) do begin
+    if ctipo_roms[f].n='' then continue;
     getmem(mem_temp,ctipo_roms[f].l);
     dir:=directory.arcade_list_roms[find_rom_multiple_dirs(nombre_zip)];
     if ctipo_roms[f].crc<>0 then if not(carga_rom_zip_crc(dir+nombre_zip,ctipo_roms[f].n,mem_temp,ctipo_roms[f].l,ctipo_roms[f].crc)) then
@@ -338,6 +354,137 @@ for f:=0 to (roms_size-1) do begin
     freemem(mem_temp);
 end;
 roms_load64b_b:=true;
+end;
+
+procedure set_header(nombre_fichero:string);
+begin
+if FileExists(nombre_fichero) then begin                                         //Respuesta 'NO' es 7
+  if MessageDlg(leng.mensajes[3], mtWarning,[mbYes]+[mbNo],0)=7 then exit;
+end;
+{$I-}
+assignfile(fichero,nombre_fichero);
+rewrite(fichero);
+if ioresult<>0 then begin
+  MessageDlg('Cannot write file: "'+nombre_fichero+'"',mtError,[mbOk], 0);
+  {$I+}
+  exit;
+end;
+writeln(fichero,'<?xml version="1.0"?>');
+writeln(fichero,'<!DOCTYPE datafile PUBLIC "-//DSP Emulator ROM Datafile//" "http://www.github.com/leniad">');
+writeln(fichero,'');
+writeln(fichero,'<datafile>');
+writeln(fichero,'  <header>');
+writeln(fichero,'    <name>DSP Emulator</name>');
+writeln(fichero,'    <description>DSP Emulator '+DSP_VERSION+'</description>');
+writeln(fichero,'    <category>EMULATION</category>');
+writeln(fichero,'    <version>'+DSP_VERSION+'</version>');
+writeln(fichero,'    <date>'+DateToStr(date)+'</date>');
+writeln(fichero,'    <author>Leniad</author>');
+writeln(fichero,'    <email>leniad2@hotmail.com</email>');
+writeln(fichero,'    <homepage>http://www.github.com/leniad/</homepage>');
+writeln(fichero,'    <url>--</url>');
+writeln(fichero,'    <comment>--</comment>');
+writeln(fichero,'    <clrmamepro/>');
+writeln(fichero,'  </header>');
+end;
+
+//Rom export
+procedure export_roms;
+var
+  f:word;
+  rom_data:tgame_desc;
+  rom_file:ptipo_roms;
+  nombre_fichero,change_name:string;
+  indice:byte;
+  //text_file:textfile;
+begin
+if not(SaveRom(nombre_fichero,indice,SEXPORT)) then exit;
+set_header(nombre_fichero);
+// {$I-}
+//AssignFile(text_file,'d:\abandon\dsp_data');
+//ReWrite(text_file);
+//for f:=1 to GAMES_CONT do begin
+//  WriteLn(text_file,'(nombre:'''+GAMES_DESC[f].name+''';dir:'''+GAMES_DESC[f].zip+''';exec:'''+GAMES_DESC[f].company+''';ciclos:'+inttostr(integer(GAMES_DESC[f].grid))+'''+;extra_param:'''+GAMES_DESC[f].year+'''),');
+//end;
+//CloseFile(text_file);
+{$I+}
+for f:=1 to GAMES_CONT do begin
+  rom_data:=GAMES_DESC[f];
+  if rom_data.zip<>'' then begin
+    case rom_data.grid of
+      3,5:continue;
+      180:writeln(fichero,'  <game name="'+rom_data.zip+'" cloneof="rbisland">'); //Rainbow Island Extra
+      350:writeln(fichero,'  <game name="'+rom_data.zip+'" cloneof="xevious">'); //Super Xevious
+      426:writeln(fichero,'  <game name="'+rom_data.zip+'" cloneof="bublbobl">'); //Super Bobble Bobble
+      else  writeln(fichero,'  <game name="'+rom_data.zip+'">');
+    end;
+    change_name:=StringReplace(rom_data.name,'&','&amp;',[rfReplaceAll, rfIgnoreCase]);
+    case rom_data.grid of
+      0:writeln(fichero,'     <description>Spectrum 16K/48K</description>');
+      2:writeln(fichero,'     <description>Spectrum +2A/+3</description>');
+      else writeln(fichero,'     <description>'+change_name+'</description>');
+    end;
+    writeln(fichero,'     <year>'+rom_data.year+'</year>');
+    writeln(fichero,'     <manufacturer>'+rom_data.company+'</manufacturer>');
+    rom_file:=rom_data.rom[0];
+    indice:=0;
+    repeat
+      repeat
+        writeln(fichero,'     <rom name="'+rom_file.n+'" size="'+inttostr(rom_file.l)+'" crc="'+inttohex(rom_file.crc,8)+'"/>');
+        inc(rom_file);
+      until (rom_file.n='');
+      indice:=indice+1;
+      rom_file:=rom_data.rom[indice];
+    until (rom_file=nil);
+    writeln(fichero,'  </game>');
+  end;
+end;
+writeln(fichero,'</datafile>');
+close(fichero);
+{$I+}
+end;
+
+procedure export_samples;
+var
+  f:word;
+  rom_data:tgame_desc;
+  sample_file:ptipo_nombre_samples;
+  nombre_fichero,change_name:string;
+  indice:byte;
+begin
+if not(SaveRom(nombre_fichero,indice,SEXPORT_SAMPLES)) then exit;
+set_header(nombre_fichero);
+for f:=1 to GAMES_CONT do begin
+  rom_data:=GAMES_DESC[f];
+  if rom_data.zip<>'' then begin
+    if rom_data.samples<>nil then begin
+      case rom_data.grid of
+        70:writeln(fichero,'  <game name="'+rom_data.zip+'" cloneof="rallyx">'); //New Rally X
+        346,347:writeln(fichero,'  <game name="'+rom_data.zip+'" cloneof="zaxxon">'); //Super Zaxxon y Future Spy
+        350:writeln(fichero,'  <game name="'+rom_data.zip+'" cloneof="xevious">'); //Super Xevious
+        else writeln(fichero,'  <game name="'+rom_data.zip+'">');
+      end;
+      change_name:=StringReplace(rom_data.name,'&','&amp;',[rfReplaceAll, rfIgnoreCase]);
+      writeln(fichero,'     <description>'+change_name+'</description>');
+      writeln(fichero,'     <year>'+rom_data.year+'</year>');
+      writeln(fichero,'     <manufacturer>'+rom_data.company+'</manufacturer>');
+      sample_file:=rom_data.samples[0];
+      indice:=0;
+      repeat
+        repeat
+          writeln(fichero,'     <sample name="'+sample_file.nombre+'"/>');
+          inc(sample_file);
+        until sample_file.nombre='';
+        indice:=indice+1;
+        sample_file:=rom_data.samples[indice];
+      until (sample_file=nil);
+      writeln(fichero,'  </game>');
+    end;
+  end;
+end;
+writeln(fichero,'</datafile>');
+close(fichero);
+{$I+}
 end;
 
 end.

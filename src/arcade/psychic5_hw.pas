@@ -1,13 +1,10 @@
 unit psychic5_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ym_2203,gfx_engine,rom_engine,pal_engine,
-     sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_psychic5:boolean;
 
-implementation
 const
         psychic5_rom:array[0..1] of tipo_roms=(
         (n:'myp5d';l:$8000;p:0;crc:$1d40a8c7),(n:'myp5e';l:$10000;p:$8000;crc:$2fa7e8c0));
@@ -15,9 +12,14 @@ const
         psychic5_char:tipo_roms=(n:'p5f';l:$8000;p:0;crc:$04d7e21c);
         psychic5_sprites:array[0..1] of tipo_roms=(
         (n:'p5b';l:$10000;p:0;crc:$7e3f87d4),(n:'p5c';l:$10000;p:$10000;crc:$8710fedb));
-        psychic5_tiles:array[0..1] of tipo_roms=(
-        (n:'myp5g';l:$10000;p:0;crc:$617b074b),(n:'myp5h';l:$10000;p:$10000;crc:$a9dfbe67));
-        //Dip
+        psychic5_tiles:array[0..2] of tipo_roms=(
+        (n:'myp5g';l:$10000;p:0;crc:$617b074b),(n:'myp5h';l:$10000;p:$10000;crc:$a9dfbe67),());
+
+implementation
+uses nz80,main_engine,controls_engine,ym_2203,gfx_engine,pal_engine,
+     sound_engine,qsnapshot;
+
+const
         psychic5_dip_a:array [0..5] of def_dip=(
         (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$8;name:'Difficulty';number:2;dip:((dip_val:$8;dip_name:'Normal'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -172,7 +174,6 @@ var
   f:byte;
   frame_m,frame_s:single;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s:=z80_1.tframes;
 while EmuStatus=EsRunning do begin

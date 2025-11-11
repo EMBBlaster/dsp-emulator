@@ -1,18 +1,17 @@
 unit hangon_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,ppi8255,sound_engine,ym_2203,sega_pcm,fd1089,ym_2151,mcs51;
+uses rom_engine;
 
 function iniciar_hangon:boolean;
 
 const
         //Hang-On
         hangon_rom:array[0..3] of tipo_roms=(
-        (n:'epr-6918a.ic22';l:$8000;p:0;crc:$20b1c2b0),(n:'epr-6916a.ic8';l:$8000;p:$1;crc:$7d9db1bf),
+        (n:'epr-6918a.ic22';l:$8000;p:0;crc:$20b1c2b0),(n:'epr-6916a.ic8';l:$8000;p:1;crc:$7d9db1bf),
         (n:'epr-6917a.ic20';l:$8000;p:$10000;crc:$fea12367),(n:'epr-6915a.ic6';l:$8000;p:$10001;crc:$ac883240));
         hangon_sub:array[0..1] of tipo_roms=(
-        (n:'epr-6920.ic63';l:$8000;p:0;crc:$1c95013e),(n:'epr-6919.ic51';l:$8000;p:$1;crc:$6ca30d69));
+        (n:'epr-6920.ic63';l:$8000;p:0;crc:$1c95013e),(n:'epr-6919.ic51';l:$8000;p:1;crc:$6ca30d69));
         hangon_sound:tipo_roms=(n:'epr-6833.ic73';l:$4000;p:0;crc:$3b942f5f);
         hangon_tiles:array[0..2] of tipo_roms=(
         (n:'epr-6841.ic38';l:$8000;p:0;crc:$54d295dc),(n:'epr-6842.ic23';l:$8000;p:$8000;crc:$f677b568),
@@ -26,25 +25,17 @@ const
         (n:'epr-6829.ic32';l:$8000;p:$50000;crc:$7ca0952d),(n:'epr-6830.ic39';l:$8000;p:$50001;crc:$b1a63aef),
         (n:'epr-6845.ic18';l:$8000;p:$60000;crc:$ba08c9b8),(n:'epr-6846.ic25';l:$8000;p:$60001;crc:$f21e57a3));
         hangon_road:tipo_roms=(n:'epr-6840.ic108';l:$8000;p:0;crc:$581230e3);
-        sprite_zoom:tipo_roms=(n:'epr-6844.ic123';l:$2000;p:0;crc:$e3ec7bd6);
-        hangon_pcm:array[0..1] of tipo_roms=(
-        (n:'epr-6831.ic5';l:$8000;p:$0;crc:$cfef5481),(n:'epr-6832.ic6';l:$8000;p:$8000;crc:$4165aea5));
-        hangon_dip_a:array [0..1] of def_dip2=(
-        (mask:$f;name:'Coin A';number:16;val16:(7,8,9,5,4,$f,3,2,1,6,$e,$d,$c,$b,$a,0);name16:('4C/1C','3C/1C','2C/1C','2C/1C 5C/3C 6C/4C','2C/1C 4C/3C','1C/1C','1C/1C 5C/6C','1C/1C 4C/5C','1C/1C 2C/3C','2C/3C','1C/2C','1C/3C','1C/4C','1C/5C','1C/6C','Unused')),
-        (mask:$f0;name:'Coin B';number:16;val16:($70,$80,$90,$50,$40,$f0,$30,$20,$10,$60,$e0,$d0,$c0,$b0,$a0,0);name16:('4C/1C','3C/1C','2C/1C','2C/1C 5C/3C 6C/4C','2C/1C 4C/3C','1C/1C','1C/1C 5C/6C','1C/1C 4C/5C','1C/1C 2C/3C','2C/3C','1C/2C','1C/3C','1C/4C','1C/5C','1C/6C','Unused')));
-        hangon_dip_b:array [0..3] of def_dip2=(
-        (mask:1;name:'Demo Sounds';number:2;val2:(1,0);name2:('Off','On')),
-        (mask:6;name:'Difficulty';number:4;val4:(4,6,2,0);name4:('Easy','Medium','Hard','Hardest')),
-        (mask:$18;name:'Time Adjust';number:4;val4:($18,$10,8,0);name4:('Normal','Medium','Hard','Hardest')),
-        (mask:$20;name:'Play Music';number:2;val2:(0,$20);name2:('Off','On')));
+        hangon_pcm:array[0..2] of tipo_roms=(
+        (n:'epr-6831.ic5';l:$8000;p:0;crc:$cfef5481),(n:'epr-6832.ic6';l:$8000;p:$8000;crc:$4165aea5),());
+        hangon_sprite_zoom:array[0..1] of tipo_roms=((n:'epr-6844.ic123';l:$2000;p:0;crc:$e3ec7bd6),());
         //Enduro Racer
         enduror_rom:array[0..5] of tipo_roms=(
-        (n:'epr-7640a.ic97';l:$8000;p:0;crc:$1d1dc5d4),(n:'epr-7636a.ic84';l:$8000;p:$1;crc:$84131639),
+        (n:'epr-7640a.ic97';l:$8000;p:0;crc:$1d1dc5d4),(n:'epr-7636a.ic84';l:$8000;p:1;crc:$84131639),
         (n:'epr-7641.ic98';l:$8000;p:$10000;crc:$2503ae7c),(n:'epr-7637.ic85';l:$8000;p:$10001;crc:$82a27a8c),
         (n:'epr-7642.ic99';l:$8000;p:$20000;crc:$1c453bea),(n:'epr-7638.ic86';l:$8000;p:$20001;crc:$70544779));
         enduror_sub:array[0..1] of tipo_roms=(
-        (n:'epr-7634a.ic54';l:$8000;p:0;crc:$aec83731),(n:'epr-7635a.ic67';l:$8000;p:$1;crc:$b2fce96f));
-        enduror_sound:tipo_roms=(n:'epr-7682.ic58';l:$8000;p:$0;crc:$c4efbf48);
+        (n:'epr-7634a.ic54';l:$8000;p:0;crc:$aec83731),(n:'epr-7635a.ic67';l:$8000;p:1;crc:$b2fce96f));
+        enduror_sound:tipo_roms=(n:'epr-7682.ic58';l:$8000;p:0;crc:$c4efbf48);
         enduror_tiles:array[0..2] of tipo_roms=(
         (n:'epr-7644.ic31';l:$8000;p:0;crc:$e7a4ff90),(n:'epr-7645.ic46';l:$8000;p:$8000;crc:$4caa0095),
         (n:'epr-7646.ic60';l:$8000;p:$10000;crc:$7e432683));
@@ -67,22 +58,16 @@ const
         (n:'epr-7655.ic11';l:$8000;p:$e0002;crc:$3433fe7b),(n:'epr-7647.ic1';l:$8000;p:$e0003;crc:$2e7fbec0));
         enduror_road:tipo_roms=(n:'epr-7633.ic1';l:$8000;p:0;crc:$6f146210);
         enduror_key:tipo_roms=(n:'317-0013a.key';l:$2000;p:0;crc:$a965b2da);
-        enduror_pcm:array[0..1] of tipo_roms=(
-        (n:'epr-7681.ic8';l:$8000;p:$0;crc:$bc0c4d12),(n:'epr-7680.ic7';l:$8000;p:$10000;crc:$627b3c8c));
-        enduror_dip_b:array [0..4] of def_dip2=(
-        (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Wheelie')),
-        (mask:6;name:'Difficulty';number:4;val4:(4,6,2,0);name4:('Easy','Medium','Hard','Hardest')),
-        (mask:$18;name:'Time Adjust';number:4;val4:($10,$18,8,0);name4:('Easy','Medium','Hard','Hardest')),
-        (mask:$60;name:'Time Control';number:4;val4:($40,$60,$20,0);name4:('Easy','Medium','Hard','Hardest')),
-        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('Off','On')));
+        enduror_pcm:array[0..2] of tipo_roms=(
+        (n:'epr-7681.ic8';l:$8000;p:0;crc:$bc0c4d12),(n:'epr-7680.ic7';l:$8000;p:$10000;crc:$627b3c8c),());
         //Space Harrier
         sharrier_rom:array[0..7] of tipo_roms=(
-        (n:'epr-7188a.ic97';l:$8000;p:0;crc:$45e173c3),(n:'epr-7184a.ic84';l:$8000;p:$1;crc:$e1934a51),
+        (n:'epr-7188a.ic97';l:$8000;p:0;crc:$45e173c3),(n:'epr-7184a.ic84';l:$8000;p:1;crc:$e1934a51),
         (n:'epr-7189.ic98';l:$8000;p:$10000;crc:$40b1309f),(n:'epr-7185.ic85';l:$8000;p:$10001;crc:$ce78045c),
         (n:'epr-7190.ic99';l:$8000;p:$20000;crc:$f6391091),(n:'epr-7186.ic86';l:$8000;p:$20001;crc:$79b367d7),
         (n:'epr-7191.ic100';l:$8000;p:$30000;crc:$6171e9d3),(n:'epr-7187.ic87';l:$8000;p:$30001;crc:$70cb72ef));
         sharrier_sub:array[0..1] of tipo_roms=(
-        (n:'epr-7182.ic54';l:$8000;p:0;crc:$d7c535b6),(n:'epr-7183.ic67';l:$8000;p:$1;crc:$a6153af8));
+        (n:'epr-7182.ic54';l:$8000;p:0;crc:$d7c535b6),(n:'epr-7183.ic67';l:$8000;p:1;crc:$a6153af8));
         sharrier_sound:array[0..1] of tipo_roms=(
         (n:'epr-7234.ic73';l:$4000;p:0;crc:$d6397933),(n:'epr-7233.ic72';l:$4000;p:$4000;crc:$504e76d9));
         sharrier_tiles:array[0..2] of tipo_roms=(
@@ -107,11 +92,32 @@ const
         (n:'epr-7207.ic11';l:$8000;p:$e0002;crc:$a2c07741),(n:'epr-7199.ic1';l:$8000;p:$e0003;crc:$b191e22f));
         sharrier_road:tipo_roms=(n:'epr-7181.ic2';l:$8000;p:0;crc:$b4740419);
         sharrier_mcu:tipo_roms=(n:'315-5163a.ic32';l:$1000;p:0;crc:$203dffeb);
-        sharrier_pcm:array[0..1] of tipo_roms=(
-        (n:'epr-7231.ic5';l:$8000;p:$0;crc:$871c6b14),(n:'epr-7232.ic6';l:$8000;p:$8000;crc:$4b59340c));
+        sharrier_pcm:array[0..2] of tipo_roms=(
+        (n:'epr-7231.ic5';l:$8000;p:0;crc:$871c6b14),(n:'epr-7232.ic6';l:$8000;p:$8000;crc:$4b59340c),());
+
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,ppi8255,
+     sound_engine,ym_2203,sega_pcm,fd1089,ym_2151,mcs51;
+
+const
+        hangon_dip_a:array [0..1] of def_dip2=(
+        (mask:$f;name:'Coin A';number:16;val16:(7,8,9,5,4,$f,3,2,1,6,$e,$d,$c,$b,$a,0);name16:('4C/1C','3C/1C','2C/1C','2C/1C 5C/3C 6C/4C','2C/1C 4C/3C','1C/1C','1C/1C 5C/6C','1C/1C 4C/5C','1C/1C 2C/3C','2C/3C','1C/2C','1C/3C','1C/4C','1C/5C','1C/6C','Unused')),
+        (mask:$f0;name:'Coin B';number:16;val16:($70,$80,$90,$50,$40,$f0,$30,$20,$10,$60,$e0,$d0,$c0,$b0,$a0,0);name16:('4C/1C','3C/1C','2C/1C','2C/1C 5C/3C 6C/4C','2C/1C 4C/3C','1C/1C','1C/1C 5C/6C','1C/1C 4C/5C','1C/1C 2C/3C','2C/3C','1C/2C','1C/3C','1C/4C','1C/5C','1C/6C','Unused')));
+        hangon_dip_b:array [0..3] of def_dip2=(
+        (mask:1;name:'Demo Sounds';number:2;val2:(1,0);name2:('Off','On')),
+        (mask:6;name:'Difficulty';number:4;val4:(4,6,2,0);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:$18;name:'Time Adjust';number:4;val4:($18,$10,8,0);name4:('Normal','Medium','Hard','Hardest')),
+        (mask:$20;name:'Play Music';number:2;val2:(0,$20);name2:('Off','On')));
+        enduror_dip_b:array [0..4] of def_dip2=(
+        (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Wheelie')),
+        (mask:6;name:'Difficulty';number:4;val4:(4,6,2,0);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:$18;name:'Time Adjust';number:4;val4:($10,$18,8,0);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:$60;name:'Time Control';number:4;val4:($40,$60,$20,0);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('Off','On')));
         sharrier_dip_b:array [0..5] of def_dip2=(
-        (mask:$1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Moving')),
-        (mask:$2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')),
+        (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Moving')),
+        (mask:2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')),
         (mask:$c;name:'Lives';number:4;val4:(8,$c,4,0);name4:('2','3','4','5')),
         (mask:$10;name:'Bonus Life';number:2;val2:($10,0);name2:('5000K','7000K')),
         (mask:$20;name:'Trial Time';number:2;val2:($20,0);name2:('Off','On')),
@@ -153,8 +159,6 @@ var
  CPU_SYNC:byte;
  //MCU
  i8751_addr:byte;
-
-implementation
 
 procedure draw_road(pri:byte);
 var
@@ -260,7 +264,7 @@ var
   pos,f,nchar,color,data,x,y:word;
 begin
   pos:=s16_info.screen[num]*$800;
-  for f:=$0 to $7ff do begin
+  for f:=0 to $7ff do begin
     data:=tile_ram[pos+f];
     color:=(data shr 5) and $7f;
     if (s16_info.tile_buffer[num,f] or buffer_color[color]) then begin
@@ -278,9 +282,9 @@ var
   f,nchar,x,y,atrib:word;
   color:byte;
 begin
-for f:=$0 to $6ff do begin
+for f:=0 to $6ff do begin
   atrib:=char_ram[f];
-  color:=(atrib shr 8) and $7;
+  color:=(atrib shr 8) and 7;
   if (gfx[0].buffer[f] or buffer_color[color]) then begin
     x:=(f and $3f) shl 3;
     y:=(f shr 6) shl 3;
@@ -314,7 +318,7 @@ var
   spritedata:dword;
 begin
   for f:=0 to $7f do begin
-    sprpri:=sprite_ram[(f*8)+4] and $3;
+    sprpri:=sprite_ram[(f*8)+4] and 3;
     if sprpri<>pri then continue;
     addr:=sprite_ram[(f*8)+3];
     sprite_ram[(f*8)+7]:=addr;
@@ -463,7 +467,7 @@ var
   spritedata,pixels:dword;
 begin
   for f:=0 to $ff do begin
-    sprpri:=(sprite_ram[(f*$8)+2] shr 14) and $1;
+    sprpri:=(sprite_ram[(f*8)+2] shr 14) and 1;
     if sprpri<>pri then continue;
     addr:=sprite_ram[(f*8)+3];
     sprite_ram[(f*8)+7]:=addr;
@@ -586,22 +590,24 @@ end;
 procedure eventos_hangon;
 begin
 if event.arcade then begin
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
+  marcade.in0:=$ffff;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ffbf;
 end;
 end;
 
 procedure eventos_sharrier;
 begin
 if event.arcade then begin
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
+  marcade.in0:=$ffff;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ff7f;
 end;
 end;
 
@@ -610,7 +616,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
      eventos_hangon;
@@ -679,9 +684,9 @@ begin
 	//     byte 0    byte 1
 	//  sBGR BBBB GGGG RRRR
 	//  x000 4321 4321 4321
-	r:=((val shr 12) and $01) or ((val shl 1) and $1e);
-	g:=((val shr 13) and $01) or ((val shr 3) and $1e);
-	b:=((val shr 14) and $01) or ((val shr 7) and $1e);
+	r:=((val shr 12) and 1) or ((val shl 1) and $1e);
+	g:=((val shr 13) and 1) or ((val shr 3) and $1e);
+	b:=((val shr 14) and 1) or ((val shr 7) and $1e);
   //normal
   color.r:=s16_info.normal[r];
   color.g:=s16_info.normal[g];
@@ -705,41 +710,41 @@ procedure test_screen_change(direccion:word);
 begin
 if direccion=$74e then begin
           //Background abajo 1-2
-          if ((char_ram[$74e] shr 12) and $3)<>s16_info.screen[0] then begin
-            s16_info.screen[0]:=(char_ram[$74e] shr 12) and $3;
+          if ((char_ram[$74e] shr 12) and 3)<>s16_info.screen[0] then begin
+            s16_info.screen[0]:=(char_ram[$74e] shr 12) and 3;
             fillchar(s16_info.tile_buffer[0,0],$800,1);
           end;
-          if ((char_ram[$74e] shr 8) and $3)<>s16_info.screen[1] then begin
-            s16_info.screen[1]:=(char_ram[$74e] shr 8) and $3;
+          if ((char_ram[$74e] shr 8) and 3)<>s16_info.screen[1] then begin
+            s16_info.screen[1]:=(char_ram[$74e] shr 8) and 3;
             fillchar(s16_info.tile_buffer[1,0],$800,1);
           end;
             //Background arriba 1-2
-          if ((char_ram[$74e] shr 4) and $3)<>s16_info.screen[2] then begin
-            s16_info.screen[2]:=(char_ram[$74e] shr 4) and $3;
+          if ((char_ram[$74e] shr 4) and 3)<>s16_info.screen[2] then begin
+            s16_info.screen[2]:=(char_ram[$74e] shr 4) and 3;
             fillchar(s16_info.tile_buffer[2,0],$800,1);
           end;
-          if (char_ram[$74e] and $3)<>s16_info.screen[3] then begin
-            s16_info.screen[3]:=char_ram[$74e] and $3;
+          if (char_ram[$74e] and 3)<>s16_info.screen[3] then begin
+            s16_info.screen[3]:=char_ram[$74e] and 3;
             fillchar(s16_info.tile_buffer[3,0],$800,1);
           end;
 end;
 if direccion=$74f then begin
             //Foreground abajo
-          if ((char_ram[$74f] shr 12) and $3)<>s16_info.screen[4] then begin
-            s16_info.screen[4]:=(char_ram[$74f] shr 12) and $3;
+          if ((char_ram[$74f] shr 12) and 3)<>s16_info.screen[4] then begin
+            s16_info.screen[4]:=(char_ram[$74f] shr 12) and 3;
             fillchar(s16_info.tile_buffer[4,0],$800,1);
           end;
-          if ((char_ram[$74f] shr 8) and $3)<>s16_info.screen[5] then begin
-            s16_info.screen[5]:=(char_ram[$74f] shr 8) and $3;
+          if ((char_ram[$74f] shr 8) and 3)<>s16_info.screen[5] then begin
+            s16_info.screen[5]:=(char_ram[$74f] shr 8) and 3;
             fillchar(s16_info.tile_buffer[5,0],$800,1);
           end;
             //Foreground arriba
-          if ((char_ram[$74f] shr 4) and $3)<>s16_info.screen[6] then begin
-            s16_info.screen[6]:=(char_ram[$74f] shr 4) and $3;
+          if ((char_ram[$74f] shr 4) and 3)<>s16_info.screen[6] then begin
+            s16_info.screen[6]:=(char_ram[$74f] shr 4) and 3;
             fillchar(s16_info.tile_buffer[6,0],$800,1);
           end;
-          if (char_ram[$74f] and $3)<>s16_info.screen[7] then begin
-            s16_info.screen[7]:=char_ram[$74f] and $3;
+          if (char_ram[$74f] and 3)<>s16_info.screen[7] then begin
+            s16_info.screen[7]:=char_ram[$74f] and 3;
             fillchar(s16_info.tile_buffer[7,0],$800,1);
           end;
 end;
@@ -807,7 +812,7 @@ end;
 function hangon_snd_getbyte(direccion:word):byte;
 begin
 case direccion of
-  $0..$7fff:hangon_snd_getbyte:=mem_snd[direccion];
+  0..$7fff:hangon_snd_getbyte:=mem_snd[direccion];
   $c000..$cfff:hangon_snd_getbyte:=mem_snd[$c000+(direccion and $7ff)];
   $d000..$dfff:hangon_snd_getbyte:=ym2203_0.status;
   $e000..$efff:hangon_snd_getbyte:=sega_pcm_0.read(direccion and $ff);
@@ -847,7 +852,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
      eventos_sharrier;
@@ -878,7 +882,7 @@ function sharrier_getword(direccion:dword):word;
 begin
 case direccion of
     0..$3ffff:sharrier_getword:=rom[direccion shr 1];
-    $040000..$043fff:sharrier_getword:=ram[(direccion and $3fff) shr 1];
+    $40000..$43fff:sharrier_getword:=ram[(direccion and $3fff) shr 1];
     $100000..$107fff:sharrier_getword:=tile_ram[(direccion and $7fff) shr 1];
     $108000..$108fff:sharrier_getword:=char_ram[(direccion and $fff) shr 1];
     $110000..$110fff:sharrier_getword:=buffer_paleta[(direccion and $fff) shr 1];
@@ -905,7 +909,7 @@ procedure sharrier_putword(direccion:dword;valor:word);
 begin
 case direccion of
     0..$3ffff:;
-    $040000..$043fff:ram[(direccion and $3fff) shr 1]:=valor;
+    $40000..$43fff:ram[(direccion and $3fff) shr 1]:=valor;
     $100000..$107fff:if tile_ram[(direccion and $7fff) shr 1]<>valor then begin
                         tile_ram[(direccion and $7fff) shr 1]:=valor;
                         test_tile_buffer((direccion and $7fff) shr 1);
@@ -946,7 +950,7 @@ var
   irq:byte;
 begin
   i8751_addr:=((valor and $40) shr 2) or ((valor and $38) shr 3);
-	irq:=not(valor) and $7;
+	irq:=not(valor) and 7;
 	if (irq<>0) then m68000_0.irq[irq]:=HOLD_LINE;
 end;
 
@@ -983,7 +987,7 @@ end;
 function enduror_snd_getbyte(direccion:word):byte;
 begin
 case direccion of
-  $0..$7fff,$f800..$ffff:enduror_snd_getbyte:=mem_snd[direccion];
+  0..$7fff,$f800..$ffff:enduror_snd_getbyte:=mem_snd[direccion];
   $f000..$f7ff:enduror_snd_getbyte:=sega_pcm_0.read(direccion and $ff);
 end;
 end;
@@ -1143,6 +1147,10 @@ begin
 	end;
 end;
 begin
+case main_vars.tipo_maquina of
+  334,336:CPU_SYNC:=2;
+  335:CPU_SYNC:=12; //Impresionante!!!
+end;
 llamadas_maquina.bucle_general:=hangon_principal;
 llamadas_maquina.reset:=reset_hangon;
 llamadas_maquina.scanlines:=262*CPU_SYNC;
@@ -1165,7 +1173,6 @@ pia8255_1:=pia8255_chip.create;
 pia8255_1.change_ports(nil,nil,nil,ppi8255_1_wporta,nil,nil);
 case main_vars.tipo_maquina of
   334:begin //Hang-On
-        CPU_SYNC:=2;
         //Main CPU
         m68000_0:=cpu_m68000.create(25174800 div 4);
         m68000_0.change_ram16_calls(hangon_getword,hangon_putword);
@@ -1194,7 +1201,7 @@ case main_vars.tipo_maquina of
         convert_gfx(0,0,@memoria_temp,@pt_x,@pt_y,false,false);
         //Cargar ROM de los sprites
         if not(roms_load16b(@sprite_rom,hangon_sprites)) then exit;
-        if not(roms_load(@zoom_sp,sprite_zoom)) then exit;
+        if not(roms_load(@zoom_sp,hangon_sprite_zoom)) then exit;
         s16_info.banks:=7;
         //Cargar ROM road y decodificarla
         if not(roms_load(@memoria_temp,hangon_road)) then exit;
@@ -1210,7 +1217,6 @@ case main_vars.tipo_maquina of
         update_video:=update_video_hangon;
   end;
   335:begin //Enduro Racer
-        CPU_SYNC:=12; //Impresionante!!!
         sharrier_controls_update:=enduror_controls;
         //Main CPU
         m68000_0:=cpu_m68000.create(10000000);
@@ -1218,7 +1224,7 @@ case main_vars.tipo_maquina of
         if not(roms_load16w(@memoria_temp,enduror_rom)) then exit;
         //Decode fd1089
         if not(roms_load(@fd1089_key,enduror_key)) then exit;
-        fd1089_decrypt($40000,@memoria_temp,@rom,@rom_data,@fd1089_key,fd_typeB);
+        fd1089_decrypt($40000,@memoria_temp,@rom,@rom_data,@fd1089_key,FD_TYPEB);
         //Sub CPU
         m68000_1:=cpu_m68000.create(10000000);
         m68000_1.change_ram16_calls(hangon_sub_getword,hangon_sub_putword);
@@ -1243,7 +1249,7 @@ case main_vars.tipo_maquina of
         convert_gfx(0,0,@memoria_temp,@pt_x,@pt_y,false,false);
         //Cargar ROM de los sprites
         if not(roms_load32dw(@sprite_rom_32,enduror_sprites)) then exit;
-        if not(roms_load(@zoom_sp,sprite_zoom)) then exit;
+        if not(roms_load(@zoom_sp,hangon_sprite_zoom)) then exit;
         s16_info.banks:=8;
         //Cargar ROM road y decodificarla
         if not(roms_load(@memoria_temp,enduror_road)) then exit;
@@ -1259,7 +1265,6 @@ case main_vars.tipo_maquina of
         update_video:=update_video_sharrier;
   end;
   336:begin //Space Harrier
-        CPU_SYNC:=2;
         sharrier_controls_update:=sharrier_controls;
         llamadas_maquina.bucle_general:=sharrier_principal;
         //Main CPU
@@ -1295,7 +1300,7 @@ case main_vars.tipo_maquina of
         convert_gfx(0,0,@memoria_temp,@pt_x,@pt_y,false,false);
         //Cargar ROM de los sprites
         if not(roms_load32dw(@sprite_rom_32,sharrier_sprites)) then exit;
-        if not(roms_load(@zoom_sp,sprite_zoom)) then exit;
+        if not(roms_load(@zoom_sp,hangon_sprite_zoom)) then exit;
         s16_info.banks:=8;
         //Cargar ROM road y decodificarla
         if not(roms_load(@memoria_temp,sharrier_road)) then exit;
@@ -1312,7 +1317,7 @@ case main_vars.tipo_maquina of
 end;
 //Controls
 init_analog(m68000_0.numero_cpu,m68000_0.clock);
-analog_0(100,8,$80,$e0,$20,true,false,false,false);
+analog_0(100,8,$80,$e0,$20,main_vars.tipo_maquina<>336,false,false,false);
 analog_1(100,20,$ff,0,true);
 analog_2(100,40,$ff,0,true);
 analog_3(100,4,$ff,$20,true);

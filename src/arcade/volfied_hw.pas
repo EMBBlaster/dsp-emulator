@@ -1,16 +1,11 @@
-unit volfied_hw;
+﻿unit volfied_hw;
 
 //{$DEFINE MCU=1}
-
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,taito_sound,rom_engine,
-     pal_engine,sound_engine,
-     ym_2203{$IFDEF MCU},taito_cchip{$ELSE IF},volfied_cchip{$ENDIF};
+uses rom_engine;
 
 function iniciar_volfied:boolean;
 
-implementation
 const
         volfied_rom:array[0..3] of tipo_roms=(
         (n:'c04-12-1.30';l:$10000;p:0;crc:$afb6a058),(n:'c04-08-1.10';l:$10000;p:1;crc:$19f7e66b),
@@ -19,13 +14,18 @@ const
         (n:'c04-20.7';l:$20000;p:0;crc:$0aea651f),(n:'c04-22.9';l:$20000;p:1;crc:$f405d465),
         (n:'c04-19.6';l:$20000;p:$40000;crc:$231493ae),(n:'c04-21.8';l:$20000;p:$40001;crc:$8598d38e));
         volfied_sound:tipo_roms=(n:'c04-06.71';l:$8000;p:0;crc:$b70106b2);
-        volfied_sprites:array[0..7] of tipo_roms=(
+        {$IFDEF MCU}cchip_eeprom:tipo_roms=(n:'cchip_c04-23';l:$2000;p:0;crc:$46b0b479);{$ENDIF}
+        volfied_sprites:array[0..8] of tipo_roms=(
         (n:'c04-16.2';l:$20000;p:0;crc:$8c2476ef),(n:'c04-18.4';l:$20000;p:1;crc:$7665212c),
         (n:'c04-15.1';l:$20000;p:$40000;crc:$7c50b978),(n:'c04-17.3';l:$20000;p:$40001;crc:$c62fdeb8),
         (n:'c04-10.15';l:$10000;p:$80000;crc:$429b6b49),(n:'c04-09.14';l:$10000;p:$80001;crc:$c78cf057),
-        (n:'c04-10.15';l:$10000;p:$a0000;crc:$429b6b49),(n:'c04-09.14';l:$10000;p:$a0001;crc:$c78cf057));
-        {$IFDEF MCU}cchip_eeprom:tipo_roms=(n:'cchip_c04-23';l:$2000;p:0;crc:$46b0b479);{$ENDIF}
-        //DIP
+        (n:'c04-10.15';l:$10000;p:$a0000;crc:$429b6b49),(n:'c04-09.14';l:$10000;p:$a0001;crc:$c78cf057),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,taito_sound,pal_engine,
+     sound_engine,ym_2203{$IFDEF MCU},taito_cchip{$ELSE IF},volfied_cchip{$ENDIF};
+
+const
         volfied_dip1:array [0..4] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Cocktail')),
         (mask:2;name:'Flip_Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -85,24 +85,28 @@ end;
 procedure eventos_volfied;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$fc;
+  marcade.in2:=$ff;
+  marcade.in3:=$ff;
   //F00007
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
   //F00009
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or 2;
   //F0000B
-  if arcade_input.up[0] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.down[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.left[0] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.right[0] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but0[0] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
+  if arcade_input.up[0] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.down[0] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.left[0] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.right[0] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but0[0] then marcade.in2:=marcade.in2 and $bf;
   //F0000D
-  if arcade_input.up[1] then marcade.in3:=(marcade.in3 and $fd) else marcade.in3:=(marcade.in3 or 2);
-  if arcade_input.down[1] then marcade.in3:=(marcade.in3 and $fb) else marcade.in3:=(marcade.in3 or 4);
-  if arcade_input.right[1] then marcade.in3:=(marcade.in3 and $ef) else marcade.in3:=(marcade.in3 or $10);
-  if arcade_input.but0[1] then marcade.in3:=(marcade.in3 and $df) else marcade.in3:=(marcade.in3 or $20);
-  if arcade_input.left[1] then marcade.in3:=(marcade.in3 and $7f) else marcade.in3:=(marcade.in3 or $80);
+  if arcade_input.up[1] then marcade.in3:=marcade.in3 and $fd;
+  if arcade_input.down[1] then marcade.in3:=marcade.in3 and $fb;
+  if arcade_input.right[1] then marcade.in3:=marcade.in3 and $ef;
+  if arcade_input.but0[1] then marcade.in3:=marcade.in3 and $df;
+  if arcade_input.left[1] then marcade.in3:=marcade.in3 and $7f;
 end;
 end;
 
@@ -110,7 +114,6 @@ procedure volfied_principal;
 var
   f,h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
     for f:=0 to 255 do begin
         eventos_volfied;
@@ -158,7 +161,6 @@ end;
 end;
 
 procedure volfied_putword(direccion:dword;valor:word);
-
 procedure cambiar_color(tmp_color,numero:word);
 var
   color:tcolor;
@@ -168,7 +170,6 @@ begin
   color.r:=pal5bit(tmp_color);
   set_pal_color(color,numero);
 end;
-
 begin
 case direccion of
       0..$fffff:; //ROM
@@ -192,7 +193,6 @@ case direccion of
       $f00802:volfied_cchip_ctrl_w(valor);
       $f00c00:volfied_cchip_bank_w(valor);
       {$ENDIF}
-
 end;
 end;
 
@@ -274,7 +274,7 @@ if not(roms_load(@tc0140syt_0.snd_rom,volfied_sound)) then exit;
 //MCU
 {$IFDEF MCU}
 //?????????? Tengo que poner 4Mhz mas... En teoria son 10Mhz, pero si lo pongo hae cosas raras...
-cchip_0:=cchip_chip.create(10000000,256);
+cchip_0:=cchip_chip.create(10000000);
 cchip_0.change_ad(volfied_f0000d);
 cchip_0.change_in(volfied_f00007,volfied_f00009,volfied_f0000c,nil,nil);
 if not(roms_load(cchip_0.get_eeprom_dir,cchip_eeprom)) then exit;

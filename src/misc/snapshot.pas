@@ -1,24 +1,24 @@
-unit snapshot;
+﻿unit snapshot;
 
 interface
-uses {$IFDEF windows}windows,{$ENDIF}
-     sysutils,spectrum_misc,ay_8910,dialogs,nz80,z80_sp,file_engine,
-     init_games,ppi8255,tms99xx,pal_engine,sn_76496,m6502,misc_functions,
-     i2cmem,lenguaje,sg1000,sms,sega_gg,sega_vdp,super_cassette_vision,upd1771,
-     upd7810,chip8_hw,n2a03,nes_ppu,nes_mappers,gb,gb_mappers,gb_sound,lr35902;
+uses sysutils,dialogs,main_engine;
 
 type
-  tmain_block=packed record
-      nombre:array[0..3] of ansichar;
-      longitud:dword;
-      unused:array[0..1] of byte;
+    //SZX
+  tszx_header=packed record
+    magic:array[0..3] of ansichar;
+    major_version,minor_version,tipo_maquina,flags:byte;
   end;
-  tmain_header=packed record
-      magic:array[0..3] of ansichar;
-      version:word;
-      unused:array[0..3] of byte;
+  tszx_block=packed record
+    name:array[0..3] of ansichar;
+    longitud:dword;
   end;
-  //Spectrum
+  tszx_ramp=packed record
+    flags:word;
+    numero:byte;
+    data:array[0..$3fff] of byte;
+  end;
+//Spectrum
   tz80_regs=packed record
     a,flags:byte;
     bc,hl,pc,sp:word;
@@ -42,25 +42,6 @@ type
     numero:byte;
     datos:array[0..$3fff] of byte;
   end;
-  //SZX
-type
-  tszx_header=packed record
-    magic:array[0..3] of ansichar;
-    major_version,minor_version,tipo_maquina,flags:byte;
-  end;
-  tszx_block=packed record
-    name:array[0..3] of ansichar;
-    longitud:dword;
-  end;
-  tszx_ramp=packed record
-    flags:word;
-    numero:byte;
-    data:array[0..$3fff] of byte;
-  end;
-
-const
-  SIZE_MH=sizeof(tmain_header);
-  SIZE_BLK=sizeof(tmain_block);
 
 //Spectrum
 function abrir_sna(datos:pbyte;long:integer):boolean;
@@ -87,42 +68,58 @@ function snapshot_r(data:pbyte;long:dword;system_type:byte):boolean;
 function snapshot_main_write(system_type:byte):string;
 
 implementation
-uses spectrum_48k,spectrum_128k,spectrum_3,amstrad_cpc,coleco,principal,main_engine,
-     nes,commodore64,pv2000,pv1000;
+uses spectrum_48k,spectrum_128k,spectrum_3,amstrad_cpc,coleco,principal,
+     nes,commodore64,pv2000,pv1000,spectrum_misc,ay_8910,nz80,z80_sp,file_engine,
+     init_games,ppi8255,tms99xx,pal_engine,sn_76496,m6502,misc_functions,
+     i2cmem,lenguaje,sg1000,sms,sega_gg,sega_vdp,super_cassette_vision,upd1771,
+     upd7810,chip8_hw,n2a03,nes_ppu,nes_mappers,gb,gb_mappers,gb_sound,lr35902;
+
+type
+  tmain_block=packed record
+      nombre:array[0..3] of ansichar;
+      longitud:dword;
+      unused:array[0..1] of byte;
+  end;
+  tmain_header=packed record
+      magic:array[0..3] of ansichar;
+      version:word;
+      unused:array[0..3] of byte;
+  end;
+
+const
+  SIZE_MH=sizeof(tmain_header);
+  SIZE_BLK=sizeof(tmain_block);
 
 procedure spectrum_change_model(model:byte);
 begin
 //Es el mismo modelo?
-if main_vars.tipo_maquina=model then begin
-  llamadas_maquina.reset;
-  exit;
+if main_vars.tipo_maquina<>model then begin
+  todos_false;
+  reset_dsp;
+  principal1.BitBtn10.Enabled:=false;
+  case model of
+    0,5:begin //Spectrum 48k y Spectrum 16k
+        if model=0 then main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum48K1)
+          else main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum16K1);
+        llamadas_maquina.iniciar:=iniciar_48k;
+      end;
+    1,4:begin //Spectrum 128k y Spectrum +2
+        if model=1 then main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum128K1)
+          else main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum21);
+        llamadas_maquina.iniciar:=iniciar_128k;
+      end;
+    2,3:begin //Spectrum +3 y Spectrum +2A
+        if model=2 then begin
+          main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum31);
+          principal1.BitBtn10.Enabled:=true;
+        end else main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum2A1);
+        llamadas_maquina.iniciar:=iniciar_3;
+      end;
+  end;
+  llamadas_maquina.iniciar;
+  principal1.timer1.enabled:=true;
 end;
-//Cerrar el Spectrum y cambiar el modelo
-llamadas_maquina.close;
-todos_false;
-reset_dsp;
-principal1.BitBtn10.Enabled:=false;
-case model of
-  0,5:begin //Spectrum 48k y Spectrum 16k
-      if model=0 then main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum48K1)
-        else main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum16K1);
-      llamadas_maquina.iniciar:=iniciar_48k;
-    end;
-  1,4:begin //Spectrum 128k y Spectrum +2
-      if model=1 then main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum128K1)
-        else main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum21);
-      llamadas_maquina.iniciar:=iniciar_128k;
-    end;
-  2,3:begin //Spectrum +3 y Spectrum +2A
-      if model=2 then begin
-        main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum31);
-        principal1.BitBtn10.Enabled:=true;
-      end else main_vars.tipo_maquina:=tipo_cambio_maquina(principal1.Spectrum2A1);
-      llamadas_maquina.iniciar:=iniciar_3;
-    end;
-end;
-llamadas_maquina.iniciar;
-principal1.timer1.enabled:=true;
+llamadas_maquina.reset;
 end;
 
 //Spectrum .SNA
@@ -1541,7 +1538,6 @@ case cpc_sna.version of
            if ((cpc_chunk.name[0]='R') and (cpc_chunk.name[1]='O') and (cpc_chunk.name[2]='M')) then
                 copymemory(@cpc_rom[strtoint(cpc_chunk.name[3])].data,data,$4000);
            if cpc_chunk.name='LROM' then begin
-                //copymemory(@cpc_low_rom[0],data,$4000);
                 copymemory(@cpc_rom[16].data,data,$4000);
                 cpc_ga.cpc_model:=4;
            end;
@@ -2434,7 +2430,7 @@ if snapshot_header.magic='SCVI' then system:=SSUPERCASSETTE;
 if snapshot_header.magic='CHP8' then system:=SCHIP8;
 if snapshot_header.magic='GBC0' then system:=SGB;
 if ((system=$ff) or (system<>system_type)) then begin
-  MessageDlg('Snapshot no v�lido para este sistema.'+chr(10)+chr(13)+'Snapshot not valid for this system.', mtInformation,[mbOk], 0);
+  MessageDlg('Snapshot no válido para este sistema.'+chr(10)+chr(13)+'Snapshot not valid for this system.', mtInformation,[mbOk], 0);
   freemem(snapshot_header);
   exit;
 end;

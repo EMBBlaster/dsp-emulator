@@ -1,13 +1,10 @@
-unit arkanoid_hw;
+﻿unit arkanoid_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ay_8910,taito_68705;
+uses rom_engine;
 
 function iniciar_arkanoid:boolean;
 
-implementation
 const
         arkanoid_rom:array[0..1] of tipo_roms=(
         (n:'a75-01-1.ic17';l:$8000;p:0;crc:$5bcda3b0),(n:'a75-11.ic16';l:$8000;p:$8000;crc:$eafd7191));
@@ -15,10 +12,15 @@ const
         arkanoid_tiles:array[0..2] of tipo_roms=(
         (n:'a75-03.ic64';l:$8000;p:0;crc:$038b74ba),(n:'a75-04.ic63';l:$8000;p:$8000;crc:$71fae199),
         (n:'a75-05.ic62';l:$8000;p:$10000;crc:$c76374e2));
-        arkanoid_proms:array[0..2] of tipo_roms=(
+        arkanoid_proms:array[0..3] of tipo_roms=(
         (n:'a75-07.ic24';l:$200;p:0;crc:$0af8b289),(n:'a75-08.ic23';l:$200;p:$200;crc:$abb002fb),
-        (n:'a75-09.ic22';l:$200;p:$400;crc:$a7c6c277));
-        //Dip
+        (n:'a75-09.ic22';l:$200;p:$400;crc:$a7c6c277),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ay_8910,taito_68705;
+
+const
         arkanoid_dip_a:array [0..5] of def_dip2=(
         (mask:1;name:'Allow Continue';number:2;val2:(1,0);name2:('No','Yes')),
         (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -64,14 +66,16 @@ end;
 procedure eventos_arkanoid;
 begin
 if event.arcade then begin
+  marcade.in0:=$f;
+  marcade.in1:=$ff;
   //P1
-  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe else marcade.in0:=marcade.in0 or 1;
-  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $10 else marcade.in0:=marcade.in0 and $ef;
-  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $20 else marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $20;
   //p2
-  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $fe else marcade.in1:=marcade.in1 or 1;
-  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fd else marcade.in1:=marcade.in1 or 2;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fd;
 end;
 end;
 
@@ -79,7 +83,6 @@ procedure principal_arkanoid;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
     for f:=0 to 263 do begin
         eventos_arkanoid;

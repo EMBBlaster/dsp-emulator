@@ -1,13 +1,10 @@
 unit pirates_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,oki6295,misc_functions;
+uses rom_engine;
 
 function iniciar_pirates:boolean;
 
-implementation
 const
         //Pirates
         pirates_rom:array[0..1] of tipo_roms=(
@@ -15,20 +12,24 @@ const
         pirates_gfx:array[0..3] of tipo_roms=(
         (n:'p4_4d48.bin';l:$80000;p:0;crc:$89fda216),(n:'p2_5d74.bin';l:$80000;p:$80000;crc:$40e069b4),
         (n:'p1_7b30.bin';l:$80000;p:$100000;crc:$26d78518),(n:'p8_9f4f.bin';l:$80000;p:$180000;crc:$f31696ea));
-        pirates_sprites:array[0..3] of tipo_roms=(
-        (n:'s1_6e89.bin';l:$80000;p:0;crc:$c78a276f),(n:'s2_6df3.bin';l:$80000;p:$80000;crc:$9f0bad96),
-        (n:'s4_fdcc.bin';l:$80000;p:$100000;crc:$8916ddb5),(n:'s8_4b7c.bin';l:$80000;p:$180000;crc:$1c41bd2c));
         pirates_oki:tipo_roms=(n:'s89_49d4.bin';l:$80000;p:0;crc:$63a739ec);
+        pirates_sprites:array[0..4] of tipo_roms=(
+        (n:'s1_6e89.bin';l:$80000;p:0;crc:$c78a276f),(n:'s2_6df3.bin';l:$80000;p:$80000;crc:$9f0bad96),
+        (n:'s4_fdcc.bin';l:$80000;p:$100000;crc:$8916ddb5),(n:'s8_4b7c.bin';l:$80000;p:$180000;crc:$1c41bd2c),());
         //Genix Family
         genix_rom:array[0..1] of tipo_roms=(
         (n:'1.15';l:$80000;p:0;crc:$d26abfb0),(n:'2.16';l:$80000;p:$1;crc:$a14a25b4));
         genix_gfx:array[0..3] of tipo_roms=(
         (n:'7.34';l:$40000;p:0;crc:$58da8aac),(n:'9.35';l:$40000;p:$80000;crc:$96bad9a8),
         (n:'8.48';l:$40000;p:$100000;crc:$0ddc58b6),(n:'10.49';l:$40000;p:$180000;crc:$2be308c5));
-        genix_sprites:array[0..3] of tipo_roms=(
-        (n:'6.69';l:$40000;p:0;crc:$b8422af7),(n:'5.70';l:$40000;p:$80000;crc:$e46125c5),
-        (n:'4.71';l:$40000;p:$100000;crc:$7a8ed21b),(n:'3.72';l:$40000;p:$180000;crc:$f78bd6ca));
         genix_oki:tipo_roms=(n:'0.31';l:$80000;p:0;crc:$80d087bc);
+        genix_sprites:array[0..4] of tipo_roms=(
+        (n:'6.69';l:$40000;p:0;crc:$b8422af7),(n:'5.70';l:$40000;p:$80000;crc:$e46125c5),
+        (n:'4.71';l:$40000;p:$100000;crc:$7a8ed21b),(n:'3.72';l:$40000;p:$180000;crc:$f78bd6ca),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     oki6295,misc_functions,eepromser;
 
 var
  rom:array[0..$7ffff] of word;
@@ -101,26 +102,28 @@ end;
 procedure eventos_pirates;
 begin
 if event.arcade then begin
+  marcade.in0:=$f;
+  marcade.in1:=$ffff;
   //input
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $ff7f) else marcade.in1:=(marcade.in1 or $80);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $feff) else marcade.in1:=(marcade.in1 or $100);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fdff) else marcade.in1:=(marcade.in1 or $200);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fbff) else marcade.in1:=(marcade.in1 or $400);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $f7ff) else marcade.in1:=(marcade.in1 or $800);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $efff) else marcade.in1:=(marcade.in1 or $1000);
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 and $dfff) else marcade.in1:=(marcade.in1 or $2000);
-  if arcade_input.but3[1] then marcade.in1:=(marcade.in1 and $bfff) else marcade.in1:=(marcade.in1 or $4000);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $7fff) else marcade.in1:=(marcade.in1 or $8000);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $ffbf;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $ff7f;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $feff;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fdff;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fbff;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7ff;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $efff;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $dfff;
+  if arcade_input.but3[1] then marcade.in1:=marcade.in1 and $bfff;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $7fff;
   //system
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
 end;
 end;
 
@@ -128,7 +131,6 @@ procedure pirates_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_pirates;
@@ -150,7 +152,7 @@ case direccion of
     0..$fffff:pirates_getword:=rom[direccion shr 1];
     $100000..$10ffff:pirates_getword:=ram1[(direccion and $ffff) shr 1];
     $300000:pirates_getword:=marcade.in1;
-    $400000:pirates_getword:=marcade.in0;
+    $400000:pirates_getword:=marcade.in0+(eepromser_0.do_read shl 4);
     $500000..$500fff:pirates_getword:=sprite_ram[(direccion and $fff) shr 1];
     $800000..$803fff:pirates_getword:=buffer_paleta[(direccion and $3fff) shr 1];
     $900000..$907fff:pirates_getword:=ram2[(direccion and $7fff) shr 1];
@@ -175,7 +177,9 @@ case direccion of
     $100000..$10ffff:ram1[(direccion and $ffff) shr 1]:=valor;
     $500000..$500fff:sprite_ram[(direccion and $fff) shr 1]:=valor;
     $600000:begin
-              //eeprom missing
+              eepromser_0.di_write((valor and 4) shr 2);
+	            eepromser_0.cs_write(valor and 1);
+	            eepromser_0.clk_write((valor and 2) shr 1);
               copymemory(oki_6295_0.get_rom_addr,@sound_rom[(valor and $40) shr 6,0],$40000);
             end;
     $700000:scroll_x:=valor and $1ff;
@@ -224,7 +228,7 @@ begin
  m68000_0.reset;
  oki_6295_0.reset;
  frame_main:=m68000_0.tframes;
- marcade.in0:=$9f;
+ marcade.in0:=$f;
  marcade.in1:=$ffff;
 end;
 
@@ -345,6 +349,8 @@ m68000_0.init_sound(pirates_sound_update);
 oki_6295_0:=snd_okim6295.Create(1333333,OKIM6295_PIN7_LOW);
 getmem(ptempb,$200000);
 getmem(ptempb2,$200000);
+//eeprom
+eepromser_0:=eepromser_chip.create(E93C46,16);
 case main_vars.tipo_maquina of
   206:begin //Pirates
         m68000_0.change_ram16_calls(pirates_getword,pirates_putword);

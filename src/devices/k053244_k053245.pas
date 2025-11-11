@@ -1,7 +1,7 @@
 unit k053244_k053245;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$else}main_engine,{$ENDIF}gfx_engine;
+uses main_engine,gfx_engine;
 
 const
   NUM_SPRITES=128;

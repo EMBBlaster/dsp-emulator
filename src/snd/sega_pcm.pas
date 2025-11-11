@@ -1,7 +1,7 @@
 unit sega_pcm;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,timer_engine,dialogs;
+uses main_engine,sound_engine,timer_engine,dialogs;
 
 type
   tread_rom_call=function(dir:dword):byte;

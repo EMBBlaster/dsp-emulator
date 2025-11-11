@@ -1,26 +1,18 @@
 unit hw_1945k3;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine;
+uses rom_engine;
 
 function iniciar_k31945:boolean;
 
-implementation
 const
         k31945_rom:array[0..1] of tipo_roms=(
         (n:'prg-1.u51';l:$80000;p:1;crc:$6b345f27),(n:'prg-2.u52';l:$80000;p:$0;crc:$ce09b98c));
-        k31945_sprites:array[0..1] of tipo_roms=(
-        (n:'m16m-1.u62';l:$200000;p:0;crc:$0b9a6474),(n:'m16m-2.u63';l:$200000;p:2;crc:$368a8c2e));
         k31945_tiles:tipo_roms=(n:'m16m-3.u61';l:$200000;p:0;crc:$32fc80dd);
         k31945_oki1:tipo_roms=(n:'snd-1.su7';l:$80000;p:0;crc:$bbb7f0ff);
         k31945_oki2:tipo_roms=(n:'snd-2.su4';l:$80000;p:0;crc:$47e3952e);
-        k31945_dip_a:array [0..5] of def_dip=(
-        (mask:$7;name:'Coinage';number:8;dip:((dip_val:$2;dip_name:'5C 1C'),(dip_val:$1;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$6;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$4;dip_name:'1C 2C'),(dip_val:$0;dip_name:'1C 3C'),(dip_val:$3;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
-        (mask:$18;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$8;dip_name:'Normal'),(dip_val:$10;dip_name:'Hard'),(dip_val:$18;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Lives';number:4;dip:((dip_val:$40;dip_name:'2'),(dip_val:$60;dip_name:'3'),(dip_val:$20;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$100;name:'Demo Sounds';number:2;dip:((dip_val:$100;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$200;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$200;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        k31945_sprites:array[0..2] of tipo_roms=(
+        (n:'m16m-1.u62';l:$200000;p:0;crc:$0b9a6474),(n:'m16m-2.u63';l:$200000;p:2;crc:$368a8c2e),());
         flagrall_rom:array[0..1] of tipo_roms=(
         (n:'11_u34.bin';l:$40000;p:1;crc:$24dd439d),(n:'12_u35.bin';l:$40000;p:$0;crc:$373b71a5));
         flagrall_sprites:array[0..7] of tipo_roms=(
@@ -30,8 +22,20 @@ const
         (n:'7_u60.bin';l:$40000;p:$200002;crc:$f187a7bf),(n:'8_u61.bin';l:$40000;p:$200003;crc:$b73fa441));
         flagrall_tiles:array[0..1] of tipo_roms=(
         (n:'10_u102.bin';l:$80000;p:0;crc:$b1fd3279),(n:'9_u103.bin';l:$80000;p:$80000;crc:$01e6d654));
-        flagrall_oki:array[0..1] of tipo_roms=(
-        (n:'13_su4.bin';l:$80000;p:0;crc:$7b0630b3),(n:'14_su6.bin';l:$40000;p:$80000;crc:$593b038f));
+        flagrall_oki:array[0..2] of tipo_roms=(
+        (n:'13_su4.bin';l:$80000;p:0;crc:$7b0630b3),(n:'14_su6.bin';l:$40000;p:$80000;crc:$593b038f),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine;
+
+const
+        k31945_dip_a:array [0..5] of def_dip=(
+        (mask:$7;name:'Coinage';number:8;dip:((dip_val:$2;dip_name:'5C 1C'),(dip_val:$1;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$6;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$4;dip_name:'1C 2C'),(dip_val:$0;dip_name:'1C 3C'),(dip_val:$3;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
+        (mask:$18;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$8;dip_name:'Normal'),(dip_val:$10;dip_name:'Hard'),(dip_val:$18;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$60;name:'Lives';number:4;dip:((dip_val:$40;dip_name:'2'),(dip_val:$60;dip_name:'3'),(dip_val:$20;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$100;name:'Demo Sounds';number:2;dip:((dip_val:$100;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$200;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$200;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         flagrall_dip_a:array [0..8] of def_dip=(
         (mask:$3;name:'Coinage';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -133,7 +137,6 @@ procedure k31945_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to y_count do begin
    eventos_k31945;

@@ -1,61 +1,81 @@
 unit lastduel_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2203,rom_engine,
-     pal_engine,sound_engine,timer_engine,oki6295;
+uses rom_engine;
 
 function iniciar_lastduel:boolean;
 
-implementation
 const
         lastduel_rom:array[0..3] of tipo_roms=(
-        (n:'ldu_06b.13k';l:$20000;p:0;crc:$0e71acaf),(n:'ldu_05b.12k';l:$20000;p:$1;crc:$47a85bea),
+        (n:'ldu_06b.13k';l:$20000;p:0;crc:$0e71acaf),(n:'ldu_05b.12k';l:$20000;p:1;crc:$47a85bea),
         (n:'ldu_04b.11k';l:$10000;p:$40000;crc:$aa4bf001),(n:'ldu_03b.9k';l:$10000;p:$40001;crc:$bbaac8ab));
         lastduel_sound:tipo_roms=(n:'ld_02.16h';l:$10000;p:0;crc:$91834d0c);
         lastduel_char:tipo_roms=(n:'ld_01.12f';l:$8000;p:0;crc:$ad3c6f87);
         lastduel_sprites:array[0..3] of tipo_roms=(
-        (n:'ld-09.12a';l:$20000;p:0;crc:$6efadb74),(n:'ld-10.17a';l:$20000;p:$1;crc:$b8d3b2e3),
-        (n:'ld-11.12b';l:$20000;p:$2;crc:$49d4dbbd),(n:'ld-12.17b';l:$20000;p:$3;crc:$313e5338));
-        lastduel_tiles:array[0..1] of tipo_roms=(
-        (n:'ld-15.6p';l:$20000;p:0;crc:$d977a175),(n:'ld-13.6m';l:$20000;p:$1;crc:$bc25729f));
+        (n:'ld-09.12a';l:$20000;p:0;crc:$6efadb74),(n:'ld-10.17a';l:$20000;p:1;crc:$b8d3b2e3),
+        (n:'ld-11.12b';l:$20000;p:2;crc:$49d4dbbd),(n:'ld-12.17b';l:$20000;p:3;crc:$313e5338));
         lastduel_tiles2:tipo_roms=(n:'ld-14.15n';l:$80000;p:0;crc:$d0653739);
-        lastduel_dip:array [0..10] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'3'),(dip_val:$2;dip_name:'4'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$c;dip_name:'20K 60K+'),(dip_val:$8;dip_name:'30K 70K+'),(dip_val:$4;dip_name:'40K 80K+'),(dip_val:$0;dip_name:'50K 90K+'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$20;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$300;name:'Coin A';number:4;dip:((dip_val:$100;dip_name:'2C 1C'),(dip_val:$300;dip_name:'1C 1C'),(dip_val:$200;dip_name:'1C 2C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c00;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$400;dip_name:'2C 3C'),(dip_val:$c00;dip_name:'1C 3C'),(dip_val:$800;dip_name:'1C 6C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$1000;name:'Difficulty';number:2;dip:((dip_val:$1000;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2000;name:'Flip Screen';number:2;dip:((dip_val:$2000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4000;name:'Complete Invulnerability';number:2;dip:((dip_val:$4000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8000;name:'Base Ship Invulnerability';number:2;dip:((dip_val:$8000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        lastduel_tiles:array[0..2] of tipo_roms=(
+        (n:'ld-15.6p';l:$20000;p:0;crc:$d977a175),(n:'ld-13.6m';l:$20000;p:1;crc:$bc25729f),());
         madgear_rom:array[0..3] of tipo_roms=(
-        (n:'mg_04.8b';l:$20000;p:0;crc:$b112257d),(n:'mg_03.7b';l:$20000;p:$1;crc:$b2672465),
+        (n:'mg_04.8b';l:$20000;p:0;crc:$b112257d),(n:'mg_03.7b';l:$20000;p:1;crc:$b2672465),
         (n:'mg_02.6b';l:$20000;p:$40000;crc:$9f5ebe16),(n:'mg_01.5b';l:$20000;p:$40001;crc:$1cea2af0));
         madgear_sound:tipo_roms=(n:'mg_05.14j';l:$10000;p:0;crc:$2fbfc945);
         madgear_char:tipo_roms=(n:'mg_06.10k';l:$8000;p:0;crc:$382ee59b);
         madgear_sprites:array[0..7] of tipo_roms=(
-        (n:'mg_m11.rom0';l:$10000;p:$2;crc:$ee319a64),(n:'mg_m07.rom2';l:$10000;p:$40002;crc:$e5c0b211),
-        (n:'mg_m12.rom1';l:$10000;p:$0;crc:$887ef120),(n:'mg_m08.rom3';l:$10000;p:$40000;crc:$59709aa3),
-        (n:'mg_m13.rom0';l:$10000;p:$3;crc:$eae07db4),(n:'mg_m09.rom2';l:$10000;p:$40003;crc:$40ee83eb),
-        (n:'mg_m14.rom1';l:$10000;p:$1;crc:$21e5424c),(n:'mg_m10.rom3';l:$10000;p:$40001;crc:$b64afb54));
+        (n:'mg_m11.rom0';l:$10000;p:2;crc:$ee319a64),(n:'mg_m07.rom2';l:$10000;p:$40002;crc:$e5c0b211),
+        (n:'mg_m12.rom1';l:$10000;p:0;crc:$887ef120),(n:'mg_m08.rom3';l:$10000;p:$40000;crc:$59709aa3),
+        (n:'mg_m13.rom0';l:$10000;p:3;crc:$eae07db4),(n:'mg_m09.rom2';l:$10000;p:$40003;crc:$40ee83eb),
+        (n:'mg_m14.rom1';l:$10000;p:1;crc:$21e5424c),(n:'mg_m10.rom3';l:$10000;p:$40001;crc:$b64afb54));
         madgear_tiles:tipo_roms=(n:'ls-12.7l';l:$40000;p:0;crc:$6c1b2c6c);
         madgear_tiles2:tipo_roms=(n:'ls-11.2l';l:$80000;p:0;crc:$6bf81c64);
-        madgear_oki:array[0..1] of tipo_roms=(
-        (n:'ls-06.10e';l:$20000;p:0;crc:$88d39a5b),(n:'ls-05.12e';l:$20000;p:$20000;crc:$b06e03b5));
+        madgear_oki:array[0..2] of tipo_roms=(
+        (n:'ls-06.10e';l:$20000;p:0;crc:$88d39a5b),(n:'ls-05.12e';l:$20000;p:$20000;crc:$b06e03b5),());
         leds2011_rom:array[0..3] of tipo_roms=(
-        (n:'lse_04.8b';l:$20000;p:0;crc:$166c0576),(n:'lse_03.7b';l:$20000;p:$1;crc:$0c8647b6),
+        (n:'lse_04.8b';l:$20000;p:0;crc:$166c0576),(n:'lse_03.7b';l:$20000;p:1;crc:$0c8647b6),
         (n:'ls-02.6b';l:$20000;p:$40000;crc:$05c0285e),(n:'ls-01.5b';l:$20000;p:$40001;crc:$8bf934dd));
         leds2011_sound:tipo_roms=(n:'ls-07.14j';l:$10000;p:0;crc:$98af7838);
         leds2011_char:tipo_roms=(n:'ls-08.10k';l:$8000;p:0;crc:$8803cf49);
         leds2011_sprites:array[0..1] of tipo_roms=(
-        (n:'ls-10.13a';l:$40000;p:$0;crc:$db2c5883),(n:'ls-09.5a';l:$40000;p:$1;crc:$89949efb));
+        (n:'ls-10.13a';l:$40000;p:0;crc:$db2c5883),(n:'ls-09.5a';l:$40000;p:1;crc:$89949efb));
         leds2011_tiles:tipo_roms=(n:'ls-12.7l';l:$40000;p:0;crc:$6c1b2c6c);
         leds2011_tiles2:tipo_roms=(n:'ls-11.2l';l:$80000;p:0;crc:$6bf81c64);
-        leds2011_oki:array[0..1] of tipo_roms=(
-        (n:'ls-06.10e';l:$20000;p:0;crc:$88d39a5b),(n:'ls-05.12e';l:$20000;p:$20000;crc:$b06e03b5));
+        leds2011_oki:array[0..2] of tipo_roms=(
+        (n:'ls-06.10e';l:$20000;p:0;crc:$88d39a5b),(n:'ls-05.12e';l:$20000;p:$20000;crc:$b06e03b5),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2203,pal_engine,
+     sound_engine,timer_engine,oki6295;
+
+const
+        lastduel_dip_a:array [0..3] of def_dip2=(
+        (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
+        (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$38,$30,$28,$20,$18);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
+        (mask:$300;name:'Difficulty';number:4;val4:($200,$300,$100,0);name4:('Easy','Normal','Difficult','Very Difficult')),
+        (mask:$3000;name:'Bonus Life';number:4;val4:($2000,$3000,$1000,0);name4:('20K 60K 80K','30K 80K 80K','40K 80K 80K','40K 80K 100K')));
+        lastduel_dip_b:array [0..4] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','6','8')),
+        (mask:4;name:'Stage select';number:2;val2:(4,0);name2:('Start from Auto Stage','Start from Plane Stage')),
+        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
+        (mask:$40;name:'Allow Continue';number:2;val2:(0,$40);name2:('No','Yes')),
+        (mask:$80;name:'Flip Screen';number:2;val2:($80,0);name2:('Off','On')));
+        madgear_dip_a:array [0..5] of def_dip2=(
+        (mask:1;name:'Allow Continue';number:2;val2:(0,1);name2:('No','Yes')),
+        (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('No','Yes')),
+        (mask:$c;name:'Difficulty';number:4;val4:(8,$c,4,0);name4:('Easy','Normal','Difficult','Very Difficult')),
+        (mask:$30;name:'Cabinet';number:4;val4:($30,0,$10,$20);name4:('Upright One Player','Upright Two Players','Cocktail','Upright One Player (duplicate)')),
+        (mask:$40;name:'Demo Sounds';number:2;val2:(0,$40);name2:('Off','On')),
+        (mask:$80;name:'Demo Mousic';number:2;val2:(0,$80);name2:('Off','On')));
+        madgear_dip_b:array [0..1] of def_dip2=(
+        (mask:$f00;name:'Coin B';number:16;val16:($200,$400,$500,$700,$100,$900,$300,$600,$f00,0,$800,$e00,$d00,$c00,$b00,$a00);name16:('6C 1C','5C 1C','4C 1C','3C 1C','8C 1C','2C 1C','5C 3C','3C 2C','1C 1C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
+        (mask:$f000;name:'Coin A';number:16;val16:($2000,$4000,$5000,$7000,$1000,$9000,$3000,$6000,$f000,$8000,$e000,$d000,$c000,$b000,$a000,0);name16:('6C 1C','5C 1C','4C 1C','3C 1C','8C 1C','2C 1C','5C 3C','3C 2C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','FreePlay')));
+        leds2011_dip_a:array [0..5] of def_dip2=(
+        (mask:1;name:'Allow Continue';number:2;val2:(0,1);name2:('No','Yes')),
+        (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('No','Yes')),
+        (mask:$c;name:'Difficulty';number:4;val4:(8,$c,4,0);name4:('Easy','Normal','Difficult','Normal')),
+        (mask:$30;name:'Cabinet';number:4;val4:($30,0,$10,$20);name4:('Upright One Player','Upright Two Players','Cocktail','Upright One Player (duplicate)')),
+        (mask:$40;name:'Demo Sounds';number:2;val2:(0,$40);name2:('Off','On')),
+        (mask:$80;name:'Demo Mousic';number:2;val2:(0,$80);name2:('Off','On')));
 
 var
  lastduel_hw_update_video,lastduel_event:procedure;
@@ -91,7 +111,7 @@ procedure update_video_lastduel;
 var
   f,color,x,y,nchar,atrib:word;
 begin
-for f:=$0 to $fff do begin
+for f:=0 to $fff do begin
     //bg
     atrib:=ram_video[$2001+(f*2)];
     color:=atrib and $f;
@@ -103,7 +123,7 @@ for f:=$0 to $fff do begin
       gfx[1].buffer[f+$1000]:=false;
     end;
     //fg
-    atrib:=ram_video[$1+(f*2)];
+    atrib:=ram_video[1+(f*2)];
     color:=atrib and $f;
     if (gfx[1].buffer[f] or buffer_color[color+$20]) then begin
       x:=f div 64;
@@ -115,7 +135,7 @@ for f:=$0 to $fff do begin
       gfx[1].buffer[f]:=false;
     end;
   end;
-for f:=$0 to $7ff do begin
+for f:=0 to $7ff do begin
   atrib:=ram_txt[f];
   color:=atrib shr 12;
   if (gfx[0].buffer[f] or buffer_color[color]) then begin
@@ -140,7 +160,7 @@ procedure update_video_madgear;
 var
   f,color,x,y,nchar,atrib:word;
 begin
-for f:=$0 to $7ff do begin
+for f:=0 to $7ff do begin
     //bg
     atrib:=ram_video[$2800+f];
     color:=atrib and $f;
@@ -197,23 +217,25 @@ procedure eventos_lastduel;
 begin
 if event.arcade then begin
   //P1+P2
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $feff) else marcade.in1:=(marcade.in1 or $100);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fdff) else marcade.in1:=(marcade.in1 or $200);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fbff) else marcade.in1:=(marcade.in1 or $400);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $f7ff) else marcade.in1:=(marcade.in1 or $800);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $efff) else marcade.in1:=(marcade.in1 or $1000);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $dfff) else marcade.in1:=(marcade.in1 or $2000);
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $feff;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fdff;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fbff;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $f7ff;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $efff;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $dfff;
   //SYSTEM
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $ff7f;
 end;
 end;
 
@@ -221,25 +243,27 @@ procedure eventos_madgear;
 begin
 if event.arcade then begin
   //P1+P2
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $ff7f) else marcade.in1:=(marcade.in1 or $80);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $fdff) else marcade.in1:=(marcade.in1 or $200);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $fbff) else marcade.in1:=(marcade.in1 or $400);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $f7ff) else marcade.in1:=(marcade.in1 or $800);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $efff) else marcade.in1:=(marcade.in1 or $1000);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $dfff) else marcade.in1:=(marcade.in1 or $2000);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $bfff) else marcade.in1:=(marcade.in1 or $4000);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $7fff) else marcade.in1:=(marcade.in1 or $8000);
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $ffbf;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $ff7f;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $fdff;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $fbff;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $f7ff;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $efff;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $dfff;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $bfff;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $7fff;
   //SYSTEM
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $efff;
 end;
 end;
 
@@ -247,7 +271,6 @@ procedure lastduel_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
   lastduel_event;
@@ -274,8 +297,8 @@ case direccion of
     $fc0800..$fc0fff:lastduel_getword:=sprite_ram[(direccion and $7ff) shr 1];
     $fc4000:lastduel_getword:=marcade.in1; //P1_P2
     $fc4002:lastduel_getword:=marcade.in0; //SYSTEM
-    $fc4004:lastduel_getword:=$ffff; //DSW1
-    $fc4006:lastduel_getword:=$ff; //DSW2
+    $fc4004:lastduel_getword:=marcade.dswa;
+    $fc4006:lastduel_getword:=marcade.dswb;
     $fcc000..$fcdfff:lastduel_getword:=ram_txt[(direccion and $1fff) shr 1];
     $fd8000..$fd87ff:lastduel_getword:=buffer_paleta[(direccion and $7ff) shr 1];
     $fd0000..$fd7fff:lastduel_getword:=ram_video[(direccion and $7fff) shr 1];
@@ -296,7 +319,7 @@ begin
 	color.b:=((col_val shr 4) and $f)*bright*$11 div $1f;
   set_pal_color(color,dir);
   case dir of
-    $0..$ff:buffer_color[(dir shr 4)+$10]:=true;
+    0..$ff:buffer_color[(dir shr 4)+$10]:=true;
     $100..$1ff:buffer_color[((dir shr 4) and $f)+$20]:=true;
     $300..$33f:buffer_color[(dir shr 2) and $f]:=true;
   end;
@@ -372,8 +395,8 @@ begin
 case direccion of
     0..$7ffff:madgear_getword:=rom[direccion shr 1];
     $fc1800..$fc1fff:madgear_getword:=sprite_ram[(direccion and $7ff) shr 1];
-    $fc4000:madgear_getword:=$ffff; //DSW1
-    $fc4002:madgear_getword:=$ff; //DSW2
+    $fc4000:madgear_getword:=marcade.dswa;
+    $fc4002:madgear_getword:=marcade.dswb;
     $fc4004:madgear_getword:=marcade.in1; //P1_P2
     $fc4006:madgear_getword:=marcade.in0; //SYSTEM
     $fc8000..$fc9fff:madgear_getword:=ram_txt[(direccion and $1fff) shr 1];
@@ -554,6 +577,8 @@ case main_vars.tipo_maquina of
       for f:=12 to 15 do gfx[2].trans_alt[0,f]:=true;
       if not(roms_load32b_b(@memoria_temp,lastduel_sprites)) then exit;
       convert_sprites;
+      init_dips(1,lastduel_dip_a,$ffff);
+      init_dips(2,lastduel_dip_b,$ff);
   end;
   269:begin //Mad Gear
       lastduel_hw_update_video:=update_video_madgear;
@@ -586,6 +611,8 @@ case main_vars.tipo_maquina of
       gfx[2].trans_alt[0,15]:=true;
       if not(roms_load32b_b(@memoria_temp,madgear_sprites)) then exit;
       convert_sprites;
+      init_dips(1,madgear_dip_a,$ffff);
+      init_dips(2,madgear_dip_b,$ff00);
       end;
   270:begin //Led Storm 2011
       lastduel_hw_update_video:=update_video_madgear;
@@ -618,6 +645,8 @@ case main_vars.tipo_maquina of
       gfx[2].trans_alt[0,15]:=true;
       if not(roms_load16w(@memoria_temp,leds2011_sprites)) then exit;
       convert_sprites;
+      init_dips(1,leds2011_dip_a,$ffff);
+      init_dips(2,madgear_dip_b,$ff00);
       end;
 end;
 //Sound Chips

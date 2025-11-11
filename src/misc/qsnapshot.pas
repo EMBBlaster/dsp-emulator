@@ -1,8 +1,7 @@
 unit qsnapshot;
 
 interface
-uses {$IFDEF windows}windows,{$ENDIF}
-     main_engine,file_engine,sysutils,gfx_engine;
+uses main_engine,sysutils;
 
 procedure open_qsnapshot_save(name:string);
 procedure close_qsnapshot;
@@ -17,6 +16,7 @@ const
   MIN_COMPRESS_SIZE=50;
 
 implementation
+uses file_engine,gfx_engine;
 
 procedure open_qsnapshot_save(name:string);
 var

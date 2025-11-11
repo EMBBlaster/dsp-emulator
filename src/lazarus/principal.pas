@@ -9,11 +9,10 @@ interface
 
 uses lib_sdl2,{$IFDEF WINDOWS}windows,{$else}LCLType,{$endif}
      Classes,SysUtils,FileUtil,LResources,Forms,Controls,
-     Graphics,Dialogs,Menus,ExtCtrls,ComCtrls,StdCtrls,Grids,Buttons,
+     Graphics,Dialogs,Menus,ExtCtrls,ComCtrls,Buttons,
      {$ifndef windows}LMessages,{$endif}
      //misc
-     sound_engine,lenguaje,controls_engine,main_engine,loadrom,config_general,
-     init_games;
+     main_engine;
 
 type
 
@@ -22,7 +21,6 @@ type
     BitBtn1: TBitBtn;
     BitBtn10: TBitBtn;
     BitBtn11: TBitBtn;
-    BitBtn12: TBitBtn;
     BitBtn13: TBitBtn;
     BitBtn14: TBitBtn;
     BitBtn19: TBitBtn;
@@ -325,6 +323,9 @@ type
     Auto1: TMenuItem;
     BayRoute1: TMenuItem;
     BubbleBobble1: TMenuItem;
+    mars1: TMenuItem;
+    devilfish1: TMenuItem;
+    drmicro1: TMenuItem;
     MSX1_1: TMenuItem;
     Tokio1: TMenuItem;
     SuperBobleBoble1: TMenuItem;
@@ -671,8 +672,9 @@ var
   estado_actual:TEmuStatus;
 
 implementation
-uses tap_tzx,spectrum_misc,acercade,lenslock,arcade_config,
-     config,config_cpc,config_sms,config_gb,principal_misc;
+uses tap_tzx,spectrum_misc,acercade,lenslock,arcade_config,config,config_cpc,
+     config_sms,config_gb,principal_misc,sound_engine,lenguaje,controls_engine,
+     loadrom,config_general,init_games;
 
 { Tprincipal1 }
 procedure sync_all;
@@ -825,7 +827,7 @@ case main_vars.tipo_maquina of
   0..5:ConfigSP.showmodal;
   7..9:configcpc.showmodal;
   10..999:config_arcade.showmodal;
-  1002:configgb.showmodal;
+  1002:configgb.ShowModal;
   1004:SMSConfig.Showmodal;
 end;
 sync_all;
@@ -956,10 +958,12 @@ end;
 procedure Tprincipal1.Timer3Timer(Sender: TObject);
 begin
   principal_timer3;
-  sync_all;
-  if @llamadas_maquina.reset<>nil then llamadas_maquina.reset;
-  reset_game_general;
-  llamadas_maquina.bucle_general;
+  if main_vars.driver_ok then begin
+     sync_all;
+     if @llamadas_maquina.reset<>nil then llamadas_maquina.reset;
+     reset_game_general;
+     llamadas_maquina.bucle_general;
+  end;
 end;
 
 {$IFDEF WINDOWS}

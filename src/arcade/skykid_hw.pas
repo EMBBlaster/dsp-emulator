@@ -1,17 +1,14 @@
 unit skykid_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,misc_functions,sound_engine;
+uses rom_engine;
 
 function iniciar_skykid:boolean;
 
-implementation
 const
         //Sky Kid
         skykid_rom:array[0..2] of tipo_roms=(
-        (n:'sk2_2.6c';l:$4000;p:$0;crc:$ea8a5822),(n:'sk1-1c.6b';l:$4000;p:$4000;crc:$7abe6c6c),
+        (n:'sk2_2.6c';l:$4000;p:0;crc:$ea8a5822),(n:'sk1-1c.6b';l:$4000;p:$4000;crc:$7abe6c6c),
         (n:'sk1_3.6d';l:$4000;p:$8000;crc:$314b8765));
         skykid_char:tipo_roms=(n:'sk1_6.6l';l:$2000;p:0;crc:$58b731b9);
         skykid_tiles:tipo_roms=(n:'sk1_5.7e';l:$2000;p:0;crc:$c33a498e);
@@ -19,13 +16,13 @@ const
         (n:'sk1_8.10n';l:$4000;p:0;crc:$44bb7375),(n:'sk1_7.10m';l:$4000;p:$4000;crc:$3454671d));
         skykid_mcu:array[0..1] of tipo_roms=(
         (n:'sk2_4.3c';l:$2000;p:$1000;crc:$a460d0e0),(n:'cus63-63a1.mcu';l:$1000;p:0;crc:$6ef08fb3));
-        skykid_prom:array[0..4] of tipo_roms=(
-        (n:'sk1-1.2n';l:$100;p:$0;crc:$0218e726),(n:'sk1-2.2p';l:$100;p:$100;crc:$fc0d5b85),
+        skykid_prom:array[0..5] of tipo_roms=(
+        (n:'sk1-1.2n';l:$100;p:0;crc:$0218e726),(n:'sk1-2.2p';l:$100;p:$100;crc:$fc0d5b85),
         (n:'sk1-3.2r';l:$100;p:$200;crc:$d06b620b),(n:'sk1-4.5n';l:$200;p:$300;crc:$c697ac72),
-        (n:'sk1-5.6n';l:$200;p:$500;crc:$161514a4));
+        (n:'sk1-5.6n';l:$200;p:$500;crc:$161514a4),());
         //Dragon Buster
         drgnbstr_rom:array[0..2] of tipo_roms=(
-        (n:'db1_2b.6c';l:$4000;p:$0;crc:$0f11cd17),(n:'db1_1.6b';l:$4000;p:$4000;crc:$1c7c1821),
+        (n:'db1_2b.6c';l:$4000;p:0;crc:$0f11cd17),(n:'db1_1.6b';l:$4000;p:$4000;crc:$1c7c1821),
         (n:'db1_3.6d';l:$4000;p:$8000;crc:$6da169ae));
         drgnbstr_char:tipo_roms=(n:'db1_6.6l';l:$2000;p:0;crc:$c080b66c);
         drgnbstr_tiles:tipo_roms=(n:'db1_5.7e';l:$2000;p:0;crc:$28129aed);
@@ -33,10 +30,34 @@ const
         (n:'db1_8.10n';l:$4000;p:0;crc:$11942c61),(n:'db1_7.10m';l:$4000;p:$4000;crc:$cc130fe2));
         drgnbstr_mcu:array[0..1] of tipo_roms=(
         (n:'db1_4.3c';l:$2000;p:$1000;crc:$8a0b1fc1),(n:'cus60-60a1.mcu';l:$1000;p:0;crc:$076ea82a));
-        drgnbstr_prom:array[0..4] of tipo_roms=(
-        (n:'db1-1.2n';l:$100;p:$0;crc:$3f8cce97),(n:'db1-2.2p';l:$100;p:$100;crc:$afe32436),
+        drgnbstr_prom:array[0..5] of tipo_roms=(
+        (n:'db1-1.2n';l:$100;p:0;crc:$3f8cce97),(n:'db1-2.2p';l:$100;p:$100;crc:$afe32436),
         (n:'db1-3.2r';l:$100;p:$200;crc:$c95ff576),(n:'db1-4.5n';l:$200;p:$300;crc:$b2180c21),
-        (n:'db1-5.6n';l:$200;p:$500;crc:$5e2b3f74));
+        (n:'db1-5.6n';l:$200;p:$500;crc:$5e2b3f74),());
+
+implementation
+uses m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,pal_engine,
+     misc_functions,sound_engine;
+
+const
+        skykid_dip_a:array [0..4] of def_dip2=(
+        (mask:3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:4;name:'Freeze';number:2;val2:(4,0);name2:('Off','On')),
+        (mask:8;name:'Round Skip';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$10;name:'Demo Sounds';number:2;val2:(0,$10);name2:('Off','On')),
+        (mask:$60;name:'Coin A';number:4;val4:(0,$20,$60,$40);name4:('3C 1C','2C 1C','1C 1C','1C 2C')));
+        skykid_dip_b:array [0..3] of def_dip2=(
+        (mask:1;name:'Flip Screen';number:2;val2:(1,0);name2:('Off','On')),
+        (mask:2;name:'Allow Buy In';number:2;val2:(0,2);name2:('No','Yes')),
+        (mask:$30;name:'Bonus Life';number:4;val4:(0,$10,$20,$30);name4:('20K 80K+','20K 80K','30K 90K+','30K 90K')),
+        (mask:$c0;name:'Lives';number:4;val4:($80,$40,$c0,0);name4:('1','2','3','5')));
+        drgnbstr_dip_b:array [0..5] of def_dip2=(
+        (mask:1;name:'Allow Continue';number:2;val2:(1,0);name2:('No','Yes')),
+        (mask:2;name:'Bonus Level';number:2;val2:(2,0);name2:('Full','Partial')),
+        (mask:$c;name:'Bonus Vitality';number:4;val4:(0,8,4,$c);name4:('64','48/64','32/64','None')),
+        (mask:$30;name:'Starting Vitality';number:4;val4:(0,$30,$10,$20);name4:('160','128','96','64')),
+        (mask:$40;name:'Level of Monster';number:2;val2:($40,0);name2:('Normal','Difficult')),
+        (mask:$80;name:'Spurt Time';number:2;val2:($80,0);name2:('Normal','Difficult')));
 
 var
  rom_bank:array[0..1,0..$1fff] of byte;
@@ -55,18 +76,18 @@ begin
     atrib:=memoria[$5f80+(f*2)];
 		nchar:=memoria[$4f80+(f*2)]+((atrib and $80) shl 1);
 		color:=((memoria[$4f81+(f*2)] and $3f) shl 3)+$200;
-    flipx_v:=not(atrib) and $01;
-		flipy_v:=not(atrib) and $02;
+    flipx_v:=not(atrib) and 1;
+		flipy_v:=not(atrib) and 2;
     flipx:=(flipx_v=0);
     flipy:=(flipy_v=0);
     if screen_flip then begin
   		x:=((memoria[$5781+(f*2)]+(memoria[$5f81+(f*2)] and 1) shl 8)-71) and $1ff;
 	  	y:=((256-memoria[$5780+(f*2)]-7) and $ff)-32;
-      if (atrib and $8)<>0 then y:=y-16;
+      if (atrib and 8)<>0 then y:=y-16;
     end else begin
       x:=(327-(memoria[$5781+(f*2)]+(memoria[$5f81+(f*2)] and 1) shl 8)) and $1ff;
 		  y:=(memoria[$5780+(f*2)])-9;
-      if (atrib and $4)=0 then x:=x+16;
+      if (atrib and 4)=0 then x:=x+16;
     end;
     size:=(atrib and $c) shr 2;
     case size of
@@ -130,8 +151,8 @@ for f:=0 to $7ff do begin
     x:=f mod 64;
     y:=f div 64;
     atrib:=memoria[$2800+f];
-    color:=(((atrib and $7e) shr 1)+((atrib and $01) shl 6)) shl 2;
-    nchar:=memoria[$2000+f]+(atrib and $1) shl 8;
+    color:=(((atrib and $7e) shr 1)+((atrib and 1) shl 6)) shl 2;
+    nchar:=memoria[$2000+f]+(atrib and 1) shl 8;
     put_gfx(x*8,y*8,nchar,color,2,2);
     gfx[2].buffer[f]:=false;
   end;
@@ -151,23 +172,23 @@ procedure eventos_skykid;
 begin
 if event.arcade then begin
   //P1
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
+  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
+  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
+  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
+  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
   if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in3:=(marcade.in3 and $f7) else marcade.in3:=(marcade.in3 or $8);
+  if arcade_input.but1[0] then marcade.in3:=(marcade.in3 and $f7) else marcade.in3:=(marcade.in3 or 8);
   //P2
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
+  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
+  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
+  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
+  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
   if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in3:=(marcade.in3 and $fb) else marcade.in3:=(marcade.in3 or $4);
+  if arcade_input.but1[1] then marcade.in3:=(marcade.in3 and $fb) else marcade.in3:=(marcade.in3 or 4);
   //COIN
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or $1);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or $8);
+  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
+  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
+  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
   if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
 end;
 end;
@@ -177,7 +198,6 @@ var
   f:byte;
   frame_m,frame_mcu:single;
 begin
-init_controls(false,false,false,true);
 frame_m:=m6809_0.tframes;
 frame_mcu:=m6800_0.tframes;
 while EmuStatus=EsRunning do begin
@@ -200,7 +220,7 @@ end;
 function skykid_getbyte(direccion:word):byte;
 begin
 case direccion of
-  $0..$1fff:skykid_getbyte:=rom_bank[rom_nbank,direccion];
+  0..$1fff:skykid_getbyte:=rom_bank[rom_nbank,direccion];
   $2000..$2fff,$4000..$5fff,$8000..$ffff:skykid_getbyte:=memoria[direccion];
   $6800..$6bff:skykid_getbyte:=namco_snd_0.namcos1_cus30_r(direccion and $3ff);
 end;
@@ -209,7 +229,7 @@ end;
 procedure skykid_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
-  $0..$1fff,$a002..$ffff:; //ROM
+  0..$1fff,$a002..$ffff:; //ROM
   $2000..$2fff:if memoria[direccion]<>valor then begin
                   gfx[2].buffer[direccion and $7ff]:=true;
                   memoria[direccion]:=valor;
@@ -268,19 +288,19 @@ end;
 
 procedure out_port1(valor:byte);
 begin
-if ((valor and $e0)=$60) then inputport_selected:=valor and $07;
+if ((valor and $e0)=$60) then inputport_selected:=valor and 7;
 end;
 
 function in_port1:byte;
 begin
   case inputport_selected of
-		$00:in_port1:=(($ff) and $f8) shr 3;	// DSW B (bits 0-4) */
-		$01:in_port1:=((($ff) and $7) shl 2) or ((($ff) and $c0) shr 6);// DSW B (bits 5-7), DSW A (bits 0-1) */
-		$02:in_port1:=(($ff) and $3e) shr 1;	// DSW A (bits 2-6) */
-		$03:in_port1:=((($ff) and $1) shl 4) or (marcade.in3 and $f);	// DSW A (bit 7), DSW C (bits 0-3) */
-		$04:in_port1:=marcade.in2;	// coins, start */
-		$05:in_port1:=marcade.in1;	// 2P controls */
-		$06:in_port1:=marcade.in0;	// 1P controls */
+		0:in_port1:=(marcade.dswb and $f8) shr 3;	// DSW B (bits 0-4) */
+		1:in_port1:=((marcade.dswb and 7) shl 2) or ((marcade.dswa and $c0) shr 6);// DSW B (bits 5-7), DSW A (bits 0-1) */
+		2:in_port1:=(marcade.dswa and $3e) shr 1;	// DSW A (bits 2-6) */
+		3:in_port1:=((marcade.dswa and 1) shl 4) or (marcade.in3 and $f);	// DSW A (bit 7), DSW C (bits 0-3) */
+		4:in_port1:=marcade.in2;
+		5:in_port1:=marcade.in1;
+		6:in_port1:=marcade.in0;
     else in_port1:=$ff;
 	end;
 end;
@@ -347,7 +367,7 @@ case  main_vars.tipo_maquina of
           //cargar roms
           if not(roms_load(@memoria_temp,skykid_rom)) then exit;
           //Pongo las ROMs en su banco
-          copymemory(@memoria[$8000],@memoria_temp[$0],$8000);
+          copymemory(@memoria[$8000],@memoria_temp[0],$8000);
           for f:=0 to 1 do copymemory(@rom_bank[f,0],@memoria_temp[$8000+(f*$2000)],$2000);
           //Cargar MCU
           if not(roms_load(@memoria_temp,skykid_mcu)) then exit;
@@ -380,12 +400,14 @@ case  main_vars.tipo_maquina of
           //Paleta
           if not(roms_load(@memoria_temp,skykid_prom)) then exit;
           screen_flip:=false;
+          init_dips(1,skykid_dip_a,$ff);
+          init_dips(2,skykid_dip_b,$ff);
     end;
     194:begin
           //cargar roms
           if not(roms_load(@memoria_temp,drgnbstr_rom)) then exit;
           //Pongo las ROMs en su banco
-          copymemory(@memoria[$8000],@memoria_temp[$0],$8000);
+          copymemory(@memoria[$8000],@memoria_temp[0],$8000);
           for f:=0 to 1 do copymemory(@rom_bank[f,0],@memoria_temp[$8000+(f*$2000)],$2000);
           //Cargar MCU
           if not(roms_load(@memoria_temp,drgnbstr_mcu)) then exit;
@@ -418,6 +440,8 @@ case  main_vars.tipo_maquina of
           //Paleta
           if not(roms_load(@memoria_temp,drgnbstr_prom)) then exit;
           screen_flip:=true;
+          init_dips(1,skykid_dip_a,$ff);
+          init_dips(2,drgnbstr_dip_b,$ff);
     end;
 end;
 for f:=0 to $ff do begin
@@ -427,7 +451,7 @@ for f:=0 to $ff do begin
 end;
 set_pal(colores,$100);
 // tiles/sprites color table
-for f:=$0 to $3ff do begin
+for f:=0 to $3ff do begin
   gfx[1].colores[f]:=memoria_temp[$300+f];
   gfx[2].colores[f]:=memoria_temp[$300+f];
 end;

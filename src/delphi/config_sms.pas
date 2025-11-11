@@ -4,8 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.StdCtrls,main_engine,sound_engine,sn_76496,
-  rom_engine;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Buttons, Vcl.StdCtrls;
 
 type
   TSMSConfig = class(TForm)
@@ -29,7 +28,7 @@ var
   SMSConfig: TSMSConfig;
 
 implementation
-uses sega_vdp,sms,nz80,principal;
+uses sms,principal;
 
 {$R *.dfm}
 

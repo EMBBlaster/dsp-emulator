@@ -1,7 +1,7 @@
 unit sid_sound;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,sid_tables,math,dialogs;
+uses main_engine,sound_engine,sid_tables,math,dialogs;
 
 const
   TYPE_8580=0;

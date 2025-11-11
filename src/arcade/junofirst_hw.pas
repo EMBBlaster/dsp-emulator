@@ -1,34 +1,36 @@
 unit junofirst_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,konami_decrypt,ay_8910,mcs48,dac;
+uses rom_engine;
 
 function iniciar_junofrst:boolean;
 
-implementation
 const
         junofrst_rom:array[0..2] of tipo_roms=(
         (n:'jfa_b9.bin';l:$2000;p:$a000;crc:$f5a7ab9d),(n:'jfb_b10.bin';l:$2000;p:$c000;crc:$f20626e0),
         (n:'jfc_a10.bin';l:$2000;p:$e000;crc:$1e7744a7));
         junofrst_bank_rom:array[0..5] of tipo_roms=(
-        (n:'jfc1_a4.bin';l:$2000;p:$0;crc:$03ccbf1d),(n:'jfc2_a5.bin';l:$2000;p:$2000;crc:$cb372372),
+        (n:'jfc1_a4.bin';l:$2000;p:0;crc:$03ccbf1d),(n:'jfc2_a5.bin';l:$2000;p:$2000;crc:$cb372372),
         (n:'jfc3_a6.bin';l:$2000;p:$4000;crc:$879d194b),(n:'jfc4_a7.bin';l:$2000;p:$6000;crc:$f28af80b),
         (n:'jfc5_a8.bin';l:$2000;p:$8000;crc:$0539f328),(n:'jfc6_a9.bin';l:$2000;p:$a000;crc:$1da2ad6e));
         junofrst_sound:tipo_roms=(n:'jfs1_j3.bin';l:$1000;p:0;crc:$235a2893);
         junofrst_sound_sub:tipo_roms=(n:'jfs2_p4.bin';l:$1000;p:0;crc:$d0fa5d5f);
-        junofrst_blit:array[0..2] of tipo_roms=(
-        (n:'jfs3_c7.bin';l:$2000;p:$0;crc:$aeacf6db),(n:'jfs4_d7.bin';l:$2000;p:$2000;crc:$206d954c),
-        (n:'jfs5_e7.bin';l:$2000;p:$4000;crc:$1eb87a6e));
-        //Dip
-        junofrst_dip_a:array [0..1] of def_dip=(
-        (mask:$f;name:'Coin A';number:16;dip:((dip_val:$2;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'3C 2C'),(dip_val:$1;dip_name:'4C 3C'),(dip_val:$f;dip_name:'1C 1C'),(dip_val:$3;dip_name:'3C 4C'),(dip_val:$7;dip_name:'2C 3C'),(dip_val:$e;dip_name:'1C 2C'),(dip_val:$6;dip_name:'2C 5C'),(dip_val:$d;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(dip_val:$b;dip_name:'1C 5C'),(dip_val:$a;dip_name:'1C 6C'),(dip_val:$9;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),());
-        junofrst_dip_b:array [0..4] of def_dip=(
-        (mask:3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'3'),(dip_val:$2;dip_name:'4'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'256'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:4;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$4;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$70;name:'Difficulty';number:8;dip:((dip_val:$70;dip_name:'1 (Easiest)'),(dip_val:$60;dip_name:'2'),(dip_val:$50;dip_name:'3'),(dip_val:$40;dip_name:'4'),(dip_val:$30;dip_name:'5'),(dip_val:$20;dip_name:'6'),(dip_val:$10;dip_name:'7'),(dip_val:$0;dip_name:'8 (Hardest)'),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        junofrst_blit:array[0..3] of tipo_roms=(
+        (n:'jfs3_c7.bin';l:$2000;p:0;crc:$aeacf6db),(n:'jfs4_d7.bin';l:$2000;p:$2000;crc:$206d954c),
+        (n:'jfs5_e7.bin';l:$2000;p:$4000;crc:$1eb87a6e),());
+
+implementation
+uses m6809,nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     konami_decrypt,ay_8910,mcs48,dac;
+
+const
+        junofrst_dip_a:def_dip2=(
+        mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play'));
+        junofrst_dip_b:array [0..3] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','256')),
+        (mask:4;name:'Cabinet';number:2;val2:(0,4);name2:('Upright','Cocktail')),
+        (mask:$70;name:'Difficulty';number:8;val8:($70,$60,$50,$40,$30,$20,$10,0);name8:('1 (Easiest)','2','3','4','5','6','7','8 (Hardest)')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('Off','On')));
 
 var
  rom_bank,rom_bank_dec:array[0..$f,0..$fff] of byte;
@@ -51,7 +53,7 @@ for y:=0 to 255 do begin
         else effx:=(x xor xorx);
 			vrambyte:=memoria[effx*128+effy shr 1];
 			shifted:=vrambyte shr (4*(effy and 1));
-      punt[y*256+x]:=paleta[shifted and $0f];
+      punt[y*256+x]:=paleta[shifted and $f];
 		end;
 end;
 putpixel(0,0,$10000,@punt,1);
@@ -61,27 +63,30 @@ end;
 procedure eventos_junofrst;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //marcade.in1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $bf;
   //marcade.in2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 and $bf;
   //service
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef;
 end;
 end;
 
@@ -90,7 +95,6 @@ var
   irq_req:boolean;
   f:byte;
 begin
-init_controls(false,false,false,true);
 irq_req:=false;
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
@@ -117,7 +121,7 @@ end;
 function junofrst_getbyte(direccion:word):byte;
 begin
 case direccion of
-  $0..$800f,$8100..$8fff:junofrst_getbyte:=memoria[direccion];
+  0..$800f,$8100..$8fff:junofrst_getbyte:=memoria[direccion];
   $8010:junofrst_getbyte:=marcade.dswb; //dsw2
   $8020:junofrst_getbyte:=marcade.in0;
   $8024:junofrst_getbyte:=marcade.in1;
@@ -140,17 +144,17 @@ var
 begin
 		src:=((blit_data[2] shl 8) or blit_data[3]) and $fffc;
 		dest:=(blit_data[0] shl 8) or blit_data[1];
-		copy:=blit_data[3] and $01;
+		copy:=blit_data[3] and 1;
 		// 16x16 graphics
 		for i:=0 to 15 do begin
 			for j:=0 to 15 do begin
-				if (src and 1)<>0 then data:=blit_mem[src shr 1] and $0f
+				if (src and 1)<>0 then data:=blit_mem[src shr 1] and $f
 				  else data:=blit_mem[src shr 1] shr 4;
 				src:=src+1;
 				// if there is a source pixel either copy the pixel or clear the pixel depending on the copy flag
 				if (data<>0) then begin
 					if (copy=0) then data:=0;
-					if (dest and 1)<>0 then memoria[dest shr 1]:=(memoria[dest shr 1] and $0f) or (data shl 4)
+					if (dest and 1)<>0 then memoria[dest shr 1]:=(memoria[dest shr 1] and $f) or (data shl 4)
 					  else memoria[dest shr 1]:=(memoria[dest shr 1] and $f0) or data;
 				end;
 				dest:=dest+1;
@@ -160,7 +164,7 @@ begin
 end;
 begin
 case direccion of
-  $0..$7fff,$8100..$8fff:memoria[direccion]:=valor;
+  0..$7fff,$8100..$8fff:memoria[direccion]:=valor;
   $8000..$800f:begin
                 color.r:=pal3bit(valor shr 0);
                 color.g:=pal3bit(valor shr 3);
@@ -181,9 +185,9 @@ case direccion of
         end;
   $8050:sound_latch:=valor;
   $8060:rom_nbank:=valor and $f;
-  $8070..$8072:blit_data[direccion and $3]:=valor;
+  $8070..$8072:blit_data[direccion and 3]:=valor;
   $8073:begin
-          blit_data[$3]:=valor;
+          blit_data[3]:=valor;
           draw_blitter;
         end;
   $9000..$ffff:;
@@ -315,10 +319,8 @@ ay8910_0:=ay8910_chip.create(1789750,AY8910);
 ay8910_0.change_io_calls(junofrst_portar,nil,nil,junofrst_portbw);
 dac_0:=dac_chip.Create(1);
 //DIP
-marcade.dswa:=$ff;
-marcade.dswb:=$7b;
-marcade.dswa_val:=@junofrst_dip_a;
-marcade.dswb_val:=@junofrst_dip_b;
+init_dips(1,junofrst_dip_a,$ff);
+init_dips(2,junofrst_dip_b,$7b);
 //final
 iniciar_junofrst:=true;
 end;

@@ -1,26 +1,29 @@
-unit epos_hw;
+﻿unit epos_hw;
 
 interface
-uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_epos_hw:boolean;
 
-implementation
 const
         //The Glob
-        theglob_rom:array[0..7] of tipo_roms=(
+        theglob_rom:array[0..8] of tipo_roms=(
         (n:'globu10.bin';l:$1000;p:0;crc:$08fdb495),(n:'globu9.bin';l:$1000;p:$1000;crc:$827cd56c),
         (n:'globu8.bin';l:$1000;p:$2000;crc:$d1219966),(n:'globu7.bin';l:$1000;p:$3000;crc:$b1649da7),
         (n:'globu6.bin';l:$1000;p:$4000;crc:$b3457e67),(n:'globu5.bin';l:$1000;p:$5000;crc:$89d582cd),
-        (n:'globu4.bin';l:$1000;p:$6000;crc:$7ee9fdeb),(n:'globu11.bin';l:$800;p:$7000;crc:$9e05dee3));
-        theglob_pal:tipo_roms=(n:'82s123.u66';l:$20;p:0;crc:$f4f6ddc5);
+        (n:'globu4.bin';l:$1000;p:$6000;crc:$7ee9fdeb),(n:'globu11.bin';l:$800;p:$7000;crc:$9e05dee3),());
+        theglob_pal:array[0..1] of tipo_roms=((n:'82s123.u66';l:$20;p:0;crc:$f4f6ddc5),());
         //Super Glob
-        superglob_rom:array[0..7] of tipo_roms=(
+        superglob_rom:array[0..8] of tipo_roms=(
         (n:'u10';l:$1000;p:0;crc:$c0141324),(n:'u9';l:$1000;p:$1000;crc:$58be8128),
         (n:'u8';l:$1000;p:$2000;crc:$6d088c16),(n:'u7';l:$1000;p:$3000;crc:$b2768203),
         (n:'u6';l:$1000;p:$4000;crc:$976c8f46),(n:'u5';l:$1000;p:$5000;crc:$340f5290),
-        (n:'u4';l:$1000;p:$6000;crc:$173bd589),(n:'u11';l:$800;p:$7000;crc:$d45b740d));
+        (n:'u4';l:$1000;p:$6000;crc:$173bd589),(n:'u11';l:$800;p:$7000;crc:$d45b740d),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,sound_engine;
+
+const
         theglob_dip:array [0..4] of def_dip2=(
         (mask:1;name:'Coinage';number:2;val2:(0,1);name2:('1C 1C','1C 2C')),
         (mask:8;name:'Bonus Life';number:2;val2:(0,8);name2:('10K + Difficulty * 10K','90K + Difficulty * 10K')),
@@ -55,35 +58,34 @@ end;
 procedure eventos_epos;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$be;
   //input
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $df;
   //system
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $f7;
 end;
 end;
 
 procedure epos_hw_principal;
 var
-  frame:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
-frame:=z80_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 240 do begin
     if f=236 then begin
       z80_0.change_irq(HOLD_LINE);
       update_video_epos;
     end;
-    z80_0.run(frame);
-    frame:=frame+z80_0.tframes-z80_0.contador;
+    z80_0.run(frame_main);
+    frame_main:=frame_main+z80_0.tframes-z80_0.contador;
   end;
   eventos_epos;
   video_sync;
@@ -135,6 +137,7 @@ end;
 procedure reset_epos_hw;
 begin
  z80_0.reset;
+ frame_main:=z80_0.tframes;
  ay8910_0.reset;
  marcade.in0:=$ff;
  marcade.in1:=$be;

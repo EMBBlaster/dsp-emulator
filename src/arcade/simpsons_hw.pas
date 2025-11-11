@@ -1,13 +1,10 @@
 unit simpsons_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,konami,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,k052109,k053260,eepromser,timer_engine,
-     k053251,k053246_k053247_k055673;
+uses rom_engine;
 
 function iniciar_simpsons:boolean;
 
-implementation
 const
         simpsons_rom:array[0..3] of tipo_roms=(
         (n:'072-g02.16c';l:$20000;p:0;crc:$580ce1d6),(n:'072-p01.17c';l:$20000;p:$20000;crc:$07ceeaea),
@@ -18,9 +15,14 @@ const
         simpsons_sprites:array[0..3] of tipo_roms=(
         (n:'072-b08.3n';l:$100000;p:0;crc:$7de500ad),(n:'072-b09.8n';l:$100000;p:2;crc:$aa085093),
         (n:'072-b10.12n';l:$100000;p:4;crc:$577dbd53),(n:'072-b11.16l';l:$100000;p:6;crc:$55fab05d));
-        simpsons_k053260:array[0..1] of tipo_roms=(
-        (n:'072-d05.1f';l:$100000;p:0;crc:$1397a73b),(n:'072-d04.1d';l:$40000;p:$100000;crc:$78778013));
         simpsons_eeprom:tipo_roms=(n:'simpsons2p.12c.nv';l:$80;p:0;crc:$fbac4e30);
+        simpsons_k053260:array[0..2] of tipo_roms=(
+        (n:'072-d05.1f';l:$100000;p:0;crc:$1397a73b),(n:'072-d04.1d';l:$40000;p:$100000;crc:$78778013),());
+
+implementation
+uses nz80,konami,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ym_2151,k052109,k053260,eepromser,timer_engine,k053251,
+     k053246_k053247_k055673;
 
 var
  tiles_rom,sprite_rom,k053260_rom:pbyte;
@@ -158,7 +160,6 @@ procedure simpsons_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
       eventos_simpsons;

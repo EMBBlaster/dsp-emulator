@@ -1,13 +1,10 @@
-unit flower_hw;
+﻿unit flower_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine,flower_audio;
+uses rom_engine;
 
 function iniciar_flower:boolean;
 
-implementation
 const
         flower_rom:tipo_roms=(n:'1.5j';l:$8000;p:0;crc:$a4c3af78);
         flower_rom2:tipo_roms=(n:'2.5f';l:$8000;p:0;crc:$7c7ee2d8);
@@ -21,10 +18,15 @@ const
         (n:'12.16e';l:$2000;p:$4000;crc:$e3779f7f),(n:'11.14e';l:$2000;p:$6000;crc:$8801b34f));
         flower_samples:tipo_roms=(n:'4.12a';l:$8000;p:0;crc:$851ed9fd);
         flower_vol:tipo_roms=(n:'5.16a';l:$4000;p:0;crc:$42fa2853);
-        flower_prom:array[0..2] of tipo_roms=(
+        flower_prom:array[0..3] of tipo_roms=(
         (n:'82s129.k3';l:$100;p:0;crc:$5aab7b41),(n:'82s129.k2';l:$100;p:$100;crc:$ababb072),
-        (n:'82s129.k1';l:$100;p:$200;crc:$d311ed0d));
-        //DIP
+        (n:'82s129.k1';l:$100;p:$200;crc:$d311ed0d),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     timer_engine,flower_audio;
+
+const
         flower_dipa:array [0..4] of def_dip2=(
         (mask:8;name:'Energy Decrease';number:2;val2:(8,0);name2:('Slow','Fast')),
         (mask:$10;name:'Invulnerability';number:2;val2:($10,0);name2:('Off','On')),
@@ -159,7 +161,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
    eventos_flower;

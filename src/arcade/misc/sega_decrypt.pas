@@ -1,4 +1,4 @@
-unit sega_decrypt;
+﻿unit sega_decrypt;
 
 interface
 

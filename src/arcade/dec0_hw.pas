@@ -1,15 +1,9 @@
 unit dec0_hw;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     ym_2203,ym_3812,oki6295,m6502,sound_engine,hu6280,misc_functions,
-     deco_bac06,mcs51;
+uses rom_engine;
 
 function iniciar_dec0:boolean;
-
-implementation
 
 const
         //Robocop
@@ -27,22 +21,11 @@ const
         robocop_tiles2:array[0..3] of tipo_roms=(
         (n:'ep14';l:$8000;p:0;crc:$ca56ceda),(n:'ep15';l:$8000;p:$8000;crc:$a945269c),
         (n:'ep16';l:$8000;p:$10000;crc:$e7fa4d58),(n:'ep17';l:$8000;p:$18000;crc:$84aae89d));
-        robocop_sprites:array[0..7] of tipo_roms=(
+        robocop_sprites:array[0..8] of tipo_roms=(
         (n:'ep07';l:$10000;p:0;crc:$495d75cf),(n:'ep06';l:$8000;p:$10000;crc:$a2ae32e2),
         (n:'ep11';l:$10000;p:$20000;crc:$62fa425a),(n:'ep10';l:$8000;p:$30000;crc:$cce3bd95),
         (n:'ep09';l:$10000;p:$40000;crc:$11bed656),(n:'ep08';l:$8000;p:$50000;crc:$c45c7b4c),
-        (n:'ep13';l:$10000;p:$60000;crc:$8fca9f28),(n:'ep12';l:$8000;p:$70000;crc:$3cd1d0c3));
-        robocop_dip:array [0..9] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,$8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
-        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
-        (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')),
-        (mask:$300;name:'Player Energy';number:4;val4:($100,$300,$200,0);name4:('Low','Medium','High','Very High')),
-        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
-        (mask:$1000;name:'Allow Continue';number:2;val2:($1000,0);name2:('Yes','No')),
-        (mask:$2000;name:'Bonus Stage Energy';number:2;val2:(0,$2000);name2:('Low','High')),
-        (mask:$4000;name:'Brink Time';number:2;val2:($4000,0);name2:('Normal','Less')));
+        (n:'ep13';l:$10000;p:$60000;crc:$8fca9f28),(n:'ep12';l:$8000;p:$70000;crc:$3cd1d0c3),());
         //Baddudes
         baddudes_rom:array[0..3] of tipo_roms=(
         (n:'ei04-1.3c';l:$10000;p:0;crc:$4bf158a7),(n:'ei01-1.3a';l:$10000;p:1;crc:$74f5110c),
@@ -57,19 +40,11 @@ const
         (n:'ei22.14f';l:$10000;p:$20000;crc:$b893d880),(n:'ei24.17f';l:$10000;p:$30000;crc:$6f226dda));
         baddudes_tiles2:array[0..1] of tipo_roms=(
         (n:'ei30.9j';l:$10000;p:$20000;crc:$982da0d1),(n:'ei28.9f';l:$10000;p:$30000;crc:$f01ebb3b));
-        baddudes_sprites:array[0..7] of tipo_roms=(
+        baddudes_sprites:array[0..8] of tipo_roms=(
         (n:'ei15.16c';l:$10000;p:0;crc:$a38a7d30),(n:'ei16.17c';l:$8000;p:$10000;crc:$17e42633),
         (n:'ei11.16a';l:$10000;p:$20000;crc:$3a77326c),(n:'ei12.17a';l:$8000;p:$30000;crc:$fea2a134),
         (n:'ei13.13c';l:$10000;p:$40000;crc:$e5ae2751),(n:'ei14.14c';l:$8000;p:$50000;crc:$e83c760a),
-        (n:'ei09.13a';l:$10000;p:$60000;crc:$6901e628),(n:'ei10.14a';l:$8000;p:$70000;crc:$eeee8a1a));
-        baddudes_dip:array [0..6] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
-        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
-        (mask:$300;name:'Lives';number:4;val4:($100,$300,$200,0);name4:('1','3','5','Infinite')),
-        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
-        (mask:$1000;name:'Allow Continue';number:2;val2:($1000,0);name2:('Yes','No')));
+        (n:'ei09.13a';l:$10000;p:$60000;crc:$6901e628),(n:'ei10.14a';l:$8000;p:$70000;crc:$eeee8a1a),());
         //Hippodrome
         hippo_rom:array[0..3] of tipo_roms=(
         (n:'ew02';l:$10000;p:0;crc:$df0d7dc6),(n:'ew01';l:$10000;p:1;crc:$d5670aa7),
@@ -85,20 +60,11 @@ const
         hippo_tiles2:array[0..3] of tipo_roms=(
         (n:'ew24';l:$8000;p:0;crc:$4e1bc2a4),(n:'ew25';l:$8000;p:$8000;crc:$9eb47dfb),
         (n:'ew23';l:$8000;p:$10000;crc:$9ecf479e),(n:'ew22';l:$8000;p:$18000;crc:$e55669aa));
-        hippo_sprites:array[0..7] of tipo_roms=(
+        hippo_sprites:array[0..8] of tipo_roms=(
         (n:'ew15';l:$10000;p:0;crc:$95423914),(n:'ew16';l:$10000;p:$10000;crc:$96233177),
         (n:'ew10';l:$10000;p:$20000;crc:$4c25dfe8),(n:'ew11';l:$10000;p:$30000;crc:$f2e007fc),
         (n:'ew06';l:$10000;p:$40000;crc:$e4bb8199),(n:'ew07';l:$10000;p:$50000;crc:$470b6989),
-        (n:'ew17';l:$10000;p:$60000;crc:$8c97c757),(n:'ew12';l:$10000;p:$70000;crc:$a2d244bc));
-        hippo_dip:array [0..7] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
-        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
-        (mask:$300;name:'Lives';number:4;val4:($100,$300,$200,0);name4:('1','2','3','5')),
-        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
-        (mask:$3000;name:'Player & Enemy Energy';number:4;val4:($1000,$2000,$3000,0);name4:('Very Low','Low','Medium','High')),
-        (mask:$4000;name:'Enemy Power Decrease on Continue';number:2;val2:($4000,0);name2:('2 Dots','3 Dots')));
+        (n:'ew17';l:$10000;p:$60000;crc:$8c97c757),(n:'ew12';l:$10000;p:$70000;crc:$a2d244bc),());
         //Slyspy
         slyspy_rom:array[0..3] of tipo_roms=(
         (n:'fa14-4.17l';l:$10000;p:0;crc:$60f16e31),(n:'fa12-4.9l';l:$10000;p:1;crc:$b9b9fdcf),
@@ -111,18 +77,9 @@ const
         (n:'fa07.17a';l:$10000;p:0;crc:$e932268b),(n:'fa06.15a';l:$10000;p:$10000;crc:$c4dd38c0));
         slyspy_tiles2:array[0..1] of tipo_roms=(
         (n:'fa09.22a';l:$20000;p:0;crc:$1395e9be),(n:'fa08.21a';l:$20000;p:$20000;crc:$4d7464db));
-        slyspy_sprites:array[0..3] of tipo_roms=(
+        slyspy_sprites:array[0..4] of tipo_roms=(
         (n:'fa01.4a';l:$20000;p:0;crc:$99b0cd92),(n:'fa03.7a';l:$20000;p:$20000;crc:$0e7ea74d),
-        (n:'fa00.2a';l:$20000;p:$40000;crc:$f7df3fd7),(n:'fa02.5a';l:$20000;p:$60000;crc:$84e8da9d));
-        slyspy_dip:array [0..7] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
-        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
-        (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')),
-        (mask:$300;name:'Energy';number:4;val4:($200,$300,$100,0);name4:('Low - 8 bars','Medium - 10 bars','High - 12 bars','Very High - 14 bars')),
-        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
-        (mask:$1000;name:'Allow Continue';number:2;val2:($1000,0);name2:('Yes','No')));
+        (n:'fa00.2a';l:$20000;p:$40000;crc:$f7df3fd7),(n:'fa02.5a';l:$20000;p:$60000;crc:$84e8da9d),());
         //Boulder Dash
         bouldash_rom:array[0..5] of tipo_roms=(
         (n:'fw-15-2.17l';l:$10000;p:0;crc:$ca19a967),(n:'fw-12-2.9l';l:$10000;p:1;crc:$242bdc2a),
@@ -136,9 +93,52 @@ const
         (n:'fn-07';l:$10000;p:0;crc:$eac6a3b3),(n:'fn-06';l:$10000;p:$10000;crc:$3feee292));
         bouldash_tiles2:array[0..1] of tipo_roms=(
         (n:'fn-09';l:$20000;p:0;crc:$c2b27bd2),(n:'fn-08';l:$20000;p:$20000;crc:$5ac97178));
-        bouldash_sprites:array[0..3] of tipo_roms=(
+        bouldash_sprites:array[0..4] of tipo_roms=(
         (n:'fn-01';l:$10000;p:0;crc:$9333121b),(n:'fn-03';l:$10000;p:$10000;crc:$254ba60f),
-        (n:'fn-00';l:$10000;p:$20000;crc:$ec18d098),(n:'fn-02';l:$10000;p:$30000;crc:$4f060cba));
+        (n:'fn-00';l:$10000;p:$20000;crc:$ec18d098),(n:'fn-02';l:$10000;p:$30000;crc:$4f060cba),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,ym_2203,ym_3812,
+     oki6295,m6502,sound_engine,hu6280,misc_functions,deco_bac06,mcs51;
+
+const
+        robocop_dip:array [0..9] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,$8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
+        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
+        (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')),
+        (mask:$300;name:'Player Energy';number:4;val4:($100,$300,$200,0);name4:('Low','Medium','High','Very High')),
+        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:$1000;name:'Allow Continue';number:2;val2:($1000,0);name2:('Yes','No')),
+        (mask:$2000;name:'Bonus Stage Energy';number:2;val2:(0,$2000);name2:('Low','High')),
+        (mask:$4000;name:'Brink Time';number:2;val2:($4000,0);name2:('Normal','Less')));
+        baddudes_dip:array [0..6] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
+        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
+        (mask:$300;name:'Lives';number:4;val4:($100,$300,$200,0);name4:('1','3','5','Infinite')),
+        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:$1000;name:'Allow Continue';number:2;val2:($1000,0);name2:('Yes','No')));
+        hippo_dip:array [0..7] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
+        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
+        (mask:$300;name:'Lives';number:4;val4:($100,$300,$200,0);name4:('1','2','3','5')),
+        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:$3000;name:'Player & Enemy Energy';number:4;val4:($1000,$2000,$3000,0);name4:('Very Low','Low','Medium','High')),
+        (mask:$4000;name:'Enemy Power Decrease on Continue';number:2;val2:($4000,0);name2:('2 Dots','3 Dots')));
+        slyspy_dip:array [0..7] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:$20;name:'Demo Sounds';number:2;val2:(0,$20);name2:('Off','On')),
+        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
+        (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')),
+        (mask:$300;name:'Energy';number:4;val4:($200,$300,$100,0);name4:('Low - 8 bars','Medium - 10 bars','High - 12 bars','Very High - 14 bars')),
+        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:$1000;name:'Allow Continue';number:2;val2:($1000,0);name2:('Yes','No')));
         bouldash_dip:array [0..8] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,7,6,5,4,3,2);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$38,$30,$28,$20,$18,$10);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
@@ -313,7 +313,6 @@ procedure baddudes_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
    case f of
@@ -340,7 +339,6 @@ procedure hippodrome_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
    case f of
@@ -368,7 +366,6 @@ procedure robocop_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
    case f of
@@ -395,21 +392,20 @@ procedure slyspy_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
-   m68000_0.run(frame_main);
-   frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
-   h6280_0.run(frame_snd);
-   frame_snd:=frame_snd+h6280_0.tframes-h6280_0.contador;
    case f of
-      7:marcade.in1:=marcade.in1 and $f7;
-      247:begin
+      8:marcade.in1:=marcade.in1 and $f7;
+      248:begin
             m68000_0.irq[6]:=HOLD_LINE;
             update_video_slyspy;
             marcade.in1:=marcade.in1 or 8;
           end;
    end;
+   m68000_0.run(frame_main);
+   frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
+   h6280_0.run(frame_snd);
+   frame_snd:=frame_snd+h6280_0.tframes-h6280_0.contador;
  end;
  eventos_dec1;
  video_sync;

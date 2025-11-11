@@ -1,12 +1,12 @@
 unit mc8123;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$else}main_engine,{$endif}
-     misc_functions;
+uses main_engine;
 
 procedure mc8123_decrypt_rom(keyrgn,rom_src,rom_opc:pbyte;size:dword);
 
 implementation
+uses misc_functions;
 
 function decrypt_type0(val,param,swap:integer):integer;
 begin
@@ -310,4 +310,4 @@ begin
   freemem(decrypted1);
 end;
 
-end.
+end.

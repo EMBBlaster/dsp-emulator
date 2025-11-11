@@ -1,13 +1,10 @@
 unit superduck_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,oki6295;
+uses rom_engine;
 
 function iniciar_superduck:boolean;
 
-implementation
 const
         superduck_rom:array[0..1] of tipo_roms=(
         (n:'5.u16n';l:$20000;p:0;crc:$837a559a),(n:'6.u16l';l:$20000;p:1;crc:$508e9905));
@@ -22,9 +19,14 @@ const
         superduck_sprites:array[0..3] of tipo_roms=(
         (n:'15.u1d';l:$20000;p:0;crc:$81bf1f27),(n:'16.u2d';l:$20000;p:1;crc:$9573d6ec),
         (n:'17.u1c';l:$20000;p:2;crc:$21ef14d4),(n:'18.u2c';l:$20000;p:3;crc:$33dd0674));
-        superduck_oki:array[0..1] of tipo_roms=(
-        (n:'2.su12';l:$20000;p:0;crc:$745d42fb),(n:'1.su13';l:$80000;p:$20000;crc:$7fb1ed42));
-        //DIP
+        superduck_oki:array[0..2] of tipo_roms=(
+        (n:'2.su12';l:$20000;p:0;crc:$745d42fb),(n:'1.su13';l:$80000;p:$20000;crc:$7fb1ed42),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,oki6295;
+
+const
         superduck_dip:array [0..4] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,2,3,7,6,5,4);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C')),
         (mask:$10;name:'Demo Sounds';number:2;val2:(0,$10);name2:('Off','On')),
@@ -139,7 +141,6 @@ procedure superduck_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
     eventos_superduck;

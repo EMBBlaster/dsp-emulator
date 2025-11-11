@@ -1,8 +1,7 @@
 unit seibu_sound;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     sound_engine,misc_functions,main_engine,nz80,ym_3812,oki6295,
+uses sound_engine,misc_functions,main_engine,nz80,ym_3812,oki6295,
      ym_2151,msm5205;
 
 type

@@ -1,13 +1,10 @@
 unit hw_1942;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,pal_engine,
-     sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_hw1942:boolean;
 
-implementation
 const
         hw1942_rom:array[0..4] of tipo_roms=(
         (n:'srb-03.m3';l:$4000;p:0;crc:$d9dafcc3),(n:'srb-04.m4';l:$4000;p:$4000;crc:$da0cf924),
@@ -23,9 +20,15 @@ const
         (n:'sr-08.a1';l:$2000;p:0;crc:$3884d9eb),(n:'sr-09.a2';l:$2000;p:$2000;crc:$999cf6e0),
         (n:'sr-10.a3';l:$2000;p:$4000;crc:$8edb273a),(n:'sr-11.a4';l:$2000;p:$6000;crc:$3a2726c3),
         (n:'sr-12.a5';l:$2000;p:$8000;crc:$1bd3d8bb),(n:'sr-13.a6';l:$2000;p:$a000;crc:$658f02c4));
-        hw1942_sprites:array[0..3] of tipo_roms=(
+        hw1942_sprites:array[0..4] of tipo_roms=(
         (n:'sr-14.l1';l:$4000;p:0;crc:$2528bec6),(n:'sr-15.l2';l:$4000;p:$4000;crc:$f89287aa),
-        (n:'sr-16.n1';l:$4000;p:$8000;crc:$024418f8),(n:'sr-17.n2';l:$4000;p:$c000;crc:$e2c7e489));
+        (n:'sr-16.n1';l:$4000;p:$8000;crc:$024418f8),(n:'sr-17.n2';l:$4000;p:$c000;crc:$e2c7e489),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,qsnapshot;
+
+const
         hw1942_dip_a:array [0..4] of def_dip=(
         (mask:$7;name:'Coin A';number:8;dip:((dip_val:$1;dip_name:'4C 1C'),(dip_val:$2;dip_name:'3C 1C'),(dip_val:$4;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$3;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
         (mask:$8;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$8;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -129,7 +132,6 @@ var
   f:byte;
   frame_m,frame_s:single;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s:=z80_1.tframes;
 while EmuStatus=EsRunning do begin

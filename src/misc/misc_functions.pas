@@ -1,9 +1,9 @@
 unit misc_functions;
 
 interface
-uses {$IFDEF windows}windows,{$ENDIF}{$ifdef fpc}crc,{$else}
-     {$IFDEF windows}vcl.imaging.pngimage,{$ENDIF}{$endif}sysutils,forms,
-     dialogs,controls;
+uses {$ifdef fpc}crc,controls,{$else}
+     {$IFDEF windows}vcl.imaging.pngimage,{$ENDIF}{$endif}
+     sysutils,dialogs,main_engine;
 
 const
   SARCADE=0;
@@ -49,7 +49,7 @@ function saverom(var name:string;var index:byte;system_type:byte):boolean;
 function extract_data(romfile:string;data_des:pbyte;var longitud:integer;var file_name:string;system_type:byte):boolean;
 
 implementation
-uses principal,main_engine,file_engine;
+uses principal,file_engine;
 
 procedure fix_screen_pos(width,height:word);
 var
@@ -72,14 +72,14 @@ principal1.Image1.top:=principal1.statusbar1.top;
 principal1.statusbar1.Panels[0].Width:=60;
 principal1.statusbar1.Panels[1].Width:=125;
 //botones
-principal1.BitBtn2.left:=(principal1.statusbar1.width div 2)-107-38{$ifdef fpc}-9{$endif}; //107
-principal1.BitBtn3.left:=(principal1.statusbar1.width div 2)-79-28{$ifdef fpc}-7{$endif}; //79
+principal1.BitBtn2.left:=(principal1.statusbar1.width div 2)-107-38{$ifdef fpc}-14{$endif}; //107
+principal1.BitBtn3.left:=(principal1.statusbar1.width div 2)-79-28{$ifdef fpc}-11{$endif}; //79
 principal1.BitBtn5.left:=(principal1.statusbar1.width div 2)-47-22{$ifdef fpc}-8{$endif}; //47
-principal1.BitBtn6.left:=(principal1.statusbar1.width div 2)-19-12{$ifdef fpc}-6{$endif}; //19
-principal1.BitBtn8.left:=(principal1.statusbar1.width div 2)+14-1{$ifdef fpc}+6{$endif}; //14
-principal1.BitBtn19.left:=(principal1.statusbar1.width div 2)+42+9{$ifdef fpc}+8{$endif}; //42
+principal1.BitBtn6.left:=(principal1.statusbar1.width div 2)-19-12{$ifdef fpc}-5{$endif}; //19
+principal1.BitBtn8.left:=(principal1.statusbar1.width div 2)+14-1{$ifdef fpc}+8{$endif}; //14
+principal1.BitBtn19.left:=(principal1.statusbar1.width div 2)+42+9{$ifdef fpc}+11{$endif}; //42
 principal1.btncfg.left:=(principal1.statusbar1.width div 2)+72+22{$ifdef fpc}+9{$endif};  //72
-principal1.BitBtn13.left:=(principal1.statusbar1.width div 2)+103+29{$ifdef fpc}+11{$endif}; //103
+principal1.BitBtn13.left:=(principal1.statusbar1.width div 2)+103+29{$ifdef fpc}+12{$endif}; //103
 principal1.Left:=old_x;
 principal1.Top:=old_y;
 end;

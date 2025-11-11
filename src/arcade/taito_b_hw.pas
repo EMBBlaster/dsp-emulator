@@ -1,28 +1,29 @@
 unit taito_b_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,taito_sound,rom_engine,
-     pal_engine,sound_engine,taito_tc0180vcu;
+uses rom_engine;
 
 function iniciar_taito_b:boolean;
 
-implementation
 const
         nastar_rom:array[0..3] of tipo_roms=(
         (n:'b81-08.50';l:$20000;p:0;crc:$d6da9169),(n:'b81-13.31';l:$20000;p:1;crc:$60d176fb),
         (n:'b81-10.49';l:$20000;p:$40000;crc:$53f34344),(n:'b81-09.30';l:$20000;p:$40001;crc:$630d34af));
         nastar_sound:tipo_roms=(n:'b81-11.37';l:$10000;p:0;crc:$3704bf09);
-        nastar_gfx:array[0..1] of tipo_roms=(
-        (n:'b81-03.14';l:$80000;p:0;crc:$551b75e6),(n:'b81-04.15';l:$80000;p:$80000;crc:$cf734e12));
         nastar_adpcm_a:tipo_roms=(n:'b81-02.2';l:$80000;p:0;crc:$20ec3b86);
         nastar_adpcm_b:tipo_roms=(n:'b81-01.1';l:$80000;p:0;crc:$b33f796b);
+        nastar_gfx:array[0..2] of tipo_roms=(
+        (n:'b81-03.14';l:$80000;p:0;crc:$551b75e6),(n:'b81-04.15';l:$80000;p:$80000;crc:$cf734e12),());
         masterw_rom:array[0..3] of tipo_roms=(
         (n:'b72_06.33';l:$20000;p:0;crc:$ae848eff),(n:'b72_12.24';l:$20000;p:1;crc:$7176ce70),
         (n:'b72_04.34';l:$20000;p:$40000;crc:$141e964c),(n:'b72_03.25';l:$20000;p:$40001;crc:$f4523496));
         masterw_sound:tipo_roms=(n:'b72_07.30';l:$10000;p:0;crc:$2b1a946f);
-        masterw_gfx:array[0..1] of tipo_roms=(
-        (n:'b72-02.6';l:$80000;p:0;crc:$843444eb),(n:'b72-01.5';l:$80000;p:$80000;crc:$a24ac26e));
+        masterw_gfx:array[0..2] of tipo_roms=(
+        (n:'b72-02.6';l:$80000;p:0;crc:$843444eb),(n:'b72-01.5';l:$80000;p:$80000;crc:$a24ac26e),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,taito_sound,pal_engine,
+     sound_engine,taito_tc0180vcu;
 
 var
  rom:array[0..$3ffff] of word;
@@ -60,7 +61,6 @@ var
   frame_m:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin

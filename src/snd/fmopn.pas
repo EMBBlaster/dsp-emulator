@@ -1,7 +1,7 @@
 unit fmopn;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}math;
+uses math,main_engine;
 
 type
   type_IRQ_Handler=procedure (irqstate:byte);

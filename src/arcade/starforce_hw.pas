@@ -1,14 +1,9 @@
-unit starforce_hw; //Senjyo
+﻿unit starforce_hw; //Senjyo
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,z80pio,z80daisy,main_engine,controls_engine,gfx_engine,sn_76496,
-     z80ctc,rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_starforce:boolean;
-
-implementation
 
 const
         starforce_rom:array[0..1] of tipo_roms=(
@@ -26,20 +21,9 @@ const
         (n:'18.10pq';l:$1000;p:0;crc:$6455c3ad),(n:'17.9pq';l:$1000;p:$1000;crc:$68c60d0f),
         (n:'16.8pq';l:$1000;p:$2000;crc:$ce20b469));
         starforce_sound:tipo_roms=(n:'1.3hj';l:$2000;p:0;crc:$2735bb22);
-        starforce_sprites:array[0..2] of tipo_roms=(
+        starforce_sprites:array[0..3] of tipo_roms=(
         (n:'6.10lm';l:$4000;p:0;crc:$5468a21d),(n:'5.9lm';l:$4000;p:$4000;crc:$f71717f8),
-        (n:'4.8lm';l:$4000;p:$8000;crc:$dd9d68a4));
-        //DIP
-        starforce_dip_a:array [0..4] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(1,0,2,3);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
-        (mask:$c;name:'Coin B';number:4;val4:(4,0,8,$c);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
-        (mask:$30;name:'Lives';number:4;val4:($30,0,$10,$20);name4:('2','3','4','5')),
-        (mask:$40;name:'Cabinet';number:2;val2:($40,0);name2:('Upright','Cocktail')),
-        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('On','Off')));
-        starforce_dip_b:array [0..1] of def_dip2=(
-        (mask:7;name:'Bonus Life';number:8;val8:(0,1,2,3,4,5,6,7);name8:('50K 200K 500K','100K 300K 800K','50K 200K','100K 300K','50K','100K','200K','None')),
-        (mask:$38;name:'Difficulty';number:8;val8:(0,$8,$10,$18,$20,$28,$30,$38);name8:('Easyest','Easy','Medium','Difficult','Hard','Hardest','Invalid','Invalid')));
-        starforce_dip_c:def_dip2=(mask:1;name:'Inmunnity';number:2;val2:(1,0);name2:('On','Off'));
+        (n:'4.8lm';l:$4000;p:$8000;crc:$dd9d68a4),());
         //Senjyo
         senjyo_rom:array[0..3] of tipo_roms=(
         (n:'08m_05t.bin';l:$2000;p:0;crc:$b1f3544d),(n:'08k_04t.bin';l:$2000;p:$2000;crc:$e34468a8),
@@ -54,14 +38,10 @@ const
         (n:'07n_18m.bin';l:$1000;p:0;crc:$d50fced3),(n:'07k_17m.bin';l:$2000;p:$2000;crc:$10c3a5f0));
         senjyo_bg3:array[0..1] of tipo_roms=(
         (n:'09n_20m.bin';l:$1000;p:0;crc:$54cb8126),(n:'09k_19m.bin';l:$2000;p:$1000;crc:$373e047c));
-        senjyo_sprites:array[0..5] of tipo_roms=(
+        senjyo_sprites:array[0..6] of tipo_roms=(
         (n:'08p_13b.bin';l:$2000;p:0;crc:$40127efd),(n:'08s_14b.bin';l:$2000;p:$2000;crc:$42648ffa),
         (n:'08m_11b.bin';l:$2000;p:$4000;crc:$ccc4680b),(n:'08n_12b.bin';l:$2000;p:$6000;crc:$742fafed),
-        (n:'08j_09b.bin';l:$2000;p:$8000;crc:$1ee63b5c),(n:'08k_10b.bin';l:$2000;p:$a000;crc:$a9f41ec9));
-        senjyo_dip_b:array [0..1] of def_dip2=(
-        (mask:2;name:'Bonus Life';number:2;val2:(2,0);name2:('100K','None')),
-        (mask:$c0;name:'Difficulty';number:4;val4:($80,$40,0,$c0);name4:('Easy','Medium','Hard','Hardest')));
-        senjyo_dip_c:def_dip2=(mask:$f;name:'Disable Enemy Fire';number:2;val2:($f,0);name2:('On','Off'));
+        (n:'08j_09b.bin';l:$2000;p:$8000;crc:$1ee63b5c),(n:'08k_10b.bin';l:$2000;p:$a000;crc:$a9f41ec9),());
         //Baluba
         baluba_rom:array[0..1] of tipo_roms=(
         (n:'0';l:$4000;p:0;crc:$0e2ebe32),(n:'1';l:$4000;p:$4000;crc:$cde97076));
@@ -78,9 +58,30 @@ const
         (n:'8';l:$1000;p:0;crc:$31e97ef9),(n:'7';l:$1000;p:$1000;crc:$5915c5e2),
         (n:'6';l:$1000;p:$2000;crc:$ad6881da));
         baluba_sound:tipo_roms=(n:'2';l:$2000;p:0;crc:$441fbc64);
-        baluba_sprites:array[0..2] of tipo_roms=(
+        baluba_sprites:array[0..3] of tipo_roms=(
         (n:'5';l:$4000;p:0;crc:$3b6b6e96),(n:'4';l:$4000;p:$4000;crc:$dd954124),
-        (n:'3';l:$4000;p:$8000;crc:$7ac24983));
+        (n:'3';l:$4000;p:$8000;crc:$7ac24983),());
+
+implementation
+uses nz80,z80pio,z80daisy,main_engine,controls_engine,gfx_engine,sn_76496,
+     z80ctc,pal_engine,sound_engine;
+
+const
+        starforce_dip_a:array [0..4] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(1,0,2,3);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
+        (mask:$c;name:'Coin B';number:4;val4:(4,0,8,$c);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
+        (mask:$30;name:'Lives';number:4;val4:($30,0,$10,$20);name4:('2','3','4','5')),
+        (mask:$40;name:'Cabinet';number:2;val2:($40,0);name2:('Upright','Cocktail')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('On','Off')));
+        starforce_dip_b:array [0..1] of def_dip2=(
+        (mask:7;name:'Bonus Life';number:8;val8:(0,1,2,3,4,5,6,7);name8:('50K 200K 500K','100K 300K 800K','50K 200K','100K 300K','50K','100K','200K','None')),
+        (mask:$38;name:'Difficulty';number:8;val8:(0,$8,$10,$18,$20,$28,$30,$38);name8:('Easyest','Easy','Medium','Difficult','Hard','Hardest','Invalid','Invalid')));
+        starforce_dip_c:def_dip2=(mask:1;name:'Inmunnity';number:2;val2:(1,0);name2:('On','Off'));
+        //Senjyo
+        senjyo_dip_b:array [0..1] of def_dip2=(
+        (mask:2;name:'Bonus Life';number:2;val2:(2,0);name2:('100K','None')),
+        (mask:$c0;name:'Difficulty';number:4;val4:($80,$40,0,$c0);name4:('Easy','Medium','Hard','Hardest')));
+        senjyo_dip_c:def_dip2=(mask:$f;name:'Disable Enemy Fire';number:2;val2:($f,0);name2:('On','Off'));
         baluba_dip_b:array [0..1] of def_dip2=(
         (mask:7;name:'Bonus Life';number:8;val8:(0,1,2,3,4,5,6,7);name8:('50K 200K 500K','100K 300K 800K','50K 200K','100K 300K','50K','100K','200K','None')),
         (mask:$38;name:'Difficulty';number:8;val8:(0,$8,$10,$18,$20,$28,$30,$38);name8:('Easyest','Easy','Medium','Difficult','Hard','Hardest','Invalid','Invalid')));
@@ -307,23 +308,26 @@ end;
 procedure eventos_starforce;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //P1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
+  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 1);
+  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 2);
+  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or 4);
+  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or 8);
+  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10);
   //P2
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
+  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 1);
+  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 2);
+  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or 4);
+  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or 8);
+  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or $10);
   //SYS
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 or 8) else marcade.in2:=(marcade.in2 and $f7);
+  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or 1);
+  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or 2);
+  if arcade_input.start[0] then marcade.in2:=(marcade.in2 or 4);
+  if arcade_input.start[1] then marcade.in2:=(marcade.in2 or 8);
 end;
 end;
 
@@ -331,7 +335,6 @@ procedure starforce_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
       eventos_starforce;

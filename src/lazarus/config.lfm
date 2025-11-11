@@ -1,727 +1,538 @@
 object ConfigSP: TConfigSP
   Left = 858
-  Height = 654
+  Height = 635
   Top = 92
-  Width = 656
+  Width = 470
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Configurar'
-  ClientHeight = 654
-  ClientWidth = 656
-  DesignTimePPI = 120
-  Font.CharSet = ANSI_CHARSET
-  Font.Color = clBlack
-  Font.Height = -14
-  Font.Name = 'Tahoma'
-  Font.Pitch = fpVariable
-  Font.Quality = fqDraft
+  ClientHeight = 635
+  ClientWidth = 470
   KeyPreview = True
-  LCLVersion = '4.0.0.1'
   OnKeyUp = FormKeyUp
   OnShow = FormShow
-  object GroupBox1: TGroupBox
-    Left = 20
-    Height = 542
-    Top = 10
-    Width = 610
-    Caption = 'Spectrum'
-    ClientHeight = 520
-    ClientWidth = 606
-    Font.CharSet = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -14
-    Font.Name = 'Tahoma'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    ParentFont = False
-    TabOrder = 0
-    object GroupBox2: TGroupBox
-      Left = 80
-      Height = 61
-      Top = 432
-      Width = 451
-      Caption = 'ROM'
-      ClientHeight = 39
-      ClientWidth = 447
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 0
-      object Edit1: TEdit
-        Left = 10
-        Height = 25
-        Top = 0
-        Width = 371
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-      end
-      object Button3: TButton
-        Left = 389
-        Height = 31
-        Top = 0
-        Width = 51
-        Caption = '...'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-        OnClick = Button3Click
-      end
-    end
-    object GroupBox3: TGroupBox
-      Left = 12
-      Height = 91
-      Top = -4
-      Width = 136
-      Caption = 'Spectrum 48K Issue'
-      ClientHeight = 69
-      ClientWidth = 132
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 1
-      object RadioButton1: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 4
-        Width = 67
-        Caption = 'Issue 2'
-        Checked = True
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-        TabStop = True
-      end
-      object RadioButton2: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 32
-        Width = 67
-        Caption = 'Issue 3'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-      end
-    end
-    object GroupBox5: TGroupBox
-      Left = 12
-      Height = 112
-      Top = 185
-      Width = 136
-      Caption = 'Border Emulation'
-      ClientHeight = 90
-      ClientWidth = 132
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 2
-      object RadioButton7: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 5
-        Width = 56
-        Caption = 'None'
-        Checked = True
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-        TabStop = True
-      end
-      object RadioButton8: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 34
-        Width = 67
-        Caption = 'Normal'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-      end
-      object RadioButton9: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 62
-        Width = 43
-        Caption = 'Full'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 2
-      end
-    end
-    object GroupBox7: TGroupBox
-      Left = 12
-      Height = 82
-      Top = 95
-      Width = 136
-      Caption = 'LensLok'
-      ClientHeight = 60
-      ClientWidth = 132
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 3
-      object RadioButton12: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 2
-        Width = 72
-        Caption = 'Enabled'
-        Checked = True
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-        TabStop = True
-      end
-      object RadioButton13: TRadioButton
-        Left = 22
-        Height = 23
-        Top = 31
-        Width = 74
-        Caption = 'Disabled'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-      end
-    end
-    object GroupBox11: TGroupBox
-      Left = 162
-      Height = 231
-      Top = 161
-      Width = 435
-      Caption = 'Audio'
-      ClientHeight = 209
-      ClientWidth = 431
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 4
-      object GroupBox8: TGroupBox
-        Left = 14
-        Height = 98
-        Top = 1
-        Width = 146
-        Caption = 'Spectrum 128K Audio'
-        ClientHeight = 76
-        ClientWidth = 142
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-        object RadioButton14: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 1
-          Width = 58
-          Caption = 'Mono'
-          Checked = True
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 0
-          TabStop = True
-        end
-        object RadioButton15: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 24
-          Width = 93
-          Caption = 'Stereo ABC'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 1
-        end
-        object RadioButton16: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 48
-          Width = 93
-          Caption = 'Stereo ACB'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 2
-        end
-      end
-      object GroupBox10: TGroupBox
-        Left = 184
-        Height = 82
-        Top = 104
-        Width = 98
-        Caption = 'Load Audio'
-        ClientHeight = 60
-        ClientWidth = 94
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-        object RadioButton21: TRadioButton
-          Left = 18
-          Height = 23
-          Top = 6
-          Width = 72
-          Caption = 'Enabled'
-          Checked = True
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 0
-          TabStop = True
-        end
-        object RadioButton22: TRadioButton
-          Left = 18
-          Height = 23
-          Top = 35
-          Width = 74
-          Caption = 'Disabled'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 1
-        end
-      end
-      object GroupBox9: TGroupBox
-        Left = 170
-        Height = 82
-        Top = 10
-        Width = 145
-        Caption = 'Speaker Oversample'
-        ClientHeight = 60
-        ClientWidth = 141
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 2
-        object RadioButton17: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 0
-          Width = 72
-          Caption = 'Enabled'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton18: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 26
-          Width = 74
-          Caption = 'Disabled'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-      end
-      object GroupBox13: TGroupBox
-        Left = 14
-        Height = 88
-        Top = 104
-        Width = 142
-        Caption = 'Turbo Sound'
-        ClientHeight = 66
-        ClientWidth = 138
-        TabOrder = 3
-        object RadioButton26: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 6
-          Width = 72
-          Caption = 'Enabled'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton27: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 35
-          Width = 74
-          Caption = 'Disabled'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-      end
-    end
-    object GroupBox12: TGroupBox
-      Left = 162
-      Height = 161
-      Top = -4
-      Width = 278
-      Caption = 'Input'
-      ClientHeight = 139
-      ClientWidth = 274
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 5
-      object GroupBox4: TGroupBox
-        Left = 14
-        Height = 132
-        Top = -1
-        Width = 120
-        Caption = 'Joystick'
-        ClientHeight = 110
-        ClientWidth = 116
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-        object RadioButton3: TRadioButton
-          Left = 6
-          Height = 23
-          Top = -4
-          Width = 86
-          Caption = 'Kempston'
-          Checked = True
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 0
-          TabStop = True
-        end
-        object RadioButton4: TRadioButton
-          Left = 6
-          Height = 23
-          Top = 18
-          Width = 110
-          Caption = 'Cursor/Protek'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 1
-        end
-        object RadioButton5: TRadioButton
-          Left = 6
-          Height = 23
-          Top = 40
-          Width = 105
-          Caption = 'Sinclair 1/IF 2'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 2
-        end
-        object RadioButton6: TRadioButton
-          Left = 6
-          Height = 23
-          Top = 64
-          Width = 105
-          Caption = 'Sinclair 2/IF 2'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 3
-        end
-        object RadioButton25: TRadioButton
-          Left = 6
-          Height = 23
-          Top = 88
-          Width = 55
-          Caption = 'Fuller'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 4
-          OnKeyUp = FormKeyUp
-        end
-      end
-      object GroupBox6: TGroupBox
-        Left = 146
-        Height = 132
-        Top = -1
-        Width = 116
-        Caption = 'Mouse'
-        ClientHeight = 110
-        ClientWidth = 112
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-        object RadioButton10: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 1
-          Width = 74
-          Caption = 'Disabled'
-          Checked = True
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 0
-          TabStop = True
-        end
-        object RadioButton11: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 25
-          Width = 78
-          Caption = 'GunStick'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 1
-        end
-        object RadioButton19: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 50
-          Width = 86
-          Caption = 'Kempston'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 2
-        end
-        object RadioButton20: TRadioButton
-          Left = 16
-          Height = 23
-          Top = 75
-          Width = 50
-          Caption = 'AMX'
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clBlack
-          Font.Height = -14
-          Font.Name = 'Tahoma'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          ParentFont = False
-          TabOrder = 3
-        end
-      end
-    end
-    object GroupBox14: TGroupBox
-      Left = 450
-      Height = 96
-      Top = -4
-      Width = 139
-      Caption = 'ULA +'
-      ClientHeight = 74
-      ClientWidth = 135
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -14
-      Font.Name = 'Tahoma'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      ParentFont = False
-      TabOrder = 6
-      object RadioButton23: TRadioButton
-        Left = 16
-        Height = 23
-        Top = 4
-        Width = 72
-        Caption = 'Enabled'
-        Checked = True
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 0
-        TabStop = True
-      end
-      object RadioButton24: TRadioButton
-        Left = 16
-        Height = 23
-        Top = 32
-        Width = 74
-        Caption = 'Disabled'
-        Font.CharSet = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -14
-        Font.Name = 'Tahoma'
-        Font.Pitch = fpVariable
-        Font.Quality = fqDraft
-        ParentFont = False
-        TabOrder = 1
-      end
-    end
-  end
   object Button1: TButton
-    Left = 128
-    Height = 41
-    Top = 576
-    Width = 111
+    Left = 104
+    Height = 33
+    Top = 560
+    Width = 89
     Caption = 'OK'
-    Font.CharSet = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -14
-    Font.Name = 'Tahoma'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    ParentFont = False
-    TabOrder = 1
+    TabOrder = 0
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 378
-    Height = 41
-    Top = 576
-    Width = 111
+    Left = 280
+    Height = 33
+    Top = 560
+    Width = 89
     Caption = 'CANCELAR'
-    Font.CharSet = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -14
-    Font.Name = 'Tahoma'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
+    TabOrder = 1
+    OnClick = Button2Click
+  end
+  object GroupBox2: TGroupBox
+    Left = 16
+    Height = 58
+    Top = 360
+    Width = 440
+    Caption = 'Spectrum 48K ROM'
+    ClientHeight = 39
+    ClientWidth = 438
+    Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 2
-    OnClick = Button2Click
+    object Edit1: TEdit
+      Left = 8
+      Height = 35
+      Top = 1
+      Width = 369
+      ParentFont = False
+      TabStop = False
+      TabOrder = 0
+    end
+    object Button3: TButton
+      Left = 384
+      Height = 25
+      Top = 0
+      Width = 41
+      Caption = '...'
+      ParentFont = False
+      TabOrder = 1
+      TabStop = False
+      OnClick = Button3Click
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 16
+    Height = 73
+    Top = 8
+    Width = 128
+    Caption = 'Spectrum 48K Issue'
+    ClientHeight = 54
+    ClientWidth = 126
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 3
+    object RadioButton1: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 3
+      Width = 69
+      Caption = 'Issue 2'
+      Checked = True
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object RadioButton2: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 26
+      Width = 69
+      Caption = 'Issue 3'
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object GroupBox5: TGroupBox
+    Left = 16
+    Height = 90
+    Top = 168
+    Width = 128
+    Caption = 'Border Emulation'
+    ClientHeight = 71
+    ClientWidth = 126
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+    object RadioButton7: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 4
+      Width = 61
+      Caption = 'None'
+      Checked = True
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object RadioButton8: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 24
+      Width = 76
+      Caption = 'Normal'
+      ParentFont = False
+      TabOrder = 1
+    end
+    object RadioButton9: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 48
+      Width = 49
+      Caption = 'Full'
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object GroupBox7: TGroupBox
+    Left = 16
+    Height = 69
+    Top = 88
+    Width = 128
+    Caption = 'LensLok'
+    ClientHeight = 50
+    ClientWidth = 126
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 5
+    object RadioButton12: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 2
+      Width = 80
+      Caption = 'Enabled'
+      Checked = True
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object RadioButton13: TRadioButton
+      Left = 18
+      Height = 23
+      Top = 25
+      Width = 84
+      Caption = 'Disabled'
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object GroupBox11: TGroupBox
+    Left = 152
+    Height = 185
+    Top = 160
+    Width = 304
+    Caption = 'Audio'
+    ClientHeight = 166
+    ClientWidth = 302
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 6
+    object GroupBox8: TGroupBox
+      Left = 11
+      Height = 83
+      Top = 1
+      Width = 141
+      Caption = 'Spectrum 128K Audio'
+      ClientHeight = 64
+      ClientWidth = 139
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object RadioButton14: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 0
+        Width = 65
+        Caption = 'Mono'
+        Checked = True
+        ParentFont = False
+        TabOrder = 0
+        TabStop = True
+      end
+      object RadioButton15: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 21
+        Width = 102
+        Caption = 'Stereo ABC'
+        ParentFont = False
+        TabOrder = 1
+      end
+      object RadioButton16: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 40
+        Width = 101
+        Caption = 'Stereo ACB'
+        ParentFont = False
+        TabOrder = 2
+      end
+    end
+    object GroupBox10: TGroupBox
+      Left = 160
+      Height = 70
+      Top = 88
+      Width = 132
+      Caption = 'Load Audio'
+      ClientHeight = 51
+      ClientWidth = 130
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      object RadioButton21: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 0
+        Width = 80
+        Caption = 'Enabled'
+        Checked = True
+        ParentFont = False
+        TabOrder = 0
+        TabStop = True
+      end
+      object RadioButton22: TRadioButton
+        Left = 14
+        Height = 23
+        Top = 24
+        Width = 84
+        Caption = 'Disabled'
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+    object GroupBox9: TGroupBox
+      Left = 160
+      Height = 78
+      Top = 1
+      Width = 132
+      Caption = 'Speaker Oversample'
+      ClientHeight = 59
+      ClientWidth = 130
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+      object RadioButton17: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 0
+        Width = 80
+        Caption = 'Enabled'
+        Checked = True
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton18: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 21
+        Width = 84
+        Caption = 'Disabled'
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+    end
+    object GroupBox13: TGroupBox
+      Left = 11
+      Height = 70
+      Top = 88
+      Width = 141
+      Caption = 'Turbo Sound'
+      ClientHeight = 51
+      ClientWidth = 139
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 3
+      object RadioButton26: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 0
+        Width = 80
+        Caption = 'Enabled'
+        Checked = True
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton27: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 24
+        Width = 84
+        Caption = 'Disabled'
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+    end
+  end
+  object GroupBox12: TGroupBox
+    Left = 152
+    Height = 144
+    Top = 8
+    Width = 304
+    Caption = 'Input'
+    ClientHeight = 125
+    ClientWidth = 302
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    object GroupBox4: TGroupBox
+      Left = 11
+      Height = 113
+      Top = -1
+      Width = 141
+      Caption = 'Joystick'
+      ClientHeight = 94
+      ClientWidth = 139
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object RadioButton3: TRadioButton
+        Left = 5
+        Height = 23
+        Top = -3
+        Width = 94
+        Caption = 'Kempston'
+        Checked = True
+        ParentFont = False
+        TabOrder = 0
+        TabStop = True
+      end
+      object RadioButton4: TRadioButton
+        Left = 5
+        Height = 23
+        Top = 14
+        Width = 119
+        Caption = 'Cursor/Protek'
+        ParentFont = False
+        TabOrder = 1
+      end
+      object RadioButton5: TRadioButton
+        Left = 5
+        Height = 23
+        Top = 32
+        Width = 114
+        Caption = 'Sinclair 1/IF 2'
+        ParentFont = False
+        TabOrder = 2
+      end
+      object RadioButton6: TRadioButton
+        Left = 5
+        Height = 23
+        Top = 51
+        Width = 114
+        Caption = 'Sinclair 2/IF 2'
+        ParentFont = False
+        TabOrder = 3
+      end
+      object RadioButton25: TRadioButton
+        Left = 5
+        Height = 23
+        Top = 70
+        Width = 63
+        Caption = 'Fuller'
+        ParentFont = False
+        TabOrder = 4
+        OnKeyUp = FormKeyUp
+      end
+    end
+    object GroupBox6: TGroupBox
+      Left = 160
+      Height = 109
+      Top = 3
+      Width = 132
+      Caption = 'Mouse'
+      ClientHeight = 90
+      ClientWidth = 130
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      object RadioButton10: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 1
+        Width = 84
+        Caption = 'Disabled'
+        Checked = True
+        ParentFont = False
+        TabOrder = 0
+        TabStop = True
+      end
+      object RadioButton11: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 20
+        Width = 84
+        Caption = 'GunStick'
+        ParentFont = False
+        TabOrder = 1
+      end
+      object RadioButton19: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 40
+        Width = 94
+        Caption = 'Kempston'
+        ParentFont = False
+        TabOrder = 2
+      end
+      object RadioButton20: TRadioButton
+        Left = 13
+        Height = 23
+        Top = 60
+        Width = 58
+        Caption = 'AMX'
+        ParentFont = False
+        TabOrder = 3
+      end
+    end
+  end
+  object GroupBox14: TGroupBox
+    Left = 16
+    Height = 77
+    Top = 268
+    Width = 128
+    Caption = 'ULA +'
+    ClientHeight = 58
+    ClientWidth = 126
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 8
+    object RadioButton23: TRadioButton
+      Left = 13
+      Height = 23
+      Top = 3
+      Width = 80
+      Caption = 'Enabled'
+      Checked = True
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object RadioButton24: TRadioButton
+      Left = 13
+      Height = 23
+      Top = 26
+      Width = 84
+      Caption = 'Disabled'
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object GroupBox15: TGroupBox
+    Left = 16
+    Height = 56
+    Top = 424
+    Width = 440
+    Caption = 'Spectrum 128K ROM'
+    ClientHeight = 37
+    ClientWidth = 438
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 9
+    object Edit2: TEdit
+      Left = 8
+      Height = 35
+      Top = 0
+      Width = 369
+      ParentFont = False
+      TabStop = False
+      TabOrder = 0
+    end
+    object Button4: TButton
+      Left = 384
+      Height = 25
+      Top = 0
+      Width = 41
+      Caption = '...'
+      ParentFont = False
+      TabOrder = 1
+      TabStop = False
+      OnClick = Button3Click
+    end
+  end
+  object GroupBox16: TGroupBox
+    Left = 16
+    Height = 57
+    Top = 488
+    Width = 440
+    Caption = 'Spectrum +2/+3 ROM'
+    ClientHeight = 38
+    ClientWidth = 438
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 10
+    object Edit3: TEdit
+      Left = 8
+      Height = 35
+      Top = 0
+      Width = 369
+      ParentFont = False
+      TabStop = False
+      TabOrder = 0
+    end
+    object Button5: TButton
+      Left = 384
+      Height = 25
+      Top = 0
+      Width = 41
+      Caption = '...'
+      ParentFont = False
+      TabOrder = 1
+      TabStop = False
+      OnClick = Button3Click
+    end
   end
 end

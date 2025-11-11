@@ -1,16 +1,10 @@
 unit operationwolf_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,taito_sound,rom_engine,
-     pal_engine,sound_engine,opwolf_cchip,msm5205;
+uses rom_engine;
 
 function iniciar_opwolf:boolean;
 
-var
- rom:array[0..$2ffff] of word;
-
-implementation
 const
         opwolf_rom:array[0..3] of tipo_roms=(
         (n:'b20-05-02.40';l:$10000;p:0;crc:$3ffbfe3a),(n:'b20-03-02.30';l:$10000;p:$1;crc:$fdabd8a5),
@@ -18,7 +12,26 @@ const
         opwolf_sound:tipo_roms=(n:'b20-07.10';l:$10000;p:0;crc:$45c7ace3);
         opwolf_char:tipo_roms=(n:'b20-13.13';l:$80000;p:0;crc:$f6acdab1);
         opwolf_sprites:tipo_roms=(n:'b20-14.72';l:$80000;p:0;crc:$89f889e5);
-        opwolf_adpcm:tipo_roms=(n:'b20-08.21';l:$80000;p:0;crc:$f3e19c64);
+        opwolf_adpcm:array[0..1] of tipo_roms=((n:'b20-08.21';l:$80000;p:0;crc:$f3e19c64),());
+
+var
+  rom:array[0..$2ffff] of word;
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,taito_sound,pal_engine,
+     sound_engine,opwolf_cchip,msm5205;
+
+const
+        opwolf_dip_a:array [0..3] of def_dip2=(
+        (mask:2;name:'Allow Continue';number:2;val2:(2,0);name2:('No','Yes')),
+        (mask:8;name:'Demo Sounds';number:2;val2:(0,8);name2:('Off','On')),
+        (mask:$30;name:'Coin A';number:4;val4:(0,$10,$20,$30);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
+        (mask:$c0;name:'Coin B';number:4;val4:($c0,$80,$40,0);name4:('1C 2C','1C 3C','1C 4C','1C 6C')));
+        opwolf_dip_b:array [0..3] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(2,3,1,0);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:$c;name:'Ammo Magazines at Start';number:4;val4:(0,4,$c,8);name4:('4','5','6','7')),
+        (mask:$40;name:'Discount When Continuing';number:2;val2:($40,0);name2:('No','Yes')),
+        (mask:$80;name:'Language';number:2;val2:($80,0);name2:('Japanese','English')));
 
 var
  scroll_x1,scroll_y1,scroll_x2,scroll_y2:word;
@@ -95,7 +108,6 @@ procedure opwolf_principal;
 var
   f:byte;
 begin
-init_controls(true,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
   eventos_opwolf;
@@ -123,8 +135,8 @@ case direccion of
                    end;
   $100000..$107fff:opwolf_getword:=ram1[(direccion and $7fff) shr 1];
   $200000..$200fff:opwolf_getword:=buffer_paleta[(direccion and $fff) shr 1];
-  $380000:opwolf_getword:=1+0+4+8+$30+$c0;
-  $380002:opwolf_getword:=$7f;
+  $380000:opwolf_getword:=marcade.dswa;
+  $380002:opwolf_getword:=marcade.dswb;
   $3a0000:opwolf_getword:=raton.x+15;  //mouse x
   $3a0002:opwolf_getword:=raton.y;  //mouse y
   $3e0002:if m68000_0.read_8bits_hi_dir then opwolf_getword:=tc0140syt_0.comm_r;
@@ -201,6 +213,7 @@ var
   memoria_temp:array[0..$7ffff] of byte;
 begin
 iniciar_opwolf:=false;
+init_mouse(true);
 llamadas_maquina.bucle_general:=opwolf_principal;
 llamadas_maquina.reset:=reset_opwolf;
 llamadas_maquina.scanlines:=256;
@@ -238,6 +251,9 @@ init_gfx(1,16,16,$1000);
 gfx[1].trans[0]:=true;
 gfx_set_desc_data(4,0,128*8,0,1,2,3);
 convert_gfx(1,0,@memoria_temp,@ps_x,@ps_y,false,false);
+//Dips
+init_dips(1,opwolf_dip_a,$ff);
+init_dips(2,opwolf_dip_b,$7f);
 //final
 show_mouse_cursor;
 iniciar_opwolf:=true;

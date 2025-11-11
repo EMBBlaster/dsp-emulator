@@ -1,8 +1,7 @@
-unit upd7810;
+﻿unit upd7810;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     cpu_misc,vars_hide,main_engine,timer_engine,dialogs,sysutils,upd7810_tables;
+uses cpu_misc,main_engine,timer_engine,dialogs,sysutils,upd7810_tables;
 
 type
   band_upd7810=record
@@ -3275,7 +3274,6 @@ procedure cpu_upd7810.load_snapshot(data:pbyte);
 var
   temp:pbyte;
   buffer:array[0..75] of byte;
-  size:word;
 begin
 temp:=data;
 copymemory(self.r,temp,sizeof(nreg_upd7810));

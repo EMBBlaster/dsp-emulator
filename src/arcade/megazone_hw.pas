@@ -1,13 +1,10 @@
-unit megazone_hw;
+﻿unit megazone_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,konami_decrypt,ay_8910,mcs48,dac;
+uses rom_engine;
 
 function iniciar_megazone:boolean;
 
-implementation
 const
         megazone_rom:array[0..4] of tipo_roms=(
         (n:'319_l07.11h';l:$2000;p:$6000;crc:$73b616ca),(n:'319_l06.9h';l:$2000;p:$8000;crc:$0ced03f9),
@@ -20,9 +17,15 @@ const
         megazone_sprites:array[0..3] of tipo_roms=(
         (n:'319e11.3e';l:$2000;p:0;crc:$965a7ff6),(n:'319e09.2e';l:$2000;p:$2000;crc:$5eaa7f3e),
         (n:'319e10.3d';l:$2000;p:$4000;crc:$7bb1aeee),(n:'319e08.2d';l:$2000;p:$6000;crc:$6add71b1));
-        megazone_pal:array[0..2] of tipo_roms=(
+        megazone_pal:array[0..3] of tipo_roms=(
         (n:'319b18.a16';l:$20;p:0;crc:$23cb02af),(n:'319b16.c6';l:$100;p:$20;crc:$5748e933),
-        (n:'319b17.a11';l:$100;p:$120;crc:$1fbfce73));
+        (n:'319b17.a11';l:$100;p:$120;crc:$1fbfce73),());
+
+implementation
+uses m6809,nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     konami_decrypt,ay_8910,mcs48,dac;
+
+const
         megazone_dip_a:def_dip2=(mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play'));
         megazone_dip_b:array [0..4] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','7')),
@@ -113,7 +116,6 @@ procedure megazone_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_megazone;

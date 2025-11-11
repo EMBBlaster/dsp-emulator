@@ -1,9 +1,7 @@
-unit pinballaction_hw;
+﻿unit pinballaction_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,
-     pal_engine,sound_engine,timer_engine;
+uses rom_engine;
 
 function iniciar_pinballaction:boolean;
 
@@ -18,10 +16,15 @@ const
         pinballaction_sprites:array[0..2] of tipo_roms=(
         (n:'b-c7.bin';l:$2000;p:0;crc:$d1795ef5),(n:'b-d7.bin';l:$2000;p:$2000;crc:$f28df203),
         (n:'b-f7.bin';l:$2000;p:$4000;crc:$af6e9817));
-        pinballaction_tiles:array[0..3] of tipo_roms=(
+        pinballaction_tiles:array[0..4] of tipo_roms=(
         (n:'a-j5.bin';l:$4000;p:0;crc:$21efe866),(n:'a-j6.bin';l:$4000;p:$4000;crc:$7f984c80),
-        (n:'a-j7.bin';l:$4000;p:$8000;crc:$df69e51b),(n:'a-j8.bin';l:$4000;p:$c000;crc:$0094cb8b));
-        //DIP
+        (n:'a-j7.bin';l:$4000;p:$8000;crc:$df69e51b),(n:'a-j8.bin';l:$4000;p:$c000;crc:$0094cb8b),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,timer_engine;
+
+const
         pinballaction_dipa:array [0..4] of def_dip2=(
         (mask:3;name:'Coin B';number:4;val4:(0,1,2,3);name4:('1C 1C','1C 2C','1C 3C','1C 6C')),
         (mask:$c;name:'Coin A';number:4;val4:(4,0,8,$c);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
@@ -37,8 +40,6 @@ const
 var
  sound_latch,scroll_y:byte;
  nmi_mask:boolean;
-
-implementation
 
 procedure update_video_pinballaction;
 var
@@ -94,21 +95,24 @@ end;
 procedure eventos_pinballaction;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //Player 1
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.but3[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.but3[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
   //Player 2
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.but3[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.but3[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10;
   //System
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 or 8) else marcade.in2:=(marcade.in2 and $f7);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 or 8;
 end;
 end;
 
@@ -116,7 +120,6 @@ procedure pinballaction_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
     eventos_pinballaction;

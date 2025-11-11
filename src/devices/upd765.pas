@@ -1,7 +1,6 @@
 ﻿unit upd765;
 
 interface
-{$IFDEF WINDOWS}uses windows;{$ENDIF}
 
 procedure WriteFDCMotor(value:byte);
 procedure WriteFDCData(value:byte);

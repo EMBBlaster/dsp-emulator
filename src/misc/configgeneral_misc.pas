@@ -1,8 +1,7 @@
 unit configgeneral_misc;
 
 interface
-uses controls_engine,sysutils,lib_sdl2,config_general,forms,redefine,principal,
-     main_engine,lenguaje,sound_engine,timer_engine;
+uses sysutils,forms;
 
 procedure read_button(boton,player:byte);
 procedure read_dir(boton:byte);
@@ -15,6 +14,8 @@ procedure select_joystick_p1;
 procedure select_joystick_p2;
 
 implementation
+uses controls_engine,lib_sdl2,config_general,redefine,principal,main_engine,
+     lenguaje,sound_engine,timer_engine;
 
 function nombre_tecla(num:word):string;
 begin
@@ -32,12 +33,12 @@ begin
     KEYBOARD_LEFT:nombre_tecla:='LEFT';
     KEYBOARD_DOWN:nombre_tecla:='DOWN';
     KEYBOARD_UP:nombre_tecla:='UP';
-    KEYBOARD_RALT:nombre_tecla:='RIGHT'+chr(10)+chr(13)+'ALT';
-    KEYBOARD_LALT:nombre_tecla:='LEFT'+chr(10)+chr(13)+'ALT';
-    KEYBOARD_RSHIFT:nombre_tecla:='RIGHT'+chr(10)+chr(13)+'SHIFT';
-    KEYBOARD_LSHIFT:nombre_tecla:='LEFT'+chr(10)+chr(13)+'SHIFT';
-    KEYBOARD_RCTRL:nombre_tecla:='RIGHT'+chr(10)+chr(13)+'CONTROL';
-    KEYBOARD_LCTRL:nombre_tecla:='LEFT'+chr(10)+chr(13)+'CONTROL';
+    KEYBOARD_RALT:nombre_tecla:='RALT';
+    KEYBOARD_LALT:nombre_tecla:='LALT';
+    KEYBOARD_RSHIFT:nombre_tecla:='RSHIFT';
+    KEYBOARD_LSHIFT:nombre_tecla:='LSHIFT';
+    KEYBOARD_RCTRL:nombre_tecla:='RCONTROL';
+    KEYBOARD_LCTRL:nombre_tecla:='LCONTROL';
     KEYBOARD_RETURN:nombre_tecla:='ENTER';
     KEYBOARD_SPACE:nombre_tecla:='SPACE';
     KEYBOARD_A:nombre_tecla:='A';
@@ -355,6 +356,9 @@ begin
   //audio
   if sound_status.sonido_activo then mconfig.radiobutton14.Checked:=true
     else mconfig.radiobutton15.Checked:=true;
+  //auto type
+  if main_vars.auto_type then mconfig.radiobutton28.Checked:=true
+    else mconfig.radiobutton29.Checked:=true;
   //video
   case main_screen.video_mode of
     0:mconfig.groupbox5.Enabled:=false;
@@ -558,6 +562,7 @@ begin
   main_vars.show_crc_error:=mconfig.checkbox1.Checked;
   main_vars.center_screen:=mconfig.checkbox3.Checked;
   main_vars.console_init:=mconfig.checkbox17.Checked;
+  main_vars.auto_type:=mconfig.radiobutton28.Checked;
 //Arreglar entradas arcade
   arcade_input.use_key[0]:=mconfig.radiobutton1.Checked;
   arcade_input.use_key[1]:=mconfig.radiobutton3.Checked;

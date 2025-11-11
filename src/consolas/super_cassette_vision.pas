@@ -1,9 +1,7 @@
 unit super_cassette_vision;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     upd7810,main_engine,controls_engine,sysutils,dialogs,gfx_engine,
-     rom_engine,misc_functions,sound_engine,file_engine,pal_engine,upd1771;
+uses sysutils,dialogs,rom_engine;
 
 function iniciar_scv:boolean;
 
@@ -19,12 +17,15 @@ type tsupercassette=record
 var
   scv_0:tsupercassette;
 
+const
+    supercv_bios:array[0..2] of tipo_roms=(
+    (n:'upd7801g.s01';l:$1000;p:0;crc:$7ac06182),(n:'epochtv.chr';l:$400;p:$1000;crc:$db521533),());
+
 implementation
-uses snapshot,principal;
+uses snapshot,principal,upd7810,main_engine,controls_engine,gfx_engine,
+     misc_functions,sound_engine,file_engine,pal_engine,upd1771;
 
 const
-  scv_bios:array[0..1] of tipo_roms=(
-    (n:'upd7801g.s01';l:$1000;p:0;crc:$7ac06182),(n:'epochtv.chr';l:$400;p:$1000;crc:$db521533));
   scv_paleta:array[0..15] of integer=(
         $00009B,$000000,$0000FF,$A100FF,
         $00FF00,$A0FF9D,$00FFFF,$00A100,
@@ -33,37 +34,36 @@ const
 
 procedure eventos_svc;
 begin
-if event.keyboard then begin
-   //P1
-   if keyboard[KEYBOARD_0] then scv_0.keys[2]:=(scv_0.keys[2] and $bf) else scv_0.keys[2]:=(scv_0.keys[2] or $40);
-   if keyboard[KEYBOARD_1] then scv_0.keys[2]:=(scv_0.keys[2] and $7f) else scv_0.keys[2]:=(scv_0.keys[2] or $80);
-   if keyboard[KEYBOARD_2] then scv_0.keys[3]:=(scv_0.keys[3] and $bf) else scv_0.keys[3]:=(scv_0.keys[3] or $40);
-   if keyboard[KEYBOARD_3] then scv_0.keys[3]:=(scv_0.keys[3] and $7f) else scv_0.keys[3]:=(scv_0.keys[3] or $80);
-   if keyboard[KEYBOARD_4] then scv_0.keys[4]:=(scv_0.keys[4] and $bf) else scv_0.keys[4]:=(scv_0.keys[4] or $40);
-   if keyboard[KEYBOARD_5] then scv_0.keys[4]:=(scv_0.keys[4] and $7f) else scv_0.keys[4]:=(scv_0.keys[4] or $80);
-   if keyboard[KEYBOARD_6] then scv_0.keys[5]:=(scv_0.keys[5] and $bf) else scv_0.keys[5]:=(scv_0.keys[5] or $40);
-   if keyboard[KEYBOARD_7] then scv_0.keys[5]:=(scv_0.keys[5] and $7f) else scv_0.keys[5]:=(scv_0.keys[5] or $80);
-   if keyboard[KEYBOARD_8] then scv_0.keys[6]:=(scv_0.keys[6] and $bf) else scv_0.keys[6]:=(scv_0.keys[6] or $40);
-   if keyboard[KEYBOARD_9] then scv_0.keys[6]:=(scv_0.keys[6] and $7f) else scv_0.keys[6]:=(scv_0.keys[6] or $80);
-   if keyboard[KEYBOARD_Q] then scv_0.keys[7]:=(scv_0.keys[7] and $bf) else scv_0.keys[7]:=(scv_0.keys[7] or $40);
-   if keyboard[KEYBOARD_W] then scv_0.keys[7]:=(scv_0.keys[7] and $7f) else scv_0.keys[7]:=(scv_0.keys[7] or $80);
-   if keyboard[KEYBOARD_P] then scv_0.keys[8]:=(scv_0.keys[8] and $fe) else scv_0.keys[8]:=(scv_0.keys[8] or 1);
-end;
 if event.arcade then begin
+   fillchar(scv_0.keys,9,$ff);
    //P1
-   if arcade_input.left[0] then scv_0.keys[0]:=(scv_0.keys[0] and $fe) else scv_0.keys[0]:=(scv_0.keys[0] or 1);
-   if arcade_input.up[0] then scv_0.keys[0]:=(scv_0.keys[0] and $fd) else scv_0.keys[0]:=(scv_0.keys[0] or 2);
-   if arcade_input.but0[0] then scv_0.keys[0]:=(scv_0.keys[0] and $fb) else scv_0.keys[0]:=(scv_0.keys[0] or 4);
-   if arcade_input.left[1] then scv_0.keys[0]:=(scv_0.keys[0] and $f7) else scv_0.keys[0]:=(scv_0.keys[0] or 8);
-   if arcade_input.up[1] then scv_0.keys[0]:=(scv_0.keys[0] and $ef) else scv_0.keys[0]:=(scv_0.keys[0] or $10);
-   if arcade_input.but0[1] then scv_0.keys[0]:=(scv_0.keys[0] and $df) else scv_0.keys[0]:=(scv_0.keys[0] or $20);
+   if keyboard[KEYBOARD_0] then scv_0.keys[2]:=scv_0.keys[2] and $bf;
+   if keyboard[KEYBOARD_1] then scv_0.keys[2]:=scv_0.keys[2] and $7f;
+   if keyboard[KEYBOARD_2] then scv_0.keys[3]:=scv_0.keys[3] and $bf;
+   if keyboard[KEYBOARD_3] then scv_0.keys[3]:=scv_0.keys[3] and $7f;
+   if keyboard[KEYBOARD_4] then scv_0.keys[4]:=scv_0.keys[4] and $bf;
+   if keyboard[KEYBOARD_5] then scv_0.keys[4]:=scv_0.keys[4] and $7f;
+   if keyboard[KEYBOARD_6] then scv_0.keys[5]:=scv_0.keys[5] and $bf;
+   if keyboard[KEYBOARD_7] then scv_0.keys[5]:=scv_0.keys[5] and $7f;
+   if keyboard[KEYBOARD_8] then scv_0.keys[6]:=scv_0.keys[6] and $bf;
+   if keyboard[KEYBOARD_9] then scv_0.keys[6]:=scv_0.keys[6] and $7f;
+   if keyboard[KEYBOARD_Q] then scv_0.keys[7]:=scv_0.keys[7] and $bf;
+   if keyboard[KEYBOARD_W] then scv_0.keys[7]:=scv_0.keys[7] and $7f;
+   if keyboard[KEYBOARD_P] then scv_0.keys[8]:=scv_0.keys[8] and $fe;
+   //P1
+   if arcade_input.left[0] then scv_0.keys[0]:=scv_0.keys[0] and $fe;
+   if arcade_input.up[0] then scv_0.keys[0]:=scv_0.keys[0] and $fd;
+   if arcade_input.but0[0] then scv_0.keys[0]:=scv_0.keys[0] and $fb;
+   if arcade_input.left[1] then scv_0.keys[0]:=scv_0.keys[0] and $f7;
+   if arcade_input.up[1] then scv_0.keys[0]:=scv_0.keys[0] and $ef;
+   if arcade_input.but0[1] then scv_0.keys[0]:=scv_0.keys[0] and $df;
    //P2
-   if arcade_input.down[0] then scv_0.keys[1]:=(scv_0.keys[1] and $fe) else scv_0.keys[1]:=(scv_0.keys[1] or 1);
-   if arcade_input.right[0] then scv_0.keys[1]:=(scv_0.keys[1] and $fd) else scv_0.keys[1]:=(scv_0.keys[1] or 2);
-   if arcade_input.but1[0] then scv_0.keys[1]:=(scv_0.keys[1] and $fb) else scv_0.keys[1]:=(scv_0.keys[1] or 4);
-   if arcade_input.down[1] then scv_0.keys[1]:=(scv_0.keys[1] and $f7) else scv_0.keys[1]:=(scv_0.keys[1] or 8);
-   if arcade_input.right[1] then scv_0.keys[1]:=(scv_0.keys[1] and $ef) else scv_0.keys[1]:=(scv_0.keys[1] or $10);
-   if arcade_input.but1[1] then scv_0.keys[1]:=(scv_0.keys[1] and $df) else scv_0.keys[1]:=(scv_0.keys[1] or $20);
+   if arcade_input.down[0] then scv_0.keys[1]:=scv_0.keys[1] and $fe;
+   if arcade_input.right[0] then scv_0.keys[1]:=scv_0.keys[1] and $fd;
+   if arcade_input.but1[0] then scv_0.keys[1]:=scv_0.keys[1] and $fb;
+   if arcade_input.down[1] then scv_0.keys[1]:=scv_0.keys[1] and $f7;
+   if arcade_input.right[1] then scv_0.keys[1]:=scv_0.keys[1] and $ef;
+   if arcade_input.but1[1] then scv_0.keys[1]:=scv_0.keys[1] and $df;
 end;
 end;
 
@@ -266,7 +266,6 @@ procedure scv_principal;
 var
   f:word;
 begin
-init_controls(false,true,true,false);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
       case f of
@@ -512,7 +511,6 @@ begin
 iniciar_scv:=false;
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=scv_principal;
 llamadas_maquina.reset:=reset_scv;
 llamadas_maquina.cartuchos:=abrir_scv;
@@ -533,7 +531,7 @@ upd7810_0.init_sound(scv_sound_update);
 upd1771_0:=upd1771_chip.create(6000000,10);
 upd1771_0.change_calls(upd1771_ack_w);
 //cargar roms
-if not(roms_load(@temp,scv_bios)) then exit;
+if not(roms_load(@temp,supercv_bios)) then exit;
 copymemory(@memoria,@temp,$1000);
 copymemory(@scv_0.chars,@temp[$1000],$400);
 //Pal

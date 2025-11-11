@@ -1,13 +1,10 @@
 unit crazyclimber_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,crazyclimber_hw_dac;
+uses rom_engine;
 
 function iniciar_cclimber:boolean;
 
-implementation
 const
         cclimber_rom:array[0..4] of tipo_roms=(
         (n:'cc11';l:$1000;p:0;crc:$217ec4ff),(n:'cc10';l:$1000;p:$1000;crc:$b3c26cef),
@@ -21,8 +18,14 @@ const
         (n:'cc04';l:$800;p:$2000;crc:$332347cb),(n:'cc03';l:$800;p:$3000;crc:$4e4b3658));
         cclimber_bigsprites:array[0..1] of tipo_roms=(
         (n:'cc02';l:$800;p:0;crc:$14f3ecc9),(n:'cc01';l:$800;p:$800;crc:$21c0f9fb));
-        cclimber_samples:array[0..1] of tipo_roms=(
-        (n:'cc13';l:$1000;p:0;crc:$e0042f75),(n:'cc12';l:$1000;p:$1000;crc:$5da13aaa));
+        cclimber_samples:array[0..2] of tipo_roms=(
+        (n:'cc13';l:$1000;p:0;crc:$e0042f75),(n:'cc12';l:$1000;p:$1000;crc:$5da13aaa),());
+
+implementation
+uses nz80,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,crazyclimber_hw_dac;
+
+const
         cclimber_dip_a:array [0..2] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','6')),
         (mask:$30;name:'Coin A';number:4;val4:($30,$20,$10,0);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
@@ -143,7 +146,6 @@ procedure cclimber_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_cclimber;

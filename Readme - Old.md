@@ -1,4 +1,96 @@
 # DSP Emulator old news #
+<b>12/02/23 - DSP Emulator 0.21WIP6. Updated Windows binary and source.<br>
+<pre>
+-General 
+    +Updated SDL library to 2.26.3
+    +Updated preview images
+    +Remove arcade keys when not using arcade drivers
+    +CPU
+        -M68000
+            +Split read/write byte flags
+            +Enhanced timings
+            +Fixed opcodes addi.l, addq.l, sbcd.rr, abcd.rr, roxr.w, roxl.w, rol.w, asr.b, lsr.b, roxr.b, ror.b, asr.w, lsr.w, ror.w, asr.l, lsr.l, roxr.l, ror.l asl.b, lsl.b, roxl.b, rol.b, asl.w, lsl.w, asl.l, lsl.l, roxl.l, rol.l
+            +Added movem.w $38 efective address
+        -MCS51
+            +Added opcodes $38..$3f, $62, $63, $64 and $b1
+            +Fixed external get/put byte with no function
+        -fd1089: Updated decode functions
+    +Sound
+        -SEGA PCM: Added stereo
+        -SN76496: Added stereo
+        -VLM5030: Added stereo
+        -YM2203: Added stereo
+    +Updated key redefine names
+        -'COIN' --> 'COIN/SELECT'
+        -'START' --> 'P1/START' or 'P2/START'
+-Gauntlet
+    +Gauntlet: Renamed ROM zip to 'gauntlet'
+    +Gauntlet II: Updated ROMs to v2
+-Hang-On HW
+    +Hang-On: added driver with sound
+    +Enduro racer: added driver with sound
+    +Space Harrier: added driver with sound, some sprite problems (M68000 bug?)
+-Mega System 1 HW
+    +Fixed all video issues
+        -Fixed graphics layers
+        -Fixed scroll
+        -Fixed sprites
+    +Fixed graphics decode
+    +Rod Land
+        -Updated ROMs
+        -Added graphics decrypt
+    +64th Street - A detective story: added driver with sound
+-Outrun
+    +Fixed tile buffer size and activation
+    +Fixed missing sprites
+    +Fixed tiles transparency
+    +Fixed tiles priority
+-Sega System 16A HW
+    +Fixed graphics decode
+    +Fixed sprite ROMs and decode to 16bits
+    +Fixed tiles transparency
+    +Fixed tiles priority (very obious in WB3 end zone)
+    +Alien Syndrome: Updated fd1089 ROM decode key
+    +Wonder Boy III: Updated fd1089 ROM decode key
+-Sega System 16B HW
+    +Fixed disabled screen
+    +Fixed tiles transparency
+    +Fixed tiles priority
+    +Fixed tile buffer activation
+</pre><br>
+<img src="https://i.ibb.co/1TJHpV3/64street.png"> <img src="https://i.ibb.co/ky5TD1S/enduror.png"><br>
+<img src="https://i.ibb.co/NZ45xpK/hangon.png"> <img src="https://i.ibb.co/8jFd81t/sharrier.png"><br><br>
+<b>10/01/23 - DSP Emulator 0.21WIP5.1. Updated Windows binary and source.<br>
+<pre>
+-General
+    +Change between drivers is faster now
+    +Fixed joystick SDL 2 support! Changed hint function before SDL init, and works with all SDL 2 versions (removed SDL 2.0.16)
+    +Added start and coin/select in player redefinition page
+    +Start and coin/select keys can be mapped to joystick buttons
+-Sega Master System
+    +Remapped 'Pause' button to coin/select button
+-Sega Game Gear
+    +Removed 'Pause' button (doesn't have it)
+</pre><br><br>
+<b>08/01/23 - DSP Emulator 0.21WIP5. Updated Windows binary and source.<br>
+<pre>
+-General
+    +Find a bug on new releases of SDL 2 library, joystick stop working when main window loses focus. Changed to SDL 2.0.16, works fine with this version
+        -Added SDL 2.0.16 for download
+    +Enhanced joystick support
+        -New redefine buttons system, select and press the button to use it
+        -Rewrite joystick internal functions
+    +Windows: Removed mouse cursor, slows down everything when enabled
+    +Lazarus: Added 'follow me' window style. The main emulation window follows select window when it moves.
+-CPS1 HW
+    +Added 3 extra players buttons, 'Street Fighter II' now works with all buttons
+    +Better row scroll, still not working
+-Super Duck
+    +Added driver with sound
+-Tiger Road
+    +Added sprite buffer
+</pre><br>
+<img src="https://i.ibb.co/3WVdjYP/supduck.png"><br><br>
 <b>06/12/22 - DSP Emulator 0.21WIP4.2. Another fix! Updated Windows binary and source update.<br>
 <pre>
 -General

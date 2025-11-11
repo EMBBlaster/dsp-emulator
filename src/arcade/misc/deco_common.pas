@@ -1,8 +1,7 @@
 unit deco_common;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}gfx_engine,ym_2203,ym_2151,oki6295,hu6280,
-     cpu_misc,main_engine;
+uses gfx_engine,ym_2203,ym_2151,oki6295,hu6280,cpu_misc,main_engine;
 
 type
   tdeco16_sprite=class

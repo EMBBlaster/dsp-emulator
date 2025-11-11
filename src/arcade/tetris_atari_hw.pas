@@ -1,18 +1,20 @@
 unit tetris_atari_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,pokey,slapstic,file_engine;
+uses rom_engine;
 
 function iniciar_tetris:boolean;
 
-implementation
 const
-        tetris_rom:tipo_roms=(n:'136066-1100.45f';l:$10000;p:0;crc:$2acbdb09);
-        tetris_gfx:tipo_roms=(n:'136066-1101.35a';l:$10000;p:0;crc:$84a1939f);
-        //Dip
-        tetris_dip_a:array [0..2] of def_dip2=(
+        tetrisa_rom:tipo_roms=(n:'136066-1100.45f';l:$10000;p:0;crc:$2acbdb09);
+        tetrisa_gfx:array [0..1] of tipo_roms=((n:'136066-1101.35a';l:$10000;p:0;crc:$84a1939f),());
+
+implementation
+uses m6502,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     pokey,slapstic,file_engine;
+
+const
+        tetrisa_dip_a:array [0..2] of def_dip2=(
         (mask:4;name:'Freeze';number:2;val2:(0,4);name2:('Off','On')),
         (mask:8;name:'Freeze Step';number:2;val2:(0,8);name2:('Off','On')),
         (mask:$80;name:'Service';number:2;val2:(0,$80);name2:('Off','On')));
@@ -67,7 +69,6 @@ var
   frame:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame:=m6502_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
@@ -220,17 +221,17 @@ pokey_1.change_all_pot(tetris_pokey_1);
 if read_file_size(Directory.Arcade_nvram+'tetrisa.nv',longitud) then read_file(Directory.Arcade_nvram+'tetrisa.nv',@nv_ram[0],longitud)
   else for longitud:=0 to $1ff do nv_ram[longitud]:=$ff;
 //cargar roms
-if not(roms_load(@memoria_temp,tetris_rom)) then exit;
+if not(roms_load(@memoria_temp,tetrisa_rom)) then exit;
 copymemory(@rom_mem[0,0],@memoria_temp[0],$4000);
 copymemory(@rom_mem[1,0],@memoria_temp[$4000],$4000);
 copymemory(@memoria[$8000],@memoria_temp[$8000],$8000);
 //Cargar chars
-if not(roms_load(@memoria_temp,tetris_gfx)) then exit;
+if not(roms_load(@memoria_temp,tetrisa_gfx)) then exit;
 init_gfx(0,8,8,$800);
 gfx_set_desc_data(4,0,8*8*4,0,1,2,3);
 convert_gfx(0,0,@memoria_temp,@pc_x,@pc_y,false,false);
 //Dip
-init_dips(1,tetris_dip_a,0);
+init_dips(1,tetrisa_dip_a,0);
 //final
 reset_tetris;
 iniciar_tetris:=true;

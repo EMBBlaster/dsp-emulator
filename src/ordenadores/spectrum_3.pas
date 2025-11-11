@@ -1,15 +1,6 @@
-unit spectrum_3;
+﻿unit spectrum_3;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,ay_8910,z80_sp,upd765,controls_engine,spectrum_128k,cargar_dsk,
-     forms,rom_engine,pal_engine,sound_engine,z80pio,gfx_engine;
-
-const
-  plus3_rom:array[0..3] of tipo_roms=(
-        (n:'plus3-0.rom';l:$4000;p:0;crc:$30c9f490),(n:'plus3-1.rom';l:$4000;p:$4000;crc:$a7916b3f),
-        (n:'plus3-2.rom';l:$4000;p:$8000;crc:$c9a0b748),(n:'plus3-3.rom';l:$4000;p:$c000;crc:$b88fd6e3));
-  ram_bank:array[0..3,0..3] of byte=((0,1,2,3),(4,5,6,7),(4,5,6,3),(4,7,6,3));
 
 var
    old_1ffd:byte;
@@ -23,7 +14,12 @@ procedure spec3_putbyte(direccion:word;valor:byte);
 procedure spec3_outbyte(puerto:word;valor:byte);
 
 implementation
-uses tap_tzx,spectrum_misc;
+uses tap_tzx,spectrum_misc,main_engine,ay_8910,z80_sp,upd765,controls_engine,
+     spectrum_128k,cargar_dsk,rom_engine,pal_engine,sound_engine,z80pio,
+     gfx_engine;
+
+const
+  ram_bank:array[0..3,0..3] of byte=((0,1,2,3),(4,5,6,7),(4,5,6,3),(4,7,6,3));
 
 procedure spectrum3_loaddisk;
 begin
@@ -61,7 +57,6 @@ end;
 
 procedure spectrum3_main;
 begin
-init_controls(true,true,true,false);
 while EmuStatus=EsRunning do begin
   for linea_3:=0 to 310 do begin  //16 lineas despues IRQ
     if mouse.tipo=MGUNSTICK then evalua_gunstick;
@@ -87,14 +82,14 @@ var
 begin
 temp:=$ff;
 if (puerto and 1)=0 then begin
-  if (puerto and $8000)=0 then temp:=temp and var_spectrum.keyB_SPC;
-  if (puerto and $4000)=0 then temp:=temp and var_spectrum.keyH_ENT;
-  if (puerto and $2000)=0 then temp:=temp and var_spectrum.keyY_P;
-  if (puerto and $1000)=0 then temp:=temp and var_spectrum.key6_0;
-  if (puerto and $800)=0 then temp:=temp and var_spectrum.key1_5;
-  if (puerto and $400)=0 then temp:=temp and var_spectrum.keyQ_T;
-  if (puerto and $200)=0 then temp:=temp and var_spectrum.keyA_G;
-  if (puerto and $100)=0 then temp:=temp and var_spectrum.keyCAPS_V;
+  if (puerto and $8000)=0 then temp:=temp and var_spectrum.keys[7];
+  if (puerto and $4000)=0 then temp:=temp and var_spectrum.keys[6];
+  if (puerto and $2000)=0 then temp:=temp and var_spectrum.keys[5];
+  if (puerto and $1000)=0 then temp:=temp and var_spectrum.keys[4];
+  if (puerto and $800)=0 then temp:=temp and var_spectrum.keys[3];
+  if (puerto and $400)=0 then temp:=temp and var_spectrum.keys[2];
+  if (puerto and $200)=0 then temp:=temp and var_spectrum.keys[1];
+  if (puerto and $100)=0 then temp:=temp and var_spectrum.keys[0];
   spec3_inbyte:=(temp and $bf) or cinta_tzx.value or var_spectrum.altavoz;
 end else begin
   if (((puerto and $20)=0) and (var_spectrum.tipo_joy=JKEMPSTON) and (mouse.tipo<>MAMX)) then

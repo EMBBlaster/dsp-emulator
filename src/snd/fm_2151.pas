@@ -1,7 +1,7 @@
 unit fm_2151;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}math,timer_engine,sound_engine,dialogs;
+uses main_engine,math,timer_engine,sound_engine,dialogs;
 
 type
   YM2151Operator=record
@@ -710,15 +710,15 @@ begin
 		  $14:begin	// CSM, irq flag reset, irq enable, timer start/stop */
 			      chip.irq_enable:=v;	// bit 3-timer B, bit 2-timer A, bit 7 - CSM */
 			      if (v and $10)<>0 then begin	// reset timer A irq flag */
-				      chip.status:=chip.status and cardinal(not(1));
+				      chip.status:=chip.status and $fffffffe;
 				      oldstate:=chip.irqlinestate;
-            	chip.irqlinestate:=chip.irqlinestate and not(1);
+            	chip.irqlinestate:=chip.irqlinestate and $fe;
 	            if ((oldstate=1) and (addr(chip.IRQ_Handler)<>nil)) then chip.irq_handler(CLEAR_LINE);
             end;
 			      if (v and $20)<>0 then begin	// reset timer B irq flag */
-              chip.status:=chip.status and cardinal(not(2));
+              chip.status:=chip.status and $fffffffd;
               oldstate:=chip.irqlinestate;
-            	chip.irqlinestate:=chip.irqlinestate and not(2);
+            	chip.irqlinestate:=chip.irqlinestate and $fd;
 	            if ((oldstate=2) and (addr(chip.IRQ_Handler)<>nil)) then chip.irq_handler(CLEAR_LINE);
             end;
 			      if (v and $02)<>0 then begin	// load and start timer B */
@@ -763,9 +763,9 @@ begin
 		  $00:begin	// RL enable, Feedback, Connection */
             if ((v shr 3) and 7)<>0 then op.fb_shift:=((v shr 3) and 7)+6
               else op.fb_shift:=0;
-            if (v and $40)<>0 then chip.pan[(r and 7)*2]:=cardinal(not(0))
+            if (v and $40)<>0 then chip.pan[(r and 7)*2]:=$ffffffff
               else chip.pan[(r and 7)*2]:=0;
-            if (v and $80)<>0 then chip.pan[(r and 7)*2+1]:=cardinal(not(0))
+            if (v and $80)<>0 then chip.pan[(r and 7)*2+1]:=$ffffffff
               else chip.pan[(r and 7)*2 +1]:=0;
 			      chip.connect[r and 7]:=v and 7;
 			      set_connect(num,n_op,r and 7,v and 7);
@@ -800,7 +800,7 @@ begin
 			      v:=v shr 2;
 			      if (v<>(op.kc_i and 63)) then begin
 				      kc_channel:=v;
-				      kc_channel:=kc_channel or (op.kc_i and cardinal(not(63)));
+				      kc_channel:=kc_channel or (op.kc_i and $ffffffc0);
 				      op.kc_i:=kc_channel;
 				      op2.kc_i:=kc_channel;
 				      op3.kc_i:=kc_channel;
@@ -854,7 +854,7 @@ begin
         end;
 		end;
 	$a0:begin		// LFO AM enable, D1R */
-          if (v and $80)<>0 then op.AMmask:=cardinal(not(0))
+          if (v and $80)<>0 then op.AMmask:=$ffffffff
             else op.AMmask:=0;
           if (v and $1f)<>0 then op.d1r:=32+((v and $1f) shl 1)
             else op.d1r:=0;

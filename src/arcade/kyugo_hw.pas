@@ -1,12 +1,10 @@
 unit kyugo_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,
-     pal_engine,sound_engine,timer_engine;
+uses rom_engine;
 
 function iniciar_kyugo_hw:boolean;
 
-implementation
 const
         repulse_rom:array[0..2] of tipo_roms=(
         (n:'repulse.b5';l:$2000;p:0;crc:$fb2b7c9d),(n:'repulse.b6';l:$2000;p:$2000;crc:$99129918),
@@ -22,9 +20,9 @@ const
         (n:'8.6a';l:$4000;p:0;crc:$0e9f757e),(n:'9.7a';l:$4000;p:$4000;crc:$f7d2e650),
         (n:'10.8a';l:$4000;p:$8000;crc:$e717baf4),(n:'11.9a';l:$4000;p:$c000;crc:$04b2250b),
         (n:'12.10a';l:$4000;p:$10000;crc:$d110e140),(n:'13.11a';l:$4000;p:$14000;crc:$8fdc713c));
-        repulse_prom:array[0..2] of tipo_roms=(
+        repulse_prom:array[0..3] of tipo_roms=(
         (n:'b.1j';l:$100;p:0;crc:$3ea35431),(n:'g.1h';l:$100;p:$100;crc:$acd7a69e),
-        (n:'r.1f';l:$100;p:$200;crc:$b7f48b41));
+        (n:'r.1f';l:$100;p:$200;crc:$b7f48b41),());
         srdmission_rom:array[0..1] of tipo_roms=(
         (n:'5.t2';l:$4000;p:0;crc:$a682b48c),(n:'7.t3';l:$4000;p:$4000;crc:$1719c58c));
         srdmission_snd:array[0..1] of tipo_roms=(
@@ -37,9 +35,9 @@ const
         (n:'14.6a';l:$4000;p:0;crc:$3d4c0447),(n:'13.7a';l:$4000;p:$4000;crc:$22414a67),
         (n:'12.8a';l:$4000;p:$8000;crc:$61e34283),(n:'11.9a';l:$4000;p:$c000;crc:$bbbaffef),
         (n:'10.10a';l:$4000;p:$10000;crc:$de564f97),(n:'9.11a';l:$4000;p:$14000;crc:$890dc815));
-        srdmission_prom:array[0..3] of tipo_roms=(
+        srdmission_prom:array[0..4] of tipo_roms=(
         (n:'mr.1j';l:$100;p:0;crc:$110a436e),(n:'mg.1h';l:$100;p:$100;crc:$0fbfd9f0),
-        (n:'mb.1f';l:$100;p:$200;crc:$a342890c),(n:'m2.5j';l:$20;p:$300;crc:$190a55ad));
+        (n:'mb.1f';l:$100;p:$200;crc:$a342890c),(n:'m2.5j';l:$20;p:$300;crc:$190a55ad),());
         airwolf_rom:tipo_roms=(n:'b.2s';l:$8000;p:0;crc:$8c993cce);
         airwolf_snd:tipo_roms=(n:'a.7s';l:$8000;p:0;crc:$a3c7af5c);
         airwolf_char:tipo_roms=(n:'f.4a';l:$1000;p:0;crc:$4df44ce9);
@@ -49,9 +47,48 @@ const
         airwolf_sprites:array[0..2] of tipo_roms=(
         (n:'e.6a';l:$8000;p:0;crc:$e8fbc7d2),(n:'d.8a';l:$8000;p:$8000;crc:$c5d4156b),
         (n:'c.10a';l:$8000;p:$10000;crc:$de91dfb1));
-        airwolf_prom:array[0..3] of tipo_roms=(
+        airwolf_prom:array[0..4] of tipo_roms=(
         (n:'01j.bin';l:$100;p:0;crc:$6a94b2a3),(n:'01h.bin';l:$100;p:$100;crc:$ec0923d3),
-        (n:'01f.bin';l:$100;p:$200;crc:$ade97052),(n:'74s288-2.bin';l:$20;p:$300;crc:$190a55ad));
+        (n:'01f.bin';l:$100;p:$200;crc:$ade97052),(n:'74s288-2.bin';l:$20;p:$300;crc:$190a55ad),());
+
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,timer_engine;
+
+const
+        repulse_dip_a:array [0..6] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
+        (mask:4;name:'Bonus Life';number:2;val2:(4,0);name2:('Every 50000','Every 70000')),
+        (mask:8;name:'Slow Motion';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$10;name:'Invulnerability';number:2;val2:($10,0);name2:('Off','On')),
+        (mask:$20;name:'Sound Test';number:2;val2:($20,0);name2:('Off','On')),
+        (mask:$40;name:'Cabinet';number:2;val2:(0,$40);name2:('Upright','Cocktail')),
+        (mask:$80;name:'Freeze';number:2;val2:($80,0);name2:('Off','On')));
+        repulse_dip_b:array [0..2] of def_dip2=(
+        (mask:7;name:'Coin A';number:8;val8:(2,1,7,6,5,4,3,0);name8:('2C 1C','3C 2C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C','Free Play')),
+        (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$18,$38,$20,$30,$28);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','3C 4C','1C 2C','1C 3C')),
+        (mask:$c0;name:'Difficulty';number:4;val4:($c0,$80,$40,0);name4:('Easy','Normal','Hard','Hardest')));
+        srdmission_dip_a:array [0..6] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
+        (mask:4;name:'Bonus Life/Continue';number:2;val2:(4,0);name2:('Every 50000/No','Every 70000/Yes')),
+        (mask:8;name:'Slow Motion';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$10;name:'Invulnerability';number:2;val2:($10,0);name2:('Off','On')),
+        (mask:$20;name:'Sound Test';number:2;val2:($20,0);name2:('Off','On')),
+        (mask:$40;name:'Cabinet';number:2;val2:(0,$40);name2:('Upright','Cocktail')),
+        (mask:$80;name:'Freeze';number:2;val2:($80,0);name2:('Off','On')));
+        airwolf_dip_a:array [0..6] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('4','5','6','7')),
+        (mask:4;name:'Allow Continue';number:2;val2:(4,0);name2:('No','Yes')),
+        (mask:8;name:'Slow Motion';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$10;name:'Invulnerability';number:2;val2:($10,0);name2:('Off','On')),
+        (mask:$20;name:'Sound Test';number:2;val2:($20,0);name2:('Off','On')),
+        (mask:$40;name:'Cabinet';number:2;val2:(0,$40);name2:('Upright','Cocktail')),
+        (mask:$80;name:'Freeze';number:2;val2:($80,0);name2:('Off','On')));
+        airwolf_dip_b:array [0..1] of def_dip2=(
+        (mask:7;name:'Coin A';number:8;val8:(2,1,7,6,5,4,3,0);name8:('2C 1C','3C 2C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C','Free Play')),
+        (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$18,$38,$20,$30,$28);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','3C 4C','1C 2C','1C 3C')));
+
 var
   scroll_x:word;
   scroll_y,fg_color,bg_pal_bank:byte;
@@ -76,7 +113,7 @@ for n:=0 to (12*2)-1 do begin
 		for y:=0 to 15 do begin
 			nchar:=memoria[$9028+offs+128*y];
 			atrib:=memoria[$9828+offs+128*y];
-			nchar:=nchar or ((atrib and $01) shl 9) or ((atrib and $02) shl 7);
+			nchar:=nchar or ((atrib and 1) shl 9) or ((atrib and 2) shl 7);
       put_gfx_sprite(nchar,color,(atrib and 8)<>0,(atrib and 4)<>0,2);
       actualiza_gfx_sprite(sx,sy+16*y,3,2);
 		end;
@@ -90,9 +127,9 @@ for f:=0 to $7ff do begin
     x:=f mod 64;
     y:=f div 64;
     atrib:=memoria[$8800+f];
-    nchar:=memoria[$8000+f]+((atrib and $03) shl 8);
+    nchar:=memoria[$8000+f]+((atrib and 3) shl 8);
     color:=((atrib shr 4) or bg_pal_bank) shl 3;
-    put_gfx_flip(x*8,y*8,nchar,color,2,1,(atrib and $4)<>0,(atrib and $8)<>0);
+    put_gfx_flip(x*8,y*8,nchar,color,2,1,(atrib and 4)<>0,(atrib and 8)<>0);
     gfx[1].buffer[f]:=false;
   end;
   //foreground
@@ -113,25 +150,28 @@ end;
 procedure eventos_kyugo_hw;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //system
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 or $20;
   //P2
-  if arcade_input.left[0] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.right[0] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.up[0] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.down[0] then marcade.in2:=(marcade.in2 or 8) else marcade.in2:=(marcade.in2 and $f7);
-  if arcade_input.but0[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.but1[0] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.left[0] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.right[0] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.up[0] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.down[0] then marcade.in2:=marcade.in2 or 8;
+  if arcade_input.but0[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.but1[0] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
@@ -139,7 +179,6 @@ procedure kyugo_hw_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_kyugo_hw;
@@ -181,7 +220,7 @@ case direccion of
     $a000..$a7ff,$f000..$f7ff:memoria[direccion]:=valor;
     $a800:scroll_x:=(scroll_x and $100) or valor;
     $b000:begin
-            scroll_x:=(scroll_x and $ff) or ((valor and $1) shl 8);
+            scroll_x:=(scroll_x and $ff) or ((valor and 1) shl 8);
             if fg_color<>((valor and $20) shr 3) then begin
               fg_color:=(valor and $20) shr 3;
               fillchar(gfx[0].buffer[0],$800,1);
@@ -197,7 +236,7 @@ end;
 
 procedure kyugo_outbyte(puerto:word;valor:byte);
 begin
-  case (puerto and $7) of
+  case (puerto and 7) of
     0:nmi_enable:=(valor and 1)<>0;
     1:main_screen.flip_main_screen:=(valor<>0);
     2:if (valor<>0) then z80_1.change_halt(CLEAR_LINE)
@@ -233,8 +272,8 @@ end;
 procedure snd_kyugo_outbyte(puerto:word;valor:byte);
 begin
 case (puerto and $ff) of
-  $00:ay8910_0.Control(valor);
-  $01:ay8910_0.write(valor);
+  0:ay8910_0.Control(valor);
+  1:ay8910_0.write(valor);
   $40:ay8910_1.Control(valor);
   $41:ay8910_1.write(valor);
 end;
@@ -285,7 +324,7 @@ case direccion of
     $a000..$a7ff,$e000..$e7ff:memoria[direccion]:=valor;
     $a800:scroll_x:=(scroll_x and $100) or valor;
     $b000:begin
-            scroll_x:=(scroll_x and $ff) or ((valor and $1) shl 8);
+            scroll_x:=(scroll_x and $ff) or ((valor and 1) shl 8);
             if fg_color<>((valor and $20) shr 5) then begin
               fg_color:=(valor and $20) shr 5;
               fillchar(gfx[0].buffer[0],$800,1);
@@ -327,9 +366,9 @@ end;
 procedure snd_srdmission_outbyte(puerto:word;valor:byte);
 begin
 case (puerto and $ff) of
-  $80:ay8910_0.Control(valor);
+  $80:ay8910_0.control(valor);
   $81:ay8910_0.write(valor);
-  $84:ay8910_1.Control(valor);
+  $84:ay8910_1.control(valor);
   $85:ay8910_1.write(valor);
 end;
 end;
@@ -428,8 +467,8 @@ case main_vars.tipo_maquina of
         //paleta
         if not(roms_load(@memoria_temp,repulse_prom)) then exit;
         fillchar(color_codes,$20,0);
-        marcade.dswa:=$bf;
-        marcade.dswb:=$bf;
+        init_dips(1,repulse_dip_a,$bf);
+        init_dips(2,repulse_dip_b,$bf);
   end;
   330:begin //SRD Mission
         //cargar roms
@@ -452,8 +491,8 @@ case main_vars.tipo_maquina of
         if not(roms_load(@memoria_temp,srdmission_prom)) then exit;
         fillchar(color_codes,$20,0);
         copymemory(@color_codes,@memoria_temp[$300],$20);
-        marcade.dswa:=$bf;
-        marcade.dswb:=$ff;
+        init_dips(1,srdmission_dip_a,$bf);
+        init_dips(2,airwolf_dip_b,$ff);
   end;
   331:begin //Airwolf
         //cargar roms
@@ -488,8 +527,8 @@ case main_vars.tipo_maquina of
         if not(roms_load(@memoria_temp,airwolf_prom)) then exit;
         fillchar(color_codes,$20,0);
         copymemory(@color_codes,@memoria_temp[$300],$20);
-        marcade.dswa:=$bf;
-        marcade.dswb:=$ff;
+        init_dips(1,airwolf_dip_a,$bf);
+        init_dips(2,airwolf_dip_b,$ff);
   end;
 end;
 for f:=0 to $ff do begin
@@ -497,17 +536,17 @@ for f:=0 to $ff do begin
   bit1:=(memoria_temp[f] shr 1) and 1;
   bit2:=(memoria_temp[f] shr 2) and 1;
   bit3:=(memoria_temp[f] shr 3) and 1;
-  colores[f].r:=$0e*bit0+$1f*bit1+$43*bit2+$8f*bit3;
+  colores[f].r:=$e*bit0+$1f*bit1+$43*bit2+$8f*bit3;
   bit0:=(memoria_temp[f+$100] shr 0) and 1;
   bit1:=(memoria_temp[f+$100] shr 1) and 1;
   bit2:=(memoria_temp[f+$100] shr 2) and 1;
   bit3:=(memoria_temp[f+$100] shr 3) and 1;
-  colores[f].g:=$0e*bit0+$1f*bit1+$43*bit2+$8f*bit3;
+  colores[f].g:=$e*bit0+$1f*bit1+$43*bit2+$8f*bit3;
   bit0:=(memoria_temp[f+$200] shr 0) and 1;
   bit1:=(memoria_temp[f+$200] shr 1) and 1;
   bit2:=(memoria_temp[f+$200] shr 2) and 1;
   bit3:=(memoria_temp[f+$200] shr 3) and 1;
-  colores[f].b:=$0e*bit0+$1f*bit1+$43*bit2+$8f*bit3;
+  colores[f].b:=$e*bit0+$1f*bit1+$43*bit2+$8f*bit3;
 end;
 set_pal(colores,$100);
 iniciar_kyugo_hw:=true;

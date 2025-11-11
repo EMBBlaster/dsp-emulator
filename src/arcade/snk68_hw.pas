@@ -1,13 +1,10 @@
 unit snk68_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,ym_3812,nz80,upd7759,sound_engine;
+uses rom_engine;
 
 function iniciar_snk68:boolean;
 
-implementation
 const
         //POW
         pow_rom:array[0..1] of tipo_roms=(
@@ -16,7 +13,7 @@ const
         (n:'dg9.l25';l:$8000;p:0;crc:$df864a08),(n:'dg10.m25';l:$8000;p:$8000;crc:$9e470d53));
         pow_sound:tipo_roms=(n:'dg8.e25';l:$10000;p:0;crc:$d1d61da3);
         pow_upd:tipo_roms=(n:'dg7.d20';l:$10000;p:0;crc:$aba9a9d3);
-        pow_sprites:array[0..15] of tipo_roms=(
+        pow_sprites:array[0..16] of tipo_roms=(
         (n:'snk880.11a';l:$20000;p:$0;crc:$e70fd906),(n:'snk880.15a';l:$20000;p:$1;crc:$7a90e957),
         (n:'snk880.12a';l:$20000;p:$40000;crc:$628b1aed),(n:'snk880.16a';l:$20000;p:$40001;crc:$e40a6c13),
         (n:'snk880.13a';l:$20000;p:$80000;crc:$19dc8868),(n:'snk880.17a';l:$20000;p:$80001;crc:$c7931cc2),
@@ -24,7 +21,7 @@ const
         (n:'snk880.19a';l:$20000;p:$100000;crc:$1775b8dd),(n:'snk880.23a';l:$20000;p:$100001;crc:$adb6ad68),
         (n:'snk880.20a';l:$20000;p:$140000;crc:$f8e752ec),(n:'snk880.24a';l:$20000;p:$140001;crc:$dd41865a),
         (n:'snk880.21a';l:$20000;p:$180000;crc:$27e9fffe),(n:'snk880.25a';l:$20000;p:$180001;crc:$055759ad),
-        (n:'snk880.22a';l:$20000;p:$1c0000;crc:$aa9c00d8),(n:'snk880.26a';l:$20000;p:$1c0001;crc:$9bc261c5));
+        (n:'snk880.22a';l:$20000;p:$1c0000;crc:$aa9c00d8),(n:'snk880.26a';l:$20000;p:$1c0001;crc:$9bc261c5),());
         //Street Smart
         streetsm_rom:array[0..1] of tipo_roms=(
         (n:'s2-1ver2.14h';l:$20000;p:0;crc:$655f4773),(n:'s2-2ver2.14k';l:$20000;p:$1;crc:$efae4823));
@@ -32,10 +29,10 @@ const
         (n:'s2-9.25l';l:$8000;p:0;crc:$09b6ac67),(n:'s2-10.25m';l:$8000;p:$8000;crc:$89e4ee6f));
         streetsm_sound:tipo_roms=(n:'s2-5.16c';l:$10000;p:0;crc:$ca4b171e);
         streetsm_upd:tipo_roms=(n:'s2-6.18d';l:$20000;p:0;crc:$47db1605);
-        streetsm_sprites:array[0..5] of tipo_roms=(
+        streetsm_sprites:array[0..6] of tipo_roms=(
         (n:'stsmart.900';l:$80000;p:$0;crc:$a8279a7e),(n:'stsmart.902';l:$80000;p:$80000;crc:$2f021aa1),
         (n:'stsmart.904';l:$80000;p:$100000;crc:$167346f7),(n:'stsmart.901';l:$80000;p:$200000;crc:$c305af12),
-        (n:'stsmart.903';l:$80000;p:$280000;crc:$73c16d35),(n:'stsmart.905';l:$80000;p:$300000;crc:$a5beb4e2));
+        (n:'stsmart.903';l:$80000;p:$280000;crc:$73c16d35),(n:'stsmart.905';l:$80000;p:$300000;crc:$a5beb4e2),());
         //Ikari 3
         ikari3_rom:array[0..1] of tipo_roms=(
         (n:'ik3-2-ver1.c10';l:$20000;p:0;crc:$1bae8023),(n:'ik3-3-ver1.c9';l:$20000;p:$1;crc:$10e38b66));
@@ -54,8 +51,8 @@ const
         (n:'ik3-16.bin';l:$20000;p:$280000;crc:$80ba400b),(n:'ik3-26.bin';l:$20000;p:$280001;crc:$9c613561),
         (n:'ik3-17.bin';l:$20000;p:$2c0000;crc:$0cc3ce4a),(n:'ik3-27.bin';l:$20000;p:$2c0001;crc:$16dd227e),
         (n:'ik3-18.bin';l:$20000;p:$300000;crc:$ba106245),(n:'ik3-28.bin';l:$20000;p:$300001;crc:$711715ae));
-        ikari3_rom2:array[0..1] of tipo_roms=(
-        (n:'ik3-1.c8';l:$10000;p:0;crc:$47e4d256),(n:'ik3-4.c12';l:$10000;p:$1;crc:$a43af6b5));
+        ikari3_rom2:array[0..2] of tipo_roms=(
+        (n:'ik3-1.c8';l:$10000;p:0;crc:$47e4d256),(n:'ik3-4.c12';l:$10000;p:$1;crc:$a43af6b5),());
         //Search and Rescue
         sar_rom:array[0..1] of tipo_roms=(
         (n:'bhw.2';l:$20000;p:0;crc:$e1430138),(n:'bhw.3';l:$20000;p:$1;crc:$ee1f9374));
@@ -67,8 +64,12 @@ const
         (n:'bh.c1';l:$80000;p:$000000;crc:$1fb8f0ae),(n:'bh.c3';l:$80000;p:$080000;crc:$fd8bc407),
         (n:'bh.c5';l:$80000;p:$100000;crc:$1d30acc3),(n:'bh.c2';l:$80000;p:$200000;crc:$7c803767),
         (n:'bh.c4';l:$80000;p:$280000;crc:$eede7c43),(n:'bh.c6';l:$80000;p:$300000;crc:$9f785cd9));
-        sar_rom2:array[0..1] of tipo_roms=(
-        (n:'bhw.1';l:$20000;p:0;crc:$62b60066),(n:'bhw.4';l:$20000;p:$1;crc:$16d8525c));
+        sar_rom2:array[0..2] of tipo_roms=(
+        (n:'bhw.1';l:$20000;p:0;crc:$62b60066),(n:'bhw.4';l:$20000;p:$1;crc:$16d8525c),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,ym_3812,nz80,
+     upd7759,sound_engine;
 
 var
  rom,rom2:array[0..$1ffff] of word;
@@ -215,7 +216,6 @@ procedure snk68_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
    eventos_pow;

@@ -1,70 +1,71 @@
 unit williams_hw;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,m680x,main_engine,controls_engine,gfx_engine,dac,rom_engine,
-     pal_engine,sound_engine,pia6821,file_engine,blitter_williams;
+uses rom_engine;
 
 function iniciar_williams:boolean;
-
-implementation
 
 const
         //Defender
         defender_rom:array[0..10] of tipo_roms=(
-        (n:'defend.1';l:$800;p:$0;crc:$c3e52d7e),(n:'defend.4';l:$800;p:$800;crc:$9a72348b),
+        (n:'defend.1';l:$800;p:0;crc:$c3e52d7e),(n:'defend.4';l:$800;p:$800;crc:$9a72348b),
         (n:'defend.2';l:$1000;p:$1000;crc:$89b75984),(n:'defend.3';l:$1000;p:$2000;crc:$94f51e9b),
         (n:'defend.9';l:$800;p:$3000;crc:$6870e8a5),(n:'defend.12';l:$800;p:$3800;crc:$f1f88938),
         (n:'defend.8';l:$800;p:$4000;crc:$b649e306),(n:'defend.11';l:$800;p:$4800;crc:$9deaf6d9),
         (n:'defend.7';l:$800;p:$5000;crc:$339e092e),(n:'defend.10';l:$800;p:$5800;crc:$a543b167),
         (n:'defend.6';l:$800;p:$9000;crc:$65f4efd1));
-        defender_snd:tipo_roms=(n:'defend.snd';l:$800;p:$f800;crc:$fefd5b48);
+        defender_snd:array[0..1] of tipo_roms=((n:'defend.snd';l:$800;p:$f800;crc:$fefd5b48),());
         //Mayday
         mayday_rom:array[0..6] of tipo_roms=(
-        (n:'mayday.c';l:$1000;p:$0;crc:$a1ff6e62),(n:'mayday.b';l:$1000;p:$1000;crc:$62183aea),
+        (n:'mayday.c';l:$1000;p:0;crc:$a1ff6e62),(n:'mayday.b';l:$1000;p:$1000;crc:$62183aea),
         (n:'mayday.a';l:$1000;p:$2000;crc:$5dcb113f),(n:'mayday.d';l:$1000;p:$3000;crc:$ea6a4ec8),
         (n:'mayday.e';l:$1000;p:$4000;crc:$0d797a3e),(n:'mayday.f';l:$1000;p:$5000;crc:$ee8bfcd6),
         (n:'mayday.g';l:$1000;p:$9000;crc:$d9c065e7));
-        mayday_snd:tipo_roms=(n:'ic28-8.bin';l:$800;p:$f800;crc:$fefd5b48);
+        mayday_snd:array[0..1] of tipo_roms=((n:'ic28-8.bin';l:$800;p:$f800;crc:$fefd5b48),());
         //Colony7
         colony7_rom:array[0..8] of tipo_roms=(
-        (n:'cs03.bin';l:$1000;p:$0;crc:$7ee75ae5),(n:'cs02.bin';l:$1000;p:$1000;crc:$c60b08cb),
+        (n:'cs03.bin';l:$1000;p:0;crc:$7ee75ae5),(n:'cs02.bin';l:$1000;p:$1000;crc:$c60b08cb),
         (n:'cs01.bin';l:$1000;p:$2000;crc:$1bc97436),(n:'cs06.bin';l:$800;p:$3000;crc:$318b95af),
         (n:'cs04.bin';l:$800;p:$3800;crc:$d740faee),(n:'cs07.bin';l:$800;p:$4000;crc:$0b23638b),
         (n:'cs05.bin';l:$800;p:$4800;crc:$59e406a8),(n:'cs08.bin';l:$800;p:$5000;crc:$3bfde87a),
         (n:'cs08.bin';l:$800;p:$5800;crc:$3bfde87a));
-        colony7_snd:tipo_roms=(n:'cs11.bin';l:$800;p:$f800;crc:$6032293c);
-        colony7_dip_a:array [0..2] of def_dip=(
-        (mask:$1;name:'Lives';number:2;dip:((dip_val:$0;dip_name:'2'),(dip_val:$1;dip_name:'3'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Bonus At';number:2;dip:((dip_val:$0;dip_name:'20K/40K or 30K/50K'),(dip_val:$2;dip_name:'30K/50K or 40K/70K'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        colony7_snd:array[0..1] of tipo_roms=((n:'cs11.bin';l:$800;p:$f800;crc:$6032293c),());
         //Joust
         joust_rom:array[0..11] of tipo_roms=(
-        (n:'joust_rom_10b_3006-22.a7';l:$1000;p:$0;crc:$3f1c4f89),(n:'joust_rom_11b_3006-23.c7';l:$1000;p:$1000;crc:$ea48b359),
+        (n:'joust_rom_10b_3006-22.a7';l:$1000;p:0;crc:$3f1c4f89),(n:'joust_rom_11b_3006-23.c7';l:$1000;p:$1000;crc:$ea48b359),
         (n:'joust_rom_12b_3006-24.e7';l:$1000;p:$2000;crc:$c710717b),(n:'joust_rom_1b_3006-13.e4';l:$1000;p:$3000;crc:$fe41b2af),
         (n:'joust_rom_2b_3006-14.c4';l:$1000;p:$4000;crc:$501c143c),(n:'joust_rom_3b_3006-15.a4';l:$1000;p:$5000;crc:$43f7161d),
         (n:'joust_rom_4b_3006-16.e5';l:$1000;p:$6000;crc:$db5571b6),(n:'joust_rom_5b_3006-17.c5';l:$1000;p:$7000;crc:$c686bb6b),
         (n:'joust_rom_6b_3006-18.a5';l:$1000;p:$8000;crc:$fac5f2cf),(n:'joust_rom_7b_3006-19.e6';l:$1000;p:$9000;crc:$81418240),
         (n:'joust_rom_8b_3006-20.c6';l:$1000;p:$a000;crc:$ba5359ba),(n:'joust_rom_9b_3006-21.a6';l:$1000;p:$b000;crc:$39643147));
-        joust_snd:tipo_roms=(n:'video_sound_rom_4_std_780.ic12';l:$1000;p:$f000;crc:$f1835bdd);
+        joust_snd:array[0..1] of tipo_roms=((n:'video_sound_rom_4_std_780.ic12';l:$1000;p:$f000;crc:$f1835bdd),());
         //Robotron
         robotron_rom:array[0..11] of tipo_roms=(
-        (n:'2084_rom_10b_3005-22.a7';l:$1000;p:$0;crc:$13797024),(n:'2084_rom_11b_3005-23.c7';l:$1000;p:$1000;crc:$7e3c1b87),
+        (n:'2084_rom_10b_3005-22.a7';l:$1000;p:0;crc:$13797024),(n:'2084_rom_11b_3005-23.c7';l:$1000;p:$1000;crc:$7e3c1b87),
         (n:'2084_rom_12b_3005-24.e7';l:$1000;p:$2000;crc:$645d543e),(n:'2084_rom_1b_3005-13.e4';l:$1000;p:$3000;crc:$66c7d3ef),
         (n:'2084_rom_2b_3005-14.c4';l:$1000;p:$4000;crc:$5bc6c614),(n:'2084_rom_3b_3005-15.a4';l:$1000;p:$5000;crc:$e99a82be),
         (n:'2084_rom_4b_3005-16.e5';l:$1000;p:$6000;crc:$afb1c561),(n:'2084_rom_5b_3005-17.c5';l:$1000;p:$7000;crc:$62691e77),
         (n:'2084_rom_6b_3005-18.a5';l:$1000;p:$8000;crc:$bd2c853d),(n:'2084_rom_7b_3005-19.e6';l:$1000;p:$9000;crc:$49ac400c),
         (n:'2084_rom_8b_3005-20.c6';l:$1000;p:$a000;crc:$3a96e88c),(n:'2084_rom_9b_3005-21.a6';l:$1000;p:$b000;crc:$b124367b));
-        robotron_snd:tipo_roms=(n:'video_sound_rom_3_std_767.ic12';l:$1000;p:$f000;crc:$c56c1d28);
+        robotron_snd:array[0..1] of tipo_roms=((n:'video_sound_rom_3_std_767.ic12';l:$1000;p:$f000;crc:$c56c1d28),());
         //Stargate
         stargate_rom:array[0..11] of tipo_roms=(
-        (n:'stargate_rom_10-a_3002-10.a7';l:$1000;p:$0;crc:$60b07ff7),(n:'stargate_rom_11-a_3002-11.c7';l:$1000;p:$1000;crc:$7d2c5daf),
+        (n:'stargate_rom_10-a_3002-10.a7';l:$1000;p:0;crc:$60b07ff7),(n:'stargate_rom_11-a_3002-11.c7';l:$1000;p:$1000;crc:$7d2c5daf),
         (n:'stargate_rom_12-a_3002-12.e7';l:$1000;p:$2000;crc:$a0396670),(n:'stargate_rom_1-a_3002-1.e4';l:$1000;p:$3000;crc:$88824d18),
         (n:'stargate_rom_2-a_3002-2.c4';l:$1000;p:$4000;crc:$afc614c5),(n:'stargate_rom_3-a_3002-3.a4';l:$1000;p:$5000;crc:$15077a9d),
         (n:'stargate_rom_4-a_3002-4.e5';l:$1000;p:$6000;crc:$a8b4bf0f),(n:'stargate_rom_5-a_3002-5.c5';l:$1000;p:$7000;crc:$2d306074),
         (n:'stargate_rom_6-a_3002-6.a5';l:$1000;p:$8000;crc:$53598dde),(n:'stargate_rom_7-a_3002-7.e6';l:$1000;p:$9000;crc:$23606060),
         (n:'stargate_rom_8-a_3002-8.c6';l:$1000;p:$a000;crc:$4ec490c7),(n:'stargate_rom_9-a_3002-9.a6';l:$1000;p:$b000;crc:$88187b64));
-        stargate_snd:tipo_roms=(n:'video_sound_rom_2_std_744.ic12';l:$800;p:$f800;crc:$2fcf6c4d);
+        stargate_snd:array[0..1] of tipo_roms=((n:'video_sound_rom_2_std_744.ic12';l:$800;p:$f800;crc:$2fcf6c4d),());
+
+implementation
+uses m6809,m680x,main_engine,controls_engine,gfx_engine,dac,pal_engine,
+     sound_engine,pia6821,file_engine,blitter_williams;
+
+const
+        colony7_dip_a:array [0..1] of def_dip2=(
+        (mask:1;name:'Lives';number:2;val2:(0,1);name2:('2','3')),
+        (mask:2;name:'Bonus At';number:2;val2:(0,2);name2:('20K/40K or 30K/50K','30K/50K or 40K/70K')));
         CPU_SYNC=8;
 
 var
@@ -95,114 +96,133 @@ end;
 procedure eventos_defender;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 or $4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.but3[0] then marcade.in0:=(marcade.in0 or $8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.but4[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.but3[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.but4[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or $80;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 1;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
 procedure eventos_mayday;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 or $4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.but3[0] then marcade.in0:=(marcade.in0 or $8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.but3[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or $80;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 1;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
 procedure eventos_colony7;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or $4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or $8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $80;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 or 1;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
 end;
 end;
 
 procedure eventos_joust;
 begin
 if event.arcade then begin
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
+  marcade.in3:=0;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
   //p1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or $2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 or $4) else marcade.in1:=(marcade.in1 and $fb);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 or 4;
   //p2
-  if arcade_input.left[1] then marcade.in3:=(marcade.in3 or $1) else marcade.in3:=(marcade.in3 and $fe);
-  if arcade_input.right[1] then marcade.in3:=(marcade.in3 or $2) else marcade.in3:=(marcade.in3 and $fd);
-  if arcade_input.but0[1] then marcade.in3:=(marcade.in3 or $4) else marcade.in3:=(marcade.in3 and $fb);
+  if arcade_input.left[1] then marcade.in3:=marcade.in3 or 1;
+  if arcade_input.right[1] then marcade.in3:=marcade.in3 or 2;
+  if arcade_input.but0[1] then marcade.in3:=marcade.in3 or 4;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
 procedure eventos_robotron;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or $4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or $8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or $2) else marcade.in1:=(marcade.in1 and $fd);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 or $80;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 2;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
 procedure eventos_stargate;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 or $4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.but5[0] then marcade.in0:=(marcade.in0 or $8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.but3[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.but4[0] then marcade.in1:=(marcade.in1 or $2) else marcade.in1:=(marcade.in1 and $fd);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.but5[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.but3[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or $80;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.but4[0] then marcade.in1:=marcade.in1 or 2;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
@@ -210,7 +230,6 @@ procedure williams_principal;
 var
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for linea:=0 to 259 do begin
     events_call;
@@ -246,8 +265,8 @@ case direccion of
                         $800..$bff:if (linea<$100) then williams_getbyte:=linea and $fc
 	                                  else williams_getbyte:=$fc;
                         $c00..$fff:case (direccion and $1f) of
-                                      0..3:williams_getbyte:=pia6821_1.read(direccion and $3);
-                                      4..7:williams_getbyte:=pia6821_0.read(direccion and $3);
+                                      0..3:williams_getbyte:=pia6821_1.read(direccion and 3);
+                                      4..7:williams_getbyte:=pia6821_0.read(direccion and 3);
                                    end;
                       end;
                     1..$f:williams_getbyte:=rom_data[ram_bank-1,direccion and $fff];
@@ -258,7 +277,7 @@ end;
 procedure williams_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
-  $0..$bfff:memoria[direccion]:=valor;
+  0..$bfff:memoria[direccion]:=valor;
   $c000..$cfff:case ram_bank of
                   0:case (direccion and $fff) of
                         0..$3fe:case (direccion and $1f) of
@@ -268,11 +287,11 @@ case direccion of
                         $3ff:; //Watch dog
                         $400..$7ff:nvram[direccion and $ff]:=$f0 or valor;
                         $c00..$fff:case (direccion and $1f) of
-                                      0..3:pia6821_1.write(direccion and $3,valor);
-                                      4..7:pia6821_0.write(direccion and $3,valor);
+                                      0..3:pia6821_1.write(direccion and 3,valor);
+                                      4..7:pia6821_0.write(direccion and 3,valor);
                                    end;
                       end;
-                  $1..$f:;
+                  1..$f:;
                end;
   $d000..$dfff:ram_bank:=valor and $f;
   $e000..$ffff:;
@@ -282,16 +301,16 @@ end;
 function williams_snd_getbyte(direccion:word):byte;
 begin
 case direccion of
-  $0..$ff,$b000..$ffff:williams_snd_getbyte:=mem_snd[direccion];
-  $400..$403,$8400..$8403:williams_snd_getbyte:=pia6821_2.read(direccion and $3);
+  0..$ff,$b000..$ffff:williams_snd_getbyte:=mem_snd[direccion];
+  $400..$403,$8400..$8403:williams_snd_getbyte:=pia6821_2.read(direccion and 3);
 end;
 end;
 
 procedure williams_snd_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
-  $0..$ff:mem_snd[direccion]:=valor;
-  $400..$403,$8400..$8403:pia6821_2.write(direccion and $3,valor);
+  0..$ff:mem_snd[direccion]:=valor;
+  $400..$403,$8400..$8403:pia6821_2.write(direccion and 3,valor);
   $b000..$ffff:;
 end;
 end;
@@ -353,8 +372,8 @@ case direccion of
                         $800..$bff:if (linea<$100) then mayday_getbyte:=linea and $fc
 	                                  else mayday_getbyte:=$fc;
                         $c00..$fff:case (direccion and $1f) of
-                                      0..3:mayday_getbyte:=pia6821_1.read(direccion and $3);
-                                      4..7:mayday_getbyte:=pia6821_0.read(direccion and $3);
+                                      0..3:mayday_getbyte:=pia6821_1.read(direccion and 3);
+                                      4..7:mayday_getbyte:=pia6821_0.read(direccion and 3);
                                    end;
                       end;
                     1..$f:mayday_getbyte:=rom_data[ram_bank-1,direccion and $fff];
@@ -370,8 +389,8 @@ case direccion of
                 else joust_getbyte:=memoria[direccion];
     $9000..$bfff,$d000..$ffff:joust_getbyte:=memoria[direccion];
     $c800..$c8ff:case (direccion and $f) of
-                  4..7:joust_getbyte:=pia6821_0.read(direccion and $3);
-                  $c..$f:joust_getbyte:=pia6821_1.read(direccion and $3);
+                  4..7:joust_getbyte:=pia6821_0.read(direccion and 3);
+                  $c..$f:joust_getbyte:=pia6821_1.read(direccion and 3);
                end;
     $cb00..$cbff:if (linea<$100) then joust_getbyte:=linea and $fc
 	                  else joust_getbyte:=$fc;
@@ -382,11 +401,11 @@ end;
 procedure joust_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
-  $0..$bfff:memoria[direccion]:=valor;
+  0..$bfff:memoria[direccion]:=valor;
   $c000..$c3ff:palette[direccion and $f]:=valor;
   $c800..$c8ff:case (direccion and $f) of
-                  4..7:pia6821_0.write(direccion and $3,valor);
-                  $c..$f:pia6821_1.write(direccion and $3,valor);
+                  4..7:pia6821_0.write(direccion and 3,valor);
+                  $c..$f:pia6821_1.write(direccion and 3,valor);
                end;
   $c900..$c9ff:ram_rom_set:=(valor and 1)<>0;
   $ca00..$caff:blitter_0.blitter_w(direccion and 7,valor);
@@ -519,8 +538,7 @@ case main_vars.tipo_maquina of
         //roms sonido
         if not(roms_load(@mem_snd,colony7_snd)) then exit;
         events_call:=eventos_colony7;
-        marcade.dswa:=$1;
-        marcade.dswa_val:=@colony7_dip_a;
+        init_dips(1,colony7_dip_a,1);
         //Cargar NVRam
         if read_file_size(Directory.Arcade_nvram+'colony7.nv',longitud) then read_file(Directory.Arcade_nvram+'colony7.nv',@nvram,longitud);
   end;

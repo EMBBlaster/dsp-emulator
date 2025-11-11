@@ -1,10 +1,7 @@
 ﻿unit gnw_510;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     sm510,main_engine,controls_engine,rom_engine,sound_engine,
-     gfx_engine;
-
+uses rom_engine;
 type
   video_def=record
       id:byte;
@@ -12,15 +9,16 @@ type
       size_x,size_y:word;
   end;
 
+const
+        gnw_jr55_rom:array [0..1] of tipo_roms=((n:'jr55_cms54c_kms560';l:$1000;p:$0;crc:$46aed0ae),());
+        gnw_dj101_rom:array [0..1] of tipo_roms=((n:'dj101';l:$1000;p:$0;crc:$8dcfb5d1),());
+        gnw_mw56_rom:array [0..1] of tipo_roms=((n:'mw-56';l:$1000;p:$0;crc:$385e59da),());
+
 procedure cargar_gnw_510;
 
 implementation
-uses principal,gnw_dkjr_const,gnw_dkong2_const,gnw_mariobros_const;
-
-const
-        gnw_jr55_rom:tipo_roms=(n:'jr55_cms54c_kms560';l:$1000;p:$0;crc:$46aed0ae);
-        gnw_dj101_rom:tipo_roms=(n:'dj101';l:$1000;p:$0;crc:$8dcfb5d1);
-        gnw_mw56_rom:tipo_roms=(n:'mw-56';l:$1000;p:$0;crc:$385e59da);
+uses principal,gnw_dkjr_const,gnw_dkong2_const,gnw_mariobros_const,sm510,
+     main_engine,controls_engine,sound_engine,gfx_engine;
 
 var
   input_lines,input_mux,speaker,sample_num:byte;
@@ -138,7 +136,6 @@ procedure gnw_510_principal;
 var
   frame_m:single;
 begin
-init_controls(false,false,false,true);
 frame_m:=sm510_0.tframes;
 while EmuStatus=EsRunning do begin
   //Main CPU

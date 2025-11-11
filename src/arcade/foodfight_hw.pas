@@ -1,13 +1,9 @@
-unit foodfight_hw;
+﻿unit foodfight_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,file_engine,pokey;
+uses rom_engine;
 
 function iniciar_foodf:boolean;
-
-implementation
 
 const
         foodf_rom:array[0..7] of tipo_roms=(
@@ -16,10 +12,15 @@ const
         (n:'136020-305.8e';l:$2000;p:$8001;crc:$e6cff1b1),(n:'136020-306.9e';l:$2000;p:$8000;crc:$95159a3e),
         (n:'136020-307.8f';l:$2000;p:$c001;crc:$17828dbb),(n:'136020-208.9f';l:$2000;p:$c000;crc:$608690c9));
         foodf_char:tipo_roms=(n:'136020-109.6lm';l:$2000;p:0;crc:$c13c90eb);
-        foodf_sprites:array[0..1] of tipo_roms=(
-        (n:'136020-110.4e';l:$2000;p:0;crc:$8870e3d6),(n:'136020-111.4d';l:$2000;p:$2000;crc:$84372edf));
         foodf_nvram:tipo_roms=(n:'foodf.nv';l:$100;p:0;crc:$a4186b13);
-        //DIP
+        foodf_sprites:array[0..2] of tipo_roms=(
+        (n:'136020-110.4e';l:$2000;p:0;crc:$8870e3d6),(n:'136020-111.4d';l:$2000;p:$2000;crc:$84372edf),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     file_engine,pokey;
+
+const
         foodf_dip:array [0..3] of def_dip2=(
         (mask:7;name:'Bonus Coins';number:8;val8:(0,5,2,1,6,3,4,7);name8:('None','1 for every 2','1 for every 4','1 for every 5','2 for every 4','Invalid','Invalid','Invalid')),
         (mask:8;name:'Coin A';number:2;val2:(0,8);name2:('1C 1C','1C 2C')),
@@ -79,15 +80,16 @@ end;
 
 procedure eventos_foodf;
 begin
-if main_vars.service1 then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
 if event.arcade then begin
+  marcade.in0:=$ffff;
   //system
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $ffbf;
+  if main_vars.service1 then marcade.in0:=marcade.in0 and $ff7f;
 end;
 end;
 
@@ -95,7 +97,6 @@ procedure foodf_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 258 do begin
     eventos_foodf;

@@ -1,8 +1,7 @@
 unit ym_3812;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}fmopl,timer_engine,sound_engine,cpu_misc,
-     dialogs;
+uses main_engine,fmopl,timer_engine,sound_engine,cpu_misc,dialogs;
 
 type
   ym3812_chip=class(snd_chip_class)

@@ -1,13 +1,10 @@
-unit m72_hw;
+﻿unit m72_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,nec_v20_v30,main_engine,controls_engine,gfx_engine,ym_2151,
-     rom_engine,pal_engine,sound_engine,timer_engine,dac;
+uses rom_engine;
 
 function iniciar_irem_m72:boolean;
 
-implementation
 const
         //Rtype
         rtype_rom:array[0..3] of tipo_roms=(
@@ -19,13 +16,13 @@ const
         rtype_char2:array[0..3] of tipo_roms=(
         (n:'rt_b-b0.3j';l:$8000;p:0;crc:$a7b17491),(n:'rt_b-b1.3k';l:$8000;p:$8000;crc:$b9709686),
         (n:'rt_b-b2.3h';l:$8000;p:$10000;crc:$433b229a),(n:'rt_b-b3.3f';l:$8000;p:$18000;crc:$ad89b072));
-        irem_m72_sprites:array[0..11] of tipo_roms=(
+        irem_m72_sprites:array[0..12] of tipo_roms=(
         (n:'rt_r-00.1h';l:$10000;p:0;crc:$dad53bc0),(n:'rt_r-01.1j';l:$8000;p:$10000;crc:$5e441e7f),
         (n:'rt_r-01.1j';l:$8000;p:$18000;crc:$5e441e7f),(n:'rt_r-10.1k';l:$10000;p:$20000;crc:$d6a66298),
         (n:'rt_r-11.1l';l:$8000;p:$30000;crc:$791df4f8),(n:'rt_r-11.1l';l:$8000;p:$38000;crc:$791df4f8),
         (n:'rt_r-20.3h';l:$10000;p:$40000;crc:$fc247c8a),(n:'rt_r-21.3j';l:$8000;p:$50000;crc:$ed793841),
         (n:'rt_r-21.3j';l:$8000;p:$58000;crc:$ed793841),(n:'rt_r-30.3k';l:$10000;p:$60000;crc:$eb02a1cb),
-        (n:'rt_r-31.3l';l:$8000;p:$70000;crc:$8558355d),(n:'rt_r-31.3l';l:$8000;p:$78000;crc:$8558355d));
+        (n:'rt_r-31.3l';l:$8000;p:$70000;crc:$8558355d),(n:'rt_r-31.3l';l:$8000;p:$78000;crc:$8558355d),());
         //Hammering Harry
         hharry_rom:array[0..3] of tipo_roms=(
         (n:'a-h0-v.rom';l:$20000;p:1;crc:$c52802a5),(n:'a-l0-v.rom';l:$20000;p:$0;crc:$f463074c),
@@ -33,11 +30,11 @@ const
         hharry_char:array[0..3] of tipo_roms=(
         (n:'hh_a0.rom';l:$20000;p:0;crc:$c577ba5f),(n:'hh_a1.rom';l:$20000;p:$20000;crc:$429d12ab),
         (n:'hh_a2.rom';l:$20000;p:$40000;crc:$b5b163b0),(n:'hh_a3.rom';l:$20000;p:$60000;crc:$8ef566a1));
-        hharry_sprites:array[0..3] of tipo_roms=(
-        (n:'hh_00.rom';l:$20000;p:0;crc:$ec5127ef),(n:'hh_10.rom';l:$20000;p:$20000;crc:$def65294),
-        (n:'hh_20.rom';l:$20000;p:$40000;crc:$bb0d6ad4),(n:'hh_30.rom';l:$20000;p:$60000;crc:$4351044e));
         hharry_snd:tipo_roms=(n:'a-sp-0.rom';l:$10000;p:0;crc:$80e210e7);
         hharry_dac:tipo_roms=(n:'a-v0-0.rom';l:$20000;p:0;crc:$faaacaff);
+        hharry_sprites:array[0..4] of tipo_roms=(
+        (n:'hh_00.rom';l:$20000;p:0;crc:$ec5127ef),(n:'hh_10.rom';l:$20000;p:$20000;crc:$def65294),
+        (n:'hh_20.rom';l:$20000;p:$40000;crc:$bb0d6ad4),(n:'hh_30.rom';l:$20000;p:$60000;crc:$4351044e),());
         //R-Type 2
         rtype2_rom:array[0..3] of tipo_roms=(
         (n:'rt2-a-h0-d.54';l:$20000;p:1;crc:$d8ece6f4),(n:'rt2-a-l0-d.60';l:$20000;p:$0;crc:$32cfb2e4),
@@ -47,11 +44,15 @@ const
         (n:'ic56.8s';l:$20000;p:$40000;crc:$4cb80d66),(n:'ic57.8u';l:$20000;p:$60000;crc:$bee128e0),
         (n:'ic65.9r';l:$20000;p:$80000;crc:$2dc9c71a),(n:'ic66.9u';l:$20000;p:$a0000;crc:$7533c428),
         (n:'ic63.9m';l:$20000;p:$c0000;crc:$a6ad67f2),(n:'ic64.9p';l:$20000;p:$e0000;crc:$3686d555));
-        rtype2_sprites:array[0..3] of tipo_roms=(
-        (n:'ic31.6l';l:$20000;p:0;crc:$2cd8f913),(n:'ic21.4l';l:$20000;p:$20000;crc:$5033066d),
-        (n:'ic32.6m';l:$20000;p:$40000;crc:$ec3a0450),(n:'ic22.4m';l:$20000;p:$60000;crc:$db6176fc));
         rtype2_snd:tipo_roms=(n:'ic17.4f';l:$10000;p:0;crc:$73ffecb4);
         rtype2_dac:tipo_roms=(n:'ic14.4c';l:$20000;p:0;crc:$637172d5);
+        rtype2_sprites:array[0..4] of tipo_roms=(
+        (n:'ic31.6l';l:$20000;p:0;crc:$2cd8f913),(n:'ic21.4l';l:$20000;p:$20000;crc:$5033066d),
+        (n:'ic32.6m';l:$20000;p:$40000;crc:$ec3a0450),(n:'ic22.4m';l:$20000;p:$60000;crc:$db6176fc),());
+
+implementation
+uses nz80,nec_v20_v30,main_engine,controls_engine,gfx_engine,ym_2151,
+     pal_engine,sound_engine,timer_engine,dac;
 
 type
     tipo_update_video_m72=procedure;
@@ -201,7 +202,6 @@ var
   frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=nec_0.tframes;
 frame_s:=z80_0.tframes;
 while EmuStatus=EsRunning do begin

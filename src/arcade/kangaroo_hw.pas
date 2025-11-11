@@ -1,23 +1,25 @@
 unit kangaroo_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,ay_8910,pal_engine,
-     sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_kangaroo:boolean;
 
-implementation
 const
         kangaroo_rom:array[0..5] of tipo_roms=(
         (n:'tvg_75.0';l:$1000;p:0;crc:$0d18c581),(n:'tvg_76.1';l:$1000;p:$1000;crc:$5978d37a),
         (n:'tvg_77.2';l:$1000;p:$2000;crc:$522d1097),(n:'tvg_78.3';l:$1000;p:$3000;crc:$063da970),
         (n:'tvg_79.4';l:$1000;p:$4000;crc:$9e5cf8ca),(n:'tvg_80.5';l:$1000;p:$5000;crc:$2fc18049));
-        kangaroo_gfx:array[0..3] of tipo_roms=(
-        (n:'tvg_83.v0';l:$1000;p:0;crc:$c0446ca6),(n:'tvg_85.v2';l:$1000;p:$1000;crc:$72c52695),
-        (n:'tvg_84.v1';l:$1000;p:$2000;crc:$e4cb26c2),(n:'tvg_86.v3';l:$1000;p:$3000;crc:$9e6a599f));
         kangaroo_sound:tipo_roms=(n:'tvg_81.8';l:$1000;p:0;crc:$fb449bfd);
-        //DIP
+        kangaroo_gfx:array[0..4] of tipo_roms=(
+        (n:'tvg_83.v0';l:$1000;p:0;crc:$c0446ca6),(n:'tvg_85.v2';l:$1000;p:$1000;crc:$72c52695),
+        (n:'tvg_84.v1';l:$1000;p:$2000;crc:$e4cb26c2),(n:'tvg_86.v3';l:$1000;p:$3000;crc:$9e6a599f),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,qsnapshot;
+
+const
         kangaroo_dipa:array [0..2] of def_dip2=(
         (mask:$20;name:'Music';number:2;val2:(0,$20);name2:('On','Off')),
         (mask:$40;name:'Cabinet';number:2;val2:(0,$40);name2:('Upright','Cocktail')),
@@ -93,23 +95,26 @@ end;
 procedure eventos_kangaroo;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 or $10;
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 or $8) else marcade.in2:=(marcade.in2 and $f7);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 or 8;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 or $10;
   //System
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $10;
 end;
 end;
 
@@ -117,7 +122,6 @@ procedure kangaroo_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 259 do begin
     eventos_kangaroo;

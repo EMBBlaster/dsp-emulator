@@ -17,7 +17,7 @@
       <AutoIncrementBuild Value="True"/>
       <MinorVersionNr Value="24"/>
       <RevisionNr Value="2"/>
-      <BuildNr Value="1421"/>
+      <BuildNr Value="1441"/>
       <Language Value="040A"/>
       <StringTable CompanyName="Leniad" InternalName="Mi Emulador!" LegalCopyright="Leniad" OriginalFilename="DSP Emulator" ProductName="DSP Emulator" ProductVersion="0.24"/>
     </VersionInfo>
@@ -43,15 +43,14 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="102">
+    <Units Count="109">
       <Unit0>
         <Filename Value="dsp.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="14"/>
-        <CursorPos Y="40"/>
+        <TopLine Value="18"/>
+        <CursorPos Y="41"/>
         <UsageCount Value="200"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
         <Filename Value="principal.pas"/>
@@ -59,9 +58,8 @@
         <ComponentName Value="principal1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="958"/>
-        <CursorPos X="7" Y="980"/>
+        <TopLine Value="960"/>
+        <CursorPos Y="984"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -156,8 +154,7 @@
         <Filename Value="..\misc\controls_engine.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="484"/>
-        <CursorPos X="52" Y="514"/>
+        <CursorPos X="7" Y="11"/>
         <UsageCount Value="200"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
@@ -168,8 +165,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="41"/>
-        <CursorPos X="33" Y="52"/>
+        <CursorPos X="58" Y="2"/>
         <UsageCount Value="200"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit14>
@@ -181,10 +177,9 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="LoadRom"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="231"/>
-        <CursorPos X="32" Y="257"/>
+        <TopLine Value="109"/>
+        <CursorPos X="29" Y="117"/>
         <UsageCount Value="200"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="config_general.pas"/>
@@ -192,10 +187,13 @@
         <ComponentName Value="MConfig"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="366"/>
-        <CursorPos X="3" Y="403"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="187"/>
+        <CursorPos X="37" Y="193"/>
         <UsageCount Value="202"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
@@ -221,6 +219,8 @@
         <Filename Value="..\consolas\coleco.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
+        <TopLine Value="79"/>
+        <CursorPos Y="100"/>
         <UsageCount Value="200"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit19>
@@ -287,8 +287,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="26"/>
-        <CursorPos X="36" Y="47"/>
+        <TopLine Value="95"/>
+        <CursorPos X="35" Y="104"/>
         <UsageCount Value="221"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit27>
@@ -299,8 +299,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="62"/>
-        <CursorPos X="40" Y="86"/>
+        <TopLine Value="43"/>
+        <CursorPos Y="55"/>
         <UsageCount Value="224"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit28>
@@ -311,10 +311,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="125"/>
-        <CursorPos X="66" Y="136"/>
+        <CursorPos X="12" Y="8"/>
         <UsageCount Value="224"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit29>
       <Unit30>
         <Filename Value="config.pas"/>
@@ -323,8 +321,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="238"/>
-        <CursorPos X="22" Y="251"/>
+        <CursorPos X="40" Y="8"/>
         <UsageCount Value="224"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit30>
@@ -344,7 +341,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="36"/>
+        <TopLine Value="34"/>
         <CursorPos X="25" Y="72"/>
         <UsageCount Value="301"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -357,7 +354,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="54"/>
         <CursorPos X="14" Y="65"/>
-        <UsageCount Value="224"/>
+        <UsageCount Value="223"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit33>
       <Unit34>
@@ -376,8 +373,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="53"/>
-        <CursorPos X="5" Y="80"/>
+        <TopLine Value="30"/>
+        <CursorPos X="25" Y="49"/>
         <UsageCount Value="213"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit35>
@@ -397,8 +394,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="112"/>
-        <CursorPos X="5" Y="131"/>
+        <TopLine Value="77"/>
+        <CursorPos X="47" Y="92"/>
         <UsageCount Value="200"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit37>
@@ -449,8 +446,8 @@
         <Filename Value="..\misc\misc_functions.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="45"/>
-        <CursorPos X="23" Y="56"/>
+        <TopLine Value="64"/>
+        <CursorPos X="84" Y="82"/>
         <UsageCount Value="316"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit43>
@@ -487,32 +484,31 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="34"/>
-        <CursorPos X="12" Y="40"/>
+        <TopLine Value="63"/>
+        <CursorPos X="27" Y="66"/>
         <UsageCount Value="207"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit47>
       <Unit48>
         <Filename Value="..\misc\init_games.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="1474"/>
-        <CursorPos X="45" Y="1493"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="973"/>
+        <CursorPos X="44" Y="984"/>
+        <UsageCount Value="12"/>
       </Unit48>
       <Unit49>
         <Filename Value="..\consolas\super_cassette_vision.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="297"/>
         <CursorPos X="22" Y="314"/>
-        <UsageCount Value="80"/>
+        <UsageCount Value="79"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit49>
       <Unit50>
         <Filename Value="..\consolas\sms.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="272"/>
-        <CursorPos X="24" Y="289"/>
-        <UsageCount Value="82"/>
+        <TopLine Value="479"/>
+        <CursorPos X="55" Y="489"/>
+        <UsageCount Value="81"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit50>
       <Unit51>
@@ -520,7 +516,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="2155"/>
         <CursorPos Y="2115"/>
-        <UsageCount Value="81"/>
+        <UsageCount Value="80"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit51>
       <Unit52>
@@ -528,7 +524,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="50"/>
         <CursorPos Y="73"/>
-        <UsageCount Value="79"/>
+        <UsageCount Value="78"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit52>
       <Unit53>
@@ -536,7 +532,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="79"/>
         <CursorPos Y="90"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit53>
       <Unit54>
@@ -544,7 +540,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="522"/>
         <CursorPos Y="534"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit54>
       <Unit55>
@@ -552,41 +548,42 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="248"/>
         <CursorPos X="9" Y="255"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit55>
       <Unit56>
         <Filename Value="..\ordenadores\amstrad_cpc.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="27" Y="12"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="74"/>
+        <CursorPos X="27" Y="86"/>
+        <UsageCount Value="13"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit56>
       <Unit57>
         <Filename Value="..\arcade\caloriekun_hw.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="22"/>
         <CursorPos X="61" Y="34"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit57>
       <Unit58>
         <Filename Value="principal.lfm"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit58>
       <Unit59>
         <Filename Value="..\misc\main_engine.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="505"/>
-        <CursorPos X="10" Y="512"/>
-        <UsageCount Value="13"/>
+        <UsageCount Value="18"/>
       </Unit59>
       <Unit60>
         <Filename Value="..\misc\file_engine.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="48" Y="6"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="112"/>
+        <CursorPos Y="129"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit60>
       <Unit61>
@@ -594,7 +591,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="99"/>
         <CursorPos X="55" Y="111"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit61>
       <Unit62>
@@ -602,21 +599,22 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="762"/>
         <CursorPos X="39" Y="775"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit62>
       <Unit63>
         <Filename Value="..\devices\z80pio.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="13"/>
         <CursorPos X="10" Y="34"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit63>
       <Unit64>
         <Filename Value="..\arcade\tehkanworldcup_hw.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="362"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit64>
       <Unit65>
@@ -624,14 +622,15 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="31"/>
         <CursorPos X="59" Y="43"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit65>
       <Unit66>
         <Filename Value="..\misc\rom_export.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="82" Y="18"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="3345"/>
+        <CursorPos X="23" Y="3345"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit66>
       <Unit67>
@@ -639,7 +638,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="88"/>
         <CursorPos X="100" Y="100"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit67>
       <Unit68>
@@ -647,22 +646,23 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="101"/>
         <CursorPos X="26" Y="101"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit68>
       <Unit69>
         <Filename Value="..\misc\gfx_engine.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos Y="2"/>
-        <UsageCount Value="8"/>
+        <TopLine Value="1231"/>
+        <CursorPos Y="1262"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit69>
       <Unit70>
         <Filename Value="C:\lazarus\lcl\graphics.pp"/>
         <UnitName Value="Graphics"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="1760"/>
-        <CursorPos X="3" Y="1782"/>
+        <TopLine Value="1432"/>
+        <CursorPos X="20" Y="1444"/>
         <UsageCount Value="10"/>
       </Unit70>
       <Unit71>
@@ -670,22 +670,22 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="119"/>
         <CursorPos Y="136"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit71>
       <Unit72>
         <Filename Value="..\cpu\z80\nz80.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="794"/>
-        <CursorPos X="44" Y="820"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="568"/>
+        <CursorPos X="43" Y="590"/>
+        <UsageCount Value="11"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit72>
       <Unit73>
         <Filename Value="..\cpu\n2a03.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="58" Y="5"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit73>
       <Unit74>
@@ -693,7 +693,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="214"/>
         <CursorPos X="12" Y="231"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit74>
       <Unit75>
@@ -701,7 +701,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="78"/>
         <CursorPos X="15" Y="109"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit75>
       <Unit76>
@@ -709,7 +709,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="139"/>
         <CursorPos X="3" Y="156"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit76>
       <Unit77>
@@ -717,14 +717,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="545"/>
         <CursorPos X="16" Y="561"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit77>
       <Unit78>
         <Filename Value="..\snd\upd1771.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="19" Y="5"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit78>
       <Unit79>
@@ -732,7 +732,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="371"/>
         <CursorPos X="10" Y="319"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit79>
       <Unit80>
@@ -740,21 +740,21 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="296"/>
         <CursorPos X="13" Y="320"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit80>
       <Unit81>
         <Filename Value="..\arcade\blacktiger_hw.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="10"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit81>
       <Unit82>
         <Filename Value="..\misc\pal_engine.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="3" Y="12"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit82>
       <Unit83>
@@ -762,14 +762,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="151"/>
         <CursorPos Y="156"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit83>
       <Unit84>
         <Filename Value="..\consolas\gb.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="60"/>
-        <CursorPos X="10" Y="79"/>
+        <TopLine Value="25"/>
+        <CursorPos X="16" Y="40"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit84>
@@ -778,7 +778,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="4"/>
         <CursorPos X="33" Y="16"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit85>
       <Unit86>
@@ -786,7 +786,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="366"/>
         <CursorPos X="45" Y="383"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit86>
       <Unit87>
@@ -794,28 +794,28 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1643"/>
         <CursorPos X="5" Y="1660"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit87>
       <Unit88>
         <Filename Value="C:\lazarus\lcl\include\control.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2966"/>
         <CursorPos Y="2978"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit88>
       <Unit89>
         <Filename Value="C:\lazarus\lcl\include\buttoncontrol.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="11"/>
         <CursorPos Y="22"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit89>
       <Unit90>
         <Filename Value="C:\lazarus\lcl\include\buttons.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="159"/>
         <CursorPos Y="170"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit90>
       <Unit91>
         <Filename Value="C:\lazarus\lcl\forms.pp"/>
@@ -823,14 +823,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="55"/>
         <CursorPos X="3" Y="66"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit91>
       <Unit92>
         <Filename Value="..\misc\timer_engine.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="35"/>
         <CursorPos X="21" Y="47"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit92>
       <Unit93>
@@ -838,7 +838,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="89"/>
         <CursorPos X="5" Y="117"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit93>
       <Unit94>
@@ -846,7 +846,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="866"/>
         <CursorPos X="20" Y="876"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit94>
       <Unit95>
@@ -854,7 +854,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="85"/>
         <CursorPos Y="85"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit95>
       <Unit96>
@@ -863,14 +863,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="523"/>
         <CursorPos Y="523"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit96>
       <Unit97>
         <Filename Value="..\cpu\m68000.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3265"/>
         <CursorPos Y="3276"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit97>
       <Unit98>
@@ -878,85 +878,93 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="228"/>
         <CursorPos X="17" Y="250"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit98>
       <Unit99>
         <Filename Value="..\misc\principal_misc.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="43" Y="17"/>
-        <UsageCount Value="30"/>
+        <TopLine Value="124"/>
+        <CursorPos X="18" Y="132"/>
+        <UsageCount Value="51"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit99>
       <Unit100>
         <Filename Value="..\arcade\seta_hw.pas"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit100>
       <Unit101>
         <Filename Value="..\misc\configgeneral_misc.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="322"/>
-        <CursorPos X="53" Y="352"/>
-        <UsageCount Value="11"/>
+        <CursorPos X="20"/>
+        <UsageCount Value="14"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit101>
+      <Unit102>
+        <Filename Value="..\snd\ym_2203.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="97"/>
+        <CursorPos Y="114"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit102>
+      <Unit103>
+        <Filename Value="C:\usr\share\lazarus\4.0.0\lcl\include\customform.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2982"/>
+        <CursorPos Y="3009"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit103>
+      <Unit104>
+        <Filename Value="..\consolas\gb_mappers.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="32"/>
+        <CursorPos Y="50"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit104>
+      <Unit105>
+        <Filename Value="..\devices\mc8123.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit105>
+      <Unit106>
+        <Filename Value="..\snd\samples.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="90"/>
+        <CursorPos X="19" Y="110"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit106>
+      <Unit107>
+        <Filename Value="config_gb.lfm"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="2"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit107>
+      <Unit108>
+        <Filename Value="..\misc\loadrom_misc.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="177"/>
+        <CursorPos X="5" Y="200"/>
+        <UsageCount Value="10"/>
+      </Unit108>
     </Units>
-    <JumpHistory Count="13" HistoryIndex="12">
+    <JumpHistory Count="2" HistoryIndex="1">
       <Position1>
         <Filename Value="principal.pas"/>
-        <Caret Line="991" Column="7" TopLine="972"/>
+        <Caret Line="984" TopLine="960"/>
       </Position1>
       <Position2>
-        <Filename Value="principal.pas"/>
-        <Caret Line="991" Column="7" TopLine="967"/>
+        <Filename Value="config_general.pas"/>
+        <Caret Line="193" Column="26" TopLine="182"/>
       </Position2>
-      <Position3>
-        <Filename Value="principal.pas"/>
-        <Caret Line="990" Column="7" TopLine="966"/>
-      </Position3>
-      <Position4>
-        <Filename Value="principal.pas"/>
-        <Caret Line="989" Column="7" TopLine="967"/>
-      </Position4>
-      <Position5>
-        <Filename Value="principal.pas"/>
-        <Caret Line="988" Column="7" TopLine="966"/>
-      </Position5>
-      <Position6>
-        <Filename Value="principal.pas"/>
-        <Caret Line="987" Column="7" TopLine="965"/>
-      </Position6>
-      <Position7>
-        <Filename Value="principal.pas"/>
-        <Caret Line="986" Column="7" TopLine="964"/>
-      </Position7>
-      <Position8>
-        <Filename Value="principal.pas"/>
-        <Caret Line="985" Column="7" TopLine="963"/>
-      </Position8>
-      <Position9>
-        <Filename Value="principal.pas"/>
-        <Caret Line="984" Column="7" TopLine="962"/>
-      </Position9>
-      <Position10>
-        <Filename Value="principal.pas"/>
-        <Caret Line="983" Column="7" TopLine="961"/>
-      </Position10>
-      <Position11>
-        <Filename Value="principal.pas"/>
-        <Caret Line="982" Column="7" TopLine="960"/>
-      </Position11>
-      <Position12>
-        <Filename Value="principal.pas"/>
-        <Caret Line="981" Column="7" TopLine="959"/>
-      </Position12>
-      <Position13>
-        <Filename Value="principal.pas"/>
-        <Caret Line="980" Column="7" TopLine="958"/>
-      </Position13>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -977,7 +985,6 @@
       </SyntaxOptions>
     </Parsing>
     <CodeGeneration>
-      <TargetCPU Value="i386"/>
       <Optimizations>
         <OptimizationLevel Value="3"/>
       </Optimizations>
@@ -1000,6 +1007,15 @@
     </Other>
   </CompilerOptions>
   <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\consolas\coleco.pas"/>
+        <Line Value="349"/>
+      </Item1>
+    </BreakPoints>
     <Exceptions Count="2">
       <Item1>
         <Name Value="RunError(201)"/>

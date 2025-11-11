@@ -1,7 +1,7 @@
 unit msm5232;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,main_engine,timer_engine;
+uses sound_engine,main_engine,timer_engine;
 
 type
       msm5232_voice=record

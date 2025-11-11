@@ -1,13 +1,10 @@
-unit rallyx_hw;
+﻿unit rallyx_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,namco_snd,samples,rom_engine,
-     pal_engine,konami_snd,sound_engine;
+uses rom_engine,samples;
 
 function iniciar_rallyxh:boolean;
 
-implementation
 const
         //Jungler
         jungler_rom:array[0..3] of tipo_roms=(
@@ -15,36 +12,41 @@ const
         (n:'jungr3';l:$1000;p:$2000;crc:$3dcc03da),(n:'jungr4';l:$1000;p:$3000;crc:$f92e9940));
         jungler_pal:array[0..1] of tipo_roms=(
         (n:'18s030.8b';l:$20;p:0;crc:$55a7e6d1),(n:'tbp24s10.9d';l:$100;p:$20;crc:$d223f7b8));
-        jungler_char:array[0..1] of tipo_roms=(
-        (n:'5k';l:$800;p:0;crc:$924262bf),(n:'5m';l:$800;p:$800;crc:$131a08ac));
         jungler_sound:tipo_roms=(n:'1b';l:$1000;p:0;crc:$f86999c3);
         jungler_dots:tipo_roms=(n:'82s129.10g';l:$100;p:0;crc:$c59c51b7);
-        jungler_dip:array [0..3] of def_dip2=(
-        (mask:7;name:'Coin A';number:8;val8:(1,2,3,0,7,6,5,4);name8:('4C 1C','3C 1C','2C 1C','4C 3C','1C 1C','1C 2C','1C 3C','1C 4C')),
-        (mask:$38;name:'Coin B';number:8;val8:(8,$10,$18,0,$38,$30,$28,$20);name8:('4C 1C','3C 1C','2C 1C','4C 3C','1C 1C','1C 2C','1C 3C','1C 4C')),
-        (mask:$40;name:'Cabinet';number:2;val2:(0,$40);name2:('Upright','Cocktail')),
-        (mask:$80;name:'255 Lives';number:2;val2:($80,0);name2:('Off','On')));
+        jungler_char:array[0..2] of tipo_roms=(
+        (n:'5k';l:$800;p:0;crc:$924262bf),(n:'5m';l:$800;p:$800;crc:$131a08ac),());
         //Rally X
         rallyx_rom:array[0..3] of tipo_roms=(
         (n:'1b';l:$1000;p:0;crc:$5882700d),(n:'rallyxn.1e';l:$1000;p:$1000;crc:$ed1eba2b),
         (n:'rallyxn.1h';l:$1000;p:$2000;crc:$4f98dd1c),(n:'rallyxn.1k';l:$1000;p:$3000;crc:$9aacccf0));
-        rallyx_pal:array[0..1] of tipo_roms=(
-        (n:'rx-1.11n';l:$20;p:0;crc:$c7865434),(n:'rx-7.8p';l:$100;p:$20;crc:$834d4fda));
         rallyx_char:tipo_roms=(n:'8e';l:$1000;p:0;crc:$277c1de5);
         rallyx_sound:tipo_roms=(n:'rx-5.3p';l:$100;p:0;crc:$4bad7017);
         rallyx_dots:tipo_roms=(n:'rx1-6.8m';l:$100;p:0;crc:$3c16f62c);
-        rallyx_samples:tipo_nombre_samples=(nombre:'bang.wav');
+        rallyx_pal:array[0..2] of tipo_roms=(
+        (n:'rx-1.11n';l:$20;p:0;crc:$c7865434),(n:'rx-7.8p';l:$100;p:$20;crc:$834d4fda),());
+        rallyx_samples:array [0..1]of tipo_nombre_samples=((nombre:'bang.wav'),());
         //New Rally X
         nrallyx_rom:array[0..3] of tipo_roms=(
         (n:'nrx_prg1.1d';l:$1000;p:0;crc:$ba7de9fc),(n:'nrx_prg2.1e';l:$1000;p:$1000;crc:$eedfccae),
         (n:'nrx_prg3.1k';l:$1000;p:$2000;crc:$b4d5d34a),(n:'nrx_prg4.1l';l:$1000;p:$3000;crc:$7da5496d));
         nrallyx_pal:array[0..1] of tipo_roms=(
         (n:'nrx1-1.11n';l:$20;p:0;crc:$a0a49017),(n:'nrx1-7.8p';l:$100;p:$20;crc:$4e46f485));
-        nrallyx_char:array[0..1] of tipo_roms=(
-        (n:'nrx_chg1.8e';l:$800;p:0;crc:$1fff38a4),(n:'nrx_chg2.8d';l:$800;p:$800;crc:$85d9fffd));
         nrallyx_sound:tipo_roms=(n:'rx1-5.3p';l:$100;p:0;crc:$4bad7017);
         nrallyx_dots:tipo_roms=(n:'rx1-6.8m';l:$100;p:0;crc:$3c16f62c);
-        //Dip
+        nrallyx_char:array[0..2] of tipo_roms=(
+        (n:'nrx_chg1.8e';l:$800;p:0;crc:$1fff38a4),(n:'nrx_chg2.8d';l:$800;p:$800;crc:$85d9fffd),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,namco_snd,pal_engine,
+     konami_snd,sound_engine;
+
+const
+        jungler_dip:array [0..3] of def_dip2=(
+        (mask:7;name:'Coin A';number:8;val8:(1,2,3,0,7,6,5,4);name8:('4C 1C','3C 1C','2C 1C','4C 3C','1C 1C','1C 2C','1C 3C','1C 4C')),
+        (mask:$38;name:'Coin B';number:8;val8:(8,$10,$18,0,$38,$30,$28,$20);name8:('4C 1C','3C 1C','2C 1C','4C 3C','1C 1C','1C 2C','1C 3C','1C 4C')),
+        (mask:$40;name:'Cabinet';number:2;val2:(0,$40);name2:('Upright','Cocktail')),
+        (mask:$80;name:'255 Lives';number:2;val2:($80,0);name2:('Off','On')));
         rallyx_dip_a:def_dip2=(mask:1;name:'Cabinet';number:2;val2:(1,0);name2:('Upright','Cocktail'));
         rallyx_dip_b:array [0..2] of def_dip2=(
         (mask:6;name:'Bonus Life';number:4;val4:(2,4,6,0);name4:('15K-20K-10K-15K-20K-10K-15K-20K','30K-40K-20K-30K-40K-20K-30K-40K','40K-60K-30K-40K-60K-30K-50K-60K','Invalid')),
@@ -52,8 +54,8 @@ const
         (mask:$38;name:'Difficulty';number:8;val8:($10,$28,0,$18,$30,8,$20,$38);name8:('1 Car, Medium','1 Car, Hard','2 Car, Easy','2 Car, Medium','2 Car, Hard','3 Car, Easy','3 Car, Medium','3 Car, Hard')));
         nrallyx_dip_b:array [0..2] of def_dip2=(
         (mask:6;name:'Bonus Life';number:4;val4:(2,4,6,0);name4:('20K/80K-20K-20K/80K','20K/100K-40K-20K/100K','20K/120K-60K-20K/120K','Invalid')),
-        (mask:$c0;name:'Coinage';number:4;val4:($40,$c0,$80,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
-        (mask:$38;name:'Difficulty';number:8;val8:($10,$28,$18,$30,0,$20,$38,8);name8:('1 Car, Medium','1 Car, Hard','2 Car, Medium','2 Car, Hard','3 Car, Easy','3 Car, Medium','3 Car, Hard','4 Car, Easy')));
+        (mask:$38;name:'Difficulty';number:8;val8:($10,$28,$18,$30,0,$20,$38,8);name8:('1 Car, Medium','1 Car, Hard','2 Car, Medium','2 Car, Hard','3 Car, Easy','3 Car, Medium','3 Car, Hard','4 Car, Easy')),
+        (mask:$c0;name:'Coinage';number:4;val4:($40,$c0,$80,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')));
 
 var
  irq_vector,last,scroll_x,scroll_y:byte;
@@ -181,44 +183,49 @@ end;
 procedure eventos_jungler;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $7f;
   //P2
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $7f;
   //DSW
-  if arcade_input.down[0] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.down[0] then marcade.in2:=marcade.in2 and $7f;
 end;
 end;
 
 procedure eventos_rallyx;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$fe;
   //P1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $7f;
   //P2
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $7f;
 end;
 end;
 
@@ -226,7 +233,6 @@ procedure jungler_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
       if f=240 then begin
@@ -248,7 +254,6 @@ procedure rallyx_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
       if f=240 then begin
@@ -366,6 +371,15 @@ begin
   namco_snd_0.update;
 end;
 
+procedure nrallyx_putbyte(direccion:word;valor:byte);
+begin
+case direccion of
+  0..$3fff:; //ROM
+  $a182:namco_snd_0.enabled:=(valor=0);
+    else rallyx_putbyte(direccion,valor);
+  end;
+end;
+
 //Main
 procedure reset_rallyxh;
 begin
@@ -463,7 +477,7 @@ begin
    29:begin //jungler
          z80_0.change_ram_calls(jungler_getbyte,jungler_putbyte);
          //Sound Chip
-         konamisnd_0:=konamisnd_chip.create(2,TIPO_JUNGLER,1789772);
+         konamisnd_0:=konamisnd_chip.create(TIPO_JUNGLER);
          if not(roms_load(@konamisnd_0.memoria,jungler_sound)) then exit;
          //cargar roms
          if not(roms_load(@memoria,jungler_rom)) then exit;
@@ -504,7 +518,7 @@ begin
          init_dips(2,rallyx_dip_b,$cb);
       end;
    70:begin  //new rally x
-         z80_0.change_ram_calls(rallyx_getbyte,rallyx_putbyte);
+         z80_0.change_ram_calls(rallyx_getbyte,nrallyx_putbyte);
          z80_0.change_io_calls(nil,rallyx_outbyte);
          z80_0.init_sound(rallyx_playsound);
          //cargar roms y ordenarlas

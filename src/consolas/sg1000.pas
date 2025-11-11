@@ -1,9 +1,7 @@
 unit sg1000;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,tms99xx,sn_76496,sysutils,misc_functions,
-     sound_engine;
+uses sysutils;
 
 function iniciar_sg:boolean;
 
@@ -17,7 +15,9 @@ var
   sg1000_0:tsg1000;
 
 implementation
-uses principal,snapshot;
+uses principal,snapshot,nz80,main_engine,controls_engine,tms99xx,sn_76496,
+     misc_functions,sound_engine;
+
 
 procedure eventos_sg;
 begin
@@ -48,7 +48,6 @@ procedure sg_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   eventos_sg;
   for f:=0 to 261 do begin
@@ -171,7 +170,6 @@ begin
 iniciar_sg:=false;
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=sg_principal;
 llamadas_maquina.reset:=reset_sg;
 llamadas_maquina.cartuchos:=abrir_sg;

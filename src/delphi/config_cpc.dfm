@@ -4,13 +4,13 @@ object ConfigCPC: TConfigCPC
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Config CPC'
-  ClientHeight = 419
-  ClientWidth = 586
+  ClientHeight = 423
+  ClientWidth = 580
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
+  Font.Color = clDefault
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'Default'
   Font.Style = []
   KeyPreview = True
   Position = poDesigned
@@ -24,6 +24,12 @@ object ConfigCPC: TConfigCPC
     Width = 313
     Height = 143
     Caption = 'CPC Low ROM'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 2
     object RadioButton1: TRadioButton
       Tag = 1
@@ -32,6 +38,12 @@ object ConfigCPC: TConfigCPC
       Width = 121
       Height = 25
       Caption = 'UK'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
     end
     object RadioButton2: TRadioButton
@@ -40,6 +52,12 @@ object ConfigCPC: TConfigCPC
       Width = 121
       Height = 25
       Caption = 'French'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
     end
     object RadioButton3: TRadioButton
@@ -48,6 +66,12 @@ object ConfigCPC: TConfigCPC
       Width = 121
       Height = 25
       Caption = 'Spanish'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 2
     end
     object RadioButton4: TRadioButton
@@ -56,6 +80,12 @@ object ConfigCPC: TConfigCPC
       Width = 121
       Height = 25
       Caption = 'Danish'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 3
     end
     object RadioButton8: TRadioButton
@@ -64,6 +94,12 @@ object ConfigCPC: TConfigCPC
       Width = 121
       Height = 25
       Caption = 'Other'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 4
     end
     object Edit7: TEdit
@@ -72,6 +108,12 @@ object ConfigCPC: TConfigCPC
       Width = 265
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 5
     end
     object Button15: TButton
@@ -80,6 +122,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 6
       TabStop = False
       OnClick = Button15Click
@@ -91,6 +139,12 @@ object ConfigCPC: TConfigCPC
     Width = 570
     Height = 194
     Caption = 'ROM Slots'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 5
     object Label1: TLabel
       Left = 13
@@ -98,6 +152,12 @@ object ConfigCPC: TConfigCPC
       Width = 34
       Height = 13
       Caption = 'SLOT 1'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label2: TLabel
       Left = 13
@@ -105,6 +165,12 @@ object ConfigCPC: TConfigCPC
       Width = 34
       Height = 13
       Caption = 'SLOT 2'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label3: TLabel
       Left = 13
@@ -112,6 +178,12 @@ object ConfigCPC: TConfigCPC
       Width = 34
       Height = 13
       Caption = 'SLOT 3'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label4: TLabel
       Left = 13
@@ -119,6 +191,12 @@ object ConfigCPC: TConfigCPC
       Width = 34
       Height = 13
       Caption = 'SLOT 4'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label5: TLabel
       Left = 13
@@ -126,6 +204,12 @@ object ConfigCPC: TConfigCPC
       Width = 34
       Height = 13
       Caption = 'SLOT 5'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label6: TLabel
       Left = 13
@@ -133,6 +217,12 @@ object ConfigCPC: TConfigCPC
       Width = 34
       Height = 13
       Caption = 'SLOT 6'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Edit1: TEdit
       Left = 53
@@ -140,6 +230,12 @@ object ConfigCPC: TConfigCPC
       Width = 428
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
     end
     object Button1: TButton
@@ -148,6 +244,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
       TabStop = False
       OnClick = Button1Click
@@ -158,6 +260,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Clear'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 2
       TabStop = False
       OnClick = Button2Click
@@ -168,6 +276,12 @@ object ConfigCPC: TConfigCPC
       Width = 428
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 3
     end
     object Button3: TButton
@@ -176,6 +290,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 4
       TabStop = False
       OnClick = Button3Click
@@ -186,6 +306,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Clear'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 5
       TabStop = False
       OnClick = Button4Click
@@ -196,6 +322,12 @@ object ConfigCPC: TConfigCPC
       Width = 428
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 6
     end
     object Button5: TButton
@@ -204,6 +336,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 7
       TabStop = False
       OnClick = Button5Click
@@ -214,6 +352,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Clear'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 8
       TabStop = False
       OnClick = Button6Click
@@ -224,6 +368,12 @@ object ConfigCPC: TConfigCPC
       Width = 428
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 9
     end
     object Button7: TButton
@@ -232,6 +382,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 10
       TabStop = False
       OnClick = Button7Click
@@ -242,6 +398,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Clear'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 11
       TabStop = False
       OnClick = Button8Click
@@ -252,6 +414,12 @@ object ConfigCPC: TConfigCPC
       Width = 428
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 12
     end
     object Button9: TButton
@@ -260,6 +428,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 13
       TabStop = False
       OnClick = Button9Click
@@ -270,6 +444,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Clear'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 14
       TabStop = False
       OnClick = Button10Click
@@ -280,6 +460,12 @@ object ConfigCPC: TConfigCPC
       Width = 428
       Height = 21
       TabStop = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 15
     end
     object Button11: TButton
@@ -288,6 +474,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 16
       TabStop = False
       OnClick = Button11Click
@@ -298,6 +490,12 @@ object ConfigCPC: TConfigCPC
       Width = 33
       Height = 25
       Caption = 'Clear'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 17
       TabStop = False
       OnClick = Button12Click
@@ -314,7 +512,7 @@ object ConfigCPC: TConfigCPC
     OnClick = Button13Click
   end
   object Button14: TButton
-    Left = 346
+    Left = 343
     Top = 357
     Width = 105
     Height = 49
@@ -329,6 +527,12 @@ object ConfigCPC: TConfigCPC
     Width = 98
     Height = 64
     Caption = 'LensLok'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 6
     object RadioButton12: TRadioButton
       Left = 16
@@ -336,6 +540,12 @@ object ConfigCPC: TConfigCPC
       Width = 71
       Height = 17
       Caption = 'Enabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
     end
     object RadioButton13: TRadioButton
@@ -344,6 +554,12 @@ object ConfigCPC: TConfigCPC
       Width = 72
       Height = 17
       Caption = 'Disabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
     end
   end
@@ -353,6 +569,12 @@ object ConfigCPC: TConfigCPC
     Width = 98
     Height = 77
     Caption = 'RAM Expansion'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 3
     object RadioButton5: TRadioButton
       Left = 16
@@ -360,6 +582,12 @@ object ConfigCPC: TConfigCPC
       Width = 73
       Height = 17
       Caption = 'Disabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 2
     end
     object RadioButton6: TRadioButton
@@ -369,6 +597,12 @@ object ConfigCPC: TConfigCPC
       Width = 62
       Height = 16
       Caption = '512Kb'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
     end
     object RadioButton7: TRadioButton
@@ -377,6 +611,12 @@ object ConfigCPC: TConfigCPC
       Width = 64
       Height = 17
       Caption = '4Mb'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
     end
   end
@@ -386,6 +626,12 @@ object ConfigCPC: TConfigCPC
     Width = 147
     Height = 103
     Caption = 'Monitor'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -11
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 4
     object RadioButton9: TRadioButton
       Tag = 1
@@ -394,6 +640,12 @@ object ConfigCPC: TConfigCPC
       Width = 71
       Height = 17
       Caption = 'Color'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       OnClick = RadioButton9Click
     end
@@ -403,6 +655,12 @@ object ConfigCPC: TConfigCPC
       Width = 72
       Height = 17
       Caption = 'Green'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
       OnClick = RadioButton10Click
     end
@@ -412,6 +670,12 @@ object ConfigCPC: TConfigCPC
       Width = 143
       Height = 45
       Caption = 'Brillo/Brightness'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
       TabOrder = 2
       object TrackBar1: TTrackBar
         Left = 1

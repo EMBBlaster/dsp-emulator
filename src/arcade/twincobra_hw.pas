@@ -1,13 +1,10 @@
 unit twincobra_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,nz80,main_engine,controls_engine,gfx_engine,tms32010,ym_3812,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_twincobra:boolean;
 
-implementation
 const
         //Twin Cobra
         twincobr_rom:array[0..3] of tipo_roms=(
@@ -26,18 +23,8 @@ const
         twincobr_bg_tiles:array[0..3] of tipo_roms=(
         (n:'tc07';l:$8000;p:0;crc:$b5d48389),(n:'tc08';l:$8000;p:$8000;crc:$97f20fdc),
         (n:'tc09';l:$8000;p:$10000;crc:$170c01db),(n:'tc10';l:$8000;p:$18000;crc:$44f5accd));
-        twincobr_mcu_rom:array[0..1] of tipo_roms=(
-        (n:'dsp_22.bin';l:$800;p:0;crc:$79389a71),(n:'dsp_21.bin';l:$800;p:1;crc:$2d135376));
-        twincobr_dip_a:array [0..3] of def_dip2=(
-        (mask:2;name:'Flip Screen';number:2;val2:(0,2);name2:('Off','On')),
-        (mask:8;name:'Demo Sounds';number:2;val2:(8,0);name2:('Off','On')),
-        (mask:$30;name:'Coin A';number:4;val4:($30,$20,$10,0);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
-        (mask:$c0;name:'Coin B';number:4;val4:(0,$40,$80,$c0);name4:('1C 2C','1C 3C','1C 4C','1C 6C')));
-        twincobr_dip_b:array [0..3] of def_dip2=(
-        (mask:3;name:'Difficulty';number:4;val4:(1,0,2,3);name4:('Easy','Normal','Hard','Very Hard')),
-        (mask:$c;name:'Bonus Life';number:4;val4:(0,4,8,$c);name4:('50K 200K 150K+','70K 270K 200K+','50K','100K')),
-        (mask:$30;name:'Lives';number:4;val4:($30,0,$20,$10);name4:('2','3','4','5')),
-        (mask:$40;name:'Dip Switch Display';number:2;val2:(0,$40);name2:('Off','On')));
+        twincobr_mcu_rom:array[0..2] of tipo_roms=(
+        (n:'dsp_22.bin';l:$800;p:0;crc:$79389a71),(n:'dsp_21.bin';l:$800;p:1;crc:$2d135376),());
         //Flying Shark
         fshark_rom:array[0..1] of tipo_roms=(
         (n:'b02_18-1.m8';l:$10000;p:0;crc:$04739e02),(n:'b02_17-1.p8';l:$10000;p:1;crc:$fd6ef7a8));
@@ -54,11 +41,27 @@ const
         fshark_bg_tiles:array[0..3] of tipo_roms=(
         (n:'b02_08.h13';l:$8000;p:0;crc:$ef0cf49c),(n:'b02_11.h18';l:$8000;p:$8000;crc:$f5799422),
         (n:'b02_10.h16';l:$8000;p:$10000;crc:$4bd099ff),(n:'b02_09.h15';l:$8000;p:$18000;crc:$230f1582));
-        fshark_mcu_rom:array[0..7] of tipo_roms=(
+        fshark_mcu_rom:array[0..8] of tipo_roms=(
         (n:'82s137-1.mcu';l:$400;p:0;crc:$cc5b3f53),(n:'82s137-2.mcu';l:$400;p:$400;crc:$47351d55),
         (n:'82s137-3.mcu';l:$400;p:$800;crc:$70b537b9),(n:'82s137-4.mcu';l:$400;p:$c00;crc:$6edb2de8),
         (n:'82s137-5.mcu';l:$400;p:$1000;crc:$f35b978a),(n:'82s137-6.mcu';l:$400;p:$1400;crc:$0459e51b),
-        (n:'82s137-7.mcu';l:$400;p:$1800;crc:$cbf3184b),(n:'82s137-8.mcu';l:$400;p:$1c00;crc:$8246a05c));
+        (n:'82s137-7.mcu';l:$400;p:$1800;crc:$cbf3184b),(n:'82s137-8.mcu';l:$400;p:$1c00;crc:$8246a05c),());
+
+implementation
+uses m68000,nz80,main_engine,controls_engine,gfx_engine,tms32010,ym_3812,
+     pal_engine,sound_engine;
+
+const
+        twincobr_dip_a:array [0..3] of def_dip2=(
+        (mask:2;name:'Flip Screen';number:2;val2:(0,2);name2:('Off','On')),
+        (mask:8;name:'Demo Sounds';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$30;name:'Coin A';number:4;val4:($30,$20,$10,0);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
+        (mask:$c0;name:'Coin B';number:4;val4:(0,$40,$80,$c0);name4:('1C 2C','1C 3C','1C 4C','1C 6C')));
+        twincobr_dip_b:array [0..3] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(1,0,2,3);name4:('Easy','Normal','Hard','Very Hard')),
+        (mask:$c;name:'Bonus Life';number:4;val4:(0,4,8,$c);name4:('50K 200K 150K+','70K 270K 200K+','50K','100K')),
+        (mask:$30;name:'Lives';number:4;val4:($30,0,$20,$10);name4:('2','3','4','5')),
+        (mask:$40;name:'Dip Switch Display';number:2;val2:(0,$40);name2:('Off','On')));
         fshark_dip_a:array [0..4] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(1,0);name2:('Upright','Cocktail')),
         (mask:2;name:'Flip Screen';number:2;val2:(0,2);name2:('Off','On')),
@@ -182,7 +185,6 @@ procedure twincobra_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 285 do begin
     case f of

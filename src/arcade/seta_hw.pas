@@ -1,24 +1,46 @@
 unit seta_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,m6502,seta_sprites,ym_2203,ym_3812,x1_010,misc_functions;
+uses rom_engine;
 
 function iniciar_seta:boolean;
 
-implementation
 const
         //Thundercade
         tndrcade_rom:array[0..3] of tipo_roms=(
         (n:'ua0-4.u19';l:$20000;p:0;crc:$73bd63eb),(n:'ua0-2.u17';l:$20000;p:$1;crc:$e96194b1),
         (n:'ua0-3.u18';l:$20000;p:$40000;crc:$0a7b1c41),(n:'ua0-1.u16';l:$20000;p:$40001;crc:$fa906626));
         tndrcade_snd:tipo_roms=(n:'ua10-5.u24';l:$20000;p:0;crc:$8eff6122);
-        tndrcade_sprites:array[0..7] of tipo_roms=(
+        tndrcade_sprites:array[0..8] of tipo_roms=(
         (n:'ua0-10.u12';l:$40000;p:0;crc:$aa7b6757),(n:'ua0-11.u13';l:$40000;p:$40000;crc:$11eaf931),
         (n:'ua0-12.u14';l:$40000;p:$80000;crc:$00b5381c),(n:'ua0-13.u15';l:$40000;p:$c0000;crc:$8f9a0ed3),
         (n:'ua0-6.u8';l:$40000;p:$100000;crc:$14ecc7bb),(n:'ua0-7.u9';l:$40000;p:$140000;crc:$ff1a4e68),
-        (n:'ua0-8.u10';l:$40000;p:$180000;crc:$936e1884),(n:'ua0-9.u11';l:$40000;p:$1c0000;crc:$e812371c));
+        (n:'ua0-8.u10';l:$40000;p:$180000;crc:$936e1884),(n:'ua0-9.u11';l:$40000;p:$1c0000;crc:$e812371c),());
+        //Twin Eagle
+        twineagl_rom:tipo_roms=(n:'ua2-1';l:$80000;p:0;crc:$5c3fe531);
+        twineagl_snd:tipo_roms=(n:'ua2-2';l:$2000;p:0;crc:$783ca84e);
+        twineagl_sprites:array[0..3] of tipo_roms=(
+        (n:'ua2-4';l:$40000;p:1;crc:$8b7532d6),(n:'ua2-3';l:$40000;p:$0;crc:$1124417a),
+        (n:'ua2-6';l:$40000;p:$80001;crc:$99d8dbba),(n:'ua2-5';l:$40000;p:$80000;crc:$6e450d28));
+        twineagl_tiles:array[0..3] of tipo_roms=(
+        (n:'ua2-7';l:$80000;p:0;crc:$fce56907),(n:'ua2-8';l:$80000;p:$1;crc:$7d3a8d73),
+        (n:'ua2-9';l:$80000;p:$100000;crc:$a451eae9),(n:'ua2-10';l:$80000;p:$100001;crc:$5bbe1f56));
+        twineagl_pcm:array[0..2] of tipo_roms=(
+        (n:'ua2-11';l:$80000;p:0;crc:$624e6057),(n:'ua2-12';l:$80000;p:$80000;crc:$3068ff64),());
+        //Thunder & Lightning
+        thunderl_rom:array[0..1] of tipo_roms=(
+        (n:'m4';l:$8000;p:0;crc:$1e6b9462),(n:'m5';l:$8000;p:$1;crc:$7e82793e));
+        thunderl_sprites:array[0..3] of tipo_roms=(
+        (n:'t17';l:$20000;p:1;crc:$599a632a),(n:'t16';l:$20000;p:$0;crc:$3aeef91c),
+        (n:'t15';l:$20000;p:$40001;crc:$b97a7b56),(n:'t14';l:$20000;p:$40000;crc:$79c707be));
+        thunderl_pcm:array[0..2] of tipo_roms=(
+        (n:'r28';l:$80000;p:0;crc:$a043615d),(n:'r27';l:$80000;p:$80000;crc:$cb8425a3),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     m6502,seta_sprites,ym_2203,ym_3812,x1_010,misc_functions;
+
+const
         tndrcade_dip:array [0..9] of def_dip2=(
         (mask:3;name:'Difficulty';number:4;val4:(2,3,1,0);name4:('Easy','Normal','Hard','Hardest')),
         (mask:$c;name:'Bonus Life';number:4;val4:($c,4,0,8);name4:('50K','50K 150K+','70K 200K+','100K')),
@@ -30,17 +52,6 @@ const
         (mask:$800;name:'Demo Sounds';number:2;val2:($800,0);name2:('Off','On')),
         (mask:$3000;name:'Coin A';number:4;val4:($1000,$3000,0,$2000);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
         (mask:$c000;name:'Coin B';number:4;val4:($4000,$c000,0,$8000);name4:('2C 1C','1C 1C','2C 3C','1C 2C')));
-        //Twin Eagle
-        twineagl_rom:tipo_roms=(n:'ua2-1';l:$80000;p:0;crc:$5c3fe531);
-        twineagl_snd:tipo_roms=(n:'ua2-2';l:$2000;p:0;crc:$783ca84e);
-        twineagl_sprites:array[0..3] of tipo_roms=(
-        (n:'ua2-4';l:$40000;p:1;crc:$8b7532d6),(n:'ua2-3';l:$40000;p:$0;crc:$1124417a),
-        (n:'ua2-6';l:$40000;p:$80001;crc:$99d8dbba),(n:'ua2-5';l:$40000;p:$80000;crc:$6e450d28));
-        twineagl_tiles:array[0..3] of tipo_roms=(
-        (n:'ua2-7';l:$80000;p:0;crc:$fce56907),(n:'ua2-8';l:$80000;p:$1;crc:$7d3a8d73),
-        (n:'ua2-9';l:$80000;p:$100000;crc:$a451eae9),(n:'ua2-10';l:$80000;p:$100001;crc:$5bbe1f56));
-        twineagl_pcm:array[0..1] of tipo_roms=(
-        (n:'ua2-11';l:$80000;p:0;crc:$624e6057),(n:'ua2-12';l:$80000;p:$80000;crc:$3068ff64));
         twineagl_dip:array [0..9] of def_dip2=(
         (mask:1;name:'Copyright / License';number:2;val2:(0,1);name2:('Taito America/Romstar','Taito Corp Japan')),
         (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -52,14 +63,6 @@ const
         (mask:$3000;name:'Lives';number:4;val4:($1000,0,$3000,$2000);name4:('1','2','3','5')),
         (mask:$4000;name:'Licensor Option';number:2;val2:($4000,0);name2:('Option 1','Option 2')),
         (mask:$8000;name:'Coinage Type';number:2;val2:($8000,0);name2:('Coin Mode 2','Coin Mode 2')));
-        //Thunder & Lightning
-        thunderl_rom:array[0..1] of tipo_roms=(
-        (n:'m4';l:$8000;p:0;crc:$1e6b9462),(n:'m5';l:$8000;p:$1;crc:$7e82793e));
-        thunderl_sprites:array[0..3] of tipo_roms=(
-        (n:'t17';l:$20000;p:1;crc:$599a632a),(n:'t16';l:$20000;p:$0;crc:$3aeef91c),
-        (n:'t15';l:$20000;p:$40001;crc:$b97a7b56),(n:'t14';l:$20000;p:$40000;crc:$79c707be));
-        thunderl_pcm:array[0..1] of tipo_roms=(
-        (n:'r28';l:$80000;p:0;crc:$a043615d),(n:'r27';l:$80000;p:$80000;crc:$cb8425a3));
         thunderl_dip_a:array [0..1] of def_dip2=(
         (mask:$10;name:'Force 1 Life';number:2;val2:(0,$10);name2:('Off','On')),
         (mask:$e0;name:'Copyright';number:8;val8:($80,$c0,$e0,$a0,$60,$40,$20,0);name8:('Romstar','Seta (Romstar License)','Seta (Visco License)','Visco','None','None','None','None')));
@@ -139,7 +142,6 @@ procedure seta_principal_snd_cpu;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     //main
@@ -159,7 +161,6 @@ procedure seta_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     //main

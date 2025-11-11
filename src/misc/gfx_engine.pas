@@ -2,9 +2,7 @@
 {$ifdef fpc}{$ifdef CPU386}{$asmmode intel}{$endif}{$endif}
 
 interface
-
-uses lib_sdl2,{$IFDEF windows}windows,{$ENDIF}
-     pal_engine,vars_hide;
+uses main_engine,pal_engine;
 
 const
   MAX_GFX=8;
@@ -82,7 +80,7 @@ procedure fillword(dest:pword;cantidad:cardinal;valor:word);
 procedure reset_gfx;
 
 implementation
-uses main_engine,spectrum_misc;
+uses spectrum_misc,lib_sdl2;
 
 //GFX
 procedure gfx_set_desc_data(bits_pixel,banks:byte;size,p0:dword;p1:dword=0;p2:dword=0;p3:dword=0;p4:dword=0;p5:dword=0;p6:dword=0;p7:dword=0);

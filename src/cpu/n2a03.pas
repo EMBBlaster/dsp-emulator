@@ -1,14 +1,20 @@
-unit n2a03;
+﻿unit n2a03;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     cpu_misc,sound_engine,timer_engine,main_engine,m6502;
+uses cpu_misc,sound_engine,timer_engine,main_engine,m6502;
 
 const
   // GLOBAL CONSTANTS
   SYNCS_MAX1=$20;
   SYNCS_MAX2=$80;
   TOTAL_BUFFER_SIZE=200;
+  NTSC_CLOCK=1789773;
+  PAL_CLOCK=1662607;
+  NTSC_REFRESH=60.0988;
+  PAL_REFRESH=50.0070;
+  NTSC_LINES=262;
+  PAL_LINES=312;
+
 // CHANNEL TYPE DEFINITIONS
 type
   tcall_frame_irq=procedure (status:byte);

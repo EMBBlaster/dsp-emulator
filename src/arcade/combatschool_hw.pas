@@ -1,13 +1,9 @@
 unit combatschool_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     hd6309,nz80,main_engine,controls_engine,gfx_engine,
-     rom_engine,pal_engine,konami_video,ym_2203,upd7759,sound_engine;
+uses rom_engine;
 
 function iniciar_combatsc:boolean;
-
-implementation
 
 const
         combatsc_rom:array[0..1] of tipo_roms=(
@@ -17,10 +13,16 @@ const
         (n:'611g10.h6';l:$100;p:$200;crc:$f916129a),(n:'611g09.h7';l:$100;p:$300;crc:$207a7b07));
         combatsc_chars:array[0..1] of tipo_roms=(
         (n:'611g07.rom';l:$40000;p:0;crc:$73b38720),(n:'611g08.rom';l:$40000;p:1;crc:$46e7d28c));
-        combatsc_chars2:array[0..1] of tipo_roms=(
-        (n:'611g11.rom';l:$40000;p:0;crc:$69687538),(n:'611g12.rom';l:$40000;p:1;crc:$9c6bf898));
         combatsc_sound:tipo_roms=(n:'611g03.rom';l:$8000;p:0;crc:$2a544db5);
         combatsc_upd:tipo_roms=(n:'611g04.rom';l:$20000;p:0;crc:$2987e158);
+        combatsc_chars2:array[0..2] of tipo_roms=(
+        (n:'611g11.rom';l:$40000;p:0;crc:$69687538),(n:'611g12.rom';l:$40000;p:1;crc:$9c6bf898),());
+
+implementation
+uses hd6309,nz80,main_engine,controls_engine,gfx_engine,pal_engine,
+     konami_video,ym_2203,upd7759,sound_engine;
+
+const
         combatsc_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','None')));
@@ -169,7 +171,6 @@ procedure combatsc_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   eventos_combatsc;
   for f:=0 to $ff do begin

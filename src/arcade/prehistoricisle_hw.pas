@@ -1,13 +1,10 @@
-unit prehistoricisle_hw;
+﻿unit prehistoricisle_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     ym_3812,nz80,upd7759,sound_engine;
+uses rom_engine;
 
 function iniciar_prehisle:boolean;
 
-implementation
 const
         prehisle_rom:array[0..1] of tipo_roms=(
         (n:'gt-e2.2h';l:$20000;p:0;crc:$7083245a),(n:'gt-e3.3h';l:$20000;p:1;crc:$6d8cdf58));
@@ -17,9 +14,14 @@ const
         prehisle_fondo2:tipo_roms=(n:'pi8916.h16';l:$40000;p:0;crc:$7cffe0f6);
         prehisle_sound:tipo_roms=(n:'gt1.1';l:$10000;p:0;crc:$80a4c093);
         prehisle_upd:tipo_roms=(n:'gt4.4';l:$20000;p:0;crc:$85dfb9ec);
-        prehisle_sprites:array[0..1] of tipo_roms=(
-        (n:'pi8910.k14';l:$80000;p:0;crc:$5a101b0b),(n:'gt.5';l:$20000;p:$80000;crc:$3d3ab273));
-        //Dip
+        prehisle_sprites:array[0..2] of tipo_roms=(
+        (n:'pi8910.k14';l:$80000;p:0;crc:$5a101b0b),(n:'gt.5';l:$20000;p:$80000;crc:$3d3ab273),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,ym_3812,nz80,
+     upd7759,sound_engine;
+
+const
         prehisle_dip_a:array [0..4] of def_dip2=(
         (mask:1;name:'Flip Screen';number:2;val2:(1,0);name2:('Off','On')),
         (mask:2;name:'Level Select';number:2;val2:(2,0);name2:('Off','On')),
@@ -41,7 +43,6 @@ var
  scroll_x1,scroll_y1,scroll_x2,scroll_y2:word;
 
 procedure update_video_prehisle;
-
 procedure poner_sprites(prioridad:boolean);
 var
   atrib,nchar,color,x,y:word;
@@ -58,7 +59,6 @@ for f:=0 to $ff do begin
     actualiza_gfx_sprite(x,y,1,1);
 end;
 end;
-
 var
   f,color,pos,x,y,sx,sy,nchar,atrib:word;
 begin
@@ -113,27 +113,30 @@ end;
 procedure eventos_prehisle;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$7f;
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $7f;
   //P2
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $7f;
   //COIN
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fd;
 end;
 end;
 
@@ -141,7 +144,6 @@ procedure prehisle_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
    case f of

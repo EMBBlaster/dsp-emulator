@@ -1,14 +1,10 @@
 unit megasys1_hw;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     ym_2151,sound_engine,oki6295,misc_functions;
+uses rom_engine;
 
 function iniciar_megasys1:boolean;
 
-implementation
 const
         //P47
         p47_rom:array[0..1] of tipo_roms=(
@@ -27,23 +23,13 @@ const
         (n:'p47j_26.bin';l:$20000;p:$40000;crc:$4d07581a),(n:'p47j_26.bin';l:$20000;p:$60000;crc:$4d07581a));
         p47_oki1:array[0..1] of tipo_roms=(
         (n:'p47j_20.bin';l:$20000;p:0;crc:$2ed53624),(n:'p47j_21.bin';l:$20000;p:$20000;crc:$6f56b56d));
-        p47_oki2:array[0..1] of tipo_roms=(
-        (n:'p47j_10.bin';l:$20000;p:0;crc:$b9d79c1e),(n:'p47j_11.bin';l:$20000;p:$20000;crc:$fa0d1887));
         p47_pri:tipo_roms=(n:'p-47.14m';l:$200;p:0;crc:$1d877538);
-        p47_dip:array [0..7] of def_dip=(
-        (mask:$0003;name:'Lives';number:4;dip:((dip_val:$2;dip_name:'2'),(dip_val:$3;dip_name:'3'),(dip_val:$1;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0030;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$10;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0080;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0700;name:'Coin A';number:8;dip:((dip_val:$100;dip_name:'4C 1C'),(dip_val:$200;dip_name:'3C 1C'),(dip_val:$300;dip_name:'2C 1C'),(dip_val:$700;dip_name:'1C 1C'),(dip_val:$600;dip_name:'1C 2C'),(dip_val:$500;dip_name:'1C 3C'),(dip_val:$400;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
-        (mask:$3800;name:'Coin B';number:8;dip:((dip_val:$800;dip_name:'4C 1C'),(dip_val:$1000;dip_name:'3C 1C'),(dip_val:$1800;dip_name:'2C 1C'),(dip_val:$3800;dip_name:'1C 1C'),(dip_val:$3000;dip_name:'1C 2C'),(dip_val:$2800;dip_name:'1C 3C'),(dip_val:$2000;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
-        (mask:$4000;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4000;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8000;name:'Invulnerability';number:2;dip:((dip_val:$8000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        p47_oki2:array[0..2] of tipo_roms=(
+        (n:'p47j_10.bin';l:$20000;p:0;crc:$b9d79c1e),(n:'p47j_11.bin';l:$20000;p:$20000;crc:$fa0d1887),());
         //Rod-Land
         rodland_rom:array[0..3] of tipo_roms=(
         (n:'jaleco_rod_land_2.rom2';l:$20000;p:0;crc:$c7e00593),(n:'jaleco_rod_land_1.rom1';l:$20000;p:$1;crc:$2e748ca1),
         (n:'jaleco_rod_land_3.rom3';l:$10000;p:$40000;crc:$62fdf6d7),(n:'jaleco_rod_land_4.rom4';l:$10000;p:$40001;crc:$44163c86));
-        rodland_sound:array[0..1] of tipo_roms=(
-        (n:'jaleco_rod_land_5.rom5';l:$10000;p:0;crc:$c1617c28),(n:'jaleco_rod_land_6.rom6';l:$10000;p:$1;crc:$663392b2));
         rodland_scr0:tipo_roms=(n:'lh534h31.rom14';l:$80000;p:0;crc:$8201e1bb);
         rodland_scr1:tipo_roms=(n:'lh534h32.rom18';l:$80000;p:0;crc:$f3b30ca6);
         rodland_scr2:tipo_roms=(n:'lh2311j0.rom19';l:$20000;p:0;crc:$124d7e8f);
@@ -51,14 +37,8 @@ const
         rodland_oki1:tipo_roms=(n:'lh5321t5.rom10';l:$40000;p:0;crc:$e1d1cd99);
         rodland_oki2:tipo_roms=(n:'s202000dr.rom8';l:$40000;p:0;crc:$8a49d3a7);
         rodland_pri:tipo_roms=(n:'ps89013a.14m';l:$200;p:0;crc:$8914e72d);
-        rodland_dip:array [0..7] of def_dip=(
-        (mask:$000c;name:'Lives';number:4;dip:((dip_val:$4;dip_name:'2'),(dip_val:$c;dip_name:'3'),(dip_val:$8;dip_name:'4'),(dip_val:$0;dip_name:'Infinite'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0010;name:'Default Episode';number:2;dip:((dip_val:$10;dip_name:'1'),(dip_val:$0;dip_name:'2'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0060;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$60;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$40;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0080;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0700;name:'Coin A';number:8;dip:((dip_val:$300;dip_name:'3C 1C'),(dip_val:$200;dip_name:'2C 1C'),(dip_val:$700;dip_name:'1C 1C'),(dip_val:$300;dip_name:'1C 2C'),(dip_val:$500;dip_name:'1C 3C'),(dip_val:$100;dip_name:'1C 4C'),(dip_val:$600;dip_name:'1C 5C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
-        (mask:$3800;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$2000;dip_name:'3C 1C'),(dip_val:$1000;dip_name:'2C 1C'),(dip_val:$3800;dip_name:'1C 1C'),(dip_val:$1800;dip_name:'1C 2C'),(dip_val:$2800;dip_name:'1C 3C'),(dip_val:$800;dip_name:'1C 4C'),(dip_val:$3000;dip_name:'1C 5C'),(),(),(),(),(),(),(),())),
-        (mask:$4000;name:'Demo Sounds';number:2;dip:((dip_val:$4000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        rodland_sound:array[0..2] of tipo_roms=(
+        (n:'jaleco_rod_land_5.rom5';l:$10000;p:0;crc:$c1617c28),(n:'jaleco_rod_land_6.rom6';l:$10000;p:$1;crc:$663392b2),());
         //saint dragon
         stdragon_rom:array[0..1] of tipo_roms=(
         (n:'jsd-02.bin';l:$20000;p:0;crc:$cc29ab19),(n:'jsd-01.bin';l:$20000;p:$1;crc:$67429a57));
@@ -76,17 +56,9 @@ const
         (n:'jsd-22.bin';l:$20000;p:$40000;crc:$44fe2547),(n:'jsd-23.bin';l:$20000;p:$60000;crc:$6b010e1a));
         stdragon_oki1:array[0..1] of tipo_roms=(
         (n:'jsd-09.bin';l:$20000;p:0;crc:$e366bc5a),(n:'jsd-10.bin';l:$20000;p:$20000;crc:$4a8f4fe6));
-        stdragon_oki2:array[0..1] of tipo_roms=(
-        (n:'jsd-07.bin';l:$20000;p:0;crc:$6a48e979),(n:'jsd-08.bin';l:$20000;p:$20000;crc:$40704962));
         stdragon_pri:tipo_roms=(n:'prom.14m';l:$200;p:0;crc:$1d877538);
-        stdragon_dip:array [0..7] of def_dip=(
-        (mask:$0003;name:'Lives';number:4;dip:((dip_val:$2;dip_name:'2'),(dip_val:$3;dip_name:'3'),(dip_val:$1;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0030;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$10;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0040;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$40;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0080;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0700;name:'Coin A';number:8;dip:((dip_val:$100;dip_name:'4C 1C'),(dip_val:$200;dip_name:'3C 1C'),(dip_val:$300;dip_name:'2C 1C'),(dip_val:$700;dip_name:'1C 1C'),(dip_val:$600;dip_name:'1C 2C'),(dip_val:$500;dip_name:'1C 3C'),(dip_val:$400;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
-        (mask:$3800;name:'Coin B';number:8;dip:((dip_val:$800;dip_name:'4C 1C'),(dip_val:$1000;dip_name:'3C 1C'),(dip_val:$1800;dip_name:'2C 1C'),(dip_val:$3800;dip_name:'1C 1C'),(dip_val:$3000;dip_name:'1C 2C'),(dip_val:$2800;dip_name:'1C 3C'),(dip_val:$2000;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
-        (mask:$4000;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4000;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        stdragon_oki2:array[0..2] of tipo_roms=(
+        (n:'jsd-07.bin';l:$20000;p:0;crc:$6a48e979),(n:'jsd-08.bin';l:$20000;p:$20000;crc:$40704962),());
         //64th street
         th64_rom:array[0..1] of tipo_roms=(
         (n:'64th_03.rom';l:$40000;p:0;crc:$ed6c6942),(n:'64th_02.rom';l:$40000;p:$1;crc:$0621ed1d));
@@ -95,11 +67,41 @@ const
         th64_scr0:tipo_roms=(n:'64th_01.rom';l:$80000;p:0;crc:$06222f90);
         th64_scr1:tipo_roms=(n:'64th_06.rom';l:$80000;p:0;crc:$2bfcdc75);
         th64_scr2:tipo_roms=(n:'64th_09.rom';l:$20000;p:0;crc:$a4a97db4);
-        th64_sprites:array[0..1] of tipo_roms=(
-        (n:'64th_05.rom';l:$80000;p:$0;crc:$a89a7020),(n:'64th_04.rom';l:$80000;p:$80000;crc:$98f83ef6));
         th64_oki1:tipo_roms=(n:'64th_11.rom';l:$20000;p:0;crc:$b0b8a65c);
         th64_oki2:tipo_roms=(n:'64th_10.rom';l:$40000;p:0;crc:$a3390561);
         th64_pri:tipo_roms=(n:'pr91009.12';l:$200;p:0;crc:$c69423d6);
+        th64_sprites:array[0..2] of tipo_roms=(
+        (n:'64th_05.rom';l:$80000;p:$0;crc:$a89a7020),(n:'64th_04.rom';l:$80000;p:$80000;crc:$98f83ef6),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,ym_2151,
+     sound_engine,oki6295,misc_functions;
+
+const
+        p47_dip:array [0..7] of def_dip=(
+        (mask:$0003;name:'Lives';number:4;dip:((dip_val:$2;dip_name:'2'),(dip_val:$3;dip_name:'3'),(dip_val:$1;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0030;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$10;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0080;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0700;name:'Coin A';number:8;dip:((dip_val:$100;dip_name:'4C 1C'),(dip_val:$200;dip_name:'3C 1C'),(dip_val:$300;dip_name:'2C 1C'),(dip_val:$700;dip_name:'1C 1C'),(dip_val:$600;dip_name:'1C 2C'),(dip_val:$500;dip_name:'1C 3C'),(dip_val:$400;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
+        (mask:$3800;name:'Coin B';number:8;dip:((dip_val:$800;dip_name:'4C 1C'),(dip_val:$1000;dip_name:'3C 1C'),(dip_val:$1800;dip_name:'2C 1C'),(dip_val:$3800;dip_name:'1C 1C'),(dip_val:$3000;dip_name:'1C 2C'),(dip_val:$2800;dip_name:'1C 3C'),(dip_val:$2000;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
+        (mask:$4000;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4000;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8000;name:'Invulnerability';number:2;dip:((dip_val:$8000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        rodland_dip:array [0..7] of def_dip=(
+        (mask:$000c;name:'Lives';number:4;dip:((dip_val:$4;dip_name:'2'),(dip_val:$c;dip_name:'3'),(dip_val:$8;dip_name:'4'),(dip_val:$0;dip_name:'Infinite'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0010;name:'Default Episode';number:2;dip:((dip_val:$10;dip_name:'1'),(dip_val:$0;dip_name:'2'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0060;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$60;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$40;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0080;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0700;name:'Coin A';number:8;dip:((dip_val:$300;dip_name:'3C 1C'),(dip_val:$200;dip_name:'2C 1C'),(dip_val:$700;dip_name:'1C 1C'),(dip_val:$300;dip_name:'1C 2C'),(dip_val:$500;dip_name:'1C 3C'),(dip_val:$100;dip_name:'1C 4C'),(dip_val:$600;dip_name:'1C 5C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
+        (mask:$3800;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$2000;dip_name:'3C 1C'),(dip_val:$1000;dip_name:'2C 1C'),(dip_val:$3800;dip_name:'1C 1C'),(dip_val:$1800;dip_name:'1C 2C'),(dip_val:$2800;dip_name:'1C 3C'),(dip_val:$800;dip_name:'1C 4C'),(dip_val:$3000;dip_name:'1C 5C'),(),(),(),(),(),(),(),())),
+        (mask:$4000;name:'Demo Sounds';number:2;dip:((dip_val:$4000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        stdragon_dip:array [0..7] of def_dip=(
+        (mask:$0003;name:'Lives';number:4;dip:((dip_val:$2;dip_name:'2'),(dip_val:$3;dip_name:'3'),(dip_val:$1;dip_name:'4'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0030;name:'Difficulty';number:4;dip:((dip_val:$0;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$10;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0040;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$40;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0080;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0700;name:'Coin A';number:8;dip:((dip_val:$100;dip_name:'4C 1C'),(dip_val:$200;dip_name:'3C 1C'),(dip_val:$300;dip_name:'2C 1C'),(dip_val:$700;dip_name:'1C 1C'),(dip_val:$600;dip_name:'1C 2C'),(dip_val:$500;dip_name:'1C 3C'),(dip_val:$400;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
+        (mask:$3800;name:'Coin B';number:8;dip:((dip_val:$800;dip_name:'4C 1C'),(dip_val:$1000;dip_name:'3C 1C'),(dip_val:$1800;dip_name:'2C 1C'),(dip_val:$3800;dip_name:'1C 1C'),(dip_val:$3000;dip_name:'1C 2C'),(dip_val:$2800;dip_name:'1C 3C'),(dip_val:$2000;dip_name:'1C 4C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),())),
+        (mask:$4000;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4000;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         th64_dip_a:array [0..2] of def_dip=(
         (mask:$0f;name:'Coin A';number:11;dip:((dip_val:$07;dip_name:'4C 1C'),(dip_val:$08;dip_name:'3C 1C'),(dip_val:$09;dip_name:'2C 1C'),(dip_val:$0f;dip_name:'1C 1C'),(dip_val:$06;dip_name:'2C 3C'),(dip_val:$0e;dip_name:'1C 2C'),(dip_val:$0d;dip_name:'1C 3C'),(dip_val:$0c;dip_name:'1C 4C'),(dip_val:$0b;dip_name:'1C 5C'),(dip_val:$0a;dip_name:'1C 6C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),())),
         (mask:$f0;name:'Coin B';number:11;dip:((dip_val:$70;dip_name:'4C 1C'),(dip_val:$80;dip_name:'3C 1C'),(dip_val:$90;dip_name:'2C 1C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$60;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),())),());
@@ -297,7 +299,6 @@ procedure megasys1_a_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
    eventos_megasys1;
@@ -480,7 +481,6 @@ procedure megasys1_c_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
    eventos_megasys1;

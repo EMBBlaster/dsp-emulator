@@ -1,8 +1,7 @@
-unit mb88xx;
+﻿unit mb88xx;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,timer_engine,cpu_misc;
+uses dialogs,sysutils,cpu_misc,timer_engine,main_engine;
 
 type
      type_mb88xx_inport_r=function (port:byte):byte;
@@ -69,6 +68,7 @@ var
   mb88xx_0:cpu_mb88xx;
 
 implementation
+
 const
   INT_CAUSE_SERIAL=01;
   INT_CAUSE_TIMER =02;

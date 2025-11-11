@@ -1,6 +1,7 @@
 unit msm5205;
+
 interface
-uses math,timer_engine,dialogs,sound_engine{$ifdef windows},windows{$endif};
+uses main_engine,math,timer_engine,dialogs,sound_engine;
 
 const
   MSM5205_S96_3B=0;     // prescaler 1/96(4KHz) , data 3bit

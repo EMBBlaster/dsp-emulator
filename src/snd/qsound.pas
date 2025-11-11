@@ -1,8 +1,7 @@
 unit qsound;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     timer_engine,sound_engine,dialogs;
+uses timer_engine,sound_engine,dialogs,main_engine;
 
 const
   QSOUND_CLOCKDIV=166;			 // Clock divider

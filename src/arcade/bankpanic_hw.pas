@@ -1,13 +1,10 @@
-unit bankpanic_hw;
+﻿unit bankpanic_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,sn_76496;
+uses rom_engine;
 
 function iniciar_bankpanic:boolean;
 
-implementation
 const
         bankpanic_rom:array[0..3] of tipo_roms=(
         (n:'epr-6175.7e';l:$4000;p:0;crc:$044552b8),(n:'epr-6174.7f';l:$4000;p:$4000;crc:$d29b1598),
@@ -18,17 +15,9 @@ const
         (n:'epr-6172.5b';l:$2000;p:0;crc:$c4c4878b),(n:'epr-6171.5d';l:$2000;p:$2000;crc:$a18165a1),
         (n:'epr-6170.5e';l:$2000;p:$4000;crc:$b58aa8fa),(n:'epr-6169.5f';l:$2000;p:$6000;crc:$1aa37fce),
         (n:'epr-6168.5h';l:$2000;p:$8000;crc:$05f3a867),(n:'epr-6167.5i';l:$2000;p:$a000;crc:$3fa337e1));
-        bankpanic_prom:array[0..2] of tipo_roms=(
+        bankpanic_prom:array[0..3] of tipo_roms=(
         (n:'pr-6177.8a';l:$20;p:0;crc:$eb70c5ae),(n:'pr-6178.6f';l:$100;p:$20;crc:$0acca001),
-        (n:'pr-6179.5a';l:$100;p:$120;crc:$e53bafdb));
-        bankpanic_dip:array [0..6] of def_dip2=(
-        (mask:$3;name:'Coin A';number:4;val4:(3,2,0,1);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$4;name:'Coin B';number:2;val2:(4,0);name2:('2C 1C','1C 1C')),
-        (mask:$8;name:'Lives';number:2;val2:(0,8);name2:('3','4')),
-        (mask:$10;name:'Bonus Life';number:2;val2:(0,$10);name2:('70K 200K 500K','100K 400K 800K')),
-        (mask:$20;name:'Difficulty';number:2;val2:(0,$20);name2:('Easy','Hard')),
-        (mask:$40;name:'Demo Sounds';number:2;val2:(0,$40);name2:('Off','On')),
-        (mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail')));
+        (n:'pr-6179.5a';l:$100;p:$120;crc:$e53bafdb),());
         combathawk_rom:array[0..3] of tipo_roms=(
         (n:'epr-10904.7e';l:$4000;p:0;crc:$4b106335),(n:'epr-10905.7f';l:$4000;p:$4000;crc:$a76fc390),
         (n:'epr-10906.7h';l:$4000;p:$8000;crc:$16d54885),(n:'epr-10903.7d';l:$2000;p:$c000;crc:$b7a59cab));
@@ -38,13 +27,28 @@ const
         (n:'epr-10907.5b';l:$2000;p:0;crc:$08e5eea3),(n:'epr-10908.5d';l:$2000;p:$2000;crc:$d9e413f5),
         (n:'epr-10909.5e';l:$2000;p:$4000;crc:$fec7962c),(n:'epr-10910.5f';l:$2000;p:$6000;crc:$33db0fa7),
         (n:'epr-10911.5h';l:$2000;p:$8000;crc:$565d9e6d),(n:'epr-10912.5i';l:$2000;p:$a000;crc:$cbe22738));
-        combathawk_prom:array[0..2] of tipo_roms=(
+        combathawk_prom:array[0..3] of tipo_roms=(
         (n:'pr-10900.8a';l:$20;p:0;crc:$f95fcd66),(n:'pr-10901.6f';l:$100;p:$20;crc:$6fd981c8),
-        (n:'pr-10902.5a';l:$100;p:$120;crc:$84d6bded));
+        (n:'pr-10902.5a';l:$100;p:$120;crc:$84d6bded),());
+
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     sn_76496;
+
+const
+        bankpanic_dip:array [0..6] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(3,2,0,1);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:4;name:'Coin B';number:2;val2:(4,0);name2:('2C 1C','1C 1C')),
+        (mask:8;name:'Lives';number:2;val2:(0,8);name2:('3','4')),
+        (mask:$10;name:'Bonus Life';number:2;val2:(0,$10);name2:('70K 200K 500K','100K 400K 800K')),
+        (mask:$20;name:'Difficulty';number:2;val2:(0,$20);name2:('Easy','Hard')),
+        (mask:$40;name:'Demo Sounds';number:2;val2:(0,$40);name2:('Off','On')),
+        (mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail')));
         combathawk_dip:array [0..5] of def_dip2=(
-        (mask:$1;name:'Flip Screen';number:2;val2:(0,1);name2:('Off','On')),
-        (mask:$6;name:'Coinage';number:4;val4:(6,0,2,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
-        (mask:$8;name:'Lives';number:2;val2:(0,8);name2:('3','4')),
+        (mask:1;name:'Flip Screen';number:2;val2:(0,1);name2:('Off','On')),
+        (mask:6;name:'Coinage';number:4;val4:(6,0,2,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
+        (mask:8;name:'Lives';number:2;val2:(0,8);name2:('3','4')),
         (mask:$10;name:'Cabinet';number:2;val2:($10,0);name2:('Upright','Cocktail')),
         (mask:$40;name:'Difficulty';number:2;val2:(0,$40);name2:('Easy','Hard')),
         (mask:$80;name:'Fuel';number:2;val2:(0,$80);name2:('120 Units','90 Units')));
@@ -67,8 +71,8 @@ if display_on then begin
     if gfx[1].buffer[f] then begin
       atrib:=memoria[$fc00+f];
       color:=(atrib shr 4) or (color_hi shl 4);
-      nchar:=memoria[$f800+f]+((atrib and $7) shl 8);
-      flip_x:=(atrib and $8)<>0;
+      nchar:=memoria[$f800+f]+((atrib and 7) shl 8);
+      flip_x:=(atrib and 8)<>0;
       if priority then put_gfx_mask_flip(x*8,y*8,nchar,(color shl 3)+256,2,1,0,$f,flip_x,false)
         else put_gfx_flip(x*8,y*8,nchar,(color shl 3)+256,2,1,flip_x,false);
       gfx[1].buffer[f]:=false;
@@ -77,8 +81,8 @@ if display_on then begin
     if gfx[0].buffer[f] then begin
       atrib:=memoria[$f400+f];
       color:=(atrib shr 3) or (color_hi shl 5);
-      nchar:=memoria[$f000+f]+((atrib and $3) shl 8);
-      flip_x:=(atrib and $4)<>0;
+      nchar:=memoria[$f000+f]+((atrib and 3) shl 8);
+      flip_x:=(atrib and 4)<>0;
       if priority then put_gfx_flip(x*8,y*8,nchar,color shl 2,1,0,flip_x,false)
         else put_gfx_mask_flip(x*8,y*8,nchar,color shl 2,1,0,0,$1f,flip_x,false);
       gfx[0].buffer[f]:=false;
@@ -98,27 +102,30 @@ end;
 procedure eventos_bankpanic;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or $80;
   //p2
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 or $40) else marcade.in1:=(marcade.in1 and $bf);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 or $80) else marcade.in1:=(marcade.in1 and $7f);
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 or $40;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or $80;
   //System
-  if arcade_input.but2[0] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
+  if arcade_input.but2[0] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or 4;
 end;
 end;
 
@@ -126,7 +133,6 @@ procedure bankpanic_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_bankpanic;
@@ -180,8 +186,8 @@ case (puerto and $ff) of
   2:sn_76496_2.write(valor);
   5:scroll_x:=valor;
   7:begin
-      if priority<>((valor and $2)<>0) then begin
-        priority:=(valor and $2)<>0;
+      if priority<>((valor and 2)<>0) then begin
+        priority:=(valor and 2)<>0;
         fillchar(gfx[0].buffer,$400,1);
         fillchar(gfx[1].buffer,$400,1);
       end;
@@ -291,18 +297,18 @@ end;
 //color
 for f:=0 to $1f do begin
 		// red component
-		bit0:=(memoria_temp[f] shr 0) and $1;
-		bit1:=(memoria_temp[f] shr 1) and $1;
-		bit2:=(memoria_temp[f] shr 2) and $1;
+		bit0:=(memoria_temp[f] shr 0) and 1;
+		bit1:=(memoria_temp[f] shr 1) and 1;
+		bit2:=(memoria_temp[f] shr 2) and 1;
 		colores[f].r:=$21*bit0+$47*bit1+$97*bit2;
 		// green component
-		bit0:=(memoria_temp[f] shr 3) and $1;
-		bit1:=(memoria_temp[f] shr 4) and $1;
-		bit2:=(memoria_temp[f] shr 5) and $1;
+		bit0:=(memoria_temp[f] shr 3) and 1;
+		bit1:=(memoria_temp[f] shr 4) and 1;
+		bit2:=(memoria_temp[f] shr 5) and 1;
 		colores[f].g:=$21*bit0+$47*bit1+$97*bit2;
 		// blue component
-		bit1:=(memoria_temp[f] shr 6) and $1;
-		bit2:=(memoria_temp[f] shr 7) and $1;
+		bit1:=(memoria_temp[f] shr 6) and 1;
+		bit2:=(memoria_temp[f] shr 7) and 1;
 		colores[f].b:=0+$47*bit1+$97*bit2;
 end;
 set_pal(colores,$20);

@@ -1,13 +1,10 @@
 unit ddragon3_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,sound_engine,oki6295,qsnapshot;
+uses rom_engine;
 
 function iniciar_ddragon3:boolean;
 
-implementation
 const
         //Double Dragon 3
         ddragon3_rom:array[0..1] of tipo_roms=(
@@ -19,9 +16,9 @@ const
         (n:'30j-2.ic11';l:$80000;p:$100000;crc:$41c6fb08),(n:'30a11-0.ic10';l:$10000;p:$180000;crc:$785d71b0),
         (n:'30j-1.ic13';l:$80000;p:$200000;crc:$67a6f114),(n:'30a10-0.ic12';l:$10000;p:$280000;crc:$15e43d12),
         (n:'30j-0.ic15';l:$80000;p:$300000;crc:$f15dafbe),(n:'30a9-0.ic14';l:$10000;p:$380000;crc:$5a47e7a4));
-        ddragon3_bg:array[0..3] of tipo_roms=(
+        ddragon3_bg:array[0..4] of tipo_roms=(
         (n:'30j-7.ic4';l:$40000;p:0;crc:$89d58d32),(n:'30j-6.ic5';l:$40000;p:$1;crc:$9bf1538e),
-        (n:'30j-5.ic6';l:$40000;p:$80000;crc:$8f671a62),(n:'30j-4.ic7';l:$40000;p:$80001;crc:$0f74ea1c));
+        (n:'30j-5.ic6';l:$40000;p:$80000;crc:$8f671a62),(n:'30j-4.ic7';l:$40000;p:$80001;crc:$0f74ea1c),());
         //Combat tribe
         ctribe_rom:array[0..2] of tipo_roms=(
         (n:'28a16-2.ic26';l:$20000;p:1;crc:$c46b2e63),(n:'28a15-2.ic25';l:$20000;p:$0;crc:$3221c755),
@@ -34,10 +31,15 @@ const
         (n:'28j2-0.ic78';l:$80000;p:$100000;crc:$8c796707),(n:'28a13-0.ic61';l:$10000;p:$180000;crc:$eb3ab374),
         (n:'28j1-0.ic97';l:$80000;p:$200000;crc:$1c9badbd),(n:'28a12-0.ic85';l:$10000;p:$280000;crc:$c602ac97),
         (n:'28j0-0.ic98';l:$80000;p:$300000;crc:$ba73c49e),(n:'28a11-0.ic86';l:$10000;p:$380000;crc:$4da1d8e5));
-        ctribe_bg:array[0..3] of tipo_roms=(
+        ctribe_bg:array[0..4] of tipo_roms=(
         (n:'28j7-0.ic11';l:$40000;p:0;crc:$a8b773f1),(n:'28j6-0.ic13';l:$40000;p:$1;crc:$617530fc),
-        (n:'28j5-0.ic12';l:$40000;p:$80000;crc:$cef0a821),(n:'28j4-0.ic14';l:$40000;p:$80001;crc:$b84fda09));
-        //DIP
+        (n:'28j5-0.ic12';l:$40000;p:$80000;crc:$cef0a821),(n:'28j4-0.ic14';l:$40000;p:$80001;crc:$b84fda09),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,pal_engine,
+     sound_engine,oki6295,qsnapshot;
+
+const
         ddragon3_dip_a:array [0..8] of def_dip2=(
         (mask:3;name:'Coinage';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
         (mask:$10;name:'Continue Discount';number:2;val2:($10,0);name2:('Off','On')),
@@ -180,53 +182,57 @@ end;
 procedure eventos_ddragon3;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
   //p1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ff7f;
   //p2
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.but2[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $7fff) else marcade.in0:=(marcade.in0 or $8000);
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.but2[1] then marcade.in0:=marcade.in0 and $bfff;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7fff;
   //system
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $fffd;
 end;
 end;
 
 procedure eventos_ctribe;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
   //p1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ff7f;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fdff;
   //p2
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $ff7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $ffbf;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $ff7f;
 end;
 end;
 
@@ -234,7 +240,6 @@ procedure ddragon3_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
     events_update_dd3;

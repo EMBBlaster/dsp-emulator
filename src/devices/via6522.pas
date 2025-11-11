@@ -1,7 +1,7 @@
 unit via6522;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,sysutils,dialogs,lib_sdl2,timer_engine;
+uses main_engine,sysutils,dialogs,lib_sdl2,timer_engine;
 
 type
   tin_handler=function:byte;

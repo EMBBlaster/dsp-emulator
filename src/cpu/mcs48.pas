@@ -1,8 +1,7 @@
 unit mcs48;
 interface
 //{$define DEBUG}
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     dialogs,sysutils,timer_engine,main_engine,cpu_misc,i8243;
+uses dialogs,sysutils,timer_engine,main_engine,cpu_misc,i8243;
 
 type
         band_mcs48=record

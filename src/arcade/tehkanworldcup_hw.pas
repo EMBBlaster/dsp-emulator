@@ -1,13 +1,10 @@
-unit tehkanworldcup_hw;
+﻿unit tehkanworldcup_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,msm5205,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_tehkanwc:boolean;
 
-implementation
 const
         tehkanwc_rom:array[0..2] of tipo_roms=(
         (n:'twc-1.bin';l:$4000;p:0;crc:$34d6d5ff),(n:'twc-2.bin';l:$4000;p:$4000;crc:$7017a221),
@@ -17,10 +14,15 @@ const
         tehkanwc_chars:tipo_roms=(n:'twc-12.bin';l:$4000;p:0;crc:$a9e274f8);
         tehkanwc_sprites:array[0..1] of tipo_roms=(
         (n:'twc-8.bin';l:$8000;p:0;crc:$055a5264),(n:'twc-7.bin';l:$8000;p:$8000;crc:$59faebe7));
-        tehkanwc_tiles:array[0..1] of tipo_roms=(
-        (n:'twc-11.bin';l:$8000;p:0;crc:$669389fc),(n:'twc-9.bin';l:$8000;p:$8000;crc:$347ef108));
         tehkanwc_adpcm:tipo_roms=(n:'twc-5.bin';l:$4000;p:0;crc:$444b5544);
-        //DIP
+        tehkanwc_tiles:array[0..2] of tipo_roms=(
+        (n:'twc-11.bin';l:$8000;p:0;crc:$669389fc),(n:'twc-9.bin';l:$8000;p:$8000;crc:$347ef108),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,msm5205,pal_engine,
+     sound_engine;
+
+const
         tehkanwc_dipa:array [0..2] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(1,7,0,6,5,4,3,2);name8:('2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
         (mask:$38;name:'Coin B';number:8;val8:(8,$38,0,$30,$28,$20,$18,$10);name8:('2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
@@ -109,7 +111,6 @@ procedure tehkanwc_principal;
 var
   f,h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=240 then begin

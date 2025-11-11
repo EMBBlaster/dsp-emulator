@@ -1,8 +1,7 @@
 unit seta_sprites;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ELSE IF}main_engine,{$ENDIF}
-     gfx_engine;
+uses main_engine,gfx_engine;
 
 type
   tfunction=function(code:word;color:word):word;

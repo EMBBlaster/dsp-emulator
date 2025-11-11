@@ -1,13 +1,10 @@
-unit cityconnection_hw;
+﻿unit cityconnection_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,ay_8910,ym_2203,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_citycon:boolean;
 
-implementation
 const
         citycon_rom:array[0..1] of tipo_roms=(
         (n:'c10';l:$4000;p:$4000;crc:$ae88b53c),(n:'c11';l:$8000;p:$8000;crc:$139eb1aa));
@@ -18,10 +15,15 @@ const
         citycon_tiles:array[0..3] of tipo_roms=(
         (n:'c9';l:$8000;p:0;crc:$8aeb47e6),(n:'c8';l:$4000;p:$8000;crc:$0d7a1eeb),
         (n:'c6';l:$8000;p:$c000;crc:$2246fe9d),(n:'c7';l:$4000;p:$14000;crc:$e8b97de9));
-        citycon_fondo:array[0..2] of tipo_roms=(
+        citycon_fondo:array[0..3] of tipo_roms=(
         (n:'c2';l:$8000;p:0;crc:$f2da4f23),(n:'c3';l:$4000;p:$8000;crc:$7ef3ac1b),
-        (n:'c5';l:$2000;p:$c000;crc:$c03d8b1b));
-        //Dip
+        (n:'c5';l:$2000;p:$c000;crc:$c03d8b1b),());
+
+implementation
+uses m6809,ay_8910,ym_2203,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,qsnapshot;
+
+const
         citycon_dip_a:array [0..2] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','Infinite')),
         (mask:$20;name:'Demo Sounds';number:2;val2:($20,0);name2:('Off','On')),
@@ -52,7 +54,6 @@ for f:=$fff downto 0 do begin
 end;
 cambia_fondo:=false;
 end;
-
 var
   f,x,y,color,nchar:word;
   y2,x2,atrib:byte;
@@ -100,24 +101,27 @@ end;
 procedure eventos_citycon;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$80;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7f;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //SYS
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $7f;
 end;
 end;
 
@@ -125,7 +129,6 @@ procedure citycon_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
     if f=240 then begin
@@ -361,7 +364,7 @@ m6809_0:=cpu_m6809.create(8000000,TCPU_MC6809);
 m6809_0.change_ram_calls(citycon_getbyte,citycon_putbyte);
 if not(roms_load(@memoria,citycon_rom)) then exit;
 //Sound CPU
-m6809_1:=cpu_m6809.create(20000000 div 30,TCPU_MC6809E); //deberia ser 32...
+m6809_1:=cpu_m6809.create(20000000 div 28,TCPU_MC6809E); //deberia ser 32?
 m6809_1.change_ram_calls(scitycon_getbyte,scitycon_putbyte);
 m6809_1.init_sound(citycon_sound_update);
 if not(roms_load(@mem_snd,citycon_sonido)) then exit;

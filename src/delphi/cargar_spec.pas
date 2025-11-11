@@ -22,7 +22,6 @@ type
     procedure FormShow(Sender:TObject);
     procedure Button1Click(Sender:TObject);
     procedure Button2Click(Sender:TObject);
-    procedure FileListBox1DblClick(Sender:TObject);
     procedure FormKeyUp(Sender:TObject;var Key:word;Shift:TShiftState);
     procedure FileListBox1Click(Sender: TObject);
   private
@@ -47,17 +46,12 @@ end;
 
 procedure Tload_spec.Button2Click(Sender: TObject);
 begin
-FileListBox1DblClick(self);
+spectrum_load_exit;
 end;
 
 procedure Tload_spec.FileListBox1Click(Sender: TObject);
 begin
 spectrum_load_click;
-end;
-
-procedure Tload_spec.FileListBox1DblClick(Sender: TObject);
-begin
-spectrum_load_exit;
 end;
 
 procedure Tload_spec.FormKeyUp(Sender:TObject;var Key:word;Shift:TShiftState);

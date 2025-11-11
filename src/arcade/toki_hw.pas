@@ -1,13 +1,10 @@
 unit toki_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,seibu_sound,rom_engine,
-     pal_engine,sound_engine,misc_functions;
+uses rom_engine;
 
 function iniciar_toki:boolean;
 
-implementation
 const
         toki_rom:array[0..3] of tipo_roms=(
         (n:'l10_6.bin';l:$20000;p:0;crc:$94015d91),(n:'k10_4e.bin';l:$20000;p:1;crc:$531bd3ef),
@@ -18,12 +15,18 @@ const
         (n:'toki.ob1';l:$80000;p:0;crc:$a27a80ba),(n:'toki.ob2';l:$80000;p:$80000;crc:$fa687718));
         toki_tiles1:tipo_roms=(n:'toki.bk1';l:$80000;p:0;crc:$fdaa5f4b);
         toki_tiles2:tipo_roms=(n:'toki.bk2';l:$80000;p:0;crc:$d86ac664);
-        toki_sound:array[0..1] of tipo_roms=(
-        (n:'tokijp.008';l:$2000;p:0;crc:$6c87c4c5),(n:'tokijp.007';l:$10000;p:$10000;crc:$a67969c4));
         toki_adpcm:tipo_roms=(n:'tokijp.009';l:$20000;p:0;crc:$ae7a6b8b);
+        toki_sound:array[0..2] of tipo_roms=(
+        (n:'tokijp.008';l:$2000;p:0;crc:$6c87c4c5),(n:'tokijp.007';l:$10000;p:$10000;crc:$a67969c4),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,seibu_sound,pal_engine,
+     sound_engine,misc_functions;
+
+const
         toki_dip:array [0..8] of def_dip2=(
         (mask:$1f;name:'Coinage';number:32;val32:($15,$17,$19,$1b,3,$1d,5,7,$1f,9,$13,$11,$f,$d,$b,$1e,$14,$a,0,1,2,4,6,8,$c,$e,$10,$12,$16,$18,$1a,$1c);
-          name32:('6C 1C','5C 1C','4C 1C','3C 1C','8C 3C','2C 1C','5C 3C','3C 2C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','A 1C 1C/B 1/2','A 2C 1C/B 1/3','A 3C 1C/B 1/5','A 5C 1C/B 1/6','Free Play','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid')),
+         name32:('6C 1C','5C 1C','4C 1C','3C 1C','8C 3C','2C 1C','5C 3C','3C 2C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','A 1C 1C/B 1/2','A 2C 1C/B 1/3','A 3C 1C/B 1/5','A 5C 1C/B 1/6','Free Play','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid')),
         (mask:$20;name:'Joysticks';number:2;val2:($20,0);name2:('1','2')),
         (mask:$40;name:'Cabinet';number:2;val2:($40,0);name2:('Upright','Cocktail')),
         (mask:$80;name:'Flip Screen';number:2;val2:($80,0);name2:('Off','On')),
@@ -135,7 +138,6 @@ procedure toki_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
    for f:=0 to $ff do begin
      if f=240 then begin

@@ -27,7 +27,6 @@ type
     procedure Button2Click(Sender: TObject);
     procedure DirectoryEdit1Change(Sender: TObject);
     procedure FileListBox1Click(Sender: TObject);
-    procedure FileListBox1DblClick(Sender: TObject);
     procedure FileListBox1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormShow(Sender: TObject);
@@ -53,7 +52,7 @@ end;
 
 procedure Tload_spec.Button2Click(Sender: TObject);
 begin
-FileListBox1DblClick(self);
+spectrum_load_exit;
 end;
 
 procedure Tload_spec.DirectoryEdit1Change(Sender: TObject);
@@ -72,11 +71,6 @@ end;
 procedure Tload_spec.FileListBox1Click(Sender: TObject);
 begin
 spectrum_load_click;
-end;
-
-procedure Tload_spec.FileListBox1DblClick(Sender: TObject);
-begin
-spectrum_load_exit;
 end;
 
 procedure Tload_spec.FileListBox1KeyUp(Sender: TObject; var Key: Word;

@@ -1,42 +1,44 @@
-unit nemesis_hw;
-interface
+﻿unit nemesis_hw;
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ay_8910,vlm_5030,k005289,ym_2151,k007232;
+interface
+uses rom_engine;
 
 function iniciar_nemesis:boolean;
 
+const
+        nemesis_rom:array[0..7] of tipo_roms=(
+        (n:'456-d01.12a';l:$8000;p:0;crc:$35ff1aaa),(n:'456-d05.12c';l:$8000;p:1;crc:$23155faa),
+        (n:'456-d02.13a';l:$8000;p:$10000;crc:$ac0cf163),(n:'456-d06.13c';l:$8000;p:$10001;crc:$023f22a9),
+        (n:'456-d03.14a';l:$8000;p:$20000;crc:$8cefb25f),(n:'456-d07.14c';l:$8000;p:$20001;crc:$d50b82cb),
+        (n:'456-d04.15a';l:$8000;p:$30000;crc:$9ca75592),(n:'456-d08.15c';l:$8000;p:$30001;crc:$03c0b7f5));
+        nemesis_sound:array[0..1] of tipo_roms=((n:'456-d09.9c';l:$4000;p:0;crc:$26bf9636),());
+        nemesis_rom_k005289:array[0..2] of tipo_roms=(
+        (n:'400-a01.fse';l:$100;p:0;crc:$5827b1e8),(n:'400-a02.fse';l:$100;p:$100;crc:$2f44f970),());
+        gx400_bios:array[0..2] of tipo_roms=(
+        (n:'400-a06.15l';l:$8000;p:0;crc:$b99d8cff),(n:'400-a04.10l';l:$8000;p:1;crc:$d02c9552),());
+        gx400_sound:array[0..1] of tipo_roms=((n:'400-e03.5l';l:$2000;p:0;crc:$a5a8e57d),());
+        twinbee_rom:array[0..2] of tipo_roms=(
+        (n:'412-a07.17l';l:$20000;p:0;crc:$d93c5499),(n:'412-a05.12l';l:$20000;p:1;crc:$2b357069),());
+        gwarrior_rom:array[0..2] of tipo_roms=(
+        (n:'578-a07.17l';l:$20000;p:0;crc:$0aedacb5),(n:'578-a05.12l';l:$20000;p:1;crc:$76240e2e),());
+        salamander_rom:array[0..3] of tipo_roms=(
+        (n:'587-d02.18b';l:$10000;p:0;crc:$a42297f9),(n:'587-d05.18c';l:$10000;p:1;crc:$f9130b0a),
+        (n:'587-c03.17b';l:$20000;p:$40000;crc:$e5caf6e6),(n:'587-c06.17c';l:$20000;p:$40001;crc:$c2f567ea));
+        salamander_sound:tipo_roms=(n:'587-d09.11j';l:$8000;p:0;crc:$5020972c);
+        salamander_vlm:tipo_roms=(n:'587-d08.8g';l:$4000;p:0;crc:$f9ac6b82);
+        salamander_k007232:array[0..1] of tipo_roms=((n:'587-c01.10a';l:$20000;p:0;crc:$09fe0632),());
+
 implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ay_8910,vlm_5030,k005289,ym_2151,k007232;
 
 type
   tipo_sprite=record
                 width,height,char_type:byte;
                 mask:word;
               end;
+
 const
-        nemesis_rom:array[0..7] of tipo_roms=(
-        (n:'456-d01.12a';l:$8000;p:0;crc:$35ff1aaa),(n:'456-d05.12c';l:$8000;p:$1;crc:$23155faa),
-        (n:'456-d02.13a';l:$8000;p:$10000;crc:$ac0cf163),(n:'456-d06.13c';l:$8000;p:$10001;crc:$023f22a9),
-        (n:'456-d03.14a';l:$8000;p:$20000;crc:$8cefb25f),(n:'456-d07.14c';l:$8000;p:$20001;crc:$d50b82cb),
-        (n:'456-d04.15a';l:$8000;p:$30000;crc:$9ca75592),(n:'456-d08.15c';l:$8000;p:$30001;crc:$03c0b7f5));
-        nemesis_sound:tipo_roms=(n:'456-d09.9c';l:$4000;p:0;crc:$26bf9636);
-        rom_k005289:array[0..1] of tipo_roms=(
-        (n:'400-a01.fse';l:$100;p:$0;crc:$5827b1e8),(n:'400-a02.fse';l:$100;p:$100;crc:$2f44f970));
-        gx400_bios:array[0..1] of tipo_roms=(
-        (n:'400-a06.15l';l:$8000;p:0;crc:$b99d8cff),(n:'400-a04.10l';l:$8000;p:$1;crc:$d02c9552));
-        gx400_sound:tipo_roms=(n:'400-e03.5l';l:$2000;p:0;crc:$a5a8e57d);
-        twinbee_rom:array[0..1] of tipo_roms=(
-        (n:'412-a07.17l';l:$20000;p:$0;crc:$d93c5499),(n:'412-a05.12l';l:$20000;p:$1;crc:$2b357069));
-        gwarrior_rom:array[0..1] of tipo_roms=(
-        (n:'578-a07.17l';l:$20000;p:$0;crc:$0aedacb5),(n:'578-a05.12l';l:$20000;p:$1;crc:$76240e2e));
-        salamander_rom:array[0..3] of tipo_roms=(
-        (n:'587-d02.18b';l:$10000;p:0;crc:$a42297f9),(n:'587-d05.18c';l:$10000;p:$1;crc:$f9130b0a),
-        (n:'587-c03.17b';l:$20000;p:$40000;crc:$e5caf6e6),(n:'587-c06.17c';l:$20000;p:$40001;crc:$c2f567ea));
-        salamander_sound:tipo_roms=(n:'587-d09.11j';l:$8000;p:0;crc:$5020972c);
-        salamander_vlm:tipo_roms=(n:'587-d08.8g';l:$4000;p:0;crc:$f9ac6b82);
-        salamander_k007232:tipo_roms=(n:'587-c01.10a';l:$20000;p:0;crc:$09fe0632);
-        //Graficos
         char_x:array[0..63] of dword=(0*4,1*4,2*4,3*4,4*4,5*4,6*4,7*4,
                                           8*4,9*4,10*4,11*4,12*4,13*4,14*4,15*4,
                                           16*4,17*4,18*4,19*4,20*4,21*4,22*4,23*4,
@@ -68,6 +70,7 @@ const
                                                 (width:8;height:8;char_type:0;mask:$7ff),(width:16;height:8;char_type:6;mask:$3ff),(width:8;height:16;char_type:3;mask:$3ff),(width:16;height:16;char_type:1;mask:$1ff));
         pal_look:array[0..$1f] of byte=(0,1,2,4,5,6,8,9,11,13,15,18,20,22,25,28,33,36,41,46,51,57,64,73,
                                         80,91,104,120,142,168,204,255);
+
 var
  rom:array[0..$3ffff] of word;
  ram3,bios_rom,char_ram:array[0..$7fff] of word;
@@ -155,10 +158,10 @@ for pri:=0 to $ff do begin  //prioridad
     if (zoom<>$ff) then begin
       size:=sprite_ram[(f*8)+1];
       zoom:=zoom+((size and $c0) shl 2);
-      sx:=(sprite_ram[(f*8)+5] and $ff)+((atrib and $1) shl 8);
+      sx:=(sprite_ram[(f*8)+5] and $ff)+((atrib and 1) shl 8);
       sy:=sprite_ram[(f*8)+6] and $ff;
       color:=(atrib and $1e) shl 3;
-      flipx:=(size and $01)<>0;
+      flipx:=(size and 1)<>0;
       flipy:=(atrib and $20)<>0;
       idx:=(size shr 3) and 7;
       nchar:=nchar*8*16 div (sprite_data[idx].width*sprite_data[idx].height);
@@ -228,8 +231,8 @@ for f:=0 to $7ff do begin
     end;
 end;
 for f:=0 to $ff do begin
-  scroll_x1[f]:=(xscroll_1[f] and $ff)+((xscroll_1[f+$100] and $1) shl 8);
-  scroll_x2[f]:=(xscroll_2[f] and $ff)+((xscroll_2[f+$100] and $1) shl 8);
+  scroll_x1[f]:=(xscroll_1[f] and $ff)+((xscroll_1[f+$100] and 1) shl 8);
+  scroll_x2[f]:=(xscroll_2[f] and $ff)+((xscroll_2[f+$100] and 1) shl 8);
 end;
 //1
 scroll__x_part2(1,9,1,@scroll_x2);
@@ -252,27 +255,30 @@ end;
 procedure eventos_nemesis;
 begin
 if event.arcade then begin
+  marcade.in0:=0 or (marcade.in0 and $e0);
+  marcade.in1:=0;
+  marcade.in2:=0;
   //IN0
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fffe);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fffd);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $8) else marcade.in0:=(marcade.in0 and $fff7);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ffef);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $10;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fffe);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or $2) else marcade.in1:=(marcade.in1 and $fffd);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or $4) else marcade.in1:=(marcade.in1 and $fffb);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 or $8) else marcade.in1:=(marcade.in1 and $fff7);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ffef);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $ffdf);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 or $40) else marcade.in1:=(marcade.in1 and $ffbf);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 or $40;
   //P2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 or $1) else marcade.in2:=(marcade.in2 and $fffe);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 or $2) else marcade.in2:=(marcade.in2 and $fffd);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 or $4) else marcade.in2:=(marcade.in2 and $fffb);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 or $8) else marcade.in2:=(marcade.in2 and $fff7);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ffef);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $ffdf);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 or $40) else marcade.in2:=(marcade.in2 and $ffbf);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 or 8;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 or $20;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 or $40;
 end;
 end;
 
@@ -321,7 +327,6 @@ procedure nemesis_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_nemesis;
@@ -414,10 +419,10 @@ case direccion of
   $5c000:sound_latch:=valor and $ff;
   $5e000:irq_on:=(valor and $ff)<>0;
   $5e004:begin
-            flipx_scr:=(valor and $1)<>0;
+            flipx_scr:=(valor and 1)<>0;
             if (valor and $100)<>0 then z80_0.change_irq(HOLD_LINE);
          end;
-  $5e006:flipy_scr:=(valor and $1)<>0;
+  $5e006:flipy_scr:=(valor and 1)<>0;
   $60000..$67fff:ram2[(direccion and $7fff) shr 1]:=valor;
 end;
 end;
@@ -427,8 +432,8 @@ begin
 case direccion of
   0..$47ff:nemesis_snd_getbyte:=mem_snd[direccion];
   $e001:nemesis_snd_getbyte:=sound_latch;
-  $e086:nemesis_snd_getbyte:=ay8910_0.Read;
-  $e205:nemesis_snd_getbyte:=ay8910_1.Read;
+  $e086:nemesis_snd_getbyte:=ay8910_0.read;
+  $e205:nemesis_snd_getbyte:=ay8910_1.read;
 end;
 end;
 
@@ -441,10 +446,10 @@ case direccion of
   $c000..$cfff:k005289_0.ld2_w(direccion and $fff,valor);
   $e003:k005289_0.tg1_w(valor);
   $e004:k005289_0.tg2_w(valor);
-  $e005:ay8910_1.Control(valor);
-  $e006:ay8910_0.Control(valor);
-  $e106:ay8910_0.Write(valor);
-  $e405:ay8910_1.Write(valor);
+  $e005:ay8910_1.control(valor);
+  $e006:ay8910_0.control(valor);
+  $e106:ay8910_0.write(valor);
+  $e405:ay8910_1.write(valor);
 end;
 end;
 
@@ -483,7 +488,6 @@ procedure gx400_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_gx400;
@@ -587,13 +591,13 @@ case direccion of
                     cambiar_color(valor,(direccion and $fff) shr 1);
                  end;
   $5c000:sound_latch:=valor and $ff;
-  $5e000:irq2_on:=(valor and $1)<>0;
-  $5e002:irq_on:=(valor and $1)<>0;
+  $5e000:irq2_on:=(valor and 1)<>0;
+  $5e002:irq_on:=(valor and 1)<>0;
   $5e004:begin
-            flipx_scr:=(valor and $1)<>0;
+            flipx_scr:=(valor and 1)<>0;
             if (valor and $100)<>0 then z80_0.change_irq(HOLD_LINE);
          end;
-  $5e006:flipy_scr:=(valor and $1)<>0;
+  $5e006:flipy_scr:=(valor and 1)<>0;
   $5e00e:irq4_on:=(valor and $100)<>0;
   $60000..$7ffff:ram4[(direccion and $1ffff) shr 1]:=valor;
 end;
@@ -865,7 +869,7 @@ begin
   ay8910_1:=ay8910_chip.create(18432000 div 8,AY8910);
   ay8910_1.change_io_calls(nil,nil,ay8910_k005289_1,ay8910_k005289_2);
   k005289_0:=k005289_snd_chip.create(3579545);
-  if not(roms_load(@k005289_0.sound_prom,rom_k005289)) then exit;
+  if not(roms_load(@k005289_0.sound_prom,nemesis_rom_k005289)) then exit;
 end;
 procedure init_ay_vlm_sound;
 begin

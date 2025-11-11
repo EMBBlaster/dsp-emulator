@@ -8,13 +8,7 @@ object config_arcade: Tconfig_arcade
   Caption = 'Arcade Config'
   ClientHeight = 376
   ClientWidth = 816
-  Font.CharSet = ANSI_CHARSET
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Pitch = fpVariable
-  Font.Quality = fqDraft
   Position = poScreenCenter
-  LCLVersion = '4.0.0.4'
   OnClose = FormClose
   OnKeyUp = FormKeyUp
   OnShow = FormShow
@@ -24,7 +18,7 @@ object config_arcade: Tconfig_arcade
     Top = 8
     Width = 257
     Caption = 'DIP A'
-    TabOrder = 0
+    TabOrder = 2
   end
   object GroupBox2: TGroupBox
     Left = 280
@@ -32,7 +26,7 @@ object config_arcade: Tconfig_arcade
     Top = 8
     Width = 257
     Caption = 'DIP B'
-    TabOrder = 1
+    TabOrder = 3
     Visible = False
   end
   object GroupBox3: TGroupBox
@@ -41,7 +35,7 @@ object config_arcade: Tconfig_arcade
     Top = 8
     Width = 257
     Caption = 'DIP C'
-    TabOrder = 2
+    TabOrder = 4
     Visible = False
   end
   object Button2: TButton
@@ -50,8 +44,7 @@ object config_arcade: Tconfig_arcade
     Top = 320
     Width = 121
     Caption = 'CANCEL'
-    TabOrder = 3
-    TabStop = False
+    TabOrder = 1
     OnClick = Button2Click
   end
   object Button1: TButton
@@ -60,8 +53,7 @@ object config_arcade: Tconfig_arcade
     Top = 320
     Width = 121
     Caption = 'OK'
-    TabOrder = 4
-    TabStop = False
+    TabOrder = 0
     OnClick = Button1Click
   end
 end

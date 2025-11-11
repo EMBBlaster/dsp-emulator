@@ -1,9 +1,8 @@
 unit sms;
+
 interface
 
-uses nz80,{$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,controls_engine,sega_vdp,sn_76496,sysutils,rom_engine,
-     misc_functions,sound_engine,forms,ym_2413;
+uses rom_engine;
 
 function iniciar_sms:boolean;
 procedure change_sms_model(model:byte;load_bios:boolean=true);
@@ -36,11 +35,12 @@ const
   CLOCK_PAL=3546895;
   FPS_NTSC=59.922743;
   FPS_PAL=49.701460;
-  sms_bios:tipo_roms=(n:'mpr-12808.ic2';l:$2000;p:0;crc:$0072ed54);
-  sms_bios_j:tipo_roms=(n:'mpr-11124.ic2';l:$2000;p:0;crc:$48d44a13);
+  segams_bios:array [0..1] of tipo_roms=((n:'mpr-12808.ic2';l:$2000;p:0;crc:$0072ed54),());
+  segams_bios_j:array [0..1] of tipo_roms=((n:'mpr-11124.ic2';l:$2000;p:0;crc:$48d44a13),());
 
 implementation
-uses principal,config_sms,snapshot;
+uses principal,config_sms,snapshot,nz80,main_engine,controls_engine,sega_vdp,
+     sn_76496,sysutils,misc_functions,sound_engine,forms,ym_2413;
 
 procedure eventos_sms;
 begin
@@ -71,7 +71,6 @@ procedure sms_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to (vdp_0.VIDEO_Y_TOTAL-1) do begin
       z80_0.run(frame_main);
@@ -347,7 +346,7 @@ case model of
   0:begin
       if load_bios then begin
         fillchar(sms_0.mapper.bios[0],sizeof(sms_0.mapper.bios),0);
-        roms_load(@sms_0.mapper.bios[0],sms_bios);
+        roms_load(@sms_0.mapper.bios[0],segams_bios);
       end;
       llamadas_maquina.fps_max:=FPS_PAL;
       z80_0.clock:=CLOCK_PAL;
@@ -361,8 +360,8 @@ case model of
   1,2:begin
       if load_bios then begin
         fillchar(sms_0.mapper.bios[0],sizeof(sms_0.mapper.bios),0);
-        if model=1 then roms_load(@sms_0.mapper.bios[0],sms_bios_j)
-          else roms_load(@sms_0.mapper.bios[0],sms_bios);
+        if model=1 then roms_load(@sms_0.mapper.bios[0],segams_bios_j)
+          else roms_load(@sms_0.mapper.bios[0],segams_bios);
       end;
       llamadas_maquina.fps_max:=FPS_NTSC;
       z80_0.clock:=CLOCK_NTSC;
@@ -483,7 +482,6 @@ begin
 iniciar_sms:=false;
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=sms_principal;
 llamadas_maquina.reset:=reset_sms;
 llamadas_maquina.cartuchos:=abrir_sms;

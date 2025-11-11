@@ -1,8 +1,7 @@
 unit k005289;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$else}main_engine,{$ENDIF}
-     sound_engine,timer_engine,dialogs;
+uses main_engine,sound_engine,timer_engine,dialogs;
 
 type
     k005289_snd_chip=class(snd_chip_class)

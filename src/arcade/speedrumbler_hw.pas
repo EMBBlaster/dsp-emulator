@@ -1,13 +1,10 @@
 unit speedrumbler_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,ym_2203,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_speedr:boolean;
 
-implementation
 const
         speedr_rom:array[0..7] of tipo_roms=(
         (n:'rc04.14e';l:$8000;p:$0;crc:$a68ce89c),(n:'rc03.13e';l:$8000;p:$8000;crc:$87bda812),
@@ -26,9 +23,14 @@ const
         (n:'rc22.15f';l:$8000;p:$10000;crc:$ab64161c),(n:'rc21.14f';l:$8000;p:$18000;crc:$fd64bcd1),
         (n:'rc24.15h';l:$8000;p:$20000;crc:$c972af3e),(n:'rc23.14h';l:$8000;p:$28000;crc:$8c9abf57),
         (n:'rc26.15j';l:$8000;p:$30000;crc:$d4f1732f),(n:'rc25.14j';l:$8000;p:$38000;crc:$d2a4ea4f));
-        speedr_prom:array[0..1] of tipo_roms=(
-        (n:'63s141.12a';l:$100;p:$0;crc:$8421786f),(n:'63s141.13a';l:$100;p:$100;crc:$6048583f));
-        //Dip
+        speedr_prom:array[0..2] of tipo_roms=(
+        (n:'63s141.12a';l:$100;p:$0;crc:$8421786f),(n:'63s141.13a';l:$100;p:$100;crc:$6048583f),());
+
+implementation
+uses m6809,nz80,ym_2203,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine;
+
+const
         speedr_dip_a:array [0..2] of def_dip2=(
         (mask:7;name:'Coin B';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
         (mask:$38;name:'Coin A';number:8;val8:(0,8,$10,$38,$30,$28,$20,$18);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
@@ -128,7 +130,6 @@ procedure speedr_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_speedr;

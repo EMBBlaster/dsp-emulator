@@ -1,8 +1,7 @@
 unit sm510;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     dialogs,sysutils,timer_engine,main_engine,cpu_misc;
+uses dialogs,sysutils,timer_engine,main_engine,cpu_misc;
 
 type
         twrite_X=procedure(valor:byte);

@@ -1,7 +1,8 @@
 unit gb_mappers;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,sysutils,file_engine,dialogs;
+uses main_engine,sysutils,file_engine,dialogs;
+
 type
   tmapper_calls=record
       ext_ram_getbyte:function (direccion:word):byte;

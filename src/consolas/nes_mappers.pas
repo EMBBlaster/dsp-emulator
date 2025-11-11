@@ -1,21 +1,20 @@
-unit nes_mappers;
+﻿unit nes_mappers;
 {
 02/07
-A�adidos mappers 68, 93, 94, 180 y 185
+Añadidos mappers 68, 93, 94, 180 y 185
 Corregidos bits en mappers 1,2 y 3
 05/07
-A�adidos mapper 12 y 9
+Añadidos mapper 12 y 9
 18/12/18
-A�adido mapper 11 y 147
+Añadido mapper 11 y 147
 Corregido mapper 67 y 185
-A�adido peque�o delay en mapper 1
+Añadido pequeño delay en mapper 1
 28/09
 Corregidos graficos mapper 4
-A�adido mapper 15
+Añadido mapper 15
 }
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nes_ppu,main_engine,n2a03,dialogs,ay_8910,sysutils;
+uses sysutils,main_engine;
 
 type
   tnes_mapper_calls=record
@@ -70,7 +69,7 @@ var
   nes_mapper_0:tnes_mapper;
 
 implementation
-uses nes;
+uses nes,nes_ppu,n2a03,dialogs,ay_8910;
 
 constructor tnes_mapper.create;
 begin

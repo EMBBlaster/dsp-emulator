@@ -1,13 +1,10 @@
-unit mrdo_hw;
+﻿unit mrdo_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,sn_76496,gfx_engine,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_mrdo:boolean;
 
-implementation
 const
         mrdo_rom:array[0..3] of tipo_roms=(
         (n:'a4-01.bin';l:$2000;p:0;crc:$03dcfba2),(n:'c4-02.bin';l:$2000;p:$2000;crc:$0ecdd39c),
@@ -19,9 +16,13 @@ const
         (n:'s8-09.bin';l:$1000;p:0;crc:$aa80c5b6),(n:'u8-10.bin';l:$1000;p:$1000;crc:$d20ec85b));
         mrdo_char2:array[0..1] of tipo_roms=(
         (n:'r8-08.bin';l:$1000;p:0;crc:$dbdc9ffa),(n:'n8-07.bin';l:$1000;p:$1000;crc:$4b9973db));
-        mrdo_sprites:array[0..1] of tipo_roms=(
-        (n:'h5-05.bin';l:$1000;p:0;crc:$e1218cc5),(n:'k5-06.bin';l:$1000;p:$1000;crc:$b1f68b04));
-        //Dip
+        mrdo_sprites:array[0..2] of tipo_roms=(
+        (n:'h5-05.bin';l:$1000;p:0;crc:$e1218cc5),(n:'k5-06.bin';l:$1000;p:$1000;crc:$b1f68b04),());
+
+implementation
+uses nz80,main_engine,controls_engine,sn_76496,gfx_engine,pal_engine,sound_engine;
+
+const
         mrdo_dip_a:array [0..5] of def_dip2=(
         (mask:3;name:'Difficulty';number:4;val4:(3,2,1,0);name4:('Easy','Medium','Hard','Hardest')),
         (mask:4;name:'Rack Test';number:2;val2:(4,0);name2:('Off','On')),
@@ -116,7 +117,6 @@ procedure mrdo_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
       if f=224 then begin

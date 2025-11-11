@@ -1,13 +1,14 @@
 unit arcadeconfig_misc;
 
 interface
-uses main_engine,arcade_config,controls_engine,stdctrls,principal,dialogs;
+uses stdctrls,dialogs;
 
 procedure configarcade_boton1;
 procedure arcadeconfig_close;
 procedure arcadeconfig_formshow;
 
 implementation
+uses main_engine,arcade_config,controls_engine,principal;
 
 procedure configarcade_boton1;
 var
@@ -103,7 +104,11 @@ begin
   Combobox_dip[pos,dip_pos].Top:=25*dip_pos;
   Combobox_dip[pos,dip_pos].TabStop:=false;
   Combobox_dip[pos,dip_pos].Width:=150;
+  Combobox_dip[pos,dip_pos].ParentFont:=false;
+  Combobox_dip[pos,dip_pos].font.Style:=[];
   Label_dip[pos,dip_pos]:=TLabel.Create(config_arcade);
+  Label_dip[pos,dip_pos].ParentFont:=false;
+  Label_dip[pos,dip_pos].font.Style:=[];
   case pos of
     0:Label_dip[pos,dip_pos].Parent:=config_arcade.GroupBox1;
     1:Label_dip[pos,dip_pos].Parent:=config_arcade.GroupBox2;

@@ -1,44 +1,45 @@
 unit steelforce_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine,eepromser;
+uses rom_engine;
 
 function iniciar_steelforce:boolean;
 
-implementation
 const
         steelforce_rom:array[0..1] of tipo_roms=(
         (n:'stlforce.105';l:$20000;p:0;crc:$3ec804ca),(n:'stlforce.104';l:$20000;p:$1;crc:$69b5f429));
         steelforce_tiles:array[0..3] of tipo_roms=(
         (n:'stlforce.u27';l:$80000;p:1;crc:$c42ef365),(n:'stlforce.u28';l:$80000;p:0;crc:$6a4b7c98),
         (n:'stlforce.u29';l:$80000;p:$100001;crc:$30488f44),(n:'stlforce.u30';l:$80000;p:$100000;crc:$cf19d43a));
-        steelforce_sprites:array[0..3] of tipo_roms=(
-        (n:'stlforce.u36';l:$40000;p:0;crc:$037dfa9f),(n:'stlforce.u31';l:$40000;p:$40000;crc:$305a8eb5),
-        (n:'stlforce.u32';l:$40000;p:$80000;crc:$760e8601),(n:'stlforce.u33';l:$40000;p:$c0000;crc:$19415cf3));
         steelforce_oki:tipo_roms=(n:'stlforce.u1';l:$80000;p:0;crc:$0a55edf1);
         steelforce_eeprom:tipo_roms=(n:'eeprom-stlforce.bin';l:$80;p:0;crc:$3fb83951);
+        steelforce_sprites:array[0..4] of tipo_roms=(
+        (n:'stlforce.u36';l:$40000;p:0;crc:$037dfa9f),(n:'stlforce.u31';l:$40000;p:$40000;crc:$305a8eb5),
+        (n:'stlforce.u32';l:$40000;p:$80000;crc:$760e8601),(n:'stlforce.u33';l:$40000;p:$c0000;crc:$19415cf3),());
         twinbrats_rom:array[0..1] of tipo_roms=(
         (n:'12.u105';l:$20000;p:0;crc:$552529b1),(n:'13.u104';l:$20000;p:$1;crc:$9805ba90));
         twinbrats_tiles:array[0..3] of tipo_roms=(
         (n:'6.bin';l:$80000;p:0;crc:$af10ddfd),(n:'7.bin';l:$80000;p:1;crc:$3696345a),
         (n:'4.bin';l:$80000;p:$100000;crc:$1ae8a751),(n:'5.bin';l:$80000;p:$100001;crc:$cf235eeb));
-        twinbrats_sprites:array[0..3] of tipo_roms=(
-        (n:'11.bin';l:$40000;p:0;crc:$00eecb03),(n:'10.bin';l:$40000;p:$40000;crc:$7556bee9),
-        (n:'9.bin';l:$40000;p:$80000;crc:$13194d89),(n:'8.bin';l:$40000;p:$c0000;crc:$79f14528));
         twinbrats_oki:tipo_roms=(n:'1.bin';l:$80000;p:0;crc:$76296578);
         twinbrats_eeprom:tipo_roms=(n:'eeprom-twinbrat.bin';l:$80;p:0;crc:$9366263d);
+        twinbrats_sprites:array[0..4] of tipo_roms=(
+        (n:'11.bin';l:$40000;p:0;crc:$00eecb03),(n:'10.bin';l:$40000;p:$40000;crc:$7556bee9),
+        (n:'9.bin';l:$40000;p:$80000;crc:$13194d89),(n:'8.bin';l:$40000;p:$c0000;crc:$79f14528),());
         mortalrace_rom:array[0..1] of tipo_roms=(
         (n:'2.u105';l:$80000;p:0;crc:$550c48e3),(n:'3.u104';l:$80000;p:$1;crc:$92fad747));
         mortalrace_tiles:array[0..5] of tipo_roms=(
         (n:'8_bot.u27';l:$80000;p:1;crc:$042297f3),(n:'9_bot.u28';l:$80000;p:0;crc:$ab330185),
         (n:'12_top.u27';l:$80000;p:$100001;crc:$fa95773c),(n:'13_top.u28';l:$80000;p:$100000;crc:$f2342348),
         (n:'10.u29';l:$80000;p:$200001;crc:$fb39b032),(n:'11.u30';l:$80000;p:$200000;crc:$a82f2421));
-        mortalrace_sprites:array[0..3] of tipo_roms=(
-        (n:'4.u36';l:$80000;p:0;crc:$6d1e6367),(n:'5.u31';l:$80000;p:$80000;crc:$54b223bf),
-        (n:'6.u32';l:$80000;p:$100000;crc:$dab08a04),(n:'7.u33';l:$80000;p:$180000;crc:$9a856797));
         mortalrace_oki:tipo_roms=(n:'1.u1';l:$80000;p:0;crc:$e5c730c2);
+        mortalrace_sprites:array[0..4] of tipo_roms=(
+        (n:'4.u36';l:$80000;p:0;crc:$6d1e6367),(n:'5.u31';l:$80000;p:$80000;crc:$54b223bf),
+        (n:'6.u32';l:$80000;p:$100000;crc:$dab08a04),(n:'7.u33';l:$80000;p:$180000;crc:$9a856797),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine,eepromser;
 
 var
  rom:array[0..$7ffff] of word;
@@ -143,28 +144,30 @@ end;
 
 procedure eventos_steelforce;
 begin
-if main_vars.service1 then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or $8);
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffaf or (marcade.in1 and $50);
   //P1+P2
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or $8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.but2[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $7fff) else marcade.in0:=(marcade.in0 or $8000);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ff7f;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.but2[1] then marcade.in0:=marcade.in0 and $bfff;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7fff;
   //COIN
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $fffd;
+  if main_vars.service1 then marcade.in1:=marcade.in1 and $fff7;
 end;
 end;
 
@@ -172,7 +175,6 @@ procedure steelforce_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
    eventos_steelforce;

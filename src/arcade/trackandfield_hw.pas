@@ -1,13 +1,10 @@
 unit trackandfield_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
-     dac,rom_engine,pal_engine,konami_decrypt,sound_engine,qsnapshot,file_engine;
+uses rom_engine;
 
 function iniciar_trackfield:boolean;
 
-implementation
 const
         trackfield_rom:array[0..4] of tipo_roms=(
         (n:'a01_e01.bin';l:$2000;p:$6000;crc:$2882f6d4),(n:'a02_e02.bin';l:$2000;p:$8000;crc:$1743b5ee),
@@ -19,11 +16,17 @@ const
         trackfield_sprites:array[0..3] of tipo_roms=(
         (n:'c11_d06.bin';l:$2000;p:0;crc:$82e2185a),(n:'c12_d07.bin';l:$2000;p:$2000;crc:$800ff1f1),
         (n:'c13_d08.bin';l:$2000;p:$4000;crc:$d9faf183),(n:'c14_d09.bin';l:$2000;p:$6000;crc:$5886c802));
-        trackfield_pal:array[0..2] of tipo_roms=(
-        (n:'361b16.f1';l:$20;p:0;crc:$d55f30b5),(n:'361b17.b16';l:$100;p:$20;crc:$d2ba4d32),
-        (n:'361b18.e15';l:$100;p:$120;crc:$053e5861));
         trackfield_vlm:tipo_roms=(n:'c9_d15.bin';l:$2000;p:0;crc:$f546a56b);
         trackfield_snd:tipo_roms=(n:'c2_d13.bin';l:$2000;p:0;crc:$95bf79b6);
+        trackfield_pal:array[0..3] of tipo_roms=(
+        (n:'361b16.f1';l:$20;p:0;crc:$d55f30b5),(n:'361b17.b16';l:$100;p:$20;crc:$d2ba4d32),
+        (n:'361b18.e15';l:$100;p:$120;crc:$053e5861),());
+
+implementation
+uses m6809,nz80,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
+     dac,pal_engine,konami_decrypt,sound_engine,qsnapshot,file_engine;
+
+const
         trackfield_dip_a:def_dip2=(mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play'));
         trackfield_dip_b:array [0..6] of def_dip2=(
         (mask:1;name:'Lives';number:2;val2:(1,0);name2:('1','2')),
@@ -91,7 +94,6 @@ procedure trackfield_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
       eventos_trackfield;

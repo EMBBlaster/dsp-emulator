@@ -1,7 +1,8 @@
-unit sound_engine;
+﻿unit sound_engine;
+
 interface
-uses {$ifdef windows}windows,{$endif}{$ifndef fpc}mmsystem,{$else}lib_sdl2,{$endif}
-     timer_engine,dialogs;
+uses {$ifndef fpc}mmsystem,{$else}lib_sdl2,{$endif}
+     timer_engine,dialogs,main_engine;
 
 const
         MAX_AUDIO_BUFFER=$f;
@@ -57,7 +58,6 @@ procedure sound_update_internal;
 function init_channel:byte;
 
 implementation
-uses main_engine;
 
 function snd_chip_class.get_sample_num:byte;
 begin
@@ -99,7 +99,7 @@ for g:=0 to MAX_CANALES-1 do begin
         cab_audio[g][f].dwFlags:=0;
         cab_audio[g][f].dwLoops:=0;
         cab_audio[g][f].lpNext:=nil;
-        if not(waveOutPrepareHeader(sound_status.audio[g],@cab_audio[g][f],uint(sizeof(WAVEHDR)))=0) then exit;
+        if not(waveOutPrepareHeader(sound_status.audio[g],@cab_audio[g][f],cardinal(sizeof(WAVEHDR)))=0) then exit;
   end;
 end;
 reset_audio;

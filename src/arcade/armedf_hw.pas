@@ -1,13 +1,10 @@
-unit armedf_hw;
+﻿unit armedf_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,ym_3812,
-     pal_engine,sound_engine,dac,timer_engine,nb1414_m4;
+uses rom_engine;
 
 function iniciar_armedf:boolean;
 
-implementation
 const
         //Armed F
         armedf_rom:array[0..5] of tipo_roms=(
@@ -20,21 +17,8 @@ const
         (n:'af_14.rom';l:$10000;p:0;crc:$8c5dc5a7),(n:'af_13.rom';l:$10000;p:$10000;crc:$136a58a3));
         armedf_fg:array[0..1] of tipo_roms=(
         (n:'af_04.rom';l:$10000;p:0;crc:$44d3af4f),(n:'af_05.rom';l:$10000;p:$10000;crc:$92076cab));
-        armedf_sprites:array[0..1] of tipo_roms=(
-        (n:'af_11.rom';l:$20000;p:0;crc:$b46c473c),(n:'af_12.rom';l:$20000;p:$20000;crc:$23cb6bfe));
-        armedf_dip_a:array [0..6] of def_dip2=(
-        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
-        (mask:4;name:'1st Bonus Life';number:2;val2:(4,0);name2:('20K','40K')),
-        (mask:8;name:'2st Bonus Life';number:2;val2:(8,0);name2:('60K','80K')),
-        (mask:$c;name:'Bonus Life';number:4;val4:($c,4,8,0);name4:('20K 60K+','20K 80K+','40K 60K+','40K 80K+')),
-        (mask:$10;name:'Demo Sounds';number:2;val2:(0,$10);name2:('Off','On')),
-        (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
-        (mask:$c0;name:'Difficulty';number:4;val4:($c0,$80,$40,0);name4:('Easy','Normal','Hard','Hardest')));
-        armedf_dip_b:array [0..3] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(1,3,2,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
-        (mask:$c;name:'Coin B';number:4;val4:(4,$c,0,8);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
-        (mask:$30;name:'Allow Continue';number:4;val4:($30,$20,$10,0);name4:('No','3 Times','5 Times','Yes')),
-        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')));
+        armedf_sprites:array[0..2] of tipo_roms=(
+        (n:'af_11.rom';l:$20000;p:0;crc:$b46c473c),(n:'af_12.rom';l:$20000;p:$20000;crc:$23cb6bfe),());
         //Terra Force
         terraf_rom:array[0..5] of tipo_roms=(
         (n:'8.6e';l:$10000;p:0;crc:$fd58fa06),(n:'3.6h';l:$10000;p:1;crc:$54823a7d),
@@ -47,21 +31,8 @@ const
         (n:'15.8a';l:$10000;p:0;crc:$2144d8e0),(n:'14.6a';l:$10000;p:$10000;crc:$744f5c9e));
         terraf_fg:array[0..1] of tipo_roms=(
         (n:'5.15h';l:$10000;p:0;crc:$25d23dfd),(n:'4.13h';l:$10000;p:$10000;crc:$b9b0fe27));
-        terraf_sprites:array[0..1] of tipo_roms=(
-        (n:'12.7d';l:$10000;p:0;crc:$2d1f2ceb),(n:'13.9d';l:$10000;p:$10000;crc:$1d2f92d6));
-        terraf_dip_a:array [0..6] of def_dip2=(
-        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
-        (mask:4;name:'1st Bonus Life';number:2;val2:(4,0);name2:('20K','50K')),
-        (mask:8;name:'2st Bonus Life';number:2;val2:(8,0);name2:('60K','90K')),
-        (mask:$c;name:'Bonus Life';number:4;val4:($c,4,8,0);name4:('20K 60K+','20K 90K+','50K 60K+','50K 90K+')),
-        (mask:$10;name:'Demo Sounds';number:2;val2:($10,0);name2:('Off','On')),
-        (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
-        (mask:$c0;name:'Difficulty';number:4;val4:($c0,$80,$40,0);name4:('Easy','Normal','Hard','Hardest')));
-        terraf_dip_b:array [0..3] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(1,3,2,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
-        (mask:$c;name:'Coin B';number:4;val4:(4,$c,0,8);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
-        (mask:$20;name:'Flip Screen';number:2;val2:($20,0);name2:('Off','On')),
-        (mask:$c0;name:'Allow Continue';number:4;val4:($c0,$80,$40,0);name4:('No','3 Times','5 Times','Yes')));
+        terraf_sprites:array[0..2] of tipo_roms=(
+        (n:'12.7d';l:$10000;p:0;crc:$2d1f2ceb),(n:'13.9d';l:$10000;p:$10000;crc:$1d2f92d6),());
         //Crazy Climber 2
         cclimbr2_rom:array[0..5] of tipo_roms=(
         (n:'4.bin';l:$10000;p:0;crc:$7922ea14),(n:'1.bin';l:$10000;p:1;crc:$2ac7ed67),
@@ -75,9 +46,54 @@ const
         (n:'17.bin';l:$10000;p:0;crc:$e24bb2d7),(n:'18.bin';l:$10000;p:$10000;crc:$56834554));
         cclimbr2_fg:array[0..1] of tipo_roms=(
         (n:'7.bin';l:$10000;p:0;crc:$cbdd3906),(n:'8.bin';l:$10000;p:$10000;crc:$b2a613c0));
-        cclimbr2_sprites:array[0..3] of tipo_roms=(
+        cclimbr2_sprites:array[0..4] of tipo_roms=(
         (n:'15.bin';l:$10000;p:0;crc:$4bf838be),(n:'13.bin';l:$10000;p:$20000;crc:$6b6ec999),
-        (n:'16.bin';l:$10000;p:$10000;crc:$21a265c5),(n:'14.bin';l:$10000;p:$30000;crc:$f426a4ad));
+        (n:'16.bin';l:$10000;p:$10000;crc:$21a265c5),(n:'14.bin';l:$10000;p:$30000;crc:$f426a4ad),());
+        //Legion
+        legion_rom:array[0..3] of tipo_roms=(
+        (n:'lg1.bin';l:$10000;p:1;crc:$c4aeb724),(n:'lg3.bin';l:$10000;p:0;crc:$777e4935),
+        (n:'legion.1b';l:$10000;p:$20001;crc:$c306660a),(n:'legion.1d';l:$10000;p:$20000;crc:$c2e45e1e));
+        legion_sound:array[0..1] of tipo_roms=(
+        (n:'legion.1h';l:$4000;p:0;crc:$2ca4f7f0),(n:'legion.1i';l:$8000;p:$4000;crc:$79f4a827));
+        legion_nb1414:tipo_roms=(n:'lg7.bin';l:$4000;p:0;crc:$533e2b58);
+        legion_char:tipo_roms=(n:'lg8.bin';l:$8000;p:0;crc:$e0596570);
+        legion_bg:tipo_roms=(n:'legion.1l';l:$10000;p:0;crc:$29b8adaa);
+        legion_fg:array[0..1] of tipo_roms=(
+        (n:'legion.1e';l:$10000;p:0;crc:$a9d70faf),(n:'legion.1f';l:$8000;p:$18000;crc:$f018313b));
+        legion_sprites:array[0..2] of tipo_roms=(
+        (n:'legion.1k';l:$10000;p:0;crc:$ff5a0db9),(n:'legion.1j';l:$10000;p:$10000;crc:$bae220c8),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_3812,pal_engine,
+     sound_engine,dac,timer_engine,nb1414_m4;
+
+const
+        armedf_dip_a:array [0..6] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
+        (mask:4;name:'1st Bonus Life';number:2;val2:(4,0);name2:('20K','40K')),
+        (mask:8;name:'2st Bonus Life';number:2;val2:(8,0);name2:('60K','80K')),
+        (mask:$c;name:'Bonus Life';number:4;val4:($c,4,8,0);name4:('20K 60K+','20K 80K+','40K 60K+','40K 80K+')),
+        (mask:$10;name:'Demo Sounds';number:2;val2:(0,$10);name2:('Off','On')),
+        (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
+        (mask:$c0;name:'Difficulty';number:4;val4:($c0,$80,$40,0);name4:('Easy','Normal','Hard','Hardest')));
+        armedf_dip_b:array [0..3] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(1,3,2,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
+        (mask:$c;name:'Coin B';number:4;val4:(4,$c,0,8);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
+        (mask:$30;name:'Allow Continue';number:4;val4:($30,$20,$10,0);name4:('No','3 Times','5 Times','Yes')),
+        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')));
+        terraf_dip_a:array [0..6] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
+        (mask:4;name:'1st Bonus Life';number:2;val2:(4,0);name2:('20K','50K')),
+        (mask:8;name:'2st Bonus Life';number:2;val2:(8,0);name2:('60K','90K')),
+        (mask:$c;name:'Bonus Life';number:4;val4:($c,4,8,0);name4:('20K 60K+','20K 90K+','50K 60K+','50K 90K+')),
+        (mask:$10;name:'Demo Sounds';number:2;val2:($10,0);name2:('Off','On')),
+        (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
+        (mask:$c0;name:'Difficulty';number:4;val4:($c0,$80,$40,0);name4:('Easy','Normal','Hard','Hardest')));
+        terraf_dip_b:array [0..3] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(1,3,2,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
+        (mask:$c;name:'Coin B';number:4;val4:(4,$c,0,8);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
+        (mask:$20;name:'Flip Screen';number:2;val2:($20,0);name2:('Off','On')),
+        (mask:$c0;name:'Allow Continue';number:4;val4:($c0,$80,$40,0);name4:('No','3 Times','5 Times','Yes')));
         cclimbr2_dip_a:array [0..6] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
         (mask:4;name:'1st Bonus Life';number:2;val2:(4,0);name2:('30K','60K')),
@@ -92,19 +108,6 @@ const
         (mask:$10;name:'Allow Continue';number:2;val2:(0,$10);name2:('No','3 Times')),
         (mask:$20;name:'Flip Screen';number:2;val2:($20,0);name2:('Off','On')),
         (mask:$40;name:'Partial Invulnerability';number:2;val2:($40,0);name2:('Off','On')));
-        //Legion
-        legion_rom:array[0..3] of tipo_roms=(
-        (n:'lg1.bin';l:$10000;p:1;crc:$c4aeb724),(n:'lg3.bin';l:$10000;p:0;crc:$777e4935),
-        (n:'legion.1b';l:$10000;p:$20001;crc:$c306660a),(n:'legion.1d';l:$10000;p:$20000;crc:$c2e45e1e));
-        legion_sound:array[0..1] of tipo_roms=(
-        (n:'legion.1h';l:$4000;p:0;crc:$2ca4f7f0),(n:'legion.1i';l:$8000;p:$4000;crc:$79f4a827));
-        legion_nb1414:tipo_roms=(n:'lg7.bin';l:$4000;p:0;crc:$533e2b58);
-        legion_char:tipo_roms=(n:'lg8.bin';l:$8000;p:0;crc:$e0596570);
-        legion_bg:tipo_roms=(n:'legion.1l';l:$10000;p:0;crc:$29b8adaa);
-        legion_fg:array[0..1] of tipo_roms=(
-        (n:'legion.1e';l:$10000;p:0;crc:$a9d70faf),(n:'legion.1f';l:$8000;p:$18000;crc:$f018313b));
-        legion_sprites:array[0..1] of tipo_roms=(
-        (n:'legion.1k';l:$10000;p:0;crc:$ff5a0db9),(n:'legion.1j';l:$10000;p:$10000;crc:$bae220c8));
         legion_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
         (mask:4;name:'Bonus Life';number:2;val2:(4,0);name2:('30K 100K+','50K')),
@@ -299,26 +302,28 @@ end;
 procedure eventos_armedf;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $f7ff;
   //P2
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $ffbf;
 end;
 end;
 
@@ -326,7 +331,6 @@ procedure armedf_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
     eventos_armedf;

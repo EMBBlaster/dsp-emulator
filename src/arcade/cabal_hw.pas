@@ -1,13 +1,10 @@
-unit cabal_hw;
+﻿unit cabal_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,seibu_sound,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_cabal:boolean;
 
-implementation
 const
         cabal_rom:array[0..3] of tipo_roms=(
         (n:'13.7h';l:$10000;p:0;crc:$00abbe0c),(n:'11.6h';l:$10000;p:1;crc:$44736281),
@@ -25,8 +22,14 @@ const
         (n:'bg_rom7.bin';l:$10000;p:$60000;crc:$d28d921e),(n:'bg_rom8.bin';l:$10000;p:$60001;crc:$67e4fe47));
         cabal_sound:array[0..1] of tipo_roms=(
         (n:'4-3n';l:$2000;p:0;crc:$4038eff2),(n:'3-3p';l:$8000;p:$8000;crc:$d9defcbf));
-        cabal_adpcm:array[0..1] of tipo_roms=(
-        (n:'2-1s';l:$10000;p:0;crc:$850406b4),(n:'1-1u';l:$10000;p:$10000;crc:$8b3e0789));
+        cabal_adpcm:array[0..2] of tipo_roms=(
+        (n:'2-1s';l:$10000;p:0;crc:$850406b4),(n:'1-1u';l:$10000;p:$10000;crc:$8b3e0789),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,seibu_sound,pal_engine,
+     sound_engine;
+
+const
         cabal_dip_a:array [0..8] of def_dip2=(
         (mask:$f;name:'Coinage';number:16;val16:($a,$b,$c,$d,1,$e,2,3,$f,4,9,8,7,6,5,0);name16:('6C 1C','5C 1C','4C 1C','3C 1C','8C 3C','2C 1C','5C 3C','3C 2C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play')),
         (mask:$10;name:'Coin Mode';number:2;val2:($10,0);name2:('Mode 1','Mode 2')),
@@ -93,27 +96,30 @@ end;
 procedure eventos_cabal;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  seibu_snd_0.input:=$fc;
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $7fff) else marcade.in0:=(marcade.in0 or $8000);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $bfff;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $7fff;
   //P2
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 and $efff) else marcade.in1:=(marcade.in1 or $1000);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $dfff) else marcade.in1:=(marcade.in1 or $2000);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $bfff) else marcade.in1:=(marcade.in1 or $4000);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $7fff) else marcade.in1:=(marcade.in1 or $8000);
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $efff;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $dfff;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $bfff;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $7fff;
   //Coins
-  if arcade_input.coin[1] then seibu_snd_0.input:=(seibu_snd_0.input or 1) else seibu_snd_0.input:=(seibu_snd_0.input and $fe);
-  if arcade_input.coin[0] then seibu_snd_0.input:=(seibu_snd_0.input or 2) else seibu_snd_0.input:=(seibu_snd_0.input and $fd);
+  if arcade_input.coin[1] then seibu_snd_0.input:=seibu_snd_0.input or 1;
+  if arcade_input.coin[0] then seibu_snd_0.input:=seibu_snd_0.input or 2;
 end;
 end;
 
@@ -121,7 +127,6 @@ procedure cabal_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
    for f:=0 to $ff do begin
       eventos_cabal;

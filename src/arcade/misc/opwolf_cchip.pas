@@ -1,8 +1,7 @@
 unit opwolf_cchip;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     controls_engine,timer_engine;
+uses controls_engine,timer_engine,main_engine;
 
 procedure opwolf_init_cchip(num:byte);
 procedure opwolf_cchip_reset;

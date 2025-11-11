@@ -1,13 +1,10 @@
 unit kikikaikai_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ym_2203,
-     m680x,rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_kikikaikai:boolean;
 
-implementation
 const
         kikikaikai_rom:array[0..1] of tipo_roms=(
         (n:'a85-17.h16';l:$10000;p:0;crc:$c141d5ab),(n:'a85-16.h18';l:$10000;p:$10000;crc:$4094d750));
@@ -16,10 +13,26 @@ const
         kikikaikai_chars:array[0..3] of tipo_roms=(
         (n:'a85-15.a1';l:$10000;p:0;crc:$aebc8c32),(n:'a85-14.a3';l:$10000;p:$10000;crc:$a9df0453),
         (n:'a85-13.a4';l:$10000;p:$20000;crc:$3eeaf878),(n:'a85-12.a6';l:$10000;p:$30000;crc:$91e58067));
-        kikikaikai_prom:array[0..2] of tipo_roms=(
+        kikikaikai_prom:array[0..3] of tipo_roms=(
         (n:'a85-08.g15';l:$100;p:0;crc:$d15f61a8),(n:'a85-10.g12';l:$100;p:$100;crc:$8fc3fa86),
-        (n:'a85-09.g14';l:$100;p:$200;crc:$b931c94d));
-        //Dip
+        (n:'a85-09.g14';l:$100;p:$200;crc:$b931c94d),());
+        kickrun_rom:array[0..1] of tipo_roms=(
+        (n:'a87-23.h16';l:$10000;p:0;crc:$37182560),(n:'a87-22.h18';l:$10000;p:$10000;crc:$3b5a8354));
+        kickrun_snd:tipo_roms=(n:'a87-06.f6';l:$8000;p:0;crc:$1625b587);
+        kickrun_sub:tipo_roms=(n:'a87-09-1';l:$4000;p:0;crc:$6a2ad32f);
+        kickrun_mcu_rom:tipo_roms=(n:'a87-01_jph1021p.h8';l:$1000;p:$0;crc:$9451e880);
+        kickrun_chars:array[0..3] of tipo_roms=(
+        (n:'a87-05.a1';l:$10000;p:0;crc:$4eee3a8a),(n:'a87-04.a3';l:$8000;p:$10000;crc:$8b438d20),
+        (n:'a87-03.a4';l:$10000;p:$20000;crc:$f42e8a88),(n:'a87-02.a6';l:$8000;p:$30000;crc:$64f1a85f));
+        kickrun_prom:array[0..3] of tipo_roms=(
+        (n:'a87-10.g15';l:$100;p:0;crc:$be6eb1f0),(n:'a87-12.g12';l:$100;p:$100;crc:$3e953444),
+        (n:'a87-11.g14';l:$100;p:$200;crc:$14f6c28d),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ym_2203,m680x,pal_engine,
+     sound_engine;
+
+const
         kikikaikai_dip_a:array [0..3] of def_dip2=(
         (mask:$1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Cocktail')),
         (mask:$2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -31,18 +44,6 @@ const
         (mask:$30;name:'Lives';number:4;val4:(0,$30,$20,$10);name4:('2','3','4','5')),
         (mask:$40;name:'Coinage Type';number:2;val2:($40,0);name2:('Type 1','Type 2')),
         (mask:$80;name:'Number Match';number:2;val2:($80,0);name2:('Off','On')));
-        kickrun_rom:array[0..1] of tipo_roms=(
-        (n:'a87-23.h16';l:$10000;p:0;crc:$37182560),(n:'a87-22.h18';l:$10000;p:$10000;crc:$3b5a8354));
-        kickrun_snd:tipo_roms=(n:'a87-06.f6';l:$8000;p:0;crc:$1625b587);
-        kickrun_sub:tipo_roms=(n:'a87-09-1';l:$4000;p:0;crc:$6a2ad32f);
-        kickrun_mcu_rom:tipo_roms=(n:'a87-01_jph1021p.h8';l:$1000;p:$0;crc:$9451e880);
-        kickrun_chars:array[0..3] of tipo_roms=(
-        (n:'a87-05.a1';l:$10000;p:0;crc:$4eee3a8a),(n:'a87-04.a3';l:$8000;p:$10000;crc:$8b438d20),
-        (n:'a87-03.a4';l:$10000;p:$20000;crc:$f42e8a88),(n:'a87-02.a6';l:$8000;p:$30000;crc:$64f1a85f));
-        kickrun_prom:array[0..2] of tipo_roms=(
-        (n:'a87-10.g15';l:$100;p:0;crc:$be6eb1f0),(n:'a87-12.g12';l:$100;p:$100;crc:$3e953444),
-        (n:'a87-11.g14';l:$100;p:$200;crc:$14f6c28d));
-        //Dip
         kickrun_dip_a:array [0..3] of def_dip2=(
         (mask:$1;name:'Master/Slave Mode';number:2;val2:(1,0);name2:('Off','On')),
         (mask:$8;name:'Demo Sounds';number:2;val2:(0,8);name2:('Off','On')),
@@ -149,26 +150,30 @@ end;
 procedure eventos_kikikaikai;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
+  marcade.in3:=$ff;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or $1);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or $4);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or $8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //MISC
-  if arcade_input.start[0] then marcade.in3:=(marcade.in3 and $f7) else marcade.in3:=(marcade.in3 or $8);
-  if arcade_input.start[1] then marcade.in3:=(marcade.in3 and $ef) else marcade.in3:=(marcade.in3 or $10);
+  if arcade_input.start[0] then marcade.in3:=marcade.in3 and $f7;
+  if arcade_input.start[1] then marcade.in3:=marcade.in3 and $ef;
   //SYS
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or 2;
 end;
 end;
 
@@ -176,7 +181,6 @@ procedure kikikaikai_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
     eventos_kikikaikai;
@@ -309,7 +313,6 @@ procedure kickandrun_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 263 do begin
     eventos_kikikaikai;

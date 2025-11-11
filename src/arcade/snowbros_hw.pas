@@ -1,45 +1,49 @@
 unit snowbros_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_3812,rom_engine,
-     pal_engine,kaneco_pandora,sound_engine,misc_functions,mcs51,ym_2151,
-     oki6295;
+uses rom_engine;
 
 function iniciar_snowbros:boolean;
 
-implementation
 const
         snowbros_rom:array[0..1] of tipo_roms=(
         (n:'sn6.bin';l:$20000;p:0;crc:$4899ddcf),(n:'sn5.bin';l:$20000;p:$1;crc:$ad310d3f));
         snowbros_char:tipo_roms=(n:'sbros-1.41';l:$80000;p:0;crc:$16f06b3a);
-        snowbros_sound:tipo_roms=(n:'sbros-4.29';l:$8000;p:0;crc:$e6eab4e4);
-        snowbros_dip_a:array [0..6] of def_dip=(
-        (mask:$1;name:'Region';number:2;dip:((dip_val:$0;dip_name:'Europe'),(dip_val:$1;dip_name:'America (Romstar license)'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Flip Screen';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Service Mode';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$8;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Coin A';number:7;dip:((dip_val:$0;dip_name:'4C 1C EUR'),(dip_val:$10;dip_name:'3C 1C EUR'),(dip_val:$20;dip_name:'2C 1C EUR'),(dip_val:$10;dip_name:'2C 1C AME'),(dip_val:$30;dip_name:'1C 1C'),(dip_val:$0;dip_name:'2C 3C AME'),(dip_val:$20;dip_name:'2C 1C AME'),(),(),(),(),(),(),(),(),())),
-        (mask:$c0;name:'Coin B';number:8;dip:((dip_val:$40;dip_name:'2C 1C AME'),(dip_val:$c0;dip_name:'1C 1C AME'),(dip_val:$0;dip_name:'2C 3C AME'),(dip_val:$80;dip_name:'1C 2C AME'),(dip_val:$c0;dip_name:'1C 2C EUR'),(dip_val:$80;dip_name:'1C 3C EUR'),(dip_val:$40;dip_name:'1C 4C EUR'),(dip_val:$0;dip_name:'1C 6C EUR'),(),(),(),(),(),(),(),())),());
-        snowbros_dip_b:array [0..5] of def_dip=(
-        (mask:$3;name:'Difficulty';number:4;dip:((dip_val:$2;dip_name:'Easy'),(dip_val:$3;dip_name:'Normal'),(dip_val:$1;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$4;dip_name:'100k 200k+'),(dip_val:$c;dip_name:'100k'),(dip_val:$8;dip_name:'200k'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Lives';number:4;dip:((dip_val:$20;dip_name:'1'),(dip_val:$0;dip_name:'2'),(dip_val:$30;dip_name:'3'),(dip_val:$10;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Invulnerability';number:2;dip:((dip_val:$40;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$80;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        snowbros_sound:array[0..1] of tipo_roms=((n:'sbros-4.29';l:$8000;p:0;crc:$e6eab4e4),());
         toto_rom:array[0..1] of tipo_roms=(
         (n:'u60.5j';l:$20000;p:0;crc:$39203792),(n:'u51.4j';l:$20000;p:$1;crc:$7b846cd4));
-        toto_char:array[0..3] of tipo_roms=(
-        (n:'u107.8k';l:$20000;p:0;crc:$4486153b),(n:'u108.8l';l:$20000;p:$20000;crc:$3286cf5f),
-        (n:'u109.8m';l:$20000;p:$40000;crc:$464d7251),(n:'u110.8n';l:$20000;p:$60000;crc:$7dea56df));
         toto_sound:tipo_roms=(n:'u46.4c';l:$8000;p:0;crc:$77b1ef42);
+        toto_char:array[0..4] of tipo_roms=(
+        (n:'u107.8k';l:$20000;p:0;crc:$4486153b),(n:'u108.8l';l:$20000;p:$20000;crc:$3286cf5f),
+        (n:'u109.8m';l:$20000;p:$40000;crc:$464d7251),(n:'u110.8n';l:$20000;p:$60000;crc:$7dea56df),());
         hyperpac_rom:array[0..1] of tipo_roms=(
         (n:'hyperpac.h12';l:$20000;p:1;crc:$2cf0531a),(n:'hyperpac.i12';l:$20000;p:$0;crc:$9c7d85b8));
-        hyperpac_char:array[0..2] of tipo_roms=(
-        (n:'hyperpac.a4';l:$40000;p:0;crc:$bd8673da),(n:'hyperpac.a5';l:$40000;p:$40000;crc:$5d90cd82),
-        (n:'hyperpac.a6';l:$40000;p:$80000;crc:$61d86e63));
         hyperpac_sound:tipo_roms=(n:'hyperpac.u1';l:$10000;p:0;crc:$03faf88e);
         hyperpac_mcu:tipo_roms=(n:'at89c52.bin';l:$2000;p:0;crc:$291f9326);
         hyperpac_oki:tipo_roms=(n:'hyperpac.j15';l:$40000;p:0;crc:$fb9f468d);
+        hyperpac_char:array[0..3] of tipo_roms=(
+        (n:'hyperpac.a4';l:$40000;p:0;crc:$bd8673da),(n:'hyperpac.a5';l:$40000;p:$40000;crc:$5d90cd82),
+        (n:'hyperpac.a6';l:$40000;p:$80000;crc:$61d86e63),());
+
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_3812,pal_engine,
+     kaneco_pandora,sound_engine,misc_functions,mcs51,ym_2151,oki6295;
+
+const
+        snowbros_dip_a:array [0..5] of def_dip2=(
+        (mask:1;name:'Region';number:2;val2:(0,1);name2:('Europe','America (Romstar license)')),
+        (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
+        (mask:4;name:'Service Mode';number:2;val2:(4,0);name2:('Off','On')),
+        (mask:8;name:'Demo Sounds';number:2;val2:(0,8);name2:('Off','On')),
+        (mask:$30;name:'Coin A';number:8;val8:(0,$10,$20,$10,$30,0,$20,$30);name8:('4C 1C EUR','3C 1C EUR','2C 1C EUR','2C 1C AME','1C 1C','2C 3C AME','2C 1C AME','Invalid')),
+        (mask:$c0;name:'Coin B';number:8;val8:($40,$c0,0,$80,$c0,$80,$40,0);name8:('2C 1C AME','1C 1C AME','2C 3C AME','1C 2C AME','1C 2C EUR','1C 3C EUR','1C 4C EUR','1C 6C EUR')));
+        snowbros_dip_b:array [0..4] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(2,3,1,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:$c;name:'Bonus Life';number:4;val4:(4,$c,8,0);name4:('100k 200k+','100k','200k','None')),
+        (mask:$30;name:'Lives';number:4;val4:($20,0,$30,$10);name4:('1','2','3','4')),
+        (mask:$40;name:'Invulnerability';number:2;val2:($40,0);name2:('Off','On')),
+        (mask:$80;name:'Allow Continue';number:2;val2:(0,$80);name2:('No','Yes')));
 
 var
  rom:array[0..$1ffff] of word;
@@ -81,28 +85,24 @@ end;
 
 procedure snowbros_principal;
 var
-  frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
-frame_m:=m68000_0.tframes;
-frame_s:=z80_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
-  //Main CPU
-  m68000_0.run(frame_m);
-  frame_m:=frame_m+m68000_0.tframes-m68000_0.contador;
-  //Sound CPU
-  z80_0.run(frame_s);
-  frame_s:=frame_s+z80_0.tframes-z80_0.contador;
   case f of
-    31:m68000_0.irq[4]:=ASSERT_LINE;
-    127:m68000_0.irq[3]:=ASSERT_LINE;
-    239:begin
+    32:m68000_0.irq[4]:=ASSERT_LINE;
+    128:m68000_0.irq[3]:=ASSERT_LINE;
+    240:begin
           m68000_0.irq[2]:=ASSERT_LINE;
           update_video_snowbros;
         end;
   end;
+  //Main CPU
+  m68000_0.run(frame_main);
+  frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
+  //Sound CPU
+  z80_0.run(frame_snd);
+  frame_snd:=frame_snd+z80_0.tframes-z80_0.contador;
  end;
  eventos_snowbros;
  video_sync;
@@ -222,32 +222,25 @@ end;
 
 procedure hyperpac_principal;
 var
-  frame_m,frame_s,frame_mcu:single;
   f:word;
+  h:byte;
 begin
-init_controls(false,false,false,true);
-frame_m:=m68000_0.tframes;
-frame_s:=z80_0.tframes;
-frame_mcu:=mcs51_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
-  //Main CPU
-  m68000_0.run(frame_m);
-  frame_m:=frame_m+m68000_0.tframes-m68000_0.contador;
-  //Sound CPU
-  z80_0.run(frame_s);
-  frame_s:=frame_s+z80_0.tframes-z80_0.contador;
-  //MCU
-  mcs51_0.run(frame_mcu);
-  frame_mcu:=frame_mcu+mcs51_0.tframes-mcs51_0.contador;
   case f of
-    31:m68000_0.irq[4]:=ASSERT_LINE;
-    127:m68000_0.irq[3]:=ASSERT_LINE;
-    239:begin
+    32:m68000_0.irq[4]:=ASSERT_LINE;
+    128:m68000_0.irq[3]:=ASSERT_LINE;
+    240:begin
           m68000_0.irq[2]:=ASSERT_LINE;
           update_video_snowbros;
         end;
   end;
+  m68000_0.run(frame_main);
+  frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
+  z80_0.run(frame_snd);
+  frame_snd:=frame_snd+z80_0.tframes-z80_0.contador;
+  mcs51_0.run(frame_mcu);
+  frame_mcu:=frame_mcu+mcs51_0.tframes-mcs51_0.contador;
  end;
  eventos_hyperpac;
  video_sync;
@@ -331,13 +324,17 @@ procedure reset_snowbros;
 begin
  m68000_0.reset;
  z80_0.reset;
+ frame_main:=m68000_0.tframes;
+ frame_snd:=z80_0.tframes;
  pandora_0.reset;
  if main_vars.tipo_maquina=387 then begin
-     ym2151_0.reset;
-     oki_6295_0.reset;
      marcade.in0:=0;
      marcade.in1:=0;
      marcade.in2:=0;
+     mcs51_0.reset;
+     frame_mcu:=mcs51_0.tframes;
+     ym2151_0.reset;
+     oki_6295_0.reset;
  end else begin
     ym3812_0.reset;
     marcade.in0:=$ff00;
@@ -438,10 +435,8 @@ case main_vars.tipo_maquina of
         for f:=0 to $7ffff do memoria_temp[f]:=bitswap8(memoria_temp[f],7,6,5,3,4,2,1,0);
         convert_chars($1000,0);
         //DIP
-        marcade.dswa:=$fe;
-        marcade.dswb:=$ff;
-        marcade.dswa_val:=@snowbros_dip_a;
-        marcade.dswb_val:=@snowbros_dip_b;
+        init_dips(1,snowbros_dip_a,$fe);
+        init_dips(2,snowbros_dip_b,$ff);
     end;
     387:begin //Hyper Pacman
         //MCU

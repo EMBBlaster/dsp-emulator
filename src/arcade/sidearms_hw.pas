@@ -1,13 +1,10 @@
-unit sidearms_hw;
+﻿unit sidearms_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ym_2203,rom_engine,pal_engine,
-     sound_engine;
+uses rom_engine;
 
 function iniciar_sidearms:boolean;
 
-implementation
 const
         sidearms_rom:array[0..2] of tipo_roms=(
         (n:'sa03.bin';l:$8000;p:0;crc:$e10fe6a0),(n:'a_14e.rom';l:$8000;p:$8000;crc:$4925ed03),
@@ -15,17 +12,22 @@ const
         sidearms_snd_rom:tipo_roms=(n:'a_04k.rom';l:$8000;p:0;crc:$34efe2d2);
         sidearms_stars:tipo_roms=(n:'b_11j.rom';l:$8000;p:0;crc:$134dc35b);
         sidearms_char:tipo_roms=(n:'a_10j.rom';l:$4000;p:0;crc:$651fef75);
+        sidearms_back_tiles:tipo_roms=(n:'b_03d.rom';l:$8000;p:0;crc:$6f348008);
         sidearms_tiles:array[0..7] of tipo_roms=(
         (n:'b_13d.rom';l:$8000;p:0;crc:$3c59afe1),(n:'b_13e.rom';l:$8000;p:$8000;crc:$64bc3b77),
         (n:'b_13f.rom';l:$8000;p:$10000;crc:$e6bcea6f),(n:'b_13g.rom';l:$8000;p:$18000;crc:$c71a3053),
         (n:'b_14d.rom';l:$8000;p:$20000;crc:$826e8a97),(n:'b_14e.rom';l:$8000;p:$28000;crc:$6cfc02a4),
         (n:'b_14f.rom';l:$8000;p:$30000;crc:$9b9f6730),(n:'b_14g.rom';l:$8000;p:$38000;crc:$ef6af630));
-        sidearms_sprites:array[0..7] of tipo_roms=(
+        sidearms_sprites:array[0..8] of tipo_roms=(
         (n:'b_11b.rom';l:$8000;p:0;crc:$eb6f278c),(n:'b_13b.rom';l:$8000;p:$8000;crc:$e91b4014),
         (n:'b_11a.rom';l:$8000;p:$10000;crc:$2822c522),(n:'b_13a.rom';l:$8000;p:$18000;crc:$3e8a9f75),
         (n:'b_12b.rom';l:$8000;p:$20000;crc:$86e43eda),(n:'b_14b.rom';l:$8000;p:$28000;crc:$076e92d1),
-        (n:'b_12a.rom';l:$8000;p:$30000;crc:$ce107f3c),(n:'b_14a.rom';l:$8000;p:$38000;crc:$dba06076));
-        sidearms_back_tiles:tipo_roms=(n:'b_03d.rom';l:$8000;p:0;crc:$6f348008);
+        (n:'b_12a.rom';l:$8000;p:$30000;crc:$ce107f3c),(n:'b_14a.rom';l:$8000;p:$38000;crc:$dba06076),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ym_2203,pal_engine,sound_engine;
+
+const
         sidearms_dip_a:array [0..3] of def_dip2=(
         (mask:7;name:'Difficulty';number:8;val8:(7,6,5,4,3,2,1,0);name8:('0 (Easiest)','1','2','3 (Normal)','4','5','6','7 (Hardest)')),
         (mask:8;name:'Lives';number:2;val2:(8,0);name2:('3','5')),
@@ -56,12 +58,12 @@ var
   f,y,atrib,color:byte;
 begin
 	for f:=total downto 0 do begin
-    y:=buffer_sprites[pos+$2+(f*32)];
-    if ((y=0) or (buffer_sprites[pos+$5+(f*32)]=$c3)) then continue;
-    atrib:=buffer_sprites[pos+$1+(f*32)];
+    y:=buffer_sprites[pos+2+(f*32)];
+    if ((y=0) or (buffer_sprites[pos+5+(f*32)]=$c3)) then continue;
+    atrib:=buffer_sprites[pos+1+(f*32)];
 		color:=(atrib and $f) shl 4;
-		nchar:=buffer_sprites[pos+$0+(f*32)]+((atrib shl 3) and $700);
-		x:=buffer_sprites[pos+$3+(f*32)]+((atrib shl 4) and $100);
+		nchar:=buffer_sprites[pos+0+(f*32)]+((atrib shl 3) and $700);
+		x:=buffer_sprites[pos+3+(f*32)]+((atrib shl 4) and $100);
     put_gfx_sprite(nchar,color+$200,false,false,1);
     actualiza_gfx_sprite(x,y,3,1);
   end;
@@ -82,10 +84,10 @@ for f:=0 to $3fff do begin
     y:=f div 128;
     x:=f mod 128;
     offset:=((y shl 7)+x) shl 1;
-    pos:=((offset and $f801) or ((offset and $0700) shr 7) or ((offset and $00fe) shl 3)) and $7fff;
+    pos:=((offset and $f801) or ((offset and $700) shr 7) or ((offset and $fe) shl 3)) and $7fff;
     attr:=memoria_back[pos+1];
     color:=(attr shr 3) and $1f;
-    nchar:=memoria_back[pos] or (attr and $1) shl 8;
+    nchar:=memoria_back[pos] or (attr and 1) shl 8;
     put_gfx_trans_flip(x*32,y*32,nchar,color shl 4,2,2,(attr and 2)<>0,(attr and 4)<>0);
 end;
 back_redraw:=false;
@@ -151,27 +153,30 @@ end;
 procedure eventos_sidearms;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $bf;
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or $1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or $4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or $8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 and $bf;
   //SYSTEM
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $7f;
 end;
 end;
 
@@ -179,7 +184,6 @@ procedure sidearms_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_sidearms;
@@ -206,7 +210,7 @@ end;
 function sidearms_getbyte(direccion:word):byte;
 begin
 case direccion of
-  $0..$7fff,$c000..$c7ff,$d000..$ffff:sidearms_getbyte:=memoria[direccion];
+  0..$7fff,$c000..$c7ff,$d000..$ffff:sidearms_getbyte:=memoria[direccion];
   $8000..$bfff:sidearms_getbyte:=memoria_rom[rom_bank,direccion and $3fff];
   $c800:sidearms_getbyte:=marcade.in0;
   $c801:sidearms_getbyte:=marcade.in1;
@@ -229,7 +233,7 @@ begin
   color.g:=pal4bit(tmp_color);
   set_pal_color(color,numero);
   case numero of
-    $0..$1ff:back_redraw:=true;
+    0..$1ff:back_redraw:=true;
     $300..$3ff:buffer_color[(numero shr 2) and $3f]:=true;
   end;
 end;
@@ -244,7 +248,7 @@ case direccion of
                   cambiar_color(direccion and $3ff);
                end;
   $c800:sound_command:=valor;
-  $c801:rom_bank:=valor and $7;
+  $c801:rom_bank:=valor and 7;
   $c802:; //WD
   $c804:begin
           if (valor and $10)<>0 then z80_1.change_reset(ASSERT_LINE)
@@ -270,8 +274,8 @@ case direccion of
   $c80a:scroll_y:=valor or (scroll_y and $f00);
   $c80b:scroll_y:=((valor and $f) shl 8) or (scroll_y and $ff);
   $c80c:begin
-          obj_on:=(valor and $1)<>0;
-          bg_on:=(valor and $2)<>0;
+          obj_on:=(valor and 1)<>0;
+          bg_on:=(valor and 2)<>0;
         end;
   $d000..$dfff:if memoria[direccion]<>valor then begin
                   gfx[0].buffer[direccion and $7ff]:=true;

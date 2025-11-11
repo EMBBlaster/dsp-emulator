@@ -1,13 +1,9 @@
-unit shadow_warriors_hw;
+﻿unit shadow_warriors_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2203,oki6295,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_shadoww:boolean;
-
-implementation
 
 const
         shadoww_rom:array[0..1] of tipo_roms=(
@@ -20,20 +16,12 @@ const
         shadoww_fg:array[0..3] of tipo_roms=(
         (n:'18.6a';l:$20000;p:0;crc:$3fadafd6),(n:'19.6b';l:$20000;p:$20000;crc:$ddae9d5b),
         (n:'20.4b';l:$20000;p:$40000;crc:$08cf7a93),(n:'21.4b';l:$20000;p:$60000;crc:$1ac892f5));
-        shadoww_sprites:array[0..7] of tipo_roms=(
+        shadoww_oki:tipo_roms=(n:'4.4a';l:$20000;p:0;crc:$b0e0faf9);
+        shadoww_sprites:array[0..8] of tipo_roms=(
         (n:'6.3m';l:$20000;p:0;crc:$e7ccdf9f),(n:'7.1m';l:$20000;p:1;crc:$016bec95),
         (n:'8.3n';l:$20000;p:$40000;crc:$7ef7f880),(n:'9.1n';l:$20000;p:$40001;crc:$6e9b7fd3),
         (n:'10.3r';l:$20000;p:$80000;crc:$a6451dec),(n:'11.1r';l:$20000;p:$80001;crc:$7fbfdf5e),
-        (n:'12.3s';l:$20000;p:$c0000;crc:$94a836d8),(n:'13.1s';l:$20000;p:$c0001;crc:$e9caea3b));
-        shadoww_oki:tipo_roms=(n:'4.4a';l:$20000;p:0;crc:$b0e0faf9);
-        shadoww_dip:array [0..6] of def_dip2=(
-        (mask:1;name:'Demo Sounds';number:2;val2:(0,1);name2:('Off','On')),
-        (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
-        (mask:$1c;name:'Coin B';number:8;val8:(0,$10,8,4,$1c,$c,$14,$18);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C')),
-        (mask:$e0;name:'Coin A';number:8;val8:(0,$80,$40,$20,$e0,$60,$a0,$c0);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C')),
-        (mask:$c00;name:'Difficulty';number:4;val4:($c00,$400,$800,0);name4:('Normal','TBL 1','TBL 2','TBL 3')),
-        (mask:$3000;name:'Energy';number:4;val4:(0,$3000,$1000,$2000);name4:('2','3','4','5')),
-        (mask:$c000;name:'Lives';number:4;val4:(0,$c000,$4000,$8000);name4:('1','2','3','4')));
+        (n:'12.3s';l:$20000;p:$c0000;crc:$94a836d8),(n:'13.1s';l:$20000;p:$c0001;crc:$e9caea3b),());
         wildfang_rom:array[0..1] of tipo_roms=(
         (n:'1.3st';l:$20000;p:0;crc:$ab876c9b),(n:'2.5st';l:$20000;p:1;crc:$1dc74b3b));
         wildfang_sound:tipo_roms=(n:'tkni3.bin';l:$10000;p:0;crc:$15623ec7);
@@ -42,9 +30,23 @@ const
         (n:'14.3a';l:$20000;p:0;crc:$0d20c10c),(n:'15.3b';l:$20000;p:$20000;crc:$3f40a6b4),
         (n:'16.1a';l:$20000;p:$40000;crc:$0f31639e),(n:'17.1b';l:$20000;p:$60000;crc:$f32c158e));
         wildfang_fg:tipo_roms=(n:'tkni6.bin';l:$80000;p:0;crc:$f68fafb1);
-        wildfang_sprites:array[0..1] of tipo_roms=(
-        (n:'tkni9.bin';l:$80000;p:0;crc:$d22f4239),(n:'tkni8.bin';l:$80000;p:1;crc:$4931b184));
         wildfang_oki:tipo_roms=(n:'tkni4.bin';l:$20000;p:0;crc:$a7a1dbcf);
+        wildfang_sprites:array[0..2] of tipo_roms=(
+        (n:'tkni9.bin';l:$80000;p:0;crc:$d22f4239),(n:'tkni8.bin';l:$80000;p:1;crc:$4931b184),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2203,oki6295,
+     pal_engine,sound_engine;
+
+const
+        shadoww_dip:array [0..6] of def_dip2=(
+        (mask:1;name:'Demo Sounds';number:2;val2:(0,1);name2:('Off','On')),
+        (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
+        (mask:$1c;name:'Coin B';number:8;val8:(0,$10,8,4,$1c,$c,$14,$18);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C')),
+        (mask:$e0;name:'Coin A';number:8;val8:(0,$80,$40,$20,$e0,$60,$a0,$c0);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C')),
+        (mask:$c00;name:'Difficulty';number:4;val4:($c00,$400,$800,0);name4:('Normal','TBL 1','TBL 2','TBL 3')),
+        (mask:$3000;name:'Energy';number:4;val4:(0,$3000,$1000,$2000);name4:('2','3','4','5')),
+        (mask:$c000;name:'Lives';number:4;val4:(0,$c000,$4000,$8000);name4:('1','2','3','4')));
         wildfang_dip:array [0..7] of def_dip2=(
         (mask:1;name:'Demo Sounds';number:2;val2:(0,1);name2:('Off','On')),
         (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -231,7 +233,6 @@ procedure shadoww_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
   eventos_shadoww;

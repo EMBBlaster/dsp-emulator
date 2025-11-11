@@ -1,13 +1,9 @@
 unit suna8_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,timer_engine,ym_3812,ay_8910,
-     rom_engine,misc_functions,pal_engine,sound_engine,dac,gfx_engine;
+uses rom_engine;
 
 function iniciar_suna_hw:boolean;
-
-implementation
 
 const
         //Hard Head
@@ -16,26 +12,32 @@ const
         (n:'p3';l:$8000;p:$10000;crc:$3d24755e),(n:'p4';l:$8000;p:$18000;crc:$0241ac79),
         (n:'p7';l:$8000;p:$20000;crc:$beba8313),(n:'p8';l:$8000;p:$28000;crc:$211a9342),
         (n:'p9';l:$8000;p:$30000;crc:$2ad430c4),(n:'p10';l:$8000;p:$38000;crc:$b6894517));
-        hardhead_sprites:array[0..7] of tipo_roms=(
+        hardhead_dac:tipo_roms=(n:'p14';l:$8000;p:0;crc:$41314ac1);
+        hardhead_sound:tipo_roms=(n:'p13';l:$8000;p:0;crc:$493c0b41);
+        hardhead_sprites:array[0..8] of tipo_roms=(
         (n:'p5';l:$8000;p:$0;crc:$e9aa6fba),(n:'p5';l:$8000;p:$8000;crc:$e9aa6fba),
         (n:'p6';l:$8000;p:$10000;crc:$15d5f5dd),(n:'p6';l:$8000;p:$18000;crc:$15d5f5dd),
         (n:'p11';l:$8000;p:$20000;crc:$055f4c29),(n:'p11';l:$8000;p:$28000;crc:$055f4c29),
-        (n:'p12';l:$8000;p:$30000;crc:$9582e6db),(n:'p12';l:$8000;p:$38000;crc:$9582e6db));
-        hardhead_dac:tipo_roms=(n:'p14';l:$8000;p:0;crc:$41314ac1);
-        hardhead_sound:tipo_roms=(n:'p13';l:$8000;p:0;crc:$493c0b41);
+        (n:'p12';l:$8000;p:$30000;crc:$9582e6db),(n:'p12';l:$8000;p:$38000;crc:$9582e6db),());
         //Hard Head 2
         hardhead2_rom:array[0..4] of tipo_roms=(
         (n:'hrd-hd9';l:$8000;p:0;crc:$69c4c307),(n:'hrd-hd10';l:$10000;p:$10000;crc:$77ec5b0a),
         (n:'hrd-hd11';l:$10000;p:$20000;crc:$12af8f8e),(n:'hrd-hd12';l:$10000;p:$30000;crc:$35d13212),
         (n:'hrd-hd13';l:$10000;p:$40000;crc:$3225e7d7));
-        hardhead2_sprites:array[0..7] of tipo_roms=(
+        hardhead2_pcm:tipo_roms=(n:'hrd-hd15';l:$10000;p:0;crc:$bcbd88c3);
+        hardhead2_sound:tipo_roms=(n:'hrd-hd14';l:$8000;p:0;crc:$79a3be51);
+        hardhead2_sprites:array[0..8] of tipo_roms=(
         (n:'hrd-hd1';l:$10000;p:$0;crc:$7e7b7a58),(n:'hrd-hd2';l:$10000;p:$10000;crc:$303ec802),
         (n:'hrd-hd3';l:$10000;p:$20000;crc:$3353b2c7),(n:'hrd-hd4';l:$10000;p:$30000;crc:$dbc1f9c1),
         (n:'hrd-hd5';l:$10000;p:$40000;crc:$f738c0af),(n:'hrd-hd6';l:$10000;p:$50000;crc:$bf90d3ca),
-        (n:'hrd-hd7';l:$10000;p:$60000;crc:$992ce8cb),(n:'hrd-hd8';l:$10000;p:$70000;crc:$359597a4));
-        hardhead2_pcm:tipo_roms=(n:'hrd-hd15';l:$10000;p:0;crc:$bcbd88c3);
-        hardhead2_sound:tipo_roms=(n:'hrd-hd14';l:$8000;p:0;crc:$79a3be51);
-        //DIPS
+        (n:'hrd-hd7';l:$10000;p:$60000;crc:$992ce8cb),(n:'hrd-hd8';l:$10000;p:$70000;crc:$359597a4),());
+
+
+implementation
+uses nz80,main_engine,controls_engine,timer_engine,ym_3812,ay_8910,
+     misc_functions,pal_engine,sound_engine,dac,gfx_engine;
+
+const
         hardhead_dip_a:array [0..4] of def_dip=(
         (mask:$1;name:'Demo Sounds';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$e;name:'Bonus Life';number:8;dip:((dip_val:$e;dip_name:'No Bonus'),(dip_val:$c;dip_name:'10K'),(dip_val:$a;dip_name:'20K'),(dip_val:$8;dip_name:'50K'),(dip_val:$6;dip_name:'50K+'),(dip_val:$4;dip_name:'100K 50K+'),(dip_val:$2;dip_name:'100K 100K+'),(dip_val:$0;dip_name:'200K 100K+'),(),(),(),(),(),(),(),())),
@@ -188,7 +190,6 @@ var
   frame_m,frame_s:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s:=z80_1.tframes;
 while EmuStatus=EsRunning do begin
@@ -430,7 +431,6 @@ var
   frame_m,frame_s,frame_dac:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s:=z80_1.tframes;
 frame_dac:=z80_2.tframes;

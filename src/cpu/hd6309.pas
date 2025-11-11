@@ -1,8 +1,7 @@
-unit hd6309;
+﻿unit hd6309;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,cpu_misc,sysutils,timer_engine;
+uses main_engine,dialogs,cpu_misc,sysutils;
 
 type
         //MD_EM	$01	 Execution mode
@@ -71,6 +70,7 @@ const
     TCPU_HD6309E=1;
 
 implementation
+uses timer_engine;
 
 const
     estados_t:array[0..255] of byte=(
@@ -367,7 +367,7 @@ var
   origen:pword;
   direccion,temp2:word;
 begin
-iindexed:=self.getbyte(r.pc); //Hay que a�adir 1 estado por cojer un byte...
+iindexed:=self.getbyte(r.pc); //Hay que añadir 1 estado por cojer un byte...
 r.pc:=r.pc+1;
 case (iindexed and $60) of
   $00:origen:=@r.x;

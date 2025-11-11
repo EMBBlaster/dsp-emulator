@@ -4,395 +4,22 @@ object ConfigSP: TConfigSP
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Config Spectrum'
-  ClientHeight = 461
-  ClientWidth = 504
+  ClientHeight = 573
+  ClientWidth = 443
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Color = clDefault
+  Font.Height = 16
+  Font.Name = 'Default'
   Font.Style = []
   KeyPreview = True
   Position = poMainFormCenter
   OnKeyUp = FormKeyUp
   OnShow = FormShow
-  TextHeight = 13
-  object GroupBox1: TGroupBox
-    Left = 7
-    Top = 6
-    Width = 488
-    Height = 395
-    Caption = 'Spectrum'
-    TabOrder = 2
-    object GroupBox2: TGroupBox
-      Left = 61
-      Top = 335
-      Width = 361
-      Height = 49
-      Caption = 'ROM'
-      TabOrder = 0
-      object Edit1: TEdit
-        Left = 9
-        Top = 16
-        Width = 297
-        Height = 21
-        TabOrder = 0
-        OnKeyUp = FormKeyUp
-      end
-      object Button3: TButton
-        Left = 312
-        Top = 16
-        Width = 41
-        Height = 25
-        Caption = 'Open'
-        TabOrder = 1
-        OnClick = Button3Click
-        OnKeyUp = FormKeyUp
-      end
-    end
-    object GroupBox3: TGroupBox
-      Left = 10
-      Top = 16
-      Width = 109
-      Height = 73
-      Caption = 'Spectrum 48K Issue'
-      TabOrder = 6
-      object RadioButton1: TRadioButton
-        Left = 13
-        Top = 20
-        Width = 64
-        Height = 17
-        Caption = 'Issue 2'
-        TabOrder = 0
-        OnKeyUp = FormKeyUp
-      end
-      object RadioButton2: TRadioButton
-        Left = 13
-        Top = 43
-        Width = 66
-        Height = 17
-        Caption = 'Issue 3'
-        TabOrder = 1
-        OnKeyUp = FormKeyUp
-      end
-    end
-    object GroupBox5: TGroupBox
-      Left = 10
-      Top = 167
-      Width = 109
-      Height = 90
-      Caption = 'Border Emulation'
-      TabOrder = 1
-      object RadioButton7: TRadioButton
-        Left = 13
-        Top = 17
-        Width = 60
-        Height = 17
-        Caption = 'None'
-        TabOrder = 0
-        OnKeyUp = FormKeyUp
-      end
-      object RadioButton8: TRadioButton
-        Left = 13
-        Top = 40
-        Width = 65
-        Height = 17
-        Caption = 'Normal'
-        TabOrder = 1
-        OnKeyUp = FormKeyUp
-      end
-      object RadioButton9: TRadioButton
-        Left = 13
-        Top = 63
-        Width = 57
-        Height = 17
-        Caption = 'Full'
-        TabOrder = 2
-        OnKeyUp = FormKeyUp
-      end
-    end
-    object GroupBox7: TGroupBox
-      Left = 10
-      Top = 95
-      Width = 109
-      Height = 66
-      Caption = 'LensLok'
-      TabOrder = 2
-      object RadioButton12: TRadioButton
-        Left = 13
-        Top = 17
-        Width = 71
-        Height = 17
-        Caption = 'Enabled'
-        TabOrder = 0
-        OnKeyUp = FormKeyUp
-      end
-      object RadioButton13: TRadioButton
-        Left = 13
-        Top = 40
-        Width = 72
-        Height = 17
-        Caption = 'Disabled'
-        TabOrder = 1
-        OnKeyUp = FormKeyUp
-      end
-    end
-    object GroupBox11: TGroupBox
-      Left = 125
-      Top = 151
-      Width = 348
-      Height = 178
-      Caption = 'Audio'
-      TabOrder = 3
-      object GroupBox8: TGroupBox
-        Left = 3
-        Top = 15
-        Width = 120
-        Height = 78
-        Caption = 'Spectrum 128K Audio'
-        TabOrder = 0
-        object RadioButton14: TRadioButton
-          Left = 13
-          Top = 15
-          Width = 65
-          Height = 17
-          Caption = 'Mono'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton15: TRadioButton
-          Left = 13
-          Top = 35
-          Width = 81
-          Height = 17
-          Caption = 'Stereo ABC'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton16: TRadioButton
-          Left = 13
-          Top = 54
-          Width = 83
-          Height = 18
-          Caption = 'Stereo ACB'
-          TabOrder = 2
-          OnKeyUp = FormKeyUp
-        end
-      end
-      object GroupBox10: TGroupBox
-        Left = 163
-        Top = 103
-        Width = 78
-        Height = 66
-        Caption = 'Tape Audio'
-        TabOrder = 1
-        object RadioButton21: TRadioButton
-          Left = 10
-          Top = 17
-          Width = 62
-          Height = 17
-          Caption = 'Enabled'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton22: TRadioButton
-          Left = 10
-          Top = 40
-          Width = 63
-          Height = 17
-          Caption = 'Disabled'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-      end
-      object GroupBox9: TGroupBox
-        Left = 163
-        Top = 16
-        Width = 124
-        Height = 66
-        Caption = 'Speaker Oversample'
-        TabOrder = 2
-        object RadioButton17: TRadioButton
-          Left = 13
-          Top = 17
-          Width = 68
-          Height = 17
-          Caption = 'Enabled'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton18: TRadioButton
-          Left = 13
-          Top = 40
-          Width = 69
-          Height = 17
-          Caption = 'Disabled'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-      end
-      object GroupBox13: TGroupBox
-        Left = 17
-        Top = 99
-        Width = 78
-        Height = 66
-        Caption = 'Turbo Sound'
-        TabOrder = 3
-        object RadioButton26: TRadioButton
-          Left = 10
-          Top = 17
-          Width = 62
-          Height = 17
-          Caption = 'Enabled'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton27: TRadioButton
-          Left = 10
-          Top = 40
-          Width = 63
-          Height = 17
-          Caption = 'Disabled'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-      end
-    end
-    object GroupBox12: TGroupBox
-      Left = 130
-      Top = 16
-      Width = 222
-      Height = 129
-      Caption = 'Input'
-      TabOrder = 4
-      object GroupBox4: TGroupBox
-        Left = 12
-        Top = 13
-        Width = 96
-        Height = 106
-        Caption = 'Joystick'
-        TabOrder = 0
-        object RadioButton3: TRadioButton
-          Left = 5
-          Top = 14
-          Width = 79
-          Height = 17
-          Caption = 'Kempston'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton4: TRadioButton
-          Left = 5
-          Top = 32
-          Width = 88
-          Height = 17
-          Caption = 'Cursor/Protek'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton5: TRadioButton
-          Left = 5
-          Top = 50
-          Width = 89
-          Height = 17
-          Caption = 'Sinclair 1/IF 2'
-          TabOrder = 2
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton6: TRadioButton
-          Left = 5
-          Top = 68
-          Width = 89
-          Height = 17
-          Caption = 'Sinclair 2/IF 2'
-          TabOrder = 3
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton25: TRadioButton
-          Left = 5
-          Top = 86
-          Width = 89
-          Height = 17
-          Caption = 'Fuller'
-          TabOrder = 4
-          OnKeyUp = FormKeyUp
-        end
-      end
-      object GroupBox6: TGroupBox
-        Left = 118
-        Top = 13
-        Width = 93
-        Height = 106
-        Caption = 'Mouse'
-        TabOrder = 1
-        object RadioButton10: TRadioButton
-          Left = 13
-          Top = 20
-          Width = 65
-          Height = 17
-          Caption = 'Disabled'
-          TabOrder = 0
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton11: TRadioButton
-          Left = 13
-          Top = 39
-          Width = 73
-          Height = 17
-          Caption = 'GunStick'
-          TabOrder = 1
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton19: TRadioButton
-          Left = 13
-          Top = 59
-          Width = 73
-          Height = 17
-          Caption = 'Kempston'
-          TabOrder = 2
-          OnKeyUp = FormKeyUp
-        end
-        object RadioButton20: TRadioButton
-          Left = 13
-          Top = 82
-          Width = 62
-          Height = 15
-          Caption = 'AMX'
-          TabOrder = 3
-          OnKeyUp = FormKeyUp
-        end
-      end
-    end
-    object GroupBox14: TGroupBox
-      Left = 360
-      Top = 16
-      Width = 111
-      Height = 77
-      Caption = 'ULA +'
-      TabOrder = 5
-      object RadioButton23: TRadioButton
-        Left = 13
-        Top = 20
-        Width = 64
-        Height = 17
-        Caption = 'Enabled'
-        TabOrder = 0
-        OnKeyUp = FormKeyUp
-      end
-      object RadioButton24: TRadioButton
-        Left = 13
-        Top = 43
-        Width = 66
-        Height = 17
-        Caption = 'Disabled'
-        TabOrder = 1
-        OnKeyUp = FormKeyUp
-      end
-    end
-  end
+  TextHeight = 15
   object Button1: TButton
-    Left = 85
-    Top = 423
+    Left = 69
+    Top = 525
     Width = 89
     Height = 33
     Caption = 'OK'
@@ -401,13 +28,718 @@ object ConfigSP: TConfigSP
     OnKeyUp = FormKeyUp
   end
   object Button2: TButton
-    Left = 295
-    Top = 423
+    Left = 250
+    Top = 525
     Width = 89
     Height = 33
     Caption = 'CANCELAR'
     TabOrder = 1
     OnClick = Button2Click
     OnKeyUp = FormKeyUp
+  end
+  object GroupBox11: TGroupBox
+    Left = 142
+    Top = 151
+    Width = 291
+    Height = 178
+    Caption = 'Audio'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 2
+    object GroupBox8: TGroupBox
+      Left = 17
+      Top = 15
+      Width = 132
+      Height = 78
+      Caption = 'Spectrum 128K Audio'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object RadioButton14: TRadioButton
+        Left = 13
+        Top = 15
+        Width = 65
+        Height = 17
+        Caption = 'Mono'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton15: TRadioButton
+        Left = 13
+        Top = 35
+        Width = 81
+        Height = 17
+        Caption = 'Stereo ABC'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton16: TRadioButton
+        Left = 13
+        Top = 55
+        Width = 83
+        Height = 18
+        Caption = 'Stereo ACB'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnKeyUp = FormKeyUp
+      end
+    end
+    object GroupBox10: TGroupBox
+      Left = 155
+      Top = 98
+      Width = 126
+      Height = 74
+      Caption = 'Tape Audio'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      object RadioButton21: TRadioButton
+        Left = 10
+        Top = 20
+        Width = 79
+        Height = 17
+        Caption = 'Enabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton22: TRadioButton
+        Left = 10
+        Top = 40
+        Width = 87
+        Height = 17
+        Caption = 'Disabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+    end
+    object GroupBox9: TGroupBox
+      Left = 155
+      Top = 15
+      Width = 124
+      Height = 77
+      Caption = 'Speaker Oversample'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+      object RadioButton17: TRadioButton
+        Left = 13
+        Top = 20
+        Width = 68
+        Height = 17
+        Caption = 'Enabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton18: TRadioButton
+        Left = 13
+        Top = 40
+        Width = 69
+        Height = 17
+        Caption = 'Disabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+    end
+    object GroupBox13: TGroupBox
+      Left = 17
+      Top = 98
+      Width = 132
+      Height = 74
+      Caption = 'Turbo Sound'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 3
+      object RadioButton26: TRadioButton
+        Left = 10
+        Top = 20
+        Width = 62
+        Height = 17
+        Caption = 'Enabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton27: TRadioButton
+        Left = 10
+        Top = 40
+        Width = 95
+        Height = 17
+        Caption = 'Disabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+    end
+  end
+  object GroupBox12: TGroupBox
+    Left = 142
+    Top = 16
+    Width = 293
+    Height = 129
+    Caption = 'Input'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 3
+    object GroupBox4: TGroupBox
+      Left = 12
+      Top = 13
+      Width = 137
+      Height = 106
+      Caption = 'Joystick'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object RadioButton3: TRadioButton
+        Left = 5
+        Top = 16
+        Width = 79
+        Height = 17
+        Caption = 'Kempston'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton4: TRadioButton
+        Left = 5
+        Top = 32
+        Width = 111
+        Height = 17
+        Caption = 'Cursor/Protek'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton5: TRadioButton
+        Left = 5
+        Top = 48
+        Width = 105
+        Height = 17
+        Caption = 'Sinclair 1/IF 2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton6: TRadioButton
+        Left = 5
+        Top = 64
+        Width = 105
+        Height = 17
+        Caption = 'Sinclair 2/IF 2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton25: TRadioButton
+        Left = 5
+        Top = 80
+        Width = 89
+        Height = 17
+        Caption = 'Fuller'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+        OnKeyUp = FormKeyUp
+      end
+    end
+    object GroupBox6: TGroupBox
+      Left = 155
+      Top = 13
+      Width = 126
+      Height = 106
+      Caption = 'Mouse'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      object RadioButton10: TRadioButton
+        Left = 13
+        Top = 20
+        Width = 65
+        Height = 17
+        Caption = 'Disabled'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton11: TRadioButton
+        Left = 13
+        Top = 40
+        Width = 73
+        Height = 17
+        Caption = 'GunStick'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton19: TRadioButton
+        Left = 13
+        Top = 60
+        Width = 73
+        Height = 17
+        Caption = 'Kempston'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        OnKeyUp = FormKeyUp
+      end
+      object RadioButton20: TRadioButton
+        Left = 13
+        Top = 80
+        Width = 62
+        Height = 15
+        Caption = 'AMX'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = 16
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        OnKeyUp = FormKeyUp
+      end
+    end
+  end
+  object GroupBox14: TGroupBox
+    Left = 8
+    Top = 262
+    Width = 121
+    Height = 67
+    Caption = 'ULA +'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+    object RadioButton23: TRadioButton
+      Left = 13
+      Top = 20
+      Width = 64
+      Height = 17
+      Caption = 'Enabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object RadioButton24: TRadioButton
+      Left = 13
+      Top = 40
+      Width = 66
+      Height = 17
+      Caption = 'Disabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnKeyUp = FormKeyUp
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 8
+    Top = 343
+    Width = 412
+    Height = 49
+    Caption = 'Spectrum 48K ROM'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 5
+    object Edit1: TEdit
+      Left = 9
+      Top = 16
+      Width = 345
+      Height = 23
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object Button3: TButton
+      Left = 360
+      Top = 16
+      Width = 41
+      Height = 25
+      Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = Button3Click
+      OnKeyUp = FormKeyUp
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 10
+    Top = 16
+    Width = 119
+    Height = 73
+    Caption = 'Spectrum 48K Issue'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 6
+    object RadioButton1: TRadioButton
+      Left = 13
+      Top = 20
+      Width = 64
+      Height = 17
+      Caption = 'Issue 2'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object RadioButton2: TRadioButton
+      Left = 13
+      Top = 40
+      Width = 66
+      Height = 17
+      Caption = 'Issue 3'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnKeyUp = FormKeyUp
+    end
+  end
+  object GroupBox5: TGroupBox
+    Left = 8
+    Top = 166
+    Width = 119
+    Height = 90
+    Caption = 'Border Emulation'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    object RadioButton7: TRadioButton
+      Left = 13
+      Top = 20
+      Width = 60
+      Height = 17
+      Caption = 'None'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object RadioButton8: TRadioButton
+      Left = 13
+      Top = 40
+      Width = 65
+      Height = 17
+      Caption = 'Normal'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnKeyUp = FormKeyUp
+    end
+    object RadioButton9: TRadioButton
+      Left = 13
+      Top = 60
+      Width = 57
+      Height = 17
+      Caption = 'Full'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      OnKeyUp = FormKeyUp
+    end
+  end
+  object GroupBox7: TGroupBox
+    Left = 10
+    Top = 95
+    Width = 119
+    Height = 66
+    Caption = 'LensLok'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 8
+    object RadioButton12: TRadioButton
+      Left = 13
+      Top = 20
+      Width = 71
+      Height = 17
+      Caption = 'Enabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object RadioButton13: TRadioButton
+      Left = 13
+      Top = 40
+      Width = 72
+      Height = 17
+      Caption = 'Disabled'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnKeyUp = FormKeyUp
+    end
+  end
+  object GroupBox1: TGroupBox
+    Left = 8
+    Top = 398
+    Width = 412
+    Height = 49
+    Caption = 'Spectrum 128K ROM'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 9
+    object Edit2: TEdit
+      Left = 9
+      Top = 16
+      Width = 345
+      Height = 23
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object Button4: TButton
+      Left = 360
+      Top = 16
+      Width = 41
+      Height = 25
+      Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = Button4Click
+      OnKeyUp = FormKeyUp
+    end
+  end
+  object GroupBox15: TGroupBox
+    Left = 8
+    Top = 453
+    Width = 412
+    Height = 49
+    Caption = 'Spectrum +2/+3 ROM'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = 16
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 10
+    object Edit3: TEdit
+      Left = 9
+      Top = 16
+      Width = 345
+      Height = 23
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnKeyUp = FormKeyUp
+    end
+    object Button5: TButton
+      Left = 360
+      Top = 16
+      Width = 41
+      Height = 25
+      Caption = 'Open'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = 16
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = Button5Click
+      OnKeyUp = FormKeyUp
+    end
   end
 end

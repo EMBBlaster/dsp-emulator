@@ -1,8 +1,7 @@
 unit system1_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     system1_hw_misc,system2_hw_misc,nz80,main_engine,gfx_engine,sn_76496,
+uses system1_hw_misc,system2_hw_misc,nz80,main_engine,gfx_engine,sn_76496,
      controls_engine,pal_engine,ppi8255,z80pio,qsnapshot,sound_engine;
 
 procedure cargar_system1;

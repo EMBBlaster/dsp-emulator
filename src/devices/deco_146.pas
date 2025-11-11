@@ -1,8 +1,7 @@
 unit deco_146;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     misc_functions,controls_engine,hu6280,main_engine,deco_common;
+uses misc_functions,controls_engine,hu6280,main_engine,deco_common;
 
 const
   INPUT_PORT_A=-1;

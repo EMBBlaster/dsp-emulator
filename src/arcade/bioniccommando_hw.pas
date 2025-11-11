@@ -1,13 +1,10 @@
-unit bioniccommando_hw;
+﻿unit bioniccommando_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,mcs51,m68000,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_bionicc:boolean;
 
-implementation
 const
         bionicc_rom:array[0..3] of tipo_roms=(
         (n:'tse_02.1a';l:$10000;p:0;crc:$e4aeefaa),(n:'tse_04.1b';l:$10000;p:1;crc:$d0c8ec75),
@@ -22,12 +19,17 @@ const
         (n:'ts_17.17g';l:$8000;p:$10000;crc:$deb657e4),(n:'ts_16.15g';l:$8000;p:$18000;crc:$d363b5f9),
         (n:'ts_13.18f';l:$8000;p:$20000;crc:$a8f5a004),(n:'ts_18.18g';l:$8000;p:$28000;crc:$3b36948c),
         (n:'ts_23.18j';l:$8000;p:$30000;crc:$bbfbe58a),(n:'ts_24.18k';l:$8000;p:$38000;crc:$f156e564));
-        bionicc_sprites:array[0..7] of tipo_roms=(
+        bionicc_sprites:array[0..8] of tipo_roms=(
         (n:'tse_10.13f';l:$8000;p:0;crc:$d28eeacc),(n:'tsu_09.11f';l:$8000;p:$8000;crc:$6a049292),
         (n:'tse_15.13g';l:$8000;p:$10000;crc:$9b5593c0),(n:'tsu_14.11g';l:$8000;p:$18000;crc:$46b2ad83),
         (n:'tse_20.13j';l:$8000;p:$20000;crc:$b03db778),(n:'tsu_19.11j';l:$8000;p:$28000;crc:$b5c82722),
-        (n:'tse_22.17j';l:$8000;p:$30000;crc:$d4dedeb3),(n:'tsu_21.15j';l:$8000;p:$38000;crc:$98777006));
-        //DIP
+        (n:'tse_22.17j';l:$8000;p:$30000;crc:$d4dedeb3),(n:'tsu_21.15j';l:$8000;p:$38000;crc:$98777006),());
+
+implementation
+uses nz80,mcs51,m68000,main_engine,controls_engine,gfx_engine,ym_2151,
+     pal_engine,sound_engine;
+
+const
         bionicc_dip:array [0..7] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$38,$30,$28,$20,$18);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
@@ -125,25 +127,26 @@ end;
 procedure eventos_bionicc;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
   //P2
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $ffdf;
   //P1
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ff7f;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $f7ff;
   //system
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $7fff) else marcade.in0:=(marcade.in0 or $8000);
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $bfff;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $7fff;
 end;
 end;
 
@@ -151,7 +154,6 @@ procedure bionicc_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 259 do begin
     eventos_bionicc;

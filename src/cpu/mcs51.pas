@@ -1,7 +1,7 @@
 unit mcs51;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     dialogs,sysutils,timer_engine,main_engine,cpu_misc;
+uses dialogs,sysutils,timer_engine,main_engine,cpu_misc;
 
 type
         band_mcs51=record

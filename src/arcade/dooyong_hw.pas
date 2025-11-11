@@ -1,12 +1,10 @@
-unit dooyong_hw;
+﻿unit dooyong_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ym_2151,gfx_engine,
-     rom_engine,file_engine,pal_engine,sound_engine,oki6295,ym_2203;
+uses rom_engine;
 
 function iniciar_dooyong:boolean;
 
-implementation
 const
         bluehawk_rom:tipo_roms=(n:'rom19';l:$20000;p:0;crc:$24149246);
         bluehawk_snd:tipo_roms=(n:'rom1';l:$10000;p:0;crc:$eef22920);
@@ -14,9 +12,9 @@ const
         bluehawk_sprites:tipo_roms=(n:'dy-bh-m3';l:$80000;p:0;crc:$8809d157);
         bluehawk_bg0:tipo_roms=(n:'dy-bh-m1';l:$80000;p:0;crc:$51816b2c);
         bluehawk_fg0:tipo_roms=(n:'dy-bh-m2';l:$80000;p:0;crc:$f9daace6);
-        bluehawk_fg1:array[0..1] of tipo_roms=(
-        (n:'rom6';l:$20000;p:0;crc:$e6bd9daa),(n:'rom5';l:$20000;p:$1;crc:$5c654dc6));
         bluehawk_oki:tipo_roms=(n:'rom4';l:$20000;p:0;crc:$f7318919);
+        bluehawk_fg1:array[0..2] of tipo_roms=(
+        (n:'rom6';l:$20000;p:0;crc:$e6bd9daa),(n:'rom5';l:$20000;p:$1;crc:$5c654dc6),());
         lastday_rom:array[0..1] of tipo_roms=(
         (n:'lday3.s5';l:$10000;p:0;crc:$a06dfb1e),(n:'4.u5';l:$10000;p:$10000;crc:$70961ea6));
         lastday_snd:tipo_roms=(n:'1.d3';l:$10000;p:0;crc:$dd4316fd);
@@ -30,8 +28,8 @@ const
         (n:'12.s13';l:$20000;p:0;crc:$992bc4af),(n:'14.s14';l:$20000;p:$1;crc:$a79abc85));
         lastday_bg0_map:array[0..1] of tipo_roms=(
         (n:'5.r9';l:$10000;p:0;crc:$4789bae8),(n:'8.r11';l:$10000;p:$1;crc:$92402b9a));
-        lastday_fg0_map:array[0..1] of tipo_roms=(
-        (n:'11.r13';l:$10000;p:0;crc:$04b961de),(n:'13.r14';l:$10000;p:$1;crc:$6bdbd887));
+        lastday_fg0_map:array[0..2] of tipo_roms=(
+        (n:'11.r13';l:$10000;p:0;crc:$04b961de),(n:'13.r14';l:$10000;p:$1;crc:$6bdbd887),());
         gulfstorm_rom:tipo_roms=(n:'1.l4';l:$20000;p:0;crc:$59e0478b);
         gulfstorm_snd:tipo_roms=(n:'3.c5';l:$10000;p:0;crc:$c029b015);
         gulfstorm_char:tipo_roms=(n:'2.s4';l:$10000;p:0;crc:$c2d65a25);
@@ -45,8 +43,8 @@ const
         (n:'12.r8';l:$20000;p:0;crc:$ec3ad3e7),(n:'13.r9';l:$20000;p:$1;crc:$c64090cb));
         gulfstorm_bg0_map:array[0..1] of tipo_roms=(
         (n:'8.e8';l:$10000;p:0;crc:$8d7f4693),(n:'9.e9';l:$10000;p:$1;crc:$34d440c4));
-        gulfstorm_fg0_map:array[0..1] of tipo_roms=(
-        (n:'10.n8';l:$10000;p:0;crc:$b4f15bf4),(n:'11.n9';l:$10000;p:$1;crc:$7dfe4a9c));
+        gulfstorm_fg0_map:array[0..2] of tipo_roms=(
+        (n:'10.n8';l:$10000;p:0;crc:$b4f15bf4),(n:'11.n9';l:$10000;p:$1;crc:$7dfe4a9c),());
         pollux_rom:tipo_roms=(n:'pollux2.bin';l:$10000;p:0;crc:$45e10d4e);
         pollux_snd:tipo_roms=(n:'pollux3.bin';l:$10000;p:0;crc:$85a9dc98);
         pollux_char:tipo_roms=(n:'pollux1.bin';l:$10000;p:0;crc:$7f7135da);
@@ -56,18 +54,23 @@ const
         (n:'pollux6.bin';l:$20000;p:0;crc:$b0391db5),(n:'pollux7.bin';l:$20000;p:$1;crc:$632f6e10));
         pollux_bg0_map:array[0..1] of tipo_roms=(
         (n:'pollux9.bin';l:$10000;p:0;crc:$378d8914),(n:'pollux8.bin';l:$10000;p:$1;crc:$8859fa70));
-        pollux_fg0_map:array[0..1] of tipo_roms=(
-        (n:'pollux5.bin';l:$10000;p:0;crc:$ac090d34),(n:'pollux4.bin';l:$10000;p:$1;crc:$2c6bd3be));
+        pollux_fg0_map:array[0..2] of tipo_roms=(
+        (n:'pollux5.bin';l:$10000;p:0;crc:$ac090d34),(n:'pollux4.bin';l:$10000;p:$1;crc:$2c6bd3be),());
         flytiger_rom:tipo_roms=(n:'1.3c';l:$20000;p:0;crc:$2d634c8e);
         flytiger_snd:tipo_roms=(n:'3.6p';l:$10000;p:0;crc:$d238df5e);
         flytiger_char:tipo_roms=(n:'2.4h';l:$10000;p:0;crc:$2fb72912);
-        flytiger_sprites:array[0..3] of tipo_roms=(
-        (n:'16.4h';l:$20000;p:0;crc:$8a158b95),(n:'15.2h';l:$20000;p:$1;crc:$399f6043),
-        (n:'14.4k';l:$20000;p:$40000;crc:$df66b6f3),(n:'13.2k';l:$20000;p:$40001;crc:$f24a5099));
         flytiger_bg0:tipo_roms=(n:'dy-ft-m1.11n';l:$80000;p:0;crc:$f06589c2);
         flytiger_fg0:tipo_roms=(n:'dy-ft-m2.11g';l:$80000;p:0;crc:$7545f9c9);
         flytiger_oki:tipo_roms=(n:'4.9n';l:$20000;p:0;crc:$cd95cf9a);
-        //Dip
+        flytiger_sprites:array[0..4] of tipo_roms=(
+        (n:'16.4h';l:$20000;p:0;crc:$8a158b95),(n:'15.2h';l:$20000;p:$1;crc:$399f6043),
+        (n:'14.4k';l:$20000;p:$40000;crc:$df66b6f3),(n:'13.2k';l:$20000;p:$40001;crc:$f24a5099),());
+
+implementation
+uses nz80,main_engine,controls_engine,ym_2151,gfx_engine,pal_engine,
+     sound_engine,oki6295,ym_2203;
+
+const
         bluehawk_dip_a:array [0..4] of def_dip2=(
         (mask:$2;name:'Coinage Type';number:2;val2:(2,0);name2:('Type A','Type B')),
         (mask:$4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')),
@@ -83,8 +86,7 @@ const
         (mask:$c;name:'Difficulty';number:4;val4:(8,$c,4,0);name4:('Easy','Normal','Hard','Hardest')),
         (mask:$30;name:'Bonus Life';number:4;val4:($30,$20,$10,0);name4:('200K+','240K+','280K','None')),
         (mask:$40;name:'Speed';number:2;val2:(0,$40);name2:('Low','High')),
-        (mask:$80;name:'Allow Continue';number:2;val2:(0,$80);name2:('No','Yes')
-        ));
+        (mask:$80;name:'Allow Continue';number:2;val2:(0,$80);name2:('No','Yes')));
         gulfstorm_dip_b:array [0..4] of def_dip2=(
         (mask:$3;name:'Lives';number:4;val4:(0,2,3,1);name4:('1','2','3','4')),
         (mask:$c;name:'Difficulty';number:4;val4:(8,$c,4,0);name4:('Easy','Normal','Hard','Hardest')),
@@ -188,7 +190,6 @@ procedure dooyong_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     update_eventos;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes,SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, StdCtrls,lenguaje,main_engine;
+  ExtCtrls, StdCtrls;
 
 type
 
@@ -34,7 +34,7 @@ var
   Aboutbox: TAboutbox;
 
 implementation
-uses principal;
+uses principal,lenguaje,main_engine;
 
 { TAboutbox }
 

@@ -1,10 +1,8 @@
-unit config_cpc;
+﻿unit config_cpc;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls,misc_functions,file_engine,main_engine,pal_engine, Vcl.ComCtrls;
+  System.Classes,Vcl.Forms,Vcl.StdCtrls,Vcl.ComCtrls,Vcl.Controls;
 
 type
   TConfigCPC = class(TForm)
@@ -84,46 +82,12 @@ var
   ConfigCPC: TConfigCPC;
 
 implementation
-uses amstrad_cpc,lenslock,principal;
+uses misc_functions,cpcconfig_misc,amstrad_cpc;
 {$R *.dfm}
 
 procedure TConfigCPC.Button13Click(Sender: TObject);
-var
-  f:byte;
-  colores:tpaleta;
-  temps:single;
 begin
-if radiobutton1.Checked then cpc_ga.cpc_model:=0
-  else if radiobutton2.Checked then cpc_ga.cpc_model:=1
-    else if radiobutton3.Checked then cpc_ga.cpc_model:=2
-      else if radiobutton4.Checked then cpc_ga.cpc_model:=3
-        else if radiobutton8.Checked then cpc_ga.cpc_model:=4;
-cpc_load_roms;
-lenslok.activo:=radiobutton12.Checked;
-cpc_crt.color_monitor:=radiobutton9.Checked;
-if radiobutton5.Checked then cpc_ga.ram_exp:=0
-  else if radiobutton6.Checked then cpc_ga.ram_exp:=1
-    else if radiobutton7.Checked then cpc_ga.ram_exp:=2;
-if lenslok.activo then lenslock1.Show;
-if cpc_crt.color_monitor then begin
-  for f:=0 to 31 do begin
-    colores[f].r:=cpc_paleta[f] shr 16;
-    colores[f].g:=(cpc_paleta[f] shr 8) and $ff;
-    colores[f].b:=cpc_paleta[f] and $ff;
-  end;
-end else begin
-  cpc_crt.bright:=trackbar1.position;
-  for f:=0 to 31 do begin
-    colores[f].r:=0;
-    temps:=0.01*0*green_classic[f]*255;
-    if temps>255 then temps:=255;
-    colores[f].b:=trunc(temps);
-    temps:=green_classic[f]*255*(1+(cpc_crt.bright/4));
-    if temps>255 then temps:=255;
-    colores[f].g:=trunc(temps);
-  end;
-end;
-set_pal(colores,32);
+ConfigCPC_OK;
 configcpc.Close;
 end;
 
@@ -218,78 +182,8 @@ end;
 end;
 
 procedure TConfigCPC.FormShow(Sender: TObject);
-var
-  f:integer;
 begin
-f:=(principal1.left+(principal1.width div 2))-(ConfigCPC.Width div 2);
-if f<0 then ConfigCPC.Left:=0
-  else ConfigCPC.Left:=f;
-f:=(principal1.top+(principal1.Height div 2))-(ConfigCPC.Height div 2);
-if f<0 then ConfigCPC.Top:=0
-  else ConfigCPC.Top:=f;
-case main_vars.tipo_maquina of
-  7,8:begin
-        groupbox3.enabled:=false;
-        radiobutton5.Enabled:=false;
-        radiobutton6.Enabled:=false;
-        radiobutton7.Enabled:=false;
-        radiobutton5.Checked:=true;
-      end;
-  9:begin
-        groupbox3.enabled:=true;
-        radiobutton5.Enabled:=true;
-        radiobutton6.Enabled:=true;
-        radiobutton7.Enabled:=true;
-        case cpc_ga.ram_exp of
-          0:radiobutton5.Checked:=true;
-          1:radiobutton6.Checked:=true;
-          2:radiobutton7.Checked:=true;
-        end;
-    end;
-end;
-case main_vars.tipo_maquina of
-  8:begin //CPC 664
-      radiobutton2.Enabled:=false;
-      radiobutton3.Enabled:=false;
-      radiobutton4.Enabled:=false;
-      case cpc_ga.cpc_model of
-        4:radiobutton8.Checked:=true;
-          else radiobutton1.Checked:=true;
-      end;
-    end;
-  7,9:begin  //CPC 464 y 6128
-      radiobutton2.Enabled:=true;
-      radiobutton3.Enabled:=true;
-      radiobutton4.Enabled:=true;
-      case cpc_ga.cpc_model of
-        0:radiobutton1.Checked:=true;
-        1:radiobutton2.Checked:=true;
-        2:radiobutton3.Checked:=true;
-        3:radiobutton4.Checked:=true;
-        4:radiobutton8.Checked:=true;
-      end;
-    end;
-end;
-Edit7.Text:=cpc_rom[0].name;
-Edit1.Text:=cpc_rom[1].name;
-Edit2.Text:=cpc_rom[2].name;
-Edit3.Text:=cpc_rom[3].name;
-Edit4.Text:=cpc_rom[4].name;
-Edit5.Text:=cpc_rom[5].name;
-Edit6.Text:=cpc_rom[6].name;
-//Lenslock
-if lenslok.activo then radiobutton12.Checked:=true
-  else radiobutton13.Checked:=true;
-trackbar1.Position:=cpc_crt.bright;
-if cpc_crt.color_monitor then begin
-  radiobutton9.Checked:=true;
-  groupbox5.Enabled:=false;
-  trackbar1.Enabled:=false;
-end else begin
-  radiobutton10.Checked:=true;
-  groupbox5.Enabled:=true;
-  trackbar1.Enabled:=true;
-end;
+  ConfigCPC_Show;
 end;
 
 procedure TConfigCPC.RadioButton10Click(Sender: TObject);

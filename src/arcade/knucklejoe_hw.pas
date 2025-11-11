@@ -1,13 +1,10 @@
-unit knucklejoe_hw;
+﻿unit knucklejoe_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m680x,main_engine,controls_engine,ay_8910,gfx_engine,timer_engine,
-     sn_76496,rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_knjoe:boolean;
 
-implementation
 const
         knjoe_rom:array[0..2] of tipo_roms=(
         (n:'kj-1.bin';l:$4000;p:0;crc:$4e4f5ff2),(n:'kj-2.bin';l:$4000;p:$4000;crc:$cb11514b),
@@ -22,16 +19,21 @@ const
         knjoe_sprites2:array[0..2] of tipo_roms=(
         (n:'kj-7.bin';l:$4000;p:0;crc:$121fcccb),(n:'kj-9.bin';l:$4000;p:$4000;crc:$affbe3eb),
         (n:'kj-8.bin';l:$4000;p:$8000;crc:$e057e72a));
-        knjoe_tiles:array[0..2] of tipo_roms=(
-        (n:'kj-10.bin';l:$4000;p:0;crc:$74d3ba33),(n:'kj-11.bin';l:$4000;p:$4000;crc:$8ea01455),
-        (n:'kj-12.bin';l:$4000;p:$8000;crc:$33367c41));
         knjoe_sound:tipo_roms=(n:'kj-13.bin';l:$2000;p:$6000;crc:$0a0be3f5);
-        //Dip
-        knjoe_dip_a:array [0..3] of def_dip2=(
+        knjoe_tiles:array[0..3] of tipo_roms=(
+        (n:'kj-10.bin';l:$4000;p:0;crc:$74d3ba33),(n:'kj-11.bin';l:$4000;p:$4000;crc:$8ea01455),
+        (n:'kj-12.bin';l:$4000;p:$8000;crc:$33367c41),());
+
+implementation
+uses nz80,m680x,main_engine,controls_engine,ay_8910,gfx_engine,timer_engine,
+     sn_76496,pal_engine,sound_engine;
+
+const
+        knjoe_dip_a:array [0..2] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,4,2,6,7,3,5,1);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 5C')),
         (mask:$18;name:'Coin B';number:4;val4:(0,$10,$18,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$20;name:'Infinite Energy';number:2;val2:($20,0);name2:('Off','On')),
-        (mask:$40;name:'Free Play (not working)';number:2;val2:($40,0);name2:('Off','On')));
+        (mask:$20;name:'Infinite Energy';number:2;val2:($20,0);name2:('Off','On')){,
+        (mask:$40;name:'Free Play (not working)';number:2;val2:($40,0);name2:('Off','On'))});
         knjoe_dip_b:array [0..4] of def_dip2=(
         (mask:2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail')),
         (mask:4;name:'Lives';number:2;val2:(4,0);name2:('3','5')),
@@ -84,25 +86,28 @@ end;
 procedure eventos_knjoe;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //System
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $f7;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
 end;
 end;
 
@@ -110,7 +115,6 @@ procedure knjoe_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     //main

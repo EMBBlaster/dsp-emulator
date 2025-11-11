@@ -11,9 +11,11 @@ unit coleco;
 }
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,lenguaje,main_engine,controls_engine,tms99xx,sn_76496,sysutils,dialogs,
-     rom_engine,misc_functions,sound_engine,file_engine,ay_8910,i2cmem;
+uses dialogs,rom_engine;
+
+function iniciar_coleco:boolean;
+procedure reset_coleco;
+procedure coleco_interrupt(int:boolean);
 
 type
   tcoleco_machine=record
@@ -25,18 +27,17 @@ type
     eprom_type:byte;
   end;
 
-function iniciar_coleco:boolean;
-procedure reset_coleco;
-procedure coleco_interrupt(int:boolean);
+const
+  coleco_bios:array [0..1] of tipo_roms=((n:'coleco.rom';l:$2000;p:0;crc:$3aa93ef3),());
 
 var
   coleco_0:tcoleco_machine;
 
 implementation
-uses snapshot,principal;
+uses snapshot,principal,nz80,lenguaje,main_engine,controls_engine,tms99xx,
+     sn_76496,sysutils,misc_functions,sound_engine,file_engine,ay_8910,i2cmem;
 
 const
-  coleco_bios:tipo_roms=(n:'coleco.rom';l:$2000;p:0;crc:$3aa93ef3);
   MAX_CARTRIDGE=$80000;  //Hasta 512Kb! (Wizard of Wor)
 
 var
@@ -44,49 +45,51 @@ var
 
 procedure eventos_coleco;
 begin
-if event.keyboard then begin
-   //P1
-   if keyboard[KEYBOARD_0] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $fffe) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0001);
-   if keyboard[KEYBOARD_1] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $fffd) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0002);
-   if keyboard[KEYBOARD_2] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $fffb) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0004);
-   if keyboard[KEYBOARD_3] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $fff7) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0008);
-   if keyboard[KEYBOARD_4] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $ffef) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0010);
-   if keyboard[KEYBOARD_5] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $ffdf) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0020);
-   if keyboard[KEYBOARD_6] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $ffbf) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0040);
-   if keyboard[KEYBOARD_7] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $ff7f) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0080);
-   if keyboard[KEYBOARD_8] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $feff) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0100);
-   if keyboard[KEYBOARD_9] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $fdff) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0200);
-   if keyboard[KEYBOARD_A] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $fbff) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0400);
-   if keyboard[KEYBOARD_S] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $f7ff) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $0800);
-   //P2
-   if keyboard[KEYBOARD_P] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $fffe) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0001);
-   if keyboard[KEYBOARD_Q] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $fffd) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0002);
-   if keyboard[KEYBOARD_W] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $fffb) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0004);
-   if keyboard[KEYBOARD_E] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $fff7) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0008);
-   if keyboard[KEYBOARD_R] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $ffef) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0010);
-   if keyboard[KEYBOARD_T] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $ffdf) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0020);
-   if keyboard[KEYBOARD_Y] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $ffbf) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0040);
-   if keyboard[KEYBOARD_U] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $ff7f) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0080);
-   if keyboard[KEYBOARD_I] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $feff) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0100);
-   if keyboard[KEYBOARD_O] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $fdff) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0200);
-   if keyboard[KEYBOARD_Z] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $fbff) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0400);
-   if keyboard[KEYBOARD_X] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $f7ff) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $0800);
-end;
 if event.arcade then begin
+   coleco_0.joystick[0]:=$ff;
+   coleco_0.joystick[1]:=$ff;
+   coleco_0.keypad[0]:=$ffff;
+   coleco_0.keypad[1]:=$ffff;
    //P1
-   if arcade_input.up[0] then coleco_0.joystick[0]:=(coleco_0.joystick[0] and $fe) else coleco_0.joystick[0]:=(coleco_0.joystick[0] or 1);
-   if arcade_input.right[0] then coleco_0.joystick[0]:=(coleco_0.joystick[0] and $fd) else coleco_0.joystick[0]:=(coleco_0.joystick[0] or 2);
-   if arcade_input.down[0] then coleco_0.joystick[0]:=(coleco_0.joystick[0] and $fb) else coleco_0.joystick[0]:=(coleco_0.joystick[0] or 4);
-   if arcade_input.left[0] then coleco_0.joystick[0]:=(coleco_0.joystick[0] and $f7) else coleco_0.joystick[0]:=(coleco_0.joystick[0] or 8);
-   if arcade_input.but1[0] then coleco_0.joystick[0]:=(coleco_0.joystick[0] and $bf) else coleco_0.joystick[0]:=(coleco_0.joystick[0] or $40);
-   if arcade_input.but0[0] then coleco_0.keypad[0]:=(coleco_0.keypad[0] and $bfff) else coleco_0.keypad[0]:=(coleco_0.keypad[0] or $4000);
+   if keyboard[KEYBOARD_0] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $fffe;
+   if keyboard[KEYBOARD_1] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $fffd;
+   if keyboard[KEYBOARD_2] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $fffb;
+   if keyboard[KEYBOARD_3] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $fff7;
+   if keyboard[KEYBOARD_4] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $ffef;
+   if keyboard[KEYBOARD_5] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $ffdf;
+   if keyboard[KEYBOARD_6] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $ffbf;
+   if keyboard[KEYBOARD_7] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $ff7f;
+   if keyboard[KEYBOARD_8] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $feff;
+   if keyboard[KEYBOARD_9] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $fdff;
+   if keyboard[KEYBOARD_A] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $fbff;
+   if keyboard[KEYBOARD_S] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $f7ff;
    //P2
-   if arcade_input.up[1] then coleco_0.joystick[1]:=(coleco_0.joystick[1] and $fe) else coleco_0.joystick[1]:=(coleco_0.joystick[1] or 1);
-   if arcade_input.right[1] then coleco_0.joystick[1]:=(coleco_0.joystick[1] and $fd) else coleco_0.joystick[1]:=(coleco_0.joystick[1] or 2);
-   if arcade_input.down[1] then coleco_0.joystick[1]:=(coleco_0.joystick[1] and $fb) else coleco_0.joystick[1]:=(coleco_0.joystick[1] or 4);
-   if arcade_input.left[1] then coleco_0.joystick[1]:=(coleco_0.joystick[1] and $f7) else coleco_0.joystick[1]:=(coleco_0.joystick[1] or 8);
-   if arcade_input.but1[1] then coleco_0.joystick[1]:=(coleco_0.joystick[1] and $bf) else coleco_0.joystick[1]:=(coleco_0.joystick[1] or $40);
-   if arcade_input.but0[1] then coleco_0.keypad[1]:=(coleco_0.keypad[1] and $bfff) else coleco_0.keypad[1]:=(coleco_0.keypad[1] or $4000);
+   if keyboard[KEYBOARD_P] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $fffe;
+   if keyboard[KEYBOARD_Q] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $fffd;
+   if keyboard[KEYBOARD_W] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $fffb;
+   if keyboard[KEYBOARD_E] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $fff7;
+   if keyboard[KEYBOARD_R] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $ffef;
+   if keyboard[KEYBOARD_T] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $ffdf;
+   if keyboard[KEYBOARD_Y] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $ffbf;
+   if keyboard[KEYBOARD_U] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $ff7f;
+   if keyboard[KEYBOARD_I] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $feff;
+   if keyboard[KEYBOARD_O] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $fdff;
+   if keyboard[KEYBOARD_Z] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $fbff;
+   if keyboard[KEYBOARD_X] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $f7ff;
+   //P1
+   if arcade_input.up[0] then coleco_0.joystick[0]:=coleco_0.joystick[0] and $fe;
+   if arcade_input.right[0] then coleco_0.joystick[0]:=coleco_0.joystick[0] and $fd;
+   if arcade_input.down[0] then coleco_0.joystick[0]:=coleco_0.joystick[0] and $fb;
+   if arcade_input.left[0] then coleco_0.joystick[0]:=coleco_0.joystick[0] and $f7;
+   if arcade_input.but1[0] then coleco_0.joystick[0]:=coleco_0.joystick[0] and $bf;
+   if arcade_input.but0[0] then coleco_0.keypad[0]:=coleco_0.keypad[0] and $bfff;
+   //P2
+   if arcade_input.up[1] then coleco_0.joystick[1]:=coleco_0.joystick[1] and $fe;
+   if arcade_input.right[1] then coleco_0.joystick[1]:=coleco_0.joystick[1] and $fd;
+   if arcade_input.down[1] then coleco_0.joystick[1]:=coleco_0.joystick[1] and $fb;
+   if arcade_input.left[1] then coleco_0.joystick[1]:=coleco_0.joystick[1] and $f7;
+   if arcade_input.but1[1] then coleco_0.joystick[1]:=coleco_0.joystick[1] and $bf;
+   if arcade_input.but0[1] then coleco_0.keypad[1]:=coleco_0.keypad[1] and $bfff;
 end;
 end;
 
@@ -94,7 +97,6 @@ procedure coleco_principal;
 var
   f:word;
 begin
-init_controls(false,true,true,false);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
       eventos_coleco;
@@ -348,7 +350,6 @@ function iniciar_coleco:boolean;
 begin
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=coleco_principal;
 llamadas_maquina.reset:=reset_coleco;
 llamadas_maquina.close:=cerrar_coleco;

@@ -1,14 +1,7 @@
-unit spectrum_128k;
+﻿unit spectrum_128k;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,ay_8910,z80_sp,
-     controls_engine,rom_engine,pal_engine,sound_engine,z80pio,gfx_engine;
-
-const
-  spec128_rom:array[0..1] of tipo_roms=(
-        (n:'128-0.rom';l:$4000;p:0;crc:$e76799d2),(n:'128-1.rom';l:$4000;p:$4000;crc:$b96a36be));
-  spec_plus2_rom:array[0..1] of tipo_roms=(
-        (n:'plus2-0.rom';l:$4000;p:0;crc:$5d2e8c66),(n:'plus2-1.rom';l:$4000;p:$4000;crc:$98b1320b));
+uses spectrum_misc;
 
 var
    memoria_128k:array[0..9,0..$3fff] of byte;
@@ -24,11 +17,12 @@ procedure borde_128_full(linea:word);
 procedure video_128k(linea:word;pvideo:pbyte);
 
 implementation
-uses tap_tzx,principal,spectrum_misc;
+uses tap_tzx,principal,main_engine,ay_8910,z80_sp,controls_engine,rom_engine,
+     pal_engine,sound_engine,z80pio,gfx_engine;
 
 function spec128_lg:byte;
 begin
-spec128_lg:=mouse.lg_val;
+  spec128_lg:=mouse.lg_val;
 end;
 
 procedure spec128k_reset;
@@ -93,21 +87,6 @@ case linea of
                           inc(ptemp);
                           video:=video shl 1;
                         end;
-                        {if (video and 128)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 64)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 32)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 16)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 8)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 4)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 2)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-                        inc(ptemp);
-                        if (video and 1)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];}
                         putpixel(pant_x,nlinea2,8,punbuf,1);
                       end;
                       inc(pos_video);
@@ -166,7 +145,6 @@ end;
 
 procedure spectrum128_main;
 begin
-init_controls(true,true,true,false);
 while EmuStatus=EsRunning do begin
   for linea_128:=0 to 310 do begin
     if mouse.tipo=MGUNSTICK then evalua_gunstick;
@@ -256,14 +234,14 @@ var
 begin
 temp:=$ff;
 if (puerto and 1)=0 then begin //ULA
-  if (puerto and $8000)=0 then temp:=temp and var_spectrum.keyB_SPC;
-  if (puerto and $4000)=0 then temp:=temp and var_spectrum.keyH_ENT;
-  if (puerto and $2000)=0 then temp:=temp and var_spectrum.keyY_P;
-  if (puerto and $1000)=0 then temp:=temp and var_spectrum.key6_0;
-  if (puerto and $800)=0 then temp:=temp and var_spectrum.key1_5;
-  if (puerto and $400)=0 then temp:=temp and var_spectrum.keyQ_T;
-  if (puerto and $200)=0 then temp:=temp and var_spectrum.keyA_G;
-  if (puerto and $100)=0 then temp:=temp and var_spectrum.keyCAPS_V;
+  if (puerto and $8000)=0 then temp:=temp and var_spectrum.keys[7];
+  if (puerto and $4000)=0 then temp:=temp and var_spectrum.keys[6];
+  if (puerto and $2000)=0 then temp:=temp and var_spectrum.keys[5];
+  if (puerto and $1000)=0 then temp:=temp and var_spectrum.keys[4];
+  if (puerto and $800)=0 then temp:=temp and var_spectrum.keys[3];
+  if (puerto and $400)=0 then temp:=temp and var_spectrum.keys[2];
+  if (puerto and $200)=0 then temp:=temp and var_spectrum.keys[1];
+  if (puerto and $100)=0 then temp:=temp and var_spectrum.keys[0];
   spec128_inbyte:=(temp and $bf) or cinta_tzx.value or var_spectrum.altavoz;
 end else begin //Resto
    //Floating bus

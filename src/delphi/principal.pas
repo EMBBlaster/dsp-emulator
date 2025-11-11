@@ -1,13 +1,13 @@
-unit principal;
+﻿unit principal;
 //{$DEFINE FINAL}
 interface
 
 uses
-  lib_sdl2,Windows,SysUtils,Forms,graphics,uchild,Classes,Dialogs,StdCtrls,ExtCtrls,
-  Buttons,Grids,ComCtrls,Menus,ImgList,Controls,messages,System.ImageList,
+  windows,SysUtils,Forms,uchild,Dialogs,StdCtrls,ExtCtrls,Buttons,ComCtrls,
+  Menus,Controls,messages,System.ImageList,Vcl.ImgList,Vcl.Graphics,
+  System.Classes,
   //misc
-  poke_spectrum,main_engine,sound_engine,lenguaje,init_games,
-  controls_engine,LoadRom,config_general,pngimage;
+  pngimage,main_engine;
 
 type
   Tprincipal1 = class(TForm)
@@ -240,7 +240,6 @@ type
     BitBtn9: TBitBtn;
     BitBtn10: TBitBtn;
     BitBtn11: TBitBtn;
-    BitBtn12: TBitBtn;
     BitBtn14: TBitBtn;
     winCobraHardware1: TMenuItem;
     TwinCobr1: TMenuItem;
@@ -617,6 +616,9 @@ type
     Tokio1: TMenuItem;
     SuperBobleBoble1: TMenuItem;
     MSX1_1: TMenuItem;
+    Mars1: TMenuItem;
+    DevilFish1: TMenuItem;
+    DrMicro1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure Ejecutar1Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -632,7 +634,6 @@ type
     procedure fFast(Sender: TObject);
     procedure fLoadCinta(Sender: TObject);
     procedure fSaveSnapShot(Sender: TObject);
-    procedure fPoke(Sender: TObject);
     procedure fSaveGIF(Sender: TObject);
     procedure ffastload(Sender: TObject);
     procedure fConfigurar(Sender: TObject);
@@ -658,12 +659,13 @@ var
   estado_actual:TEmuStatus;
 
 implementation
+uses acercade,file_engine,lenslock,spectrum_misc,tap_tzx,arcade_config,config,
+     config_cpc,config_sms,config_gb,principal_misc,sound_engine,lenguaje,
+     init_games,controls_engine,LoadRom,config_general,lib_sdl2;
 
-uses acercade,file_engine,poke_memoria,lenslock,spectrum_misc,tap_tzx,arcade_config,
-     config,config_cpc,config_sms,config_gb,principal_misc;
 {$R *.dfm}
 
-//Para evitar que cuando se pulsa ALT se vaya al menu a�ado esta funcion...
+//Para evitar que cuando se pulsa ALT se vaya al menu añado esta funcion...
 procedure Tprincipal1.WndProc(var Message:TMessage);
 begin
 if not((Message.Msg=WM_SYSCOMMAND) and (Message.WParam=SC_KEYMENU)) then inherited WndProc(Message);
@@ -744,13 +746,15 @@ end;
 procedure Tprincipal1.Timer3Timer(Sender: TObject);
 begin
   principal_timer3;
-  QueryPerformanceFrequency(cont_micro);
-  valor_sync:=(1/llamadas_maquina.fps_max)*cont_micro;
-  QueryPerformanceCounter(cont_sincroniza);
-  if not(main_screen.pantalla_completa) then Windows.SetFocus(child.Handle);
-  if @llamadas_maquina.reset<>nil then llamadas_maquina.reset;
-  reset_game_general;
-  llamadas_maquina.bucle_general;
+  if main_vars.driver_ok then begin
+    QueryPerformanceFrequency(cont_micro);
+    valor_sync:=(1/llamadas_maquina.fps_max)*cont_micro;
+    QueryPerformanceCounter(cont_sincroniza);
+    if not(main_screen.pantalla_completa) then Windows.SetFocus(child.Handle);
+    if @llamadas_maquina.reset<>nil then llamadas_maquina.reset;
+    reset_game_general;
+    llamadas_maquina.bucle_general;
+  end;
 end;
 
 //Continuar con la emulacion...
@@ -827,16 +831,6 @@ procedure Tprincipal1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
 principal_formclose;
 halt(0);
-end;
-
-procedure Tprincipal1.fPoke(Sender: TObject);
-begin
-//Pausa1Click(nil);
-//form3.show;
-if not(cinta_tzx.cargada) then exit;
-iniciar_BBDD_poke;
-buscar_BBDD;
-//Ejecutar1click(nil);
 end;
 
 procedure Tprincipal1.fConfigurar_general(Sender: TObject);

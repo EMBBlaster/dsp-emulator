@@ -1,4 +1,4 @@
-unit galaga_stars_const;
+﻿unit galaga_stars_const;
 
 interface
 

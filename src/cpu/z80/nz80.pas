@@ -1,9 +1,8 @@
-unit nz80;
+ï»¿unit nz80;
 
 interface
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     cpu_misc,z80daisy,timer_engine,dialogs,vars_hide,main_engine;
+uses main_engine,dialogs,cpu_misc;
 
 const
     paridad:array [0..255] of boolean=(
@@ -118,6 +117,7 @@ var
   z80_0,z80_1,z80_2:cpu_z80;
 
 implementation
+uses z80daisy,timer_engine;
 
 const
         z80t_m:array[0..255] of byte=(
@@ -3570,7 +3570,7 @@ case instruccion of
                  r.f.bit5:=((temp-((temp3 and 16) shr 4)) and 2)<>0;
                  r.f.bit3:=((temp-((temp3 shr 4) and 1)) and 8)<>0;
            end;
-        $aa:begin   //ind añadido el 03-12-08 usado por CPC test
+        $aa:begin   //ind aÃ±adido el 03-12-08 usado por CPC test
                  temp:=self.in_port(r.bc.w);
                  r.wz:=r.bc.w-1;
                  r.bc.h:=r.bc.h-1;
@@ -3641,7 +3641,7 @@ case instruccion of
                   r.wz:=r.pc+1;
                 end;
             end;
-        $b2:begin  //inir añadido el 05-10-08, lo usa una rom de Coleco!
+        $b2:begin  //inir aÃ±adido el 05-10-08, lo usa una rom de Coleco!
                 temp:=self.in_port(r.bc.w);
                 r.wz:=r.bc.w+1;
                 r.bc.h:=r.bc.h-1;
@@ -3662,7 +3662,7 @@ case instruccion of
                   self.estados_demas:=self.estados_demas+z80t_ex[instruccion];
                 end;
            end;
-        $b3:begin //otir añadido el dia 18-09-04
+        $b3:begin //otir aÃ±adido el dia 18-09-04
                 temp:=self.getbyte(r.hl.w);
                 r.bc.h:=r.bc.h-1;
                 r.wz:=r.bc.w+1;

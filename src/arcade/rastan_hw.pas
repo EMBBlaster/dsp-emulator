@@ -1,26 +1,39 @@
-unit rastan_hw;
+﻿unit rastan_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,taito_sound,rom_engine,
-     pal_engine,sound_engine,msm5205;
+uses rom_engine;
 
 function iniciar_rastan:boolean;
 
-implementation
 const
         rastan_rom:array[0..5] of tipo_roms=(
-        (n:'b04-38.19';l:$10000;p:0;crc:$1c91dbb1),(n:'b04-37.7';l:$10000;p:$1;crc:$ecf20bdd),
+        (n:'b04-38.19';l:$10000;p:0;crc:$1c91dbb1),(n:'b04-37.7';l:$10000;p:1;crc:$ecf20bdd),
         (n:'b04-40.20';l:$10000;p:$20000;crc:$0930d4b3),(n:'b04-39.8';l:$10000;p:$20001;crc:$d95ade5e),
         (n:'b04-42.21';l:$10000;p:$40000;crc:$1857a7cb),(n:'b04-43-1.9';l:$10000;p:$40001;crc:$ca4702ff));
         rastan_char:array[0..3] of tipo_roms=(
         (n:'b04-01.40';l:$20000;p:0;crc:$cd30de19),(n:'b04-03.39';l:$20000;p:$20000;crc:$ab67e064),
         (n:'b04-02.67';l:$20000;p:$40000;crc:$54040fec),(n:'b04-04.66';l:$20000;p:$60000;crc:$94737e93));
         rastan_sound:tipo_roms=(n:'b04-19.49';l:$10000;p:0;crc:$ee81fdd8);
-        rastan_sprites:array[0..3] of tipo_roms=(
-        (n:'b04-05.15';l:$20000;p:0;crc:$c22d94ac),(n:'b04-07.14';l:$20000;p:$20000;crc:$b5632a51),
-        (n:'b04-06.28';l:$20000;p:$40000;crc:$002ccf39),(n:'b04-08.27';l:$20000;p:$60000;crc:$feafca05));
         rastan_adpcm:tipo_roms=(n:'b04-20.76';l:$10000;p:0;crc:$fd1a34cc);
+        rastan_sprites:array[0..4] of tipo_roms=(
+        (n:'b04-05.15';l:$20000;p:0;crc:$c22d94ac),(n:'b04-07.14';l:$20000;p:$20000;crc:$b5632a51),
+        (n:'b04-06.28';l:$20000;p:$40000;crc:$002ccf39),(n:'b04-08.27';l:$20000;p:$60000;crc:$feafca05),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,taito_sound,pal_engine,
+     sound_engine,msm5205;
+
+const
+        rastan_dip_a:array [0..3] of def_dip2=(
+        (mask:0;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Cocktail')),
+        (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
+        (mask:$30;name:'Coin A';number:4;val4:(0,$10,$20,$30);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
+        (mask:$c0;name:'Coin B';number:4;val4:($c0,$80,$40,0);name4:('1C 2C','1C 3C','1C 4C','1C 6C')));
+        rastan_dip_b:array [0..3] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(2,3,1,0);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:$c;name:'Bonus Life';number:4;val4:($c,8,4,0);name4:('100K 200K 400K 600K 800K','150K 300K 600K 900K 1200K','200K 400K 800K 1200K 1600K','250K 500K 1000K 1500K 2000K')),
+        (mask:$30;name:'Lives';number:4;val4:($30,$20,$10,0);name4:('3','4','5','6')),
+        (mask:$40;name:'Allow Continue';number:2;val2:(0,$40);name2:('Off','On')));
 
 var
  scroll_x1,scroll_y1,scroll_x2,scroll_y2:word;
@@ -34,14 +47,14 @@ var
   f,x,y,nchar,atrib,color:word;
   flipx,flipy:boolean;
 begin
-for f:=$fff downto $0 do begin
+for f:=$fff downto 0 do begin
     //background
     atrib:=ram2[f*2];
     color:=atrib and $7f;
     if (gfx[0].buffer[f] or buffer_color[color]) then begin
       x:=f mod 64;
       y:=f div 64;
-      nchar:=ram2[$1+(f*2)] and $3fff;
+      nchar:=ram2[1+(f*2)] and $3fff;
       flipx:=(atrib and $4000)<>0;
       flipy:=(atrib and $8000)<>0;
       put_gfx_flip(x*8,y*8,nchar,color shl 4,1,0,flipx,flipy);
@@ -64,13 +77,13 @@ scroll_x_y(1,3,scroll_x1,scroll_y1);
 scroll_x_y(2,3,scroll_x2,scroll_y2);
 //Sprites
 for f:=$ff downto 0 do begin
-  nchar:=(ram3[$2+(f*4)]) and $fff;
+  nchar:=(ram3[2+(f*4)]) and $fff;
   if nchar<>0 then begin
     atrib:=ram3[f*4];
     color:=((atrib and $f) or ((spritebank and $f) shl 4)) shl 4;
     put_gfx_sprite(nchar,color,(atrib and $4000)<>0,(atrib and $8000)<>0,1);
-    x:=(ram3[$3+(f*4)]+16) and $1ff;
-    y:=(ram3[$1+(f*4)]) and $1ff;
+    x:=(ram3[3+(f*4)]+16) and $1ff;
+    y:=(ram3[1+(f*4)]) and $1ff;
     actualiza_gfx_sprite(x,y,3,1);
   end;
 end;
@@ -81,18 +94,28 @@ end;
 procedure eventos_rastan;
 begin
 if event.arcade then begin
+  marcade.in0:=$1f;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
+  //P2
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //Sys
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $40;
 end;
 end;
 
@@ -101,7 +124,6 @@ var
   frame_m:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
@@ -127,11 +149,11 @@ case direccion of
   $10c000..$10ffff:rastan_getword:=ram1[(direccion and $3fff) shr 1];
   $200000..$200fff:rastan_getword:=buffer_paleta[(direccion and $fff) shr 1];
   $390000:rastan_getword:=marcade.in1;
-  $390002,$39000a:rastan_getword:=$ff;
+  $390002:rastan_getword:=marcade.in2;
   $390004:rastan_getword:=$8f;
   $390006:rastan_getword:=marcade.in0;
-  $390008:rastan_getword:=$fe;
-  $39000c..$39000f:rastan_getword:=$00;
+  $390008:rastan_getword:=marcade.dswa;
+  $39000a:rastan_getword:=marcade.dswb;
   $3e0002:if m68000_0.read_8bits_hi_dir then rastan_getword:=tc0140syt_0.comm_r;
   $c00000..$c0ffff:rastan_getword:=ram2[(direccion and $ffff) shr 1];
   $d00000..$d03fff:rastan_getword:=ram3[(direccion and $3fff) shr 1];
@@ -186,6 +208,7 @@ begin
  tc0140syt_0.reset;
  marcade.in0:=$1f;
  marcade.in1:=$ff;
+ marcade.in2:=$ff;
  scroll_x1:=0;
  scroll_y1:=0;
  scroll_x2:=0;
@@ -222,7 +245,7 @@ if not(roms_load(msm5205_0.rom_data,rastan_adpcm)) then exit;
 //cargar sonido+ponerlas en su banco
 if not(roms_load(@memoria_temp,rastan_sound)) then exit;
 copymemory(@tc0140syt_0.snd_rom[0],@memoria_temp[0],$4000);
-copymemory(@tc0140syt_0.snd_bank_rom[0,0],@memoria_temp[$0],$4000);
+copymemory(@tc0140syt_0.snd_bank_rom[0,0],@memoria_temp[0],$4000);
 copymemory(@tc0140syt_0.snd_bank_rom[1,0],@memoria_temp[$4000],$4000);
 copymemory(@tc0140syt_0.snd_bank_rom[2,0],@memoria_temp[$8000],$4000);
 copymemory(@tc0140syt_0.snd_bank_rom[3,0],@memoria_temp[$c000],$4000);
@@ -238,6 +261,9 @@ init_gfx(1,16,16,$1000);
 gfx[1].trans[0]:=true;
 gfx_set_desc_data(4,0,64*8,0,1,2,3);
 convert_gfx(1,0,@memoria_temp,@ps_x,@ps_y,false,false);
+//Dips
+init_dips(1,rastan_dip_a,$fd);
+init_dips(2,rastan_dip_b,$ff);
 //final
 reset_rastan;
 iniciar_rastan:=true;

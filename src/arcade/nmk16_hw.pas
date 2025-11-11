@@ -1,13 +1,10 @@
 unit nmk16_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,timer_engine,oki6295,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_nmk16:boolean;
 
-implementation
 const
         //Saboten Bombers
         sbombers_rom:array[0..1] of tipo_roms=(
@@ -16,7 +13,7 @@ const
         sbombers_char2:tipo_roms=(n:'ic32.sb4';l:$200000;p:0;crc:$24c62205);
         sbombers_sprites:tipo_roms=(n:'ic100.sb5';l:$200000;p:0;crc:$b20f166e);
         sbombers_adpcm1:tipo_roms=(n:'ic30.sb6';l:$100000;p:0;crc:$288407af);
-        sbombers_adpcm2:tipo_roms=(n:'ic27.sb7';l:$100000;p:0;crc:$43e33a7e);
+        sbombers_adpcm2:array[0..1] of tipo_roms=((n:'ic27.sb7';l:$100000;p:0;crc:$43e33a7e),());
         //Bomb Jack Twin
         bjtwin_rom:array[0..1] of tipo_roms=(
         (n:'93087-1.bin';l:$20000;p:0;crc:$93c84e2d),(n:'93087-2.bin';l:$20000;p:$1;crc:$30ff678a));
@@ -24,7 +21,11 @@ const
         bjtwin_char2:tipo_roms=(n:'93087-4.bin';l:$100000;p:0;crc:$8a4f26d0);
         bjtwin_sprites:tipo_roms=(n:'93087-5.bin';l:$100000;p:0;crc:$bb06245d);
         bjtwin_adpcm1:tipo_roms=(n:'93087-6.bin';l:$100000;p:0;crc:$372d46dd);
-        bjtwin_adpcm2:tipo_roms=(n:'93087-7.bin';l:$100000;p:0;crc:$8da67808);
+        bjtwin_adpcm2:array[0..1] of tipo_roms=((n:'93087-7.bin';l:$100000;p:0;crc:$8da67808),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,timer_engine,oki6295,
+     pal_engine,sound_engine;
 
 var
  rom:array[0..$3ffff] of word;
@@ -149,7 +150,6 @@ var
   frame_m:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin

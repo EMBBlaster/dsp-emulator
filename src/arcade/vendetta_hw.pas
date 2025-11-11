@@ -1,34 +1,37 @@
-unit vendetta_hw;
+﻿unit vendetta_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,konami,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,k052109,k053260,k053246_k053247_k055673,
-     k054000,k053251,eepromser,timer_engine;
+uses rom_engine;
 
 function iniciar_vendetta:boolean;
 
-implementation
 const
         //vendetta
         vendetta_rom:tipo_roms=(n:'081u01.17c';l:$40000;p:0;crc:$b4d9ade5);
         vendetta_sound:tipo_roms=(n:'081b02';l:$10000;p:0;crc:$4c604d9b);
         vendetta_tiles:array[0..1] of tipo_roms=(
         (n:'081a09';l:$80000;p:0;crc:$b4c777a9),(n:'081a08';l:$80000;p:2;crc:$272ac8d9));
-        vendetta_sprites:array[0..3] of tipo_roms=(
-        (n:'081a04';l:$100000;p:0;crc:$464b9aa4),(n:'081a05';l:$100000;p:2;crc:$4e173759),
-        (n:'081a06';l:$100000;p:4;crc:$e9fe6d80),(n:'081a07';l:$100000;p:6;crc:$8a22b29a));
         vendetta_k053260:tipo_roms=(n:'081a03';l:$100000;p:0;crc:$14b6baea);
         vendetta_eeprom:tipo_roms=(n:'vendetta.nv';l:$80;p:0;crc:$fbac4e30);
-        //DIP
-        vendetta_dip_a:array [0..2] of def_dip=(
-        (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$02;dip_name:'4C 1C'),(dip_val:$05;dip_name:'3C 1C'),(dip_val:$08;dip_name:'2C 1C'),(dip_val:$04;dip_name:'3C 2C'),(dip_val:$01;dip_name:'4C 3C'),(dip_val:$0f;dip_name:'1C 1C'),(dip_val:$03;dip_name:'3C 4C'),(dip_val:$07;dip_name:'2C 3C'),(dip_val:$0e;dip_name:'1C 2C'),(dip_val:$06;dip_name:'2C 5C'),(dip_val:$0d;dip_name:'1C 3C'),(dip_val:$0c;dip_name:'1C 4C'),(dip_val:$0b;dip_name:'1C 5C'),(dip_val:$0a;dip_name:'1C 6C'),(dip_val:$09;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),
-        (mask:$f0;name:'Coin B';number:16;dip:((dip_val:$20;dip_name:'4C 1C'),(dip_val:$50;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$40;dip_name:'3C 2C'),(dip_val:$10;dip_name:'4C 3C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$30;dip_name:'3C 4C'),(dip_val:$70;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$60;dip_name:'2C 5C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$90;dip_name:'1C 7C'),(dip_val:$0;dip_name:'No Coin'))),());
-        vendetta_dip_b:array [0..3] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'1'),(dip_val:$2;dip_name:'2'),(dip_val:$1;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Difficulty';number:4;dip:((dip_val:$60;dip_name:'Easy'),(dip_val:$40;dip_name:'Normal'),(dip_val:$20;dip_name:'Hard'),(dip_val:$0;dip_name:'Very Hard'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        vendetta_dip_c:array [0..1] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        vendetta_sprites:array[0..4] of tipo_roms=(
+        (n:'081a04';l:$100000;p:0;crc:$464b9aa4),(n:'081a05';l:$100000;p:2;crc:$4e173759),
+        (n:'081a06';l:$100000;p:4;crc:$e9fe6d80),(n:'081a07';l:$100000;p:6;crc:$8a22b29a),());
+
+implementation
+uses nz80,konami,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ym_2151,k052109,k053260,k053246_k053247_k055673,k054000,k053251,eepromser,
+     timer_engine;
+
+const
+        vendetta_dip_a:array [0..1] of def_dip2=(
+        (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
+        (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
+        vendetta_dip_b:array [0..2] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('1','2','3','5')),
+        (mask:$60;name:'Difficulty';number:4;val4:($60,$40,$20,0);name4:('Easy','Normal','Hard','Very Hard')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('Off','On')));
+        vendetta_dip_c:def_dip2=(
+        mask:1;name:'Flip Screen';number:2;val2:(1,0);name2:('Off','On'));
 
 var
  tiles_rom,sprite_rom,k053260_rom:pbyte;
@@ -39,7 +42,7 @@ var
 
 procedure vendetta_cb(layer,bank:word;var code:dword;var color:word;var flags:word;var priority:word);
 begin
-code:=code or (((color and $03) shl 8) or ((color and $30) shl 6) or ((color and $0c) shl 10) or (bank shl 14));
+code:=code or (((color and 3) shl 8) or ((color and $30) shl 6) or ((color and $c) shl 10) or (bank shl 14));
 color:=layer_colorbase[layer]+((color and $c0) shr 6);
 end;
 
@@ -47,12 +50,12 @@ procedure vendetta_sprite_cb(var code:dword;var color:word;var priority_mask:wor
 var
   pri:integer;
 begin
-	pri:=(color and $03e0) shr 4;   // ???????
+	pri:=(color and $3e0) shr 4;   // ???????
 	if (pri<=layerpri[2]) then priority_mask:=0
 	  else if ((pri>layerpri[2]) and (pri<=layerpri[1])) then priority_mask:=1
 	    else if ((pri>layerpri[1]) and (pri<=layerpri[0])) then priority_mask:=2
 	      else priority_mask:=3;
-	color:=sprite_colorbase+(color and $001f);
+	color:=sprite_colorbase+(color and $1f);
 end;
 
 procedure update_video_vendetta;
@@ -100,25 +103,28 @@ end;
 procedure eventos_vendetta;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $7f;
   //P2
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $7f;
   //Service
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $fd;
 end;
 end;
 
@@ -126,7 +132,6 @@ procedure vendetta_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
     for f:=0 to 255 do begin
       eventos_vendetta;
@@ -195,7 +200,7 @@ case direccion of
     $5fa0..$5faf:k053251_0.write(direccion and $f,valor);
     $5fb0..$5fb7:k053246_0.write(direccion and $7,valor);
     $5fe0:begin
-            if (valor and $8)<>0 then k052109_0.set_rmrd_line(ASSERT_LINE)
+            if (valor and 8)<>0 then k052109_0.set_rmrd_line(ASSERT_LINE)
               else k052109_0.set_rmrd_line(CLEAR_LINE);
             if (valor and $20)<>0 then k053246_0.set_objcha_line(ASSERT_LINE)
               else k053246_0.set_objcha_line(CLEAR_LINE);
@@ -366,12 +371,9 @@ end;
 //protection
 k054000_0:=k054000_chip.create;
 //DIP
-marcade.dswa:=$ff;
-marcade.dswa_val:=@vendetta_dip_a;
-marcade.dswb:=$5e;
-marcade.dswb_val:=@vendetta_dip_b;
-marcade.dswc:=$ff;
-marcade.dswc_val:=@vendetta_dip_c;
+init_dips(1,vendetta_dip_a,$ff);
+init_dips(2,vendetta_dip_b,$5e);
+init_dips(3,vendetta_dip_c,$ff);
 //final
 iniciar_vendetta:=true;
 end;

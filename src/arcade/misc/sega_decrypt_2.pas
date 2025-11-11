@@ -1,7 +1,6 @@
-unit sega_decrypt_2;
+﻿unit sega_decrypt_2;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}misc_functions;
 
 const
   S315_5179=0;  //Robo Wrestle 2001
@@ -11,6 +10,8 @@ const
 procedure decode_sega_type2(rom,rom_dec:pbyte;cpu_type:byte;shift:byte=0);
 
 implementation
+uses misc_functions;
+
 const
   convtable:array[0..1,0..1,0..127] of byte=(
     (($00,$45,$41,$14,$10,$55,$51,$01,

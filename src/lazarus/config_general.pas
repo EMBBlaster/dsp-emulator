@@ -5,8 +5,7 @@ unit config_general;
 interface
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn, lib_sdl2, controls_engine,
-  main_engine, lenguaje, sound_engine,rom_export,timer_engine;
+  ComCtrls, ExtCtrls, StdCtrls, Buttons, EditBtn;
 
 type
 
@@ -70,6 +69,7 @@ type
     D4: TEdit;
     GroupBox1: TGroupBox;
     GroupBox10: TGroupBox;
+    GroupBox15: TGroupBox;
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
@@ -112,6 +112,8 @@ type
     RadioButton19: TRadioButton;
     RadioButton2: TRadioButton;
     RadioButton20: TRadioButton;
+    RadioButton28: TRadioButton;
+    RadioButton29: TRadioButton;
     RadioButton3: TRadioButton;
     RadioButton4: TRadioButton;
     GroupBox5: TRadioGroup;
@@ -187,7 +189,8 @@ var
   config_button:boolean;
 
 implementation
-uses principal, redefine,configgeneral_misc;
+uses principal,redefine,configgeneral_misc,lib_sdl2,controls_engine,
+     main_engine,lenguaje,rom_engine;
 
 { TMConfig }
 

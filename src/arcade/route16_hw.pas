@@ -1,12 +1,10 @@
 unit route16_hw;
 
 interface
-uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,pal_engine,
-     sound_engine,dac;
+uses rom_engine;
 
 function iniciar_route16_hw:boolean;
 
-implementation
 const
         route16_cpu1:array[0..5] of tipo_roms=(
         (n:'stvg54.a0';l:$800;p:0;crc:$b8471cdc),(n:'stvg55.a1';l:$800;p:$800;crc:$3ec52fe5),
@@ -15,15 +13,8 @@ const
         route16_cpu2:array[0..3] of tipo_roms=(
         (n:'stvg60.b0';l:$800;p:0;crc:$fef605f3),(n:'stvg61.b1';l:$800;p:$800;crc:$d0d6c189),
         (n:'stvg62.b2';l:$800;p:$1000;crc:$defc5797),(n:'stvg63.b3';l:$800;p:$1800;crc:$88d94a66));
-        route16_proms:array[0..1] of tipo_roms=(
-        (n:'mb7052.59';l:$100;p:0;crc:$08793ef7),(n:'mb7052.61';l:$100;p:$100;crc:$08793ef7));
-        //Dip
-        route16_dip_a:array [0..4] of def_dip2=(
-        (mask:$1;name:'Lives';number:2;val2:(0,1);name2:('3','5')),
-        (mask:$18;name:'Coinage';number:4;val4:(8,0,$10,$18);name4:('2C 1C','1C 1C','1C 2C','2C 1C')),
-        (mask:$20;name:'Cabinet';number:2;val2:($20,0);name2:('Upright','Cocktail')),
-        (mask:$40;name:'Flip Screen';number:2;val2:(0,$40);name2:('Off','On')),
-        (mask:$80;name:'Demo Sounds';number:2;val2:(0,$80);name2:('Off','On')));
+        route16_proms:array[0..2] of tipo_roms=(
+        (n:'mb7052.59';l:$100;p:0;crc:$08793ef7),(n:'mb7052.61';l:$100;p:$100;crc:$08793ef7),());
         //Speak and rescue
         speakres_cpu1:array[0..5] of tipo_roms=(
         (n:'speakres.1';l:$800;p:0;crc:$6026e4ea),(n:'speakres.2';l:$800;p:$800;crc:$93f0d4da),
@@ -31,9 +22,20 @@ const
         (n:'speakres.5';l:$800;p:$2000;crc:$61b12a67),(n:'speakres.6  ';l:$800;p:$2800;crc:$220e0ab2));
         speakres_cpu2:array[0..1] of tipo_roms=(
         (n:'speakres.7';l:$800;p:0;crc:$d417be13),(n:'speakres.8';l:$800;p:$800;crc:$d417be13));
-        speakres_proms:array[0..1] of tipo_roms=(
-        (n:'im5623.f10';l:$100;p:0;crc:$08793ef7),(n:'im5623.f12';l:$100;p:$100;crc:$08793ef7));
-        //Dip
+        speakres_proms:array[0..2] of tipo_roms=(
+        (n:'im5623.f10';l:$100;p:0;crc:$08793ef7),(n:'im5623.f12';l:$100;p:$100;crc:$08793ef7),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,dac;
+
+const
+        route16_dip_a:array [0..4] of def_dip2=(
+        (mask:$1;name:'Lives';number:2;val2:(0,1);name2:('3','5')),
+        (mask:$18;name:'Coinage';number:4;val4:(8,0,$10,$18);name4:('2C 1C','1C 1C','1C 2C','2C 1C')),
+        (mask:$20;name:'Cabinet';number:2;val2:($20,0);name2:('Upright','Cocktail')),
+        (mask:$40;name:'Flip Screen';number:2;val2:(0,$40);name2:('Off','On')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:(0,$80);name2:('Off','On')));
         speakres_dip_a:array [0..5] of def_dip2=(
         (mask:$3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','6')),
         (mask:$c;name:'2 Attackers at Wave';number:4;val4:(0,4,8,$c);name4:('2','3','4','5')),
@@ -124,7 +126,6 @@ procedure route16_hw_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_route16;

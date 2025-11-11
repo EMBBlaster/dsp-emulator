@@ -1,7 +1,7 @@
 unit pokey;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,timer_engine,dialogs;
+uses main_engine,sound_engine,timer_engine,dialogs;
 
 const
   // POKEY WRITE LOGICALS */

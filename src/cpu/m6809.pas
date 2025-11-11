@@ -1,8 +1,7 @@
 ﻿unit m6809;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,timer_engine,vars_hide,cpu_misc;
+uses main_engine,cpu_misc,dialogs,sysutils;
 
 type
         band_m6809=record
@@ -63,6 +62,7 @@ const
   TCPU_MC6809E=2;
 
 implementation
+uses timer_engine;
 
 const
     estados_t:array[0..255] of byte=(

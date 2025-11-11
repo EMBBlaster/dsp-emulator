@@ -1,6 +1,8 @@
 unit namcoio_56xx_58xx;
+
 interface
 uses timer_engine;
+
 type
   tin_f=function:byte;
   tout_f=procedure (data:byte);

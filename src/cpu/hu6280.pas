@@ -1,8 +1,7 @@
 unit hu6280;
 
 interface
-uses  {$IFDEF WINDOWS}windows,{$ENDIF}
-      main_engine,dialogs,sysutils,timer_engine,vars_hide,cpu_misc;
+uses  main_engine,dialogs,sysutils,timer_engine,cpu_misc;
 
 type
         band_h6280=record

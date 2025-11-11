@@ -1,9 +1,8 @@
-unit controls_engine;
+﻿unit controls_engine;
 
 interface
 
-uses {$ifdef windows}windows,controls,{$endif}lib_sdl2,main_engine,
-     {$ifdef fpc}sound_engine,{$else}uchild,{$endif}timer_engine,sysutils;
+uses {$ifdef windows}controls,{$endif}lib_sdl2,main_engine,sysutils;
 
 const
   NUM_PLAYERS=2-1;
@@ -116,8 +115,8 @@ type
         button1,button2:boolean;
     end;
     def_event = record
-        mouse,keyboard,arcade:boolean;
-        emouse,ejoystick,ekeyboard,earcade:boolean;
+        mouse,arcade:boolean;
+        emouse:boolean;
     end;
     def_arcade = record
         coin,start,up,down,left,right,but0,but1,but2,but3,but4,but5,use_key:array[0..NUM_PLAYERS] of boolean;
@@ -161,7 +160,8 @@ var
 
 procedure controls_start;
 procedure evalue_controls;
-procedure init_controls(evalue_mouse,evalue_keyboard,evalue_joystick,evalue_arcade:boolean);
+procedure init_mouse(evalue_mouse:boolean);
+procedure reset_controls;
 //Joystick
 procedure close_joystick;
 //Mouse cursor
@@ -169,7 +169,6 @@ procedure show_mouse_cursor;
 procedure hide_mouse_cursor;
 //Analog
 procedure init_analog(cpu:byte;cpu_clock:integer);
-procedure reset_analog;
 procedure analog_0(sensitivity,port_delta,mid_val,max_val,min_val:integer;return_center:boolean;circle:boolean=false;inverted_x:boolean=false;inverted_y:boolean=false);
 procedure analog_1(sensitivity,port_delta,max_val,min_val:integer;return_center:boolean);
 procedure analog_2(sensitivity,port_delta,max_val,min_val:integer;return_center:boolean);
@@ -179,7 +178,7 @@ procedure analog_4(sensitivity,port_delta,max_val,min_val:integer;return_center:
 procedure init_dips(pos:byte;dip_sw:array of def_dip2;val:word);
 
 implementation
-uses principal,file_engine;
+uses principal,file_engine,timer_engine{$ifdef fpc},sound_engine{$endif};
 
 var
   keystate:pbyte=nil;
@@ -261,36 +260,9 @@ end;
 for f:=0 to NUM_PLAYERS do if joystick_def[arcade_input.num_joystick[f]]=nil then arcade_input.use_key[f]:=true;
 end;
 
-procedure init_controls(evalue_mouse,evalue_keyboard,evalue_joystick,evalue_arcade:boolean);
-var
-  f:byte;
+procedure init_mouse(evalue_mouse:boolean);
 begin
 event.emouse:=evalue_mouse;
-event.ekeyboard:=evalue_keyboard;
-event.ejoystick:=evalue_joystick;
-event.earcade:=evalue_arcade;
-for f:=0 to NUM_PLAYERS do begin
-  arcade_input.up[f]:=false;
-  arcade_input.down[f]:=false;
-  arcade_input.left[f]:=false;
-  arcade_input.right[f]:=false;
-  arcade_input.but0[f]:=false;
-  arcade_input.but1[f]:=false;
-  arcade_input.but2[f]:=false;
-  arcade_input.but3[f]:=false;
-  arcade_input.but4[f]:=false;
-  arcade_input.but5[f]:=false;
-  arcade_input.coin[f]:=false;
-  arcade_input.start[f]:=false;
-end;
-raton.button1:=false;
-raton.button2:=false;
-raton.x:=0;
-raton.y:=0;
-event.mouse:=false;
-event.arcade:=false;
-event.keyboard:=false;
-fillchar(keyboard[0],256,0);
 end;
 
 procedure evaluar_arcade_keyb_extra(player:byte);
@@ -499,16 +471,13 @@ var
    sdl_event:libSDL_Event;
 begin
   event.arcade:=false;
-  event.keyboard:=false;
   event.mouse:=false;
   //Joystick
-  if (event.ejoystick or event.earcade) then begin
-    for f:=0 to NUM_PLAYERS do begin
+  for f:=0 to NUM_PLAYERS do begin
       if not(arcade_input.use_key[f]) then begin
         evaluar_arcade_joy(f);
-        if event.earcade then evaluar_arcade_joy_extra(f);
+        evaluar_arcade_joy_extra(f);
       end;
-    end;
   end;
   if SDL_PollEvent(@sdl_event)=0 then exit;
   {$ifdef fpc}
@@ -519,12 +488,12 @@ begin
   //principal1.statusbar1.panels[2].text:=inttostr(analog.c[0].x[0]);
   for f:=0 to $ff do
       if keyboard[f]<>(keystate[f]<>0) then begin
-        event.keyboard:=true;
+        event.arcade:=true;
         copymemory(@keyboard[0],keystate,$100);
         break;
       end;
   //Las teclas independientes de los drivers
-  if event.keyboard then begin
+  if event.arcade then begin
      if keyboard[KEYBOARD_F1] then main_vars.service1:=not(main_vars.service1);
      if keyboard[KEYBOARD_F2] then principal1.fFast(nil);
      if keyboard[KEYBOARD_F3] then principal1.Reset1Click(nil);
@@ -551,15 +520,13 @@ begin
      end;
      if keyboard[KEYBOARD_F11] then principal1.fSlow(nil);
   end;
-  if (event.ejoystick or event.earcade) then begin
-    for f:=0 to NUM_PLAYERS do begin
+  for f:=0 to NUM_PLAYERS do begin
       if arcade_input.use_key[f] then begin
-        if event.keyboard then begin
+        if event.arcade then begin
           evaluar_arcade_keyb(f);
-          if event.earcade then evaluar_arcade_keyb_extra(f);
+          evaluar_arcade_keyb_extra(f);
         end;
       end;
-    end;
   end;
   //Raton
   if event.emouse then begin
@@ -805,20 +772,6 @@ analog.cpu:=cpu;
 analog.clock:=cpu_clock;
 end;
 
-procedure reset_analog;
-var
-  f:byte;
-begin
-for f:=0 to NUM_PLAYERS do begin
-    analog.c[0].x[f]:=analog.c[0].mid_val;
-    analog.c[0].y[f]:=analog.c[0].mid_val;
-    analog.c[1].val[f]:=analog.c[1].min_val;
-    analog.c[2].val[f]:=analog.c[2].min_val;
-    analog.c[3].val[f]:=analog.c[3].min_val;
-    analog.c[4].val[f]:=analog.c[4].min_val;
-end;
-end;
-
 procedure analog_0(sensitivity,port_delta,mid_val,max_val,min_val:integer;return_center:boolean;circle:boolean=false;inverted_x:boolean=false;inverted_y:boolean=false);
 var
    f:byte;
@@ -913,6 +866,41 @@ begin
           else marcade.dswc:=val;
     end;
   end;
+end;
+
+procedure reset_controls;
+var
+  f:byte;
+begin
+for f:=0 to NUM_PLAYERS do begin
+  arcade_input.up[f]:=false;
+  arcade_input.down[f]:=false;
+  arcade_input.left[f]:=false;
+  arcade_input.right[f]:=false;
+  arcade_input.but0[f]:=false;
+  arcade_input.but1[f]:=false;
+  arcade_input.but2[f]:=false;
+  arcade_input.but3[f]:=false;
+  arcade_input.but4[f]:=false;
+  arcade_input.but5[f]:=false;
+  arcade_input.coin[f]:=false;
+  arcade_input.start[f]:=false;
+end;
+raton.button1:=false;
+raton.button2:=false;
+raton.x:=0;
+raton.y:=0;
+event.mouse:=false;
+event.arcade:=false;
+fillchar(keyboard[0],256,0);
+for f:=0 to NUM_PLAYERS do begin
+    analog.c[0].x[f]:=analog.c[0].mid_val;
+    analog.c[0].y[f]:=analog.c[0].mid_val;
+    analog.c[1].val[f]:=analog.c[1].min_val;
+    analog.c[2].val[f]:=analog.c[2].min_val;
+    analog.c[3].val[f]:=analog.c[3].min_val;
+    analog.c[4].val[f]:=analog.c[4].min_val;
+end;
 end;
 
 end.

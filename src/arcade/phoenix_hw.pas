@@ -1,16 +1,10 @@
-unit phoenix_hw;
+﻿unit phoenix_hw;
+
 interface
 //{$DEFINE PHOENIX_DEBUG}
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,tms36xx,phoenix_audio_digital,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_phoenix:boolean;
-
-implementation
-var
- banco_pal,scroll_y,banco{$IFDEF PHOENIX_DEBUG},sound_latch_b{$ENDIF}:byte;
- mem_video:array[0..1,0..$fff] of byte;
 
 const
         phoenix_rom:array[0..7] of tipo_roms=(
@@ -22,8 +16,8 @@ const
         (n:'ic23.3d';l:$800;p:0;crc:$3c7e623f),(n:'ic24.4d';l:$800;p:$800;crc:$59916d3b));
         phoenix_char2:array[0..1] of tipo_roms=(
         (n:'b1-ic39.3b';l:$800;p:0;crc:$53413e8f),(n:'b2-ic40.4b';l:$800;p:$800;crc:$0be2ba91));
-        phoenix_pal:array[0..1] of tipo_roms=(
-        (n:'mmi6301.ic40';l:$100;p:0;crc:$79350b25),(n:'mmi6301.ic41';l:$100;p:$100;crc:$e176b768));
+        phoenix_pal:array[0..2] of tipo_roms=(
+        (n:'mmi6301.ic40';l:$100;p:0;crc:$79350b25),(n:'mmi6301.ic41';l:$100;p:$100;crc:$e176b768),());
         //Pleiads
         pleiads_rom:array[0..7] of tipo_roms=(
         (n:'ic47.r1';l:$800;p:0;crc:$960212c8),(n:'ic48.r2';l:$800;p:$800;crc:$b254217c),
@@ -34,9 +28,18 @@ const
         (n:'ic23.bin';l:$800;p:0;crc:$4e30f9e7),(n:'ic24.bin';l:$800;p:$800;crc:$5188fc29));
         pleiads_char2:array[0..1] of tipo_roms=(
         (n:'ic39.bin';l:$800;p:0;crc:$85866607),(n:'ic40.bin';l:$800;p:$800;crc:$a841d511));
-        pleiads_pal:array[0..1] of tipo_roms=(
-        (n:'7611-5.33';l:$100;p:0;crc:$e38eeb83),(n:'7611-5.26';l:$100;p:$100;crc:$7a1bcb1e));
-        //Dip
+        pleiads_pal:array[0..2] of tipo_roms=(
+        (n:'7611-5.33';l:$100;p:0;crc:$e38eeb83),(n:'7611-5.26';l:$100;p:$100;crc:$7a1bcb1e),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,tms36xx,phoenix_audio_digital,
+     pal_engine,sound_engine;
+
+var
+ banco_pal,scroll_y,banco{$IFDEF PHOENIX_DEBUG},sound_latch_b{$ENDIF}:byte;
+ mem_video:array[0..1,0..$fff] of byte;
+
+const
         phoenix_dip_a:array [0..2] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','6')),
         (mask:$c;name:'Bonus Life';number:4;val4:(0,4,8,$c);name4:('3k 30k','4k 40k','5k 50k','6k 60k')),
@@ -91,7 +94,6 @@ procedure phoenix_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     case f of
@@ -159,7 +161,6 @@ procedure pleiads_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     case f of

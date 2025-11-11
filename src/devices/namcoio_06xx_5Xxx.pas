@@ -10,6 +10,11 @@ const
   IO51XX=1;
   IO53XX=2;
   IO54XX=3;
+  namco_50xx_rom:array[0..1] of tipo_roms=((n:'50xx.bin';l:$800;p:0;crc:$a0acbaf7),());
+  namco_51xx_rom:array[0..1] of tipo_roms=((n:'51xx.bin';l:$400;p:0;crc:$c2f57ef8),());
+  namco_53xx_rom:array[0..1] of tipo_roms=((n:'53xx.bin';l:$400;p:0;crc:$b326fecb),());
+  namco_54xx_rom:array[0..1] of tipo_roms=((n:'54xx.bin';l:$400;p:0;crc:$ee7357e0),());
+
 type
   read_chip=function:byte;
   write_chip=procedure(data:byte);
@@ -93,11 +98,6 @@ var
   namco_54xx:tipo_54xx;
 
 implementation
-const
-  namco_50xx_rom:tipo_roms=(n:'50xx.bin';l:$800;p:0;crc:$a0acbaf7);
-  namco_51xx_rom:tipo_roms=(n:'51xx.bin';l:$400;p:0;crc:$c2f57ef8);
-  namco_53xx_rom:tipo_roms=(n:'53xx.bin';l:$400;p:0;crc:$b326fecb);
-  namco_54xx_rom:tipo_roms=(n:'54xx.bin';l:$400;p:0;crc:$ee7357e0);
 
 //Namco 50XX
 function namco_50xx_k_r_0:byte;
@@ -608,7 +608,7 @@ end;
 
 function namcoio_54xx_init(zip_name:string):boolean;
 begin
-namco_54xx.mb88:=cpu_mb88xx.Create(1536000);
+namco_54xx.mb88:=cpu_mb88xx.create(1536000);
 namco_54xx.mb88.change_io_calls(namco_54xx_k_r,namco_54xx_o_w,nil,nil,namco_54xx_r_r,namco_54xx_r_w);
 namco_54xx.frame:=namco_54xx.mb88.tframes;
 //namco 54XX clock 1536000*0.000021=32.256

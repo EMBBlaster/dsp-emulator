@@ -4,8 +4,7 @@ unit gaelco_hw_decrypt;
 Thanks to GAELCO SA for information on the algorithm.}
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     misc_functions;
+uses main_engine,misc_functions;
 
 function gaelco_dec(offset,data:word;param1:byte;param2:word;thispc:dword):word;
 

@@ -1,13 +1,10 @@
-unit mcr_hw;
+﻿unit mcr_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,z80daisy,z80ctc,timer_engine,file_engine;
+uses rom_engine;
 
 function iniciar_mcr:boolean;
 
-implementation
 const
         tapper_rom:array[0..3] of tipo_roms=(
         (n:'tapper_c.p.u._pg_0_1c_1-27-84.1c';l:$4000;p:0;crc:$bb060bb0),(n:'tapper_c.p.u._pg_1_2c_1-27-84.2c';l:$4000;p:$4000;crc:$fd9acc22),
@@ -17,11 +14,11 @@ const
         (n:'tapper_sound_snd_2_a9_12-7-83.a9';l:$1000;p:$2000;crc:$31eb6dc6),(n:'tapper_sound_snd_3_a10_12-7-83.a10';l:$1000;p:$3000;crc:$01a9be6a));
         tapper_char:array[0..1] of tipo_roms=(
         (n:'tapper_c.p.u._bg_1_6f_12-7-83.6f';l:$4000;p:0;crc:$2a30238c),(n:'tapper_c.p.u._bg_0_5f_12-7-83.5f';l:$4000;p:$4000;crc:$394ab576));
-        tapper_sprites:array[0..7] of tipo_roms=(
+        tapper_sprites:array[0..8] of tipo_roms=(
         (n:'tapper_video_fg_1_a7_12-7-83.a7';l:$4000;p:0;crc:$32509011),(n:'tapper_video_fg_0_a8_12-7-83.a8';l:$4000;p:$4000;crc:$8412c808),
         (n:'tapper_video_fg_3_a5_12-7-83.a5';l:$4000;p:$8000;crc:$818fffd4),(n:'tapper_video_fg_2_a6_12-7-83.a6';l:$4000;p:$c000;crc:$67e37690),
         (n:'tapper_video_fg_5_a3_12-7-83.a3';l:$4000;p:$10000;crc:$800f7c8a),(n:'tapper_video_fg_4_a4_12-7-83.a4';l:$4000;p:$14000;crc:$32674ee6),
-        (n:'tapper_video_fg_7_a1_12-7-83.a1';l:$4000;p:$18000;crc:$070b4c81),(n:'tapper_video_fg_6_a2_12-7-83.a2';l:$4000;p:$1c000;crc:$a37aef36));
+        (n:'tapper_video_fg_7_a1_12-7-83.a1';l:$4000;p:$18000;crc:$070b4c81),(n:'tapper_video_fg_6_a2_12-7-83.a2';l:$4000;p:$1c000;crc:$a37aef36),());
         dotron_rom:array[0..3] of tipo_roms=(
         (n:'disc_tron_uprt_pg0_10-4-83.1c';l:$4000;p:0;crc:$40d00195),(n:'disc_tron_uprt_pg1_10-4-83.2c';l:$4000;p:$4000;crc:$5a7d1300),
         (n:'disc_tron_uprt_pg2_10-4-83.3c';l:$4000;p:$8000;crc:$cb89c9be),(n:'disc_tron_uprt_pg3_10-4-83.4c';l:$2000;p:$c000;crc:$5098faf4));
@@ -30,11 +27,11 @@ const
         (n:'disc_tron_uprt_snd2_9-22-83.a9';l:$1000;p:$2000;crc:$e8ef6519),(n:'disc_tron_uprt_snd3_9-22-83.a10';l:$1000;p:$3000;crc:$6b5aeb02));
         dotron_char:array[0..1] of tipo_roms=(
         (n:'loc-bg2.6f';l:$2000;p:0;crc:$40167124),(n:'loc-bg1.5f';l:$2000;p:$2000;crc:$bb2d7a5d));
-        dotron_sprites:array[0..7] of tipo_roms=(
+        dotron_sprites:array[0..8] of tipo_roms=(
         (n:'loc-g.cp4';l:$2000;p:0;crc:$57a2b1ff),(n:'loc-h.cp3';l:$2000;p:$2000;crc:$3bb4d475),
         (n:'loc-e.cp6';l:$2000;p:$4000;crc:$ce957f1a),(n:'loc-f.cp5';l:$2000;p:$6000;crc:$d26053ce),
         (n:'loc-c.cp8';l:$2000;p:$8000;crc:$ef45d146),(n:'loc-d.cp7';l:$2000;p:$a000;crc:$5e8a3ef3),
-        (n:'loc-a.cp0';l:$2000;p:$c000;crc:$b35f5374),(n:'loc-b.cp9';l:$2000;p:$e000;crc:$565a5c48));
+        (n:'loc-a.cp0';l:$2000;p:$c000;crc:$b35f5374),(n:'loc-b.cp9';l:$2000;p:$e000;crc:$565a5c48),());
         tron_rom:array[0..5] of tipo_roms=(
         (n:'scpu-pga_lctn-c2_tron_aug_9.c2';l:$2000;p:0;crc:$0de0471a),(n:'scpu-pgb_lctn-c3_tron_aug_9.c3';l:$2000;p:$2000;crc:$8ddf8717),
         (n:'scpu-pgc_lctn-c4_tron_aug_9.c4';l:$2000;p:$4000;crc:$4241e3a0),(n:'scpu-pgd_lctn-c5_tron_aug_9.c5';l:$2000;p:$6000;crc:$035d2fe7),
@@ -44,9 +41,9 @@ const
         (n:'ssi-0c_lctn-a9_tron.a9';l:$1000;p:$2000;crc:$3a4bc629));
         tron_char:array[0..1] of tipo_roms=(
         (n:'scpu-bgg_lctn-g3_tron.g3';l:$2000;p:0;crc:$1a9ed2f5),(n:'lscpu-bgh_lctn-g4_tron.g4';l:$2000;p:$2000;crc:$3220f974));
-        tron_sprites:array[0..3] of tipo_roms=(
+        tron_sprites:array[0..4] of tipo_roms=(
         (n:'vga_lctn-e1_tron.e1';l:$2000;p:0;crc:$bc036d1d),(n:'vgb_lctn-dc1_tron.dc1';l:$2000;p:$2000;crc:$58ee14d3),
-        (n:'vgc_lctn-cb1_tron.cb1';l:$2000;p:$4000;crc:$3329f9d4),(n:'vgd_lctn-a1_tron.a1';l:$2000;p:$6000;crc:$9743f873));
+        (n:'vgc_lctn-cb1_tron.cb1';l:$2000;p:$4000;crc:$3329f9d4),(n:'vgd_lctn-a1_tron.a1';l:$2000;p:$6000;crc:$9743f873),());
         timber_rom:array[0..3] of tipo_roms=(
         (n:'timpg0.bin';l:$4000;p:0;crc:$377032ab),(n:'timpg1.bin';l:$4000;p:$4000;crc:$fd772836),
         (n:'timpg2.bin';l:$4000;p:$8000;crc:$632989f9),(n:'timpg3.bin';l:$2000;p:$c000;crc:$dae8a0dc));
@@ -55,11 +52,11 @@ const
         (n:'tima9.bin';l:$1000;p:$2000;crc:$22bcdcd3));
         timber_char:array[0..1] of tipo_roms=(
         (n:'timbg1.bin';l:$4000;p:0;crc:$b1cb2651),(n:'timbg0.bin';l:$4000;p:$4000;crc:$2ae352c4));
-        timber_sprites:array[0..7] of tipo_roms=(
+        timber_sprites:array[0..8] of tipo_roms=(
         (n:'timfg1.bin';l:$4000;p:0;crc:$81de4a73),(n:'timfg0.bin';l:$4000;p:$4000;crc:$7f3a4f59),
         (n:'timfg3.bin';l:$4000;p:$8000;crc:$37c03272),(n:'timfg2.bin';l:$4000;p:$c000;crc:$e2c2885c),
         (n:'timfg5.bin';l:$4000;p:$10000;crc:$eb636216),(n:'timfg4.bin';l:$4000;p:$14000;crc:$b7105eb7),
-        (n:'timfg7.bin';l:$4000;p:$18000;crc:$d9c27475),(n:'timfg6.bin';l:$4000;p:$1c000;crc:$244778e8));
+        (n:'timfg7.bin';l:$4000;p:$18000;crc:$d9c27475),(n:'timfg6.bin';l:$4000;p:$1c000;crc:$244778e8),());
         shollow_rom:array[0..5] of tipo_roms=(
         (n:'sh-pro.00';l:$2000;p:0;crc:$95e2b800),(n:'sh-pro.01';l:$2000;p:$2000;crc:$b99f6ff8),
         (n:'sh-pro.02';l:$2000;p:$4000;crc:$1202c7b2),(n:'sh-pro.03';l:$2000;p:$6000;crc:$0a64afb9),
@@ -69,9 +66,9 @@ const
         (n:'sh-snd.03';l:$1000;p:$2000;crc:$b1f4a6a8));
         shollow_char:array[0..1] of tipo_roms=(
         (n:'sh-bg.00';l:$2000;p:0;crc:$3e2b333c),(n:'sh-bg.01';l:$2000;p:$2000;crc:$d1d70cc4));
-        shollow_sprites:array[0..3] of tipo_roms=(
+        shollow_sprites:array[0..4] of tipo_roms=(
         (n:'sh-fg.00';l:$2000;p:0;crc:$33f4554e),(n:'sh-fg.01';l:$2000;p:$2000;crc:$ba1a38b4),
-        (n:'sh-fg.02';l:$2000;p:$4000;crc:$6b57f6da),(n:'sh-fg.03';l:$2000;p:$6000;crc:$37ea9d07));
+        (n:'sh-fg.02';l:$2000;p:$4000;crc:$6b57f6da),(n:'sh-fg.03';l:$2000;p:$6000;crc:$37ea9d07),());
         domino_rom:array[0..3] of tipo_roms=(
         (n:'dmanpg0.bin';l:$2000;p:0;crc:$3bf3bb1c),(n:'dmanpg1.bin';l:$2000;p:$2000;crc:$85cf1d69),
         (n:'dmanpg2.bin';l:$2000;p:$4000;crc:$7dd2177a),(n:'dmanpg3.bin';l:$2000;p:$6000;crc:$f2e0aa44));
@@ -80,9 +77,9 @@ const
         (n:'dm-a9.snd';l:$1000;p:$2000;crc:$ad760da7),(n:'dm-a10.snd';l:$1000;p:$3000;crc:$958c7287));
         domino_char:array[0..1] of tipo_roms=(
         (n:'dmanbg0.bin';l:$2000;p:0;crc:$9163007f),(n:'dmanbg1.bin';l:$2000;p:$2000;crc:$28615c56));
-        domino_sprites:array[0..3] of tipo_roms=(
+        domino_sprites:array[0..4] of tipo_roms=(
         (n:'dmanfg0.bin';l:$2000;p:0;crc:$0b1f9f9e),(n:'dmanfg1.bin';l:$2000;p:$2000;crc:$16aa4b9b),
-        (n:'dmanfg2.bin';l:$2000;p:$4000;crc:$4a8e76b8),(n:'dmanfg3.bin';l:$2000;p:$6000;crc:$1f39257e));
+        (n:'dmanfg2.bin';l:$2000;p:$4000;crc:$4a8e76b8),(n:'dmanfg3.bin';l:$2000;p:$6000;crc:$1f39257e),());
         wacko_rom:array[0..3] of tipo_roms=(
         (n:'wackocpu.2d';l:$2000;p:0;crc:$c98e29b6),(n:'wackocpu.3d';l:$2000;p:$2000;crc:$90b89774),
         (n:'wackocpu.4d';l:$2000;p:$4000;crc:$515edff7),(n:'wackocpu.5d';l:$2000;p:$6000;crc:$9b01bf32));
@@ -91,10 +88,15 @@ const
         (n:'wackosnd.9a';l:$1000;p:$2000;crc:$155ba3dd));
         wacko_char:array[0..1] of tipo_roms=(
         (n:'wackocpu.3g';l:$2000;p:0;crc:$33160eb1),(n:'wackocpu.4g';l:$2000;p:$2000;crc:$daf37d7c));
-        wacko_sprites:array[0..3] of tipo_roms=(
+        wacko_sprites:array[0..4] of tipo_roms=(
         (n:'wackovid.1e';l:$2000;p:0;crc:$dca59be7),(n:'wackovid.1d';l:$2000;p:$2000;crc:$a02f1672),
-        (n:'wackovid.1b';l:$2000;p:$4000;crc:$7d899790),(n:'wackovid.1a';l:$2000;p:$6000;crc:$080be3ad));
-        //DIP
+        (n:'wackovid.1b';l:$2000;p:$4000;crc:$7d899790),(n:'wackovid.1a';l:$2000;p:$6000;crc:$080be3ad),());
+
+implementation
+uses nz80,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,z80daisy,z80ctc,timer_engine,file_engine;
+
+const
         tapper_dipa:array [0..2] of def_dip2=(
         (mask:4;name:'Demo Sounds';number:2;val2:(4,0);name2:('Off','On')),
         (mask:$40;name:'Cabinet';number:2;val2:($40,0);name2:('Upright','Cocktail')),
@@ -403,7 +405,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 479 do begin
     eventos_mcr;

@@ -1,38 +1,35 @@
-unit gaelco_hw;
+﻿unit gaelco_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,ym_3812,m6809,
-     oki6295,gaelco_hw_decrypt,rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_gaelco_hw:boolean;
 
-implementation
 const
         //Big Karnak
         bigkarnak_rom:array[0..1] of tipo_roms=(
         (n:'d16';l:$40000;p:0;crc:$44fb9c73),(n:'d19';l:$40000;p:$1;crc:$ff79dfdd));
         bigkarnak_sound:tipo_roms=(n:'d5';l:$10000;p:0;crc:$3b73b9c5);
-        bigkarnak_gfx:array[0..7] of tipo_roms=(
+        bigkarnak_adpcm:tipo_roms=(n:'d1';l:$40000;p:0;crc:$26444ad1);
+        bigkarnak_gfx:array[0..8] of tipo_roms=(
         (n:'h5' ;l:$80000;p:$0;crc:$20e239ff),(n:'h5'; l:$80000;p:$80000;crc:$20e239ff),
         (n:'h10';l:$80000;p:$100000;crc:$ab442855),(n:'h10';l:$80000;p:$180000;crc:$ab442855),
         (n:'h8' ;l:$80000;p:$200000;crc:$83dce5a3),(n:'h8'; l:$80000;p:$280000;crc:$83dce5a3),
-        (n:'h6' ;l:$80000;p:$300000;crc:$24e84b24),(n:'h6'; l:$80000;p:$380000;crc:$24e84b24));
-        bigkarnak_adpcm:tipo_roms=(n:'d1';l:$40000;p:0;crc:$26444ad1);
+        (n:'h6' ;l:$80000;p:$300000;crc:$24e84b24),(n:'h6'; l:$80000;p:$380000;crc:$24e84b24),());
         //Thunder Hoop
         thoop_rom:array[0..1] of tipo_roms=(
         (n:'th18dea1.040';l:$80000;p:0;crc:$59bad625),(n:'th161eb4.020';l:$40000;p:$1;crc:$6add61ed));
-        thoop_gfx:array[0..3] of tipo_roms=(
-        (n:'c09' ;l:$100000;p:$0;crc:$06f0edbf),(n:'c10'; l:$100000;p:$100000;crc:$2d227085),
-        (n:'c11';l:$100000;p:$200000;crc:$7403ef7e),(n:'c12';l:$100000;p:$300000;crc:$29a5ca36));
         thoop_adpcm:tipo_roms=(n:'sound';l:$100000;p:0;crc:$99f80961);
+        thoop_gfx:array[0..4] of tipo_roms=(
+        (n:'c09' ;l:$100000;p:$0;crc:$06f0edbf),(n:'c10'; l:$100000;p:$100000;crc:$2d227085),
+        (n:'c11';l:$100000;p:$200000;crc:$7403ef7e),(n:'c12';l:$100000;p:$300000;crc:$29a5ca36),());
         //Squash
         squash_rom:array[0..1] of tipo_roms=(
         (n:'squash.d18';l:$20000;p:0;crc:$ce7aae96),(n:'squash.d16';l:$20000;p:$1;crc:$8ffaedd7));
-        squash_gfx:array[0..3] of tipo_roms=(
-        (n:'squash.c09' ;l:$80000;p:$0;crc:$0bb91c69),(n:'squash.c10'; l:$80000;p:$80000;crc:$892a035c),
-        (n:'squash.c11';l:$80000;p:$100000;crc:$9e19694d),(n:'squash.c12';l:$80000;p:$180000;crc:$5c440645));
         squash_adpcm:tipo_roms=(n:'squash.d01';l:$80000;p:0;crc:$a1b9651b);
+        squash_gfx:array[0..4] of tipo_roms=(
+        (n:'squash.c09' ;l:$80000;p:$0;crc:$0bb91c69),(n:'squash.c10'; l:$80000;p:$80000;crc:$892a035c),
+        (n:'squash.c11';l:$80000;p:$100000;crc:$9e19694d),(n:'squash.c12';l:$80000;p:$180000;crc:$5c440645),());
         //Biomechanical Toy
         biomtoy_rom:array[0..1] of tipo_roms=(
         (n:'d18';l:$80000;p:0;crc:$4569ce64),(n:'d16';l:$80000;p:$1;crc:$739449bd));
@@ -41,9 +38,14 @@ const
         (n:'h7';l:$80000;p:$100000;crc:$9c984d7b),(n:'j7';l:$80000;p:$180000;crc:$0e18fac2),
         (n:'h9' ;l:$80000;p:$200000;crc:$8c1f6718),(n:'j9'; l:$80000;p:$280000;crc:$1c93f050),
         (n:'h10';l:$80000;p:$300000;crc:$aca1702b),(n:'j10';l:$80000;p:$380000;crc:$8e3e96cc));
-        biomtoy_adpcm:array[0..1] of tipo_roms=(
-        (n:'c1';l:$80000;p:0;crc:$0f02de7e),(n:'c3';l:$80000;p:$80000;crc:$914e4bbc));
-        //DIP
+        biomtoy_adpcm:array[0..2] of tipo_roms=(
+        (n:'c1';l:$80000;p:0;crc:$0f02de7e),(n:'c3';l:$80000;p:$80000;crc:$914e4bbc),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,ym_3812,m6809,oki6295,
+     gaelco_hw_decrypt,pal_engine,sound_engine;
+
+const
         gaelco_dip:array [0..2] of def_dip=(
         (mask:$0f;name:'Coin A';number:11;dip:((dip_val:$07;dip_name:'4C 1C'),(dip_val:$08;dip_name:'3C 1C'),(dip_val:$09;dip_name:'2C 1C'),(dip_val:$0f;dip_name:'1C 1C'),(dip_val:$06;dip_name:'2C 3C'),(dip_val:$0e;dip_name:'1C 2C'),(dip_val:$0d;dip_name:'1C 3C'),(dip_val:$0c;dip_name:'1C 4C'),(dip_val:$0b;dip_name:'1C 5C'),(dip_val:$0a;dip_name:'1C 6C'),(dip_val:$00;dip_name:'Free Play (If Coin B too)'),(),(),(),(),())),
         (mask:$f0;name:'Coin B';number:11;dip:((dip_val:$70;dip_name:'4C 1C'),(dip_val:$80;dip_name:'3C 1C'),(dip_val:$90;dip_name:'2C 1C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$60;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$00;dip_name:'Free Play (If Coin A too)'),(),(),(),(),())),());
@@ -213,19 +215,19 @@ procedure eventos_gaelco_hw;
 begin
 if event.arcade then begin
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $Fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $Fb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
+  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
+  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $Fd) else marcade.in0:=(marcade.in0 or 2);
+  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $Fb) else marcade.in0:=(marcade.in0 or 4);
+  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
   if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
   if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
   if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
   if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
   //P2
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $Fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $Fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
+  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
+  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $Fd) else marcade.in1:=(marcade.in1 or 2);
+  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $Fb) else marcade.in1:=(marcade.in1 or 4);
+  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
   if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
   if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
   if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
@@ -247,24 +249,20 @@ end;
 //Big Karnak
 procedure bigk_principal;
 var
-  frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
-frame_m:=m68000_0.tframes;
-frame_s:=m6809_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 511 do begin
-    //main
-    m68000_0.run(frame_m);
-    frame_m:=frame_m+m68000_0.tframes-m68000_0.contador;
-    //sound
-    m6809_0.run(frame_s);
-    frame_s:=frame_s+m6809_0.tframes-m6809_0.contador;
-    if f=255 then begin
+    if f=256 then begin
       m68000_0.irq[6]:=HOLD_LINE;
       update_video_bigk;
     end;
+    //main
+    m68000_0.run(frame_main);
+    frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
+    //sound
+    m6809_0.run(frame_snd);
+    frame_snd:=frame_snd+m6809_0.tframes-m6809_0.contador;
   end;
   eventos_gaelco_hw;
   video_sync;
@@ -458,19 +456,16 @@ end;
 
 procedure thoop_principal;
 var
-  frame_m:single;
   f:word;
 begin
-init_controls(false,false,false,true);
-frame_m:=m68000_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 511 do begin
-     m68000_0.run(frame_m);
-     frame_m:=frame_m+m68000_0.tframes-m68000_0.contador;
-     if f=255 then begin
+     if f=256 then begin
         m68000_0.irq[6]:=HOLD_LINE;
         update_video_thoop;
      end;
+     m68000_0.run(frame_main);
+     frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
   end;
  eventos_gaelco_hw;
  video_sync;
@@ -607,8 +602,10 @@ end;
 procedure reset_gaelco_hw;
 begin
  m68000_0.reset;
+ frame_main:=m68000_0.tframes;
  if main_vars.tipo_maquina=78 then begin
     m6809_0.reset;
+    frame_snd:=m6809_0.tframes;
     ym3812_0.reset;
  end;
  oki_6295_0.reset;

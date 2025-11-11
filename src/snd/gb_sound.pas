@@ -1,7 +1,7 @@
 unit gb_sound;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$else}main_engine,{$ENDIF}sound_engine;
+uses main_engine,sound_engine;
 
 const
   MAX_FREQUENCIES=2048;

@@ -1,8 +1,7 @@
-unit outrun_hw;
+﻿unit outrun_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,ppi8255,sound_engine,ym_2151,sega_315_5195,sega_pcm;
+uses rom_engine;
 
 function iniciar_outrun:boolean;
 
@@ -26,10 +25,16 @@ const
         (n:'mpr-10376.15';l:$20000;p:$80002;crc:$f3b8f318),(n:'mpr-10378.16';l:$20000;p:$80003;crc:$a1062984));
         outrun_road:array[0..1] of tipo_roms=(
         (n:'opr-10186.47';l:$8000;p:0;crc:$22794426),(n:'opr-10185.11';l:$8000;p:$8000;crc:$22794426));
-        outrun_pcm:array[0..5] of tipo_roms=(
+        outrun_pcm:array[0..6] of tipo_roms=(
         (n:'opr-10193.66';l:$8000;p:$0000;crc:$bcd10dde),(n:'opr-10192.67';l:$8000;p:$10000;crc:$770f1270),
         (n:'opr-10191.68';l:$8000;p:$20000;crc:$20a284ab),(n:'opr-10190.69';l:$8000;p:$30000;crc:$7cab70e2),
-        (n:'opr-10189.70';l:$8000;p:$40000;crc:$01366b54),(n:'opr-10188.71';l:$8000;p:$50000;crc:$bad30ad9));
+        (n:'opr-10189.70';l:$8000;p:$40000;crc:$01366b54),(n:'opr-10188.71';l:$8000;p:$50000;crc:$bad30ad9),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,ppi8255,
+     sound_engine,ym_2151,sega_315_5195,sega_pcm;
+
+const
         outrun_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(7,8,9,5,4,$f,3,2,1,6,$e,$d,$c,$b,$a,0);name16:('4C 1C','3C 1C','2C 1C','2C 1C - 5C 3C - 6C 4C','2C 1C - 4C 3C','1C 1C','1C 1C 5C 6C','1C 1C - 4C 5C','1C 1C - 2C 3C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play (if Coin B too) or 1C 1C')),
         (mask:$f0;name:'Coin B';number:16;val16:($70,$80,$90,$50,$40,$f0,$30,$20,$10,$60,$e0,$d0,$c0,$b0,$a0,0);name16:('4C 1C','3C 1C','2C 1C','2C 1C - 5C 3C - 6C 4C','2C 1C - 4C 3C','1C 1C','1C 1C - 5C 6C','1C 1C - 4C 5C','1C 1C - 2C 3C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play (if Coin A too) or 1C 1C')));
@@ -65,8 +70,6 @@ var
  road_gfx:array[0..(((256*2+1)*512)-1)] of byte;
  pcm_rom:array[0..$5ffff] of byte;
  push_gear,gear_hi:boolean;
-
-implementation
 
 procedure update_video_outrun;
 procedure draw_sprites(pri:byte);
@@ -380,8 +383,9 @@ end;
 procedure eventos_outrun;
 begin
 if event.arcade then begin
+  marcade.in0:=$ef or (marcade.in0 and $10);
   //Service
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
   if arcade_input.but2[0] then push_gear:=true else begin
       if push_gear then begin
         gear_hi:=not(gear_hi);
@@ -395,8 +399,8 @@ if event.arcade then begin
       end;
       push_gear:=false;
   end;
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $7f;
 end;
 end;
 
@@ -405,7 +409,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
      eventos_outrun;

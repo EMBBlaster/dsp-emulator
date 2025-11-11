@@ -1,22 +1,25 @@
 unit dietgogo_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine,hu6280,deco_16ic,deco_decr,deco_common,deco_104,
-     misc_functions;
+uses rom_engine;
 
 function iniciar_dietgo:boolean;
 
-implementation
 const
         dietgo_rom:array[0..1] of tipo_roms=(
         (n:'jy00-2.h4';l:$40000;p:1;crc:$014dcf62),(n:'jy01-2.h5';l:$40000;p:0;crc:$793ebd83));
         dietgo_sound:tipo_roms=(n:'jy02.m14';l:$10000;p:0;crc:$4e3492a5);
         dietgo_char:tipo_roms=(n:'may00';l:$100000;p:0;crc:$234d1f8d);
         dietgo_oki:tipo_roms=(n:'may03';l:$80000;p:0;crc:$b6e42bae);
-        dietgo_sprites:array[0..1] of tipo_roms=(
-        (n:'may01';l:$100000;p:0;crc:$2da57d04),(n:'may02';l:$100000;p:1;crc:$3a66a713));
+        dietgo_sprites:array[0..2] of tipo_roms=(
+        (n:'may01';l:$100000;p:0;crc:$2da57d04),(n:'may02';l:$100000;p:1;crc:$3a66a713),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine,hu6280,deco_16ic,deco_decr,deco_common,deco_104,
+     misc_functions;
+
+const
         dietgo_dip_a:array [0..6] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,7,6,5,4,3,2);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$38,$30,$28,$20,$18,$10);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
@@ -69,7 +72,6 @@ procedure dietgo_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 273 do begin
    case f of

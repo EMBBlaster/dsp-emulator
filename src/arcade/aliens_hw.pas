@@ -1,13 +1,10 @@
-unit aliens_hw;
+﻿unit aliens_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,konami,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,k052109,k051960,k007232;
+uses rom_engine;
 
 function iniciar_aliens:boolean;
 
-implementation
 const
         //aliens
         aliens_rom:array[0..1] of tipo_roms=(
@@ -16,11 +13,16 @@ const
         aliens_tiles:array[0..3] of tipo_roms=(
         (n:'875b11.k13';l:$80000;p:0;crc:$89c5c885),(n:'875b12.k19';l:$80000;p:2;crc:$ea6bdc17),
         (n:'875b07.j13';l:$40000;p:$100000;crc:$e9c56d66),(n:'875b08.j19';l:$40000;p:$100002;crc:$f9387966));
-        aliens_sprites:array[0..3] of tipo_roms=(
-        (n:'875b10.k08';l:$80000;p:0;crc:$0b1035b1),(n:'875b09.k02';l:$80000;p:2;crc:$e76b3c19),
-        (n:'875b06.j08';l:$40000;p:$100000;crc:$081a0566),(n:'875b05.j02';l:$40000;p:$100002;crc:$19a261f2));
         aliens_k007232:tipo_roms=(n:'875b04.e05';l:$40000;p:0;crc:$4e209ac8);
-        //DIP
+        aliens_sprites:array[0..4] of tipo_roms=(
+        (n:'875b10.k08';l:$80000;p:0;crc:$0b1035b1),(n:'875b09.k02';l:$80000;p:2;crc:$e76b3c19),
+        (n:'875b06.j08';l:$40000;p:$100000;crc:$081a0566),(n:'875b05.j02';l:$40000;p:$100002;crc:$19a261f2),());
+
+implementation
+uses nz80,konami,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ym_2151,k052109,k051960,k007232;
+
+const
         aliens_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','No Coin')));
@@ -115,7 +117,6 @@ procedure aliens_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
     for f:=0 to $ff do begin
       eventos_aliens;

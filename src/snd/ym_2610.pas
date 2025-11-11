@@ -1,9 +1,7 @@
 unit ym_2610;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     {$ifndef windows}main_engine,{$endif}
-     fmopn,ay_8910,timer_engine,sound_engine,cpu_misc,dialogs;
+uses main_engine,fmopn,ay_8910,timer_engine,sound_engine,cpu_misc,dialogs;
 
 {type
   ym2610_chip=class(snd_chip_class)

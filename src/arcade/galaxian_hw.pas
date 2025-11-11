@@ -1,64 +1,45 @@
-unit galaxian_hw;
+﻿unit galaxian_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,ay_8910,controls_engine,gfx_engine,timer_engine,samples,
-     rom_engine,file_engine,pal_engine,sound_engine,ppi8255,misc_functions,
-     konami_snd,galaxian_stars;
+uses rom_engine,samples;
 
 function iniciar_galaxian:boolean;
 
-implementation
 const
         //Galaxian
         galaxian_rom:array[0..4] of tipo_roms=(
         (n:'galmidw.u';l:$800;p:0;crc:$745e2d61),(n:'galmidw.v';l:$800;p:$800;crc:$9c999a40),
         (n:'galmidw.w';l:$800;p:$1000;crc:$b5894925),(n:'galmidw.y';l:$800;p:$1800;crc:$6b3ca10b),
         (n:'7l';l:$800;p:$2000;crc:$1b933207));
-        galaxian_char:array[0..1] of tipo_roms=(
-        (n:'1h.bin';l:$800;p:0;crc:$39fb43a4),(n:'1k.bin';l:$800;p:$800;crc:$7e3f56a2));
         galaxian_pal:tipo_roms=(n:'6l.bpr';l:$20;p:0;crc:$c3ac9467);
-        galaxian_samples:array[0..8] of tipo_nombre_samples=(
+        galaxian_char:array[0..2] of tipo_roms=(
+        (n:'1h.bin';l:$800;p:0;crc:$39fb43a4),(n:'1k.bin';l:$800;p:$800;crc:$7e3f56a2),());
+        galaxian_samples:array[0..9] of tipo_nombre_samples=(
         (nombre:'fire.wav'),(nombre:'death.wav'),(nombre:'back1.wav'),(nombre:'back2.wav'),(nombre:'back3.wav'),
-        (nombre:'kill.wav';restart:true),(nombre:'coin.wav'),(nombre:'music.wav'),(nombre:'extra.wav'));
-        galaxian_dip_a:def_dip2=(mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail'));
-        galaxian_dip_b:def_dip2=(mask:$c0;name:'Coinage';number:4;val4:($40,0,$80,$c0);name4:('2C 1C','1C 1C','1C 2C','Free Play'));
-        galaxian_dip_c:array [0..1] of def_dip2=(
-        (mask:3;name:'Bonus Life';number:4;val4:(0,1,2,3);name4:('7K','10K','12K','20K')),
-        (mask:4;name:'Lives';number:2;val2:(0,4);name2:('2','3')));
+        (nombre:'kill.wav';restart:true),(nombre:'coin.wav'),(nombre:'music.wav'),(nombre:'extra.wav'),());
         //Jump Bug
         jumpbug_rom:array[0..6] of tipo_roms=(
         (n:'jb1';l:$1000;p:0;crc:$415aa1b7),(n:'jb2';l:$1000;p:$1000;crc:$b1c27510),
         (n:'jb3';l:$1000;p:$2000;crc:$97c24be2),(n:'jb4';l:$1000;p:$3000;crc:$66751d12),
         (n:'jb5';l:$1000;p:$8000;crc:$e2d66faf),(n:'jb6';l:$1000;p:$9000;crc:$49e0bdfd),
         (n:'jb7';l:$800;p:$a000;crc:$83d71302));
-        jumpbug_char:array[0..5] of tipo_roms=(
+        jumpbug_pal:tipo_roms=(n:'l06_prom.bin';l:$20;p:0;crc:$6a0c7d87);
+        jumpbug_char:array[0..6] of tipo_roms=(
         (n:'jbl';l:$800;p:0;crc:$9a091b0a),(n:'jbm';l:$800;p:$800;crc:$8a0fc082),
         (n:'jbn';l:$800;p:$1000;crc:$155186e0),(n:'jbi';l:$800;p:$1800;crc:$7749b111),
-        (n:'jbj';l:$800;p:$2000;crc:$06e8d7df),(n:'jbk';l:$800;p:$2800;crc:$b8dbddf3));
-        jumpbug_pal:tipo_roms=(n:'l06_prom.bin';l:$20;p:0;crc:$6a0c7d87);
-        jumpbug_dip_b:def_dip2=(mask:$40;name:'Difficulty';number:2;val2:(0,1);name2:('Easy','Hard'));
-        jumpbug_dip_c:array [0..1] of def_dip2=(
-        (mask:3;name:'Lives';number:4;val4:(1,2,3,0);name4:('3','4','5','Infinite')),
-        (mask:$c;name:'Coinage';number:4;val4:(4,8,0,$c);name4:('A 2C 1C-B 2C 1C','A 2C 1C-B 1C 3C','A 1C 1C-B 1C 1C','A 1C 1C-B 1C 6C')));
+        (n:'jbj';l:$800;p:$2000;crc:$06e8d7df),(n:'jbk';l:$800;p:$2800;crc:$b8dbddf3),());
         //Moon Cresta
         mooncrst_rom:array[0..7] of tipo_roms=(
         (n:'mc1';l:$800;p:0;crc:$7d954a7a),(n:'mc2';l:$800;p:$800;crc:$44bb7cfa),
         (n:'mc3';l:$800;p:$1000;crc:$9c412104),(n:'mc4';l:$800;p:$1800;crc:$7e9b1ab5),
         (n:'mc5.7r';l:$800;p:$2000;crc:$16c759af),(n:'mc6.8d';l:$800;p:$2800;crc:$69bcafdb),
         (n:'mc7.8e';l:$800;p:$3000;crc:$b50dbc46),(n:'mc8';l:$800;p:$3800;crc:$18ca312b));
-        mooncrst_char:array[0..3] of tipo_roms=(
-        (n:'mcs_b';l:$800;p:0;crc:$fb0f1f81),(n:'mcs_d';l:$800;p:$800;crc:$13932a15),
-        (n:'mcs_a';l:$800;p:$1000;crc:$631ebb5a),(n:'mcs_c';l:$800;p:$1800;crc:$24cfd145));
         mooncrst_pal:tipo_roms=(n:'l06_prom.bin';l:$20;p:0;crc:$6a0c7d87);
+        mooncrst_char:array[0..4] of tipo_roms=(
+        (n:'mcs_b';l:$800;p:0;crc:$fb0f1f81),(n:'mcs_d';l:$800;p:$800;crc:$13932a15),
+        (n:'mcs_a';l:$800;p:$1000;crc:$631ebb5a),(n:'mcs_c';l:$800;p:$1800;crc:$24cfd145),());
         mooncrst_samples:array[0..4] of tipo_nombre_samples=(
-        (nombre:'fire.wav'),(nombre:'death.wav'),(nombre:'ship1.wav'),(nombre:'enemy1.wav'),(nombre:'back3.wav'));
-        mooncrst_dip_b:array [0..1] of def_dip2=(
-        (mask:$40;name:'Bonus Life';number:2;val2:(0,$40);name2:('30K','50K')),
-        (mask:$80;name:'Language';number:2;val2:($80,0);name2:('English','Japanese')));
-        mooncrst_dip_c:array [0..1] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(3,2,1,0);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
-        (mask:$c;name:'Coin B';number:4;val4:(0,4,8,$c);name4:('1C 1C','1C 2C','1C 3C','Free Play')));
+        (nombre:'fire.wav'),(nombre:'death.wav'),(nombre:'ship1.wav'),(nombre:'enemy1.wav'),());
         //Scramble
         scramble_rom:array[0..7] of tipo_roms=(
         (n:'s1.2d';l:$800;p:0;crc:$ea35ccaa),(n:'s2.2e';l:$800;p:$800;crc:$e7bba1b3),
@@ -67,14 +48,10 @@ const
         (n:'s7.2m';l:$800;p:$3000;crc:$0bb49470),(n:'s8.2p';l:$800;p:$3800;crc:$6a5740e5));
         scramble_char:array[0..1] of tipo_roms=(
         (n:'c2.5f';l:$800;p:0;crc:$4708845b),(n:'c1.5h';l:$800;p:$800;crc:$11fd2887));
-        scramble_sound:array[0..2] of tipo_roms=(
-        (n:'ot1.5c';l:$800;p:0;crc:$bcd297f0),(n:'ot2.5d';l:$800;p:$800;crc:$de7912da),
-        (n:'ot3.5e';l:$800;p:$1000;crc:$ba2fa933));
         scramble_pal:tipo_roms=(n:'c01s.6e';l:$20;p:0;crc:$4e3caeab);
-        scramble_dip_a:def_dip2=(mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','255'));
-        scramble_dip_b:array [0..1] of def_dip2=(
-        (mask:6;name:'Coinage';number:4;val4:(0,2,4,6);name4:('A 1C/1C-B 2C/1C-C 1C/1C','A 1C/2C-B 1C/1C-C 1C/2C','A 1C/3C-B 3C/1C-C 1C/3C','A 1C/4C-B 4C/1C-C 1C/4C')),
-        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
+        scramble_sound:array[0..3] of tipo_roms=(
+        (n:'ot1.5c';l:$800;p:0;crc:$bcd297f0),(n:'ot2.5d';l:$800;p:$800;crc:$de7912da),
+        (n:'ot3.5e';l:$800;p:$1000;crc:$ba2fa933),());
         //Super Cobra
         scobra_rom:array[0..5] of tipo_roms=(
         (n:'epr1265.2c';l:$1000;p:0;crc:$a0744b3f),(n:'2e';l:$1000;p:$1000;crc:$8e7245cd),
@@ -83,15 +60,9 @@ const
         scobra_sound:array[0..2] of tipo_roms=(
         (n:'5c';l:$800;p:0;crc:$d4346959),(n:'5d';l:$800;p:$800;crc:$cc025d95),
         (n:'5e';l:$800;p:$1000;crc:$1628c53f));
-        scobra_char:array[0..1] of tipo_roms=(
-        (n:'epr1274.5h';l:$800;p:0;crc:$64d113b4),(n:'epr1273.5f';l:$800;p:$800;crc:$a96316d3));
         scobra_pal:tipo_roms=(n:'82s123.6e';l:$20;p:0;crc:$9b87f90d);
-        scobra_dip_a:array [0..1] of def_dip2=(
-        (mask:1;name:'Allow Continue';number:2;val2:(0,1);name2:('No','4 Times')),
-        (mask:2;name:'Lives';number:2;val2:(0,2);name2:('3','4')));
-        scobra_dip_b:array [0..1] of def_dip2=(
-        (mask:6;name:'Coinage';number:4;val4:(4,6,2,0);name4:('2C 1C','4C 3C','1C 1C','99 Credits')),
-        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
+        scobra_char:array[0..2] of tipo_roms=(
+        (n:'epr1274.5h';l:$800;p:0;crc:$64d113b4),(n:'epr1273.5f';l:$800;p:$800;crc:$a96316d3),());
         //Frogger
         frogger_rom:array[0..2] of tipo_roms=(
         (n:'frogger.26';l:$1000;p:0;crc:$597696d6),(n:'frogger.27';l:$1000;p:$1000;crc:$b6e6fcc3),
@@ -99,13 +70,9 @@ const
         frogger_char:array[0..1] of tipo_roms=(
         (n:'frogger.607';l:$800;p:0;crc:$05f7d883),(n:'frogger.606';l:$800;p:$800;crc:$f524ee30));
         frogger_pal:tipo_roms=(n:'pr-91.6l';l:32;p:0;crc:$413703bf);
-        frogger_sound:array[0..2] of tipo_roms=(
+        frogger_sound:array[0..3] of tipo_roms=(
         (n:'frogger.608';l:$800;p:0;crc:$e8ab0256),(n:'frogger.609';l:$800;p:$800;crc:$7380a48f),
-        (n:'frogger.610';l:$800;p:$1000;crc:$31d7eb27));
-        frogger_dip_a:def_dip2=(mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','5','7','256'));
-        frogger_dip_b:array [0..1] of def_dip2=(
-        (mask:6;name:'Coinage';number:4;val4:(2,4,0,6);name4:('A 2C/1C-B 2C/1C-C 2C/1C','A 2C/1C-B 1C/3C-C 2C/1C','A 1C/1C-B 1C/1C-C 1C/1C','A 1C/1C-B 1C/6C-C 1C/1C')),
-        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
+        (n:'frogger.610';l:$800;p:$1000;crc:$31d7eb27),());
         //Amidar
         amidar_rom:array[0..4] of tipo_roms=(
         (n:'1.2c';l:$1000;p:0;crc:$621b74de),(n:'2.2e';l:$1000;p:$1000;crc:$38538b98),
@@ -114,8 +81,132 @@ const
         amidar_char:array[0..1] of tipo_roms=(
         (n:'c2.5f';l:$800;p:0;crc:$2cfe5ede),(n:'c2.5d';l:$800;p:$800;crc:$57c4fd0d));
         amidar_pal:tipo_roms=(n:'amidar.clr';l:32;p:0;crc:$f940dcc3);
-        amidar_sound:array[0..1] of tipo_roms=(
-        (n:'s1.5c';l:$1000;p:0;crc:$8ca7b750),(n:'s2.5d';l:$1000;p:$1000;crc:$9b5bdc0a));
+        amidar_sound:array[0..2] of tipo_roms=(
+        (n:'s1.5c';l:$1000;p:0;crc:$8ca7b750),(n:'s2.5d';l:$1000;p:$1000;crc:$9b5bdc0a),());
+        //Ant Eater
+        anteater_rom:array[0..3] of tipo_roms=(
+        (n:'ra1-2c';l:$1000;p:0;crc:$58bc9393),(n:'ra1-2e';l:$1000;p:$1000;crc:$574fc6f6),
+        (n:'ra1-2f';l:$1000;p:$2000;crc:$2f7c1fe5),(n:'ra1-2h';l:$1000;p:$3000;crc:$ae8a5da3));
+        anteater_char:array[0..1] of tipo_roms=(
+        (n:'ra6-5f';l:$800;p:0;crc:$4c3f8a08),(n:'ra6-5h';l:$800;p:$800;crc:$b30c7c9f));
+        anteater_pal:tipo_roms=(n:'colr6f.cpu';l:$20;p:0;crc:$fce333c7);
+        anteater_sound:array[0..2] of tipo_roms=(
+        (n:'ra4-5c';l:$800;p:0;crc:$87300b4f),(n:'ra4-5d';l:$800;p:$800;crc:$af4e5ffe),());
+        //Armored Car
+        armoredcar_rom:array[0..4] of tipo_roms=(
+        (n:'cpu.2c';l:$1000;p:0;crc:$0d7bfdfb),(n:'cpu.2e';l:$1000;p:$1000;crc:$76463213),
+        (n:'cpu.2f';l:$1000;p:$2000;crc:$2cc6d5f0),(n:'cpu.2h';l:$1000;p:$3000;crc:$61278dbb),
+        (n:'cpu.2j';l:$1000;p:$4000;crc:$fb158d8c));
+        armoredcar_char:array[0..1] of tipo_roms=(
+        (n:'cpu.5f';l:$800;p:0;crc:$8a3da4d1),(n:'cpu.5h';l:$800;p:$800;crc:$85bdb113));
+        armoredcar_pal:tipo_roms=(n:'82s123.6e';l:$20;p:0;crc:$9b87f90d);
+        armoredcar_sound:array[0..2] of tipo_roms=(
+        (n:'sound.5c';l:$800;p:0;crc:$54ee7753),(n:'sound.5d';l:$800;p:$800;crc:$5218fec0),());
+        //The End
+        theend_rom:array[0..5] of tipo_roms=(
+        (n:'ic13_1t.bin';l:$800;p:0;crc:$93e555ba),(n:'ic14_2t.bin';l:$800;p:$800;crc:$2de7ad27),
+        (n:'ic15_3t.bin';l:$800;p:$1000;crc:$035f750b),(n:'ic16_4t.bin';l:$800;p:$1800;crc:$61286b5c),
+        (n:'ic17_5t.bin';l:$800;p:$2000;crc:$434a8f68),(n:'ic18_6t.bin';l:$800;p:$2800;crc:$dc4cc786));
+        theend_char:array[0..1] of tipo_roms=(
+        (n:'ic30_2c.bin';l:$800;p:0;crc:$68ccf7bf),(n:'ic31_1c.bin';l:$800;p:$800;crc:$4a48c999));
+        theend_pal:tipo_roms=(n:'6331-1j.86';l:$20;p:0;crc:$24652bc4);
+        theend_sound:array[0..2] of tipo_roms=(
+        (n:'ic56_1.bin';l:$800;p:0;crc:$7a141f29),(n:'ic55_2.bin';l:$800;p:$800;crc:$218497c1),());
+        //Battle of Atlantis
+        atlantis_rom:array[0..5] of tipo_roms=(
+        (n:'2c';l:$800;p:0;crc:$0e485b9a),(n:'2e';l:$800;p:$800;crc:$c1640513),
+        (n:'2f';l:$800;p:$1000;crc:$eec265ee),(n:'2h';l:$800;p:$1800;crc:$a5d2e442),
+        (n:'2j';l:$800;p:$2000;crc:$45f7cf34),(n:'2l';l:$800;p:$2800;crc:$f335b96b));
+        atlantis_char:array[0..1] of tipo_roms=(
+        (n:'5f';l:$800;p:0;crc:$57f9c6b9),(n:'5h';l:$800;p:$800;crc:$e989f325));
+        atlantis_pal:tipo_roms=(n:'c01s.6e';l:$20;p:0;crc:$4e3caeab);
+        atlantis_sound:array[0..3] of tipo_roms=(
+        (n:'ot1.5c';l:$800;p:0;crc:$bcd297f0),(n:'ot2.5d';l:$800;p:$800;crc:$de7912da),
+        (n:'ot3.5e';l:$800;p:$1000;crc:$ba2fa933),());
+        //Calipso
+        calipso_rom:array[0..5] of tipo_roms=(
+        (n:'calipso.2c';l:$1000;p:0;crc:$0fcb703c),(n:'calipso.2e';l:$1000;p:$1000;crc:$c6622f14),
+        (n:'calipso.2f';l:$1000;p:$2000;crc:$7bacbaba),(n:'calipso.2h';l:$1000;p:$3000;crc:$a3a8111b),
+        (n:'calipso.2j';l:$1000;p:$4000;crc:$fcbd7b9e),(n:'calipso.2l';l:$1000;p:$5000;crc:$f7630cab));
+        calipso_char:array[0..1] of tipo_roms=(
+        (n:'calipso.5f';l:$2000;p:0;crc:$fd4252e9),(n:'calipso.5h';l:$2000;p:$2000;crc:$1663a73a));
+        calipso_pal:tipo_roms=(n:'calipso.clr';l:$20;p:0;crc:$01165832);
+        calipso_sound:array[0..2] of tipo_roms=(
+        (n:'calipso.5c';l:$800;p:0;crc:$9cbc65ab),(n:'calipso.5d';l:$800;p:$800;crc:$a225ee3b),());
+        //Cavelon
+        cavelon_rom:array[0..2] of tipo_roms=(
+        (n:'2.bin';l:$2000;p:0;crc:$a3b353ac),(n:'1.bin';l:$2000;p:$2000;crc:$3f62efd6),
+        (n:'3.bin';l:$2000;p:$4000;crc:$39d74e4e));
+        cavelon_sound:tipo_roms=(n:'1c_snd.bin';l:$800;p:0;crc:$f58dcf55);
+        cavelon_pal:tipo_roms=(n:'cavelon.clr';l:$20;p:0;crc:$d133356b);
+        cavelon_char:array[0..2] of tipo_roms=(
+        (n:'h.bin';l:$1000;p:0;crc:$d44fcd6f),(n:'k.bin';l:$1000;p:$1000;crc:$59bc7f9e),());
+        //Mars
+        mars_rom:array[0..5] of tipo_roms=(
+        (n:'u26.3';l:$800;p:0;crc:$2f88892c),(n:'u56.4';l:$800;p:$800;crc:$9e6bcbf7),
+        (n:'u69.5';l:$800;p:$1000;crc:$df496e6e),(n:'u98.6';l:$800;p:$1800;crc:$75f274bb),
+        (n:'u114.7';l:$800;p:$2000;crc:$497fd8d0),(n:'u133.8';l:$800;p:$2800;crc:$3d4cd59f));
+        mars_sound:array[0..2] of tipo_roms=(
+        (n:'u39.9';l:$800;p:0;crc:$bb5968b9),(n:'u51.10';l:$800;p:$800;crc:$75fd7720),
+        (n:'u78.11';l:$800;p:$1000;crc:$72a492da));
+        mars_pal:tipo_roms=(n:'c01s.6e';l:$20;p:0;crc:$4e3caeab);
+        mars_chars:array[0..2] of tipo_roms=(
+        (n:'u72.1';l:$800;p:0;crc:$279789d0),(n:'u101.2';l:$800;p:$800;crc:$c5dc627f),());
+        //Devil Fish
+        devilfish_rom:array[0..7] of tipo_roms=(
+        (n:'u26.1';l:$800;p:0;crc:$ec047d71),(n:'u56.2';l:$800;p:$800;crc:$0138ade9),
+        (n:'u69.3';l:$800;p:$1000;crc:$5dd0b3fc),(n:'u98.4';l:$800;p:$1800;crc:$ded0b745),
+        (n:'u114.5';l:$800;p:$2000;crc:$5fd40176),(n:'u133.6';l:$800;p:$2800;crc:$03538336),
+        (n:'u143.7';l:$800;p:$3000;crc:$64676081),(n:'u163.8';l:$800;p:$3800;crc:$bc3d6770));
+        devilfish_sound:array[0..2] of tipo_roms=(
+        (n:'u39.9';l:$800;p:0;crc:$09987e2e),(n:'u51.10';l:$800;p:$800;crc:$1e2b1471),
+        (n:'u78.11';l:$800;p:$1000;crc:$45279aaa));
+        devilfish_pal:tipo_roms=(n:'c01s.6e';l:$20;p:0;crc:$4e3caeab);
+        devilfish_chars:array[0..2] of tipo_roms=(
+        (n:'u72.12';l:$1000;p:0;crc:$5406508e),(n:'u101.13';l:$1000;p:$1000;crc:$8c4018b6),());
+
+implementation
+uses nz80,main_engine,ay_8910,controls_engine,gfx_engine,timer_engine,
+     file_engine,pal_engine,sound_engine,ppi8255,misc_functions,konami_snd,
+     galaxian_stars;
+
+const
+        //Galaxian
+        galaxian_dip_a:def_dip2=(mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail'));
+        galaxian_dip_b:def_dip2=(mask:$c0;name:'Coinage';number:4;val4:($40,0,$80,$c0);name4:('2C 1C','1C 1C','1C 2C','Free Play'));
+        galaxian_dip_c:array [0..1] of def_dip2=(
+        (mask:3;name:'Bonus Life';number:4;val4:(0,1,2,3);name4:('7K','10K','12K','20K')),
+        (mask:4;name:'Lives';number:2;val2:(0,4);name2:('2','3')));
+        //Jump Bug
+        jumpbug_dip_b:def_dip2=(mask:$40;name:'Difficulty';number:2;val2:(0,1);name2:('Easy','Hard'));
+        jumpbug_dip_c:array [0..1] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(1,2,3,0);name4:('3','4','5','Infinite')),
+        (mask:$c;name:'Coinage';number:4;val4:(4,8,0,$c);name4:('A 2C 1C-B 2C 1C','A 2C 1C-B 1C 3C','A 1C 1C-B 1C 1C','A 1C 1C-B 1C 6C')));
+        //Moon Cresta
+        mooncrst_dip_b:array [0..1] of def_dip2=(
+        (mask:$40;name:'Bonus Life';number:2;val2:(0,$40);name2:('30K','50K')),
+        (mask:$80;name:'Language';number:2;val2:($80,0);name2:('English','Japanese')));
+        mooncrst_dip_c:array [0..1] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(3,2,1,0);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
+        (mask:$c;name:'Coin B';number:4;val4:(0,4,8,$c);name4:('1C 1C','1C 2C','1C 3C','Free Play')));
+        //Scramble
+        scramble_dip_a:def_dip2=(mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','255'));
+        scramble_dip_b:array [0..1] of def_dip2=(
+        (mask:6;name:'Coinage';number:4;val4:(0,2,4,6);name4:('A 1C/1C-B 2C/1C-C 1C/1C','A 1C/2C-B 1C/1C-C 1C/2C','A 1C/3C-B 3C/1C-C 1C/3C','A 1C/4C-B 4C/1C-C 1C/4C')),
+        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
+        //Super Cobra
+        scobra_dip_a:array [0..1] of def_dip2=(
+        (mask:1;name:'Allow Continue';number:2;val2:(0,1);name2:('No','4 Times')),
+        (mask:2;name:'Lives';number:2;val2:(0,2);name2:('3','4')));
+        scobra_dip_b:array [0..1] of def_dip2=(
+        (mask:6;name:'Coinage';number:4;val4:(4,6,2,0);name4:('2C 1C','4C 3C','1C 1C','99 Credits')),
+        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
+        //Frogger
+        frogger_dip_a:def_dip2=(mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','5','7','256'));
+        frogger_dip_b:array [0..1] of def_dip2=(
+        (mask:6;name:'Coinage';number:4;val4:(2,4,0,6);name4:('A 2C/1C-B 2C/1C-C 2C/1C','A 2C/1C-B 1C/3C-C 2C/1C','A 1C/1C-B 1C/1C-C 1C/1C','A 1C/1C-B 1C/6C-C 1C/1C')),
+        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
+        //Amidar
         amidar_dip_a:def_dip2=(mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','255'));
         amidar_dip_b:array [0..2] of def_dip2=(
         (mask:2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')),
@@ -125,86 +216,49 @@ const
         (mask:$f;name:'Coin A';number:16;val16:(4,$a,1,2,8,$f,$c,$e,7,6,$b,3,$d,5,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$f0;name:'Coin B';number:16;val16:($40,$a0,$10,$20,$80,$f0,$c0,$e0,$70,$60,$b0,$30,$d0,$50,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
         //Ant Eater
-        anteater_rom:array[0..3] of tipo_roms=(
-        (n:'ra1-2c';l:$1000;p:0;crc:$58bc9393),(n:'ra1-2e';l:$1000;p:$1000;crc:$574fc6f6),
-        (n:'ra1-2f';l:$1000;p:$2000;crc:$2f7c1fe5),(n:'ra1-2h';l:$1000;p:$3000;crc:$ae8a5da3));
-        anteater_char:array[0..1] of tipo_roms=(
-        (n:'ra6-5f';l:$800;p:0;crc:$4c3f8a08),(n:'ra6-5h';l:$800;p:$800;crc:$b30c7c9f));
-        anteater_sound:array[0..1] of tipo_roms=(
-        (n:'ra4-5c';l:$800;p:0;crc:$87300b4f),(n:'ra4-5d';l:$800;p:$800;crc:$af4e5ffe));
-        anteater_pal:tipo_roms=(n:'colr6f.cpu';l:$20;p:0;crc:$fce333c7);
         anteater_dip_a:array [0..1] of def_dip2=(
         (mask:1;name:'Lives';number:2;val2:(1,0);name2:('3','5')),
         (mask:2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')));
         anteater_dip_b:def_dip2=(mask:6;name:'Coinage';number:4;val4:(2,0,4,6);name4:('A 1C/1C-B 1C/1C','A 1C/2C-B 2C/1C','A 1C/3C-B 3C/1C','A 1C/4C-B 4C/1C'));
         //Armored Car
-        armoredcar_rom:array[0..4] of tipo_roms=(
-        (n:'cpu.2c';l:$1000;p:0;crc:$0d7bfdfb),(n:'cpu.2e';l:$1000;p:$1000;crc:$76463213),
-        (n:'cpu.2f';l:$1000;p:$2000;crc:$2cc6d5f0),(n:'cpu.2h';l:$1000;p:$3000;crc:$61278dbb),
-        (n:'cpu.2j';l:$1000;p:$4000;crc:$fb158d8c));
-        armoredcar_char:array[0..1] of tipo_roms=(
-        (n:'cpu.5f';l:$800;p:0;crc:$8a3da4d1),(n:'cpu.5h';l:$800;p:$800;crc:$85bdb113));
-        armoredcar_sound:array[0..1] of tipo_roms=(
-        (n:'sound.5c';l:$800;p:0;crc:$54ee7753),(n:'sound.5d';l:$800;p:$800;crc:$5218fec0));
-        armoredcar_pal:tipo_roms=(n:'82s123.6e';l:$20;p:0;crc:$9b87f90d);
         armoredcar_dip_b:array [0..1] of def_dip2=(
         (mask:6;name:'Coinage';number:4;val4:(2,0,4,6);name4:('A 1C/1C-B 1C/1C','A 1C/2C-B 2C/1C','A 1C/3C-B 3C/1C','A 1C/4C-B 4C/1C')),
         (mask:8;name:'Cabinet';number:2;val2:(8,0);name2:('Upright','Cocktail')));
         //The End
-        theend_rom:array[0..5] of tipo_roms=(
-        (n:'ic13_1t.bin';l:$800;p:0;crc:$93e555ba),(n:'ic14_2t.bin';l:$800;p:$800;crc:$2de7ad27),
-        (n:'ic15_3t.bin';l:$800;p:$1000;crc:$035f750b),(n:'ic16_4t.bin';l:$800;p:$1800;crc:$61286b5c),
-        (n:'ic17_5t.bin';l:$800;p:$2000;crc:$434a8f68),(n:'ic18_6t.bin';l:$800;p:$2800;crc:$dc4cc786));
-        theend_char:array[0..1] of tipo_roms=(
-        (n:'ic30_2c.bin';l:$800;p:0;crc:$68ccf7bf),(n:'ic31_1c.bin';l:$800;p:$800;crc:$4a48c999));
-        theend_sound:array[0..1] of tipo_roms=(
-        (n:'ic56_1.bin';l:$800;p:0;crc:$7a141f29),(n:'ic55_2.bin';l:$800;p:$800;crc:$218497c1));
-        theend_pal:tipo_roms=(n:'6331-1j.86';l:$20;p:0;crc:$24652bc4);
         theend_dip_a:def_dip2=(mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','256'));
         theend_dip_b:array [0..1] of def_dip2=(
         (mask:6;name:'Coinage';number:4;val4:(4,2,0,6);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
         (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')));
         //Battle of Atlantis
-        atlantis_rom:array[0..5] of tipo_roms=(
-        (n:'2c';l:$800;p:0;crc:$0e485b9a),(n:'2e';l:$800;p:$800;crc:$c1640513),
-        (n:'2f';l:$800;p:$1000;crc:$eec265ee),(n:'2h';l:$800;p:$1800;crc:$a5d2e442),
-        (n:'2j';l:$800;p:$2000;crc:$45f7cf34),(n:'2l';l:$800;p:$2800;crc:$f335b96b));
-        atlantis_char:array[0..1] of tipo_roms=(
-        (n:'5f';l:$800;p:0;crc:$57f9c6b9),(n:'5h';l:$800;p:$800;crc:$e989f325));
-        atlantis_sound:array[0..2] of tipo_roms=(
-        (n:'ot1.5c';l:$800;p:0;crc:$bcd297f0),(n:'ot2.5d';l:$800;p:$800;crc:$de7912da),
-        (n:'ot3.5e';l:$800;p:$1000;crc:$ba2fa933));
-        atlantis_pal:tipo_roms=(n:'c01s.6e';l:$20;p:0;crc:$4e3caeab);
         atlantis_dip_a:array [0..1] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Cocktail')),
         (mask:2;name:'Lives';number:2;val2:(2,0);name2:('3','5')));
         atlantis_dip_b:def_dip2=(mask:$e;name:'Coinage';number:4;val4:(2,0,4,8);name4:('A 1C/3C-B 2C/1C','A 1C/6C-B 1C/1C','A 1C/99C-B 1C/99C','Invalid'));
         //Calipso
-        calipso_rom:array[0..5] of tipo_roms=(
-        (n:'calipso.2c';l:$1000;p:0;crc:$0fcb703c),(n:'calipso.2e';l:$1000;p:$1000;crc:$c6622f14),
-        (n:'calipso.2f';l:$1000;p:$2000;crc:$7bacbaba),(n:'calipso.2h';l:$1000;p:$3000;crc:$a3a8111b),
-        (n:'calipso.2j';l:$1000;p:$4000;crc:$fcbd7b9e),(n:'calipso.2l';l:$1000;p:$5000;crc:$f7630cab));
-        calipso_char:array[0..1] of tipo_roms=(
-        (n:'calipso.5f';l:$2000;p:0;crc:$fd4252e9),(n:'calipso.5h';l:$2000;p:$2000;crc:$1663a73a));
-        calipso_sound:array[0..1] of tipo_roms=(
-        (n:'calipso.5c';l:$800;p:0;crc:$9cbc65ab),(n:'calipso.5d';l:$800;p:$800;crc:$a225ee3b));
-        calipso_pal:tipo_roms=(n:'calipso.clr';l:$20;p:0;crc:$01165832);
         calipso_dip_a:array [0..1] of def_dip2=(
         (mask:1;name:'Lives';number:2;val2:(1,0);name2:('3','5')),
         (mask:2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')));
         calipso_dip_b:def_dip2=(mask:6;name:'Coinage';number:4;val4:(2,0,4,6);name4:('A 1C/1C-B 1C/1C','A 1C/2C-B 2C/1C','A 1C/3C-B 3C/1C','A 1C/4C-B 4C/1C'));
         //Cavelon
-        cavelon_rom:array[0..2] of tipo_roms=(
-        (n:'2.bin';l:$2000;p:0;crc:$a3b353ac),(n:'1.bin';l:$2000;p:$2000;crc:$3f62efd6),
-        (n:'3.bin';l:$2000;p:$4000;crc:$39d74e4e));
-        cavelon_char:array[0..1] of tipo_roms=(
-        (n:'h.bin';l:$1000;p:0;crc:$d44fcd6f),(n:'k.bin';l:$1000;p:$1000;crc:$59bc7f9e));
-        cavelon_sound:tipo_roms=(n:'1c_snd.bin';l:$800;p:0;crc:$f58dcf55);
-        cavelon_pal:tipo_roms=(n:'cavelon.clr';l:$20;p:0;crc:$d133356b);
         cavelon_dip_a:array [0..1] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(1,0);name2:('Upright','Cocktail')),
         (mask:2;name:'Coinage';number:2;val2:(0,2);name2:('A 1C/1C-B 1C/6C','A 2C/1C-B 1C/3C')));
         cavelon_dip_b:def_dip2=(mask:6;name:'Lives';number:4;val4:(0,4,2,6);name4:('5','4','3','2'));
+        //Mars
+        mars_dip_a:array [0..1] of def_dip2=(
+        (mask:1;name:'Coin B';number:2;val2:(0,1);name2:('1C 3C','1C 5C')),
+        (mask:2;name:'Coin A';number:2;val2:(2,0);name2:('2C 1C','1C 1C')));
+        mars_dip_b:array [0..1] of def_dip2=(
+        (mask:2;name:'Cabinet';number:2;val2:(0,2);name2:('Upright','Cocktail')),
+        (mask:8;name:'Lives';number:2;val2:(8,0);name2:('3','255')));
+        //Devil Fish
+        devilfish_dip_a:array [0..1] of def_dip2=(
+        (mask:1;name:'Bonus Life';number:2;val2:(0,1);name2:('10000','15000')),
+        (mask:2;name:'Cabinet';number:2;val2:(0,2);name2:('Upright','Cocktail')));
+        devilfish_dip_b:array [0..2] of def_dip2=(
+        (mask:2;name:'Lives';number:2;val2:(0,2);name2:('4','5')),
+        (mask:4;name:'Coin A';number:2;val2:(0,4);name2:('2C 1C','1C 1C')),
+        (mask:8;name:'Coin B';number:2;val2:(8,0);name2:('1C 3C','1C 5C')));
         BACK_COLOR=35;
 
 var
@@ -380,6 +434,36 @@ if event.arcade then begin
   if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
   //Start
   if arcade_input.but0[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
+end;
+end;
+
+procedure eventos_mars;
+begin
+if event.arcade then begin
+  //P1
+  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
+  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
+  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
+  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
+  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
+  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  //P2
+  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
+  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
+  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
+  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  //P1 & P2
+  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
+  if arcade_input.up[0] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
+  if arcade_input.but2[0] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.down[0] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
+  if arcade_input.but3[0] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  //P2
+  if arcade_input.but2[1] then marcade.in3:=(marcade.in3 and $df) else marcade.in3:=(marcade.in3 or $20);
+  if arcade_input.but3[1] then marcade.in3:=(marcade.in3 and $7f) else marcade.in3:=(marcade.in3 or $80);
 end;
 end;
 
@@ -1097,6 +1181,63 @@ begin
   nchar:=nchar or ((sprite_mem[2+(direccion*4)] and $30) shl 2);
 end;
 
+//Mars
+function mars_getbyte(direccion:word):byte;
+begin
+case direccion of
+  0..$47ff:mars_getbyte:=memoria[direccion];
+  $4800..$4fff:mars_getbyte:=videoram_mem[direccion and $3ff];
+  $5000..$5fff:case (direccion and $ff) of
+                0..$3f:mars_getbyte:=atributos_mem[direccion and $3f];
+                $40..$5f:mars_getbyte:=sprite_mem[direccion and $1f];
+                $60..$7f:mars_getbyte:=disparo_mem[direccion and $1f];
+                $80..$ff:mars_getbyte:=memoria[$5000+(direccion and $ff)];
+               end;
+  $8100..$810f:mars_getbyte:=pia8255_0.read((((direccion and $f) shr 2) and 2) or (((direccion and $f) shr 1) and 1));
+  $8200..$820f:mars_getbyte:=pia8255_1.read((((direccion and $f) shr 2) and 2) or (((direccion and $f) shr 1) and 1));
+end;
+end;
+
+procedure mars_putbyte(direccion:word;valor:byte);
+var
+  f,dir:byte;
+begin
+case direccion of
+  0..$3fff:;
+  $4000..$47ff:memoria[direccion]:=valor;
+  $4800..$4fff:if videoram_mem[direccion and $3ff]<>valor then begin
+                  gfx[0].buffer[direccion and $3ff]:=true;
+                  videoram_mem[direccion and $3ff]:=valor;
+               end;
+  $5000..$5fff:case (direccion and $ff) of
+                    0..$3f:if atributos_mem[direccion and $3f]<>valor then begin
+                              atributos_mem[direccion and $3f]:=valor;
+                              dir:=((direccion and $3f) shr 1);
+                              for f:=0 to $1f do gfx[0].buffer[dir+(f shl 5)]:=true;
+                            end;
+                    $40..$5f:sprite_mem[direccion and $1f]:=valor;
+                    $60..$7f:disparo_mem[direccion and $1f]:=valor;
+                    $80..$ff:memoria[$5000+(direccion and $ff)]:=valor;
+               end;
+  $6800..$6fff:case (direccion and 7) of
+                  1:galaxian_stars_0.enable_w((valor and 1)<>0);
+                  2:begin
+                      haz_nmi:=(valor and 1)<>0;
+                      if not(haz_nmi) then z80_0.change_nmi(CLEAR_LINE);
+                    end;
+                  9:; //flip_x
+                  $b:; //flip_y
+               end;
+  $8100..$810f:pia8255_0.write((((direccion and $f) shr 2) and 2) or (((direccion and $f) shr 1) and 1),valor);
+  $8200..$820f:pia8255_1.write((((direccion and $f) shr 2) and 2) or (((direccion and $f) shr 1) and 1),valor);
+end;
+end;
+
+function mars_port_1_c_read:byte;
+begin
+  mars_port_1_c_read:=$ff;
+end;
+
 //Video
 procedure update_video_frogger;
 var
@@ -1182,7 +1323,6 @@ procedure frogger_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=248 then begin
@@ -1203,7 +1343,6 @@ procedure galaxian_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=248 then begin
@@ -1239,13 +1378,18 @@ begin
  amidar_back_b:=0;
  num_rom:=0;
  case main_vars.tipo_maquina of
-  14,143,144,145,363,366,369,370,382,385:begin
+  14,143,144,145,363,366,369,370,382,385,427,428:begin
        konamisnd_0.reset;
        pia8255_0.reset;
        pia8255_1.reset;
        marcade.in0:=$ff;
        marcade.in1:=$fc;
-       marcade.in2:=$51;
+       if ((main_vars.tipo_maquina<>427) or (main_vars.tipo_maquina<>428)) then begin
+          marcade.in2:=$51;
+       end else begin
+          marcade.in2:=$f1;
+          marcade.in3:=$ff;
+       end;
      end;
   47,49:begin
        marcade.in0:=0;
@@ -1290,6 +1434,20 @@ begin
   gfx_set_desc_data(2,0,16*16,0,n*16*16);
   convert_gfx(1,0,@memoria_temp,@ps_x,@ps_y,true,false);
 end;
+procedure dec_mars;
+var
+  f:word;
+  j,newval:byte;
+  swapbuffer:array[0..$f] of byte;
+begin
+for f:=0 to $3ff do begin
+	for j:=0 to $f do begin
+	  newval:=bitswap8(j,7,6,5,4,2,0,3,1);
+	  swapbuffer[j]:=memoria[(f*$10)+newval];
+  end;
+  copymemory(@memoria[f*$10],@swapbuffer[0],$10);
+end;
+end;
 begin
 llamadas_maquina.bucle_general:=frogger_principal;
 eventos_hardware_galaxian:=eventos_scramble;
@@ -1320,7 +1478,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(frogger_getbyte,frogger_putbyte);
       if not(roms_load(@memoria,frogger_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_FROGGER,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_FROGGER);
       if not(roms_load(@konamisnd_0.memoria,frogger_sound)) then exit;
       //Las ROMS tienen lineas movidas...
       for f:=0 to $7ff do konamisnd_0.memoria[f]:=BITSWAP8(konamisnd_0.memoria[f],7,6,5,4,3,2,0,1);
@@ -1418,7 +1576,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scramble_getbyte,scramble_putbyte);
       if not(roms_load(@memoria,scramble_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,scramble_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1440,7 +1598,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scobra_getbyte,scobra_putbyte);
       if not(roms_load(@memoria,scobra_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,scobra_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1462,7 +1620,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(amidar_getbyte,amidar_putbyte);
       if not(roms_load(@memoria,amidar_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,amidar_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1486,7 +1644,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scobra_getbyte,scobra_putbyte);
       if not(roms_load(@memoria,anteater_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,anteater_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1515,7 +1673,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scobra_getbyte,scobra_putbyte);
       if not(roms_load(@memoria,armoredcar_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,armoredcar_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1538,7 +1696,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scramble_getbyte,scramble_putbyte);
       if not(roms_load(@memoria,theend_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,theend_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1560,7 +1718,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scramble_getbyte,scramble_putbyte);
       if not(roms_load(@memoria,atlantis_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,atlantis_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1584,7 +1742,7 @@ case main_vars.tipo_maquina of
       z80_0.change_ram_calls(scobra_getbyte,scobra_putbyte);
       if not(roms_load(@memoria,calipso_rom)) then exit;
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,calipso_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1613,7 +1771,7 @@ case main_vars.tipo_maquina of
       copymemory(@roms[1,$2000],@memoria_temp[$2000],$2000);
       copymemory(@roms[1,0],@memoria_temp[$4000],$2000);
       //Sound
-      konamisnd_0:=konamisnd_chip.create(2,TIPO_SCRAMBLE,1789750);
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
       if not(roms_load(@konamisnd_0.memoria,cavelon_sound)) then exit;
       //PPI 8255
       pia8255_0:=pia8255_chip.create;
@@ -1629,6 +1787,60 @@ case main_vars.tipo_maquina of
       init_dips(1,cavelon_dip_a,1);
       init_dips(2,cavelon_dip_b,2);
   end;
+  427:begin  //mars
+      eventos_hardware_galaxian:=eventos_mars;
+      backgroud_type:=1;
+      //Main CPU
+      z80_0.change_ram_calls(mars_getbyte,mars_putbyte);
+      if not(roms_load(@memoria,mars_rom)) then exit;
+      dec_mars;
+      //Sound
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
+      if not(roms_load(@konamisnd_0.memoria,mars_sound)) then exit;
+      //PPI 8255
+      pia8255_0:=pia8255_chip.create;
+      pia8255_0.change_ports(frogger_port_0_a_read,frogger_port_0_b_read,scramble_port_0_c_read,nil,nil,nil);
+      pia8255_1:=pia8255_chip.create;
+      pia8255_1.change_ports(nil,nil,mars_port_1_c_read,scramble_port_1_a_write,scramble_port_1_b_write,nil);
+      //convertir chars & sprites
+      if not(roms_load(@memoria_temp,mars_chars)) then exit;
+      convert_chars($100);
+      convert_sprt($40);
+      if not(roms_load(@memoria_temp,mars_pal)) then exit;
+      //DIP
+      init_dips(1,mars_dip_a,0);
+     init_dips(2,mars_dip_b,8);
+  end;
+  428:begin  //devil fish
+      eventos_hardware_galaxian:=eventos_mars;
+      backgroud_type:=1;
+      //Main CPU
+      z80_0.change_ram_calls(mars_getbyte,mars_putbyte);
+      if not(roms_load(@memoria,devilfish_rom)) then exit;
+      dec_mars;
+      //Sound
+      konamisnd_0:=konamisnd_chip.create(TIPO_SCRAMBLE);
+      if not(roms_load(@konamisnd_0.memoria,devilfish_sound)) then exit;
+      //PPI 8255
+      pia8255_0:=pia8255_chip.create;
+      pia8255_0.change_ports(frogger_port_0_a_read,frogger_port_0_b_read,scramble_port_0_c_read,nil,nil,nil);
+      pia8255_1:=pia8255_chip.create;
+      pia8255_1.change_ports(nil,nil,mars_port_1_c_read,scramble_port_1_a_write,scramble_port_1_b_write,nil);
+      //convertir chars & sprites
+      if not(roms_load(@memoria_temp,devilfish_chars)) then exit;
+      init_gfx(0,8,8,$100);
+      gfx[0].trans[0]:=true;
+      gfx_set_desc_data(2,0,8*8,0,2*256*8*8);
+      convert_gfx(0,0,@memoria_temp,@ps_x,@ps_y,true,false);
+      init_gfx(1,16,16,$40);
+      gfx[1].trans[0]:=true;
+      gfx_set_desc_data(2,0,16*16,0,2*64*16*16);
+      convert_gfx(1,0,@memoria_temp[$800],@ps_x,@ps_y,true,false);
+      if not(roms_load(@memoria_temp,devilfish_pal)) then exit;
+      //DIP
+      init_dips(1,devilfish_dip_a,0);
+      init_dips(2,devilfish_dip_b,$c);
+  end;
 end;
 //iniciar las estrellas de fondo
 case main_vars.tipo_maquina of
@@ -1639,7 +1851,7 @@ case main_vars.tipo_maquina of
         //y la de las estrellas de fondo
         galaxian_stars_0.create_pal(36);
      end;
-  143,144,145,363,366,382,385:begin
+  143,144,145,363,366,382,385,427,428:begin
         draw_stars:=stars_scramble;
         galaxian_stars_0:=gal_stars.create(z80_0.numero_cpu,z80_0.clock,SCRAMBLE);
         //y la de las estrellas de fondo
@@ -1664,7 +1876,6 @@ colores[BACK_COLOR].b:=$56;
 //32 paleta, 3 disparo
 set_pal(colores,32+3+1);
 //final
-reset_galaxian;
 iniciar_galaxian:=true;
 end;
 

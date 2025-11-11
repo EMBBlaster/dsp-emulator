@@ -1,7 +1,7 @@
 unit k053260;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,misc_functions,timer_engine,
-     main_engine,cpu_misc,dialogs;
+uses sound_engine,misc_functions,timer_engine,main_engine,cpu_misc,dialogs;
 
 type
   tKDSC_Voice=class

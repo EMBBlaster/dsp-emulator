@@ -1,13 +1,10 @@
 unit gyruss_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m6809,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     ay_8910,sound_engine,konami_decrypt,mcs48,dac;
+uses rom_engine;
 
 function gyruss_iniciar:boolean;
 
-implementation
 const
     gyruss_rom:array[0..2] of tipo_roms=(
     (n:'gyrussk.1';l:$2000;p:0;crc:$c673b43d),(n:'gyrussk.2';l:$2000;p:$2000;crc:$a4ec03e4),
@@ -20,10 +17,15 @@ const
     gyruss_sprites:array[0..3] of tipo_roms=(
     (n:'gyrussk.6';l:$2000;p:0;crc:$c949db10),(n:'gyrussk.5';l:$2000;p:$2000;crc:$4f22411a),
     (n:'gyrussk.8';l:$2000;p:$4000;crc:$47cd1fbc),(n:'gyrussk.7';l:$2000;p:$6000;crc:$8e8d388c));
-    gyruss_pal:array[0..2] of tipo_roms=(
+    gyruss_pal:array[0..3] of tipo_roms=(
     (n:'gyrussk.pr3';l:$20;p:0;crc:$98782db3),(n:'gyrussk.pr1';l:$100;p:$20;crc:$7ed057de),
-    (n:'gyrussk.pr2';l:$100;p:$120;crc:$de823a81));
-    //Dip
+    (n:'gyrussk.pr2';l:$100;p:$120;crc:$de823a81),());
+
+implementation
+uses nz80,m6809,main_engine,controls_engine,gfx_engine,pal_engine,ay_8910,
+     sound_engine,konami_decrypt,mcs48,dac;
+
+const
     gyruss_dip_a:array [0..1] of def_dip2=(
     (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
     (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')));
@@ -106,7 +108,6 @@ end;
 
 procedure gyruss_principal;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for scan_line:=0 to 255 do begin
     eventos_gyruss;

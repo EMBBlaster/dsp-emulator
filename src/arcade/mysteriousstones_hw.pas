@@ -1,28 +1,30 @@
-unit mysteriousstones_hw;
+﻿unit mysteriousstones_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_ms:boolean;
 
-implementation
 const
-        ms_rom:array[0..5] of tipo_roms=(
+        mstone_rom:array[0..5] of tipo_roms=(
         (n:'rom6.bin';l:$2000;p:$4000;crc:$7bd9c6cd),(n:'rom5.bin';l:$2000;p:$6000;crc:$a83f04a6),
         (n:'rom4.bin';l:$2000;p:$8000;crc:$46c73714),(n:'rom3.bin';l:$2000;p:$a000;crc:$34f8b8a3),
         (n:'rom2.bin';l:$2000;p:$c000;crc:$bfd22cfc),(n:'rom1.bin';l:$2000;p:$e000;crc:$fb163e38));
-        ms_char:array[0..5] of tipo_roms=(
+        mstone_char:array[0..5] of tipo_roms=(
         (n:'ms6';l:$2000;p:0;crc:$85c83806),(n:'ms9';l:$2000;p:$2000;crc:$b146c6ab),
         (n:'ms7';l:$2000;p:$4000;crc:$d025f84d),(n:'ms10';l:$2000;p:$6000;crc:$d85015b5),
         (n:'ms8';l:$2000;p:$8000;crc:$53765d89),(n:'ms11';l:$2000;p:$a000;crc:$919ee527));
-        ms_sprite:array[0..5] of tipo_roms=(
+        mstone_sprite:array[0..5] of tipo_roms=(
         (n:'ms12';l:$2000;p:0;crc:$72d8331d),(n:'ms13';l:$2000;p:$2000;crc:$845a1f9b),
         (n:'ms14';l:$2000;p:$4000;crc:$822874b0),(n:'ms15';l:$2000;p:$6000;crc:$4594e53c),
         (n:'ms16';l:$2000;p:$8000;crc:$2f470b0f),(n:'ms17';l:$2000;p:$a000;crc:$38966d1b));
-        ms_pal:tipo_roms=(n:'ic61';l:$20;p:0;crc:$e802d6cf);
-        //Dip
+        mstone_pal:array[0..1] of tipo_roms=((n:'ic61';l:$20;p:0;crc:$e802d6cf),());
+
+implementation
+uses m6502,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,qsnapshot;
+
+const
         ms_dip_a:array [0..2] of def_dip2=(
         (mask:1;name:'Lives';number:2;val2:(1,0);name2:('3','5')),
         (mask:2;name:'Difficulty';number:2;val2:(2,0);name2:('Easy','Hard')),
@@ -105,35 +107,33 @@ end;
 procedure eventos_ms;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
   //P1
-  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe else marcade.in0:=marcade.in0 or 1;
-  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb else marcade.in0:=marcade.in0 or 4;
-  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7 else marcade.in0:=marcade.in0 or 8;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef else marcade.in0:=marcade.in0 or $10;
-  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df else marcade.in0:=marcade.in0 or $20;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
   if arcade_input.coin[0] then begin
       marcade.in0:=(marcade.in0 and $bf);
       m6502_0.change_nmi(ASSERT_LINE);
   end else begin
-      marcade.in0:=(marcade.in0 or $40);
       if arcade_input.coin[1] then begin
           marcade.in0:=(marcade.in0 and $7f);
           m6502_0.change_nmi(ASSERT_LINE);
-      end else begin
-          marcade.in0:=(marcade.in0 or $80);
-          m6502_0.change_nmi(CLEAR_LINE);
-      end;
+      end else m6502_0.change_nmi(CLEAR_LINE);
   end;
   //P2
-  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fe else marcade.in1:=marcade.in1 or 1;
-  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd else marcade.in1:=marcade.in1 or 2;
-  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb else marcade.in1:=marcade.in1 or 4;
-  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7 else marcade.in1:=marcade.in1 or 8;
-  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef else marcade.in1:=marcade.in1 or $10;
-  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df else marcade.in1:=marcade.in1 or $20;
-  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $bf else marcade.in1:=marcade.in1 or $40;
-  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $7f else marcade.in1:=marcade.in1 or $80;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $7f;
 end;
 end;
 
@@ -141,7 +141,6 @@ procedure principal_ms;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
     case f of
@@ -337,9 +336,9 @@ m6502_0.init_sound(ms_sound_update);
 ay8910_0:=ay8910_chip.create(1500000,AY8910);
 ay8910_1:=ay8910_chip.create(1500000,AY8910);
 //cargar roms
-if not(roms_load(@memoria,ms_rom)) then exit;
+if not(roms_load(@memoria,mstone_rom)) then exit;
 //Cargar chars
-if not(roms_load(@memoria_temp,ms_char)) then exit;
+if not(roms_load(@memoria_temp,mstone_char)) then exit;
 init_gfx(0,8,8,2048);
 gfx[0].trans[0]:=true;
 gfx_set_desc_data(3,0,8*8,$4000*8*2,$4000*8,0);
@@ -350,11 +349,11 @@ gfx[1].trans[0]:=true;
 gfx_set_desc_data(3,0,32*8,$4000*8*2,$4000*8,0);
 convert_gfx(1,0,@memoria_temp,@ps_x,@ps_y,false,true);
 //Cargar sprites fondo
-if not(roms_load(@memoria_temp,ms_sprite)) then exit;
+if not(roms_load(@memoria_temp,mstone_sprite)) then exit;
 init_gfx(2,16,16,512);
 convert_gfx(2,0,@memoria_temp,@ps_x,@ps_y,false,true);
 //poner la paleta
-if not(roms_load(@memoria_temp,ms_pal)) then exit;
+if not(roms_load(@memoria_temp,mstone_pal)) then exit;
 compute_resistor_weights(0,	255, -1.0,
 			3,@resistances_rg,@weights_rg,0,4700,
 			2,@resistances_b,@weights_b,0,4700,

@@ -1,7 +1,6 @@
 unit nes_ppu;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     gfx_engine,main_engine,pal_engine,math,n2a03;
 
 type
   nesppu_chip=class
@@ -51,7 +50,7 @@ var
   ppu_nes_0:nesppu_chip;
 
 implementation
-uses nes,nes_mappers;
+uses nes,nes_mappers,gfx_engine,main_engine,pal_engine,math,n2a03;
 
 function nesppu_chip.save_snapshot(data:pbyte):word;
 var

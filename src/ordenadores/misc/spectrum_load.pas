@@ -1,9 +1,7 @@
-unit spectrum_load;
+Ôªøunit spectrum_load;
 
 interface
-uses {$ifdef windows}windows,{$endif}
-     Dialogs,main_engine,spectrum_48k,misc_functions,file_engine,
-     lenguaje,spectrum_misc,tap_tzx,snapshot,tape_window,cargar_spec,sysutils;
+uses Dialogs,sysutils;
 
 type
   tload_rom=record
@@ -26,7 +24,9 @@ procedure spectrum_load_exit;
 procedure spectrum_load_close;
 
 implementation
-uses principal;
+uses principal,main_engine,spectrum_48k,misc_functions,file_engine,gfx_engine,
+     lenguaje,spectrum_misc,tap_tzx,snapshot,tape_window,cargar_spec,
+     timer_engine;
 
 procedure spectrum_load_init;
 begin
@@ -204,7 +204,7 @@ if extension='TAP' then begin
     copymemory(tap_header,temp,20);
     if tap_header.size>6911 then begin
       hay_imagen:=true;
-      inc(temp,3);  //Para llegar a los datos, le sumo el tamaÒo y el flag
+      inc(temp,3);  //Para llegar a los datos, le sumo el tama√±o y el flag
     end else begin
       inc(temp,tap_header.size+2);
       g:=g+tap_header.size+2;
@@ -458,14 +458,8 @@ end;
 //mostrar imagen si hay...
 if hay_imagen then spec_a_pantalla(temp,load_spec.image1.picture.Bitmap)
   else load_spec.image1.picture:=nil;
-if temp2<>nil then begin
-  freemem(temp2);
-  temp2:=nil;
-end;
-if datos_scr<>nil then begin
-  freemem(datos_scr);
-  datos_scr:=nil;
-end;
+if temp2<>nil then freemem(temp2);
+if datos_scr<>nil then freemem(datos_scr);
 end;
 
 procedure spectrum_load_test_rom;
@@ -499,8 +493,8 @@ cinta:=false;
 resultado:=false;
 interface2.hay_if2:=false;
 if spec_rom.hay_rom then begin
-  spectrum_load_test_rom;
   llamadas_maquina.reset;
+  spectrum_load_test_rom;
   rom_cambiada_48:=true;
   resultado:=true;
   cadena:='ROM: '+spec_rom.nombre_rom;
@@ -531,11 +525,9 @@ if extension='SP' then resultado:=abrir_sp(datos,file_size);
 if extension='ZX' then resultado:=abrir_zx(datos,file_size);
 if extension='SZX' then resultado:=abrir_szx(datos,file_size);
 if not(resultado) then begin
-  MessageDlg('No es una cinta o un snapshot v·lido.'+chr(10)+chr(13)+'Not a valid tape or snapshot', mtInformation,[mbOk], 0);
+  MessageDlg('No es una cinta o un snapshot v√°lido.'+chr(10)+chr(13)+'Not a valid tape or snapshot', mtInformation,[mbOk], 0);
   cadena:='';
 end else begin
-    //Si todo ha ido bien y no hay ROM, devolver la original!
-    if not(rom_cambiada_48) then copymemory(@memoria[0],@mem_snd[0],$4000);
     principal1.BitBtn14.Enabled:=false;
     if cinta then begin
       tape_window1.edit1.Text:=nombre;
@@ -553,9 +545,11 @@ end else begin
                   principal1.imagelist2.GetBitmap(1,principal1.BitBtn14.Glyph);
                   var_spectrum.fastload:=false;
                end;
+      if (((main_vars.tipo_maquina=0) or (main_vars.tipo_maquina=5)) and main_vars.auto_type) then timers.enabled(key_timer,true);
     end else begin  //Snapshot
       main_screen.rapido:=false;
       cadena:=extension+': '+nombre;
+      reset_gfx;
     end;
     Directory.spectrum_tap_snap:=load_spec.FileListBox1.Directory+main_vars.cadena_dir;
     ultima_posicion:=load_spec.filelistbox1.ItemIndex;

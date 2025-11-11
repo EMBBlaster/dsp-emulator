@@ -4,7 +4,7 @@ interface
 uses {$IFDEF windows}windows,{$else}LCLType,{$endif}principal,main_engine,
      file_engine,sound_engine,init_games,controls_engine,timer_engine,tap_tzx,
      lib_sdl2,tape_window,lenslock,sysutils,forms,lenguaje,misc_functions,
-     {$ifndef fpc}gifimg,jpeg,pngimage,{$endif}vars_hide,graphics;
+     {$ifndef fpc}gifimg,jpeg,pngimage,{$endif}graphics;
 
 procedure principal_timer3;
 procedure principal_formclose;
@@ -39,7 +39,6 @@ if not(main_vars.driver_ok) then begin
   principal1.BitBtn9.Enabled:=false;
   principal1.BitBtn10.Enabled:=false;
   principal1.BitBtn11.Enabled:=false;
-  principal1.BitBtn12.Enabled:=false;
   principal1.BitBtn14.Enabled:=false;
   principal1.BitBtn19.Enabled:=false;
 end else begin

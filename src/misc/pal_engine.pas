@@ -1,13 +1,12 @@
-unit pal_engine;
+﻿unit pal_engine;
 
 interface
-uses {$IFDEF windows}windows,{$ENDIF}lib_sdl2;
+uses main_engine;
 
 const
-    MAX_NETS=3;
-    MAX_RES_PER_NET=18;
     SET_TRANS_COLOR=$69; //:-)
     MAX_COLORES=$8000;
+
 type
   tcolor=record
                 r,g,b:byte;
@@ -42,7 +41,11 @@ procedure set_pal_color_alpha(pcolor:tcolor;pal_pos:word);
 function convert_pal_color(pcolor:tcolor):word;
 
 implementation
-uses main_engine;
+uses lib_sdl2;
+
+const
+  MAX_NETS=3;
+  MAX_RES_PER_NET=18;
 
 procedure compute_resistor_weights(
 	minval,maxval:integer;scaler:single;

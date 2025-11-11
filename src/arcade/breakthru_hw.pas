@@ -1,10 +1,10 @@
-unit breakthru_hw;
+﻿unit breakthru_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,main_engine,controls_engine,gfx_engine,ym_3812,ym_2203,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
+
 function iniciar_brkthru:boolean;
-implementation
+
 const
         //Break Thru
         brkthru_rom:array[0..3] of tipo_roms=(
@@ -18,19 +18,8 @@ const
         brkthru_tiles:array[0..2] of tipo_roms=(
         (n:'brkthru.7';l:$8000;p:0;crc:$920cc56a),(n:'brkthru.6';l:$8000;p:$8000;crc:$fd3cee40),
         (n:'brkthru.8';l:$8000;p:$10000;crc:$f67ee64e));
-        brkthru_pal:array[0..1] of tipo_roms=(
-        (n:'brkthru.13';l:$100;p:0;crc:$aae44269),(n:'brkthru.14';l:$100;p:$100;crc:$f2d4822a));
-        brkthru_dip_a:array [0..5] of def_dip2=(
-        (mask:$3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
-        (mask:$c;name:'Coin B';number:4;val4:(0,$c,8,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
-        (mask:$10;name:'Enemy Vehicles';number:2;val2:($10,0);name2:('Slow','Fast')),
-        (mask:$20;name:'Enemy Bullets';number:2;val2:($20,0);name2:('Slow','Fast')),
-        (mask:$40;name:'Control Panel';number:2;val2:($40,0);name2:('1 Player','2 Player')),
-        (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')));
-        brkthru_dip_b:array [0..2] of def_dip2=(
-        (mask:$3;name:'Lives';number:4;val4:(2,3,1,0);name4:('2','3','5','99')),
-        (mask:$c;name:'Bonus Life';number:4;val4:(0,4,$c,8);name4:('20K','10K 20K','20K 30K','20K 40K')),
-        (mask:$10;name:'Allow Continue';number:2;val2:(0,$10);name2:('No','Yes')));
+        brkthru_pal:array[0..2] of tipo_roms=(
+        (n:'brkthru.13';l:$100;p:0;crc:$aae44269),(n:'brkthru.14';l:$100;p:$100;crc:$f2d4822a),());
         //Darwin
         darwin_rom:array[0..3] of tipo_roms=(
         (n:'darw_04.rom';l:$4000;p:$0;crc:$0eabf21c),(n:'darw_05.rom';l:$8000;p:$4000;crc:$e771f864),
@@ -43,18 +32,36 @@ const
         darwin_tiles:array[0..2] of tipo_roms=(
         (n:'darw_03.rom';l:$8000;p:0;crc:$57d0350d),(n:'darw_02.rom';l:$8000;p:$8000;crc:$559a71ab),
         (n:'darw_01.rom';l:$8000;p:$10000;crc:$15a16973));
-        darwin_pal:array[0..1] of tipo_roms=(
-        (n:'df.12';l:$100;p:0;crc:$89b952ef),(n:'df.13';l:$100;p:$100;crc:$d595e91d));
+        darwin_pal:array[0..2] of tipo_roms=(
+        (n:'df.12';l:$100;p:0;crc:$89b952ef),(n:'df.13';l:$100;p:$100;crc:$d595e91d),());
+
+implementation
+uses m6809,main_engine,controls_engine,gfx_engine,ym_3812,ym_2203,pal_engine,
+     sound_engine;
+
+const
+        brkthru_dip_a:array [0..5] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
+        (mask:$c;name:'Coin B';number:4;val4:(0,$c,8,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
+        (mask:$10;name:'Enemy Vehicles';number:2;val2:($10,0);name2:('Slow','Fast')),
+        (mask:$20;name:'Enemy Bullets';number:2;val2:($20,0);name2:('Slow','Fast')),
+        (mask:$40;name:'Control Panel';number:2;val2:($40,0);name2:('1 Player','2 Player')),
+        (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')));
+        brkthru_dip_b:array [0..2] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(2,3,1,0);name4:('2','3','5','99')),
+        (mask:$c;name:'Bonus Life';number:4;val4:(0,4,$c,8);name4:('20K','10K 20K','20K 30K','20K 40K')),
+        (mask:$10;name:'Allow Continue';number:2;val2:(0,$10);name2:('No','Yes')));
         darwin_dip_a:array [0..3] of def_dip2=(
-        (mask:$3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
+        (mask:3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
         (mask:$c;name:'Coin B';number:4;val4:(0,$c,8,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
         (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
         (mask:$40;name:'Demo Sounds';number:2;val2:(0,$40);name2:('Off','On')));
         darwin_dip_b:array [0..3] of def_dip2=(
-        (mask:$1;name:'Lives';number:2;val2:(1,0);name2:('3','5')),
-        (mask:$2;name:'Bonus Life';number:2;val2:(2,0);name2:('20K 50K+','30K 80K+')),
+        (mask:1;name:'Lives';number:2;val2:(1,0);name2:('3','5')),
+        (mask:2;name:'Bonus Life';number:2;val2:(2,0);name2:('20K 50K+','30K 80K+')),
         (mask:$c;name:'Difficulty';number:4;val4:($c,8,4,0);name4:('Easy','Meidum','Hard','Hardest')),
         (mask:$10;name:'Allow Continue';number:2;val2:(0,$10);name2:('No','Yes')));
+
 var
  rom:array[0..7,0..$1fff] of byte;
  mem_sprt:array[0..$ff] of byte;
@@ -62,6 +69,7 @@ var
  nmi_ena,old_val,old_val2:boolean;
  scroll_x:word;
  bg_video,fg_video:array[0..$3ff] of byte;
+
 procedure update_video_brkthru;
 var
   x,y,atrib:byte;
@@ -129,69 +137,69 @@ draw_sprites($9);
 actualiza_trozo(0,0,256,256,1,0,0,256,256,4);
 actualiza_trozo_final(8,8,240,240,4);
 end;
+
 procedure eventos_brkthru;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$7f or (marcade.in1 and $80);
+  marcade.in2:=$e0;
   //p1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7f;
   //p2
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $df;
   //misc
   if (arcade_input.coin[0] and not(old_val)) then begin
       marcade.in2:=(marcade.in2 and $df);
       m6809_0.change_irq(ASSERT_LINE);
-  end else begin
-      marcade.in2:=(marcade.in2 or $20);
   end;
   if (arcade_input.coin[1] and not(old_val2)) then begin
       marcade.in2:=(marcade.in2 and $bf);
       m6809_0.change_irq(ASSERT_LINE);
-  end else begin
-      marcade.in2:=(marcade.in2 or $40);
   end;
   old_val:=arcade_input.coin[0];
   old_val2:=arcade_input.coin[1];
 end;
 end;
+
 procedure brkthru_principal;
 var
-  frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
-frame_m:=m6809_0.tframes;
-frame_s:=m6809_1.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 271 do begin
-    //main
-    m6809_0.run(frame_m);
-    frame_m:=frame_m+m6809_0.tframes-m6809_0.contador;
-    //snd
-    m6809_1.run(frame_s);
-    frame_s:=frame_s+m6809_1.tframes-m6809_1.contador;
-    if f=247 then begin
-      if nmi_ena then m6809_0.change_nmi(PULSE_LINE);
-      update_video_brkthru;
-      marcade.in1:=marcade.in1 and $7f;
+    case f of
+      0:marcade.in1:=marcade.in1 or $80;
+      248:begin
+            if nmi_ena then m6809_0.change_nmi(PULSE_LINE);
+            update_video_brkthru;
+            marcade.in1:=marcade.in1 and $7f;
+          end;
     end;
+    //main
+    m6809_0.run(frame_main);
+    frame_main:=frame_main+m6809_0.tframes-m6809_0.contador;
+    //snd
+    m6809_1.run(frame_snd);
+    frame_snd:=frame_snd+m6809_1.tframes-m6809_1.contador;
   end;
-  marcade.in1:=marcade.in1 or $80;
   eventos_brkthru;
   video_sync;
 end;
 end;
+
 function read_mem_gen(direccion:word):byte;
 begin
 case direccion of
@@ -205,6 +213,7 @@ case direccion of
   $1803:read_mem_gen:=marcade.dswb or marcade.in2;
 end;
 end;
+
 procedure write_mem_gen(direccion:word;valor:byte);
 begin
 case direccion of
@@ -234,6 +243,7 @@ case direccion of
           end;
 end;
 end;
+
 //Break Thru
 function brkthru_getbyte(direccion:word):byte;
 begin
@@ -243,6 +253,7 @@ case direccion of
     $2000..$3fff:brkthru_getbyte:=rom[rom_bank,direccion and $1fff];
 end;
 end;
+
 procedure brkthru_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
@@ -255,6 +266,7 @@ case direccion of
     $2000..$ffff:; //ROM
 end;
 end;
+
 function brkthru_snd_getbyte(direccion:word):byte;
 begin
 case direccion of
@@ -264,6 +276,7 @@ case direccion of
   $6000:brkthru_snd_getbyte:=ym2203_0.status;
 end;
 end;
+
 procedure brkthru_snd_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
@@ -275,15 +288,18 @@ case direccion of
   $8000..$ffff:; //ROM
 end;
 end;
+
 procedure brkthru_snd_irq(irqstate:byte);
 begin
   m6809_1.change_irq(irqstate);
 end;
+
 procedure brkthru_sound_update;
 begin
   ym2203_0.update;
   ym3812_0.update;
 end;
+
 //Darwin
 function darwin_getbyte(direccion:word):byte;
 begin
@@ -294,6 +310,7 @@ case direccion of
     $4000..$ffff:darwin_getbyte:=memoria[direccion];
 end;
 end;
+
 procedure darwin_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
@@ -306,11 +323,14 @@ case direccion of
     $2000..$ffff:; //ROM
 end;
 end;
+
 //Main
 procedure reset_brkthru;
 begin
  m6809_0.reset;
  m6809_1.reset;
+ frame_main:=m6809_0.tframes;
+ frame_snd:=m6809_1.tframes;
  ym2203_0.reset;
  ym3812_0.reset;
  marcade.in0:=$ff;
@@ -324,6 +344,7 @@ begin
  bg_color:=0;
  nmi_ena:=true;
 end;
+
 function iniciar_brkthru:boolean;
 var
   colores:tpaleta;
@@ -471,4 +492,5 @@ set_pal(colores,$100);
 reset_brkthru;
 iniciar_brkthru:=true;
 end;
+
 end.

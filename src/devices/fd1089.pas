@@ -1,14 +1,17 @@
 unit fd1089;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$endif}misc_functions;
+uses main_engine;
 
 const
-  fd_typeA=1;
-  fd_typeB=2;
+  FD_TYPEA=1;
+  FD_TYPEB=2;
 
 procedure fd1089_decrypt(size:dword;srcptr,opcodesptr,dataptr:pword;m_key:pbyte;fd_type:byte);
 
 implementation
+uses misc_functions;
+
 const
   s_basetable_fd1089:array[0..$ff] of byte=(
 	$00,$1c,$76,$6a,$5e,$42,$24,$38,$4b,$67,$ad,$81,$e9,$c5,$03,$2f,
@@ -204,7 +207,7 @@ begin
 	tbl_num:=((addr and $000002) shr 1) or ((addr and $000008) shr 2) or ((addr and $000020) shr 3) or ((addr and $000200) shr 6) or ((addr and $ff0000) shr 12);
   inc(ptemp,tbl_num);
 	src:=((val and $0008) shr 3) or ((val and $0040) shr 5) or ((val and $fc00) shr 8);
-	if fd_type=fd_typeA then src:=decode_a(src,ptemp^,opcode)
+	if fd_type=FD_TYPEA then src:=decode_a(src,ptemp^,opcode)
     else src:=decode_b(src,ptemp^,opcode);
 	src:=((src and $01) shl 3) or	((src and $02) shl 5) or ((src and $fc) shl 8);
 	decrypt_one:=(val and not($fc48)) or src;

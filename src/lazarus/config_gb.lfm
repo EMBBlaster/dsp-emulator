@@ -1,58 +1,60 @@
 object configgb: Tconfiggb
-  Left = 355
+  Left = 357
   Height = 300
-  Top = 283
-  Width = 400
-  Caption = 'Config GB/GBC'
+  Top = 37
+  Width = 484
+  Caption = 'Config GameBoy/GameBoy Color'
   ClientHeight = 300
-  ClientWidth = 400
-  DesignTimePPI = 120
-  KeyPreview = True
+  ClientWidth = 484
+  DesignTimePPI = 144
   OnKeyUp = FormKeyUp
   OnShow = FormShow
-  LCLVersion = '3.0.0.2'
-  object GroupBox7: TGroupBox
-    Left = 34
-    Height = 101
-    Top = 30
-    Width = 242
-    Caption = 'Screen'
-    ClientHeight = 76
-    ClientWidth = 238
+  object Button2: TButton
+    Left = 272
+    Height = 61
+    Top = 192
+    Width = 120
+    Caption = 'CANCEL'
     TabOrder = 0
-    object RadioButton1: TRadioButton
-      Left = 18
-      Height = 24
-      Top = 19
-      Width = 195
-      Caption = 'Gameboy Original - Green'
-      TabOrder = 0
-    end
-    object RadioButton2: TRadioButton
-      Left = 16
-      Height = 24
-      Top = 48
-      Width = 170
-      Caption = 'Gameboy Pocket - BW'
-      TabOrder = 1
-    end
+    OnClick = Button2Click
   end
   object Button1: TButton
-    Left = 20
-    Height = 78
+    Left = 88
+    Height = 61
     Top = 192
-    Width = 150
+    Width = 120
     Caption = 'OK'
     TabOrder = 1
     OnClick = Button1Click
   end
-  object Button2: TButton
-    Left = 240
-    Height = 78
-    Top = 192
-    Width = 150
-    Caption = 'CANCEL'
+  object GroupBox7: TGroupBox
+    Left = 48
+    Height = 122
+    Top = 48
+    Width = 392
+    Caption = 'Screen'
+    ClientHeight = 92
+    ClientWidth = 388
     TabOrder = 2
-    OnClick = Button2Click
+    object RadioButton1: TRadioButton
+      Left = 20
+      Height = 29
+      Top = 12
+      Width = 232
+      Caption = 'Gameboy Original - Green'
+      Checked = True
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+    end
+    object RadioButton2: TRadioButton
+      Left = 20
+      Height = 29
+      Top = 48
+      Width = 204
+      Caption = 'Gameboy Pocket - BW'
+      ParentFont = False
+      TabOrder = 1
+    end
   end
 end

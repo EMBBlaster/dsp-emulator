@@ -1,20 +1,21 @@
 unit oric_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,main_engine,controls_engine,ay_8910,gfx_engine,timer_engine,
-     rom_engine,pal_engine,sound_engine,via6522,misc_functions,file_engine,
-     dialogs,sysutils,tape_window,oric_disc,cargar_dsk,forms;
+uses sysutils,rom_engine;
 
 function iniciar_oric:boolean;
 
+const
+    atmos_rom:array [0..1] of tipo_roms=((n:'basic11b.rom';l:$4000;p:0;crc:$c3a92bef),());
+    oric1_rom:array [0..1] of tipo_roms=((n:'basic10.rom';l:$4000;p:0;crc:$f18710b4),());
+    microdisc_rom:tipo_roms=(n:'microdis.rom';l:$2000;p:0;crc:$a9664a9c);
+
 implementation
-uses tap_tzx;
+uses tap_tzx,m6502,main_engine,controls_engine,ay_8910,gfx_engine,timer_engine,
+     pal_engine,sound_engine,via6522,misc_functions,file_engine,tape_window,
+     oric_disc,cargar_dsk;
 
 const
-    atmos_rom:tipo_roms=(n:'basic11b.rom';l:$4000;p:0;crc:$c3a92bef);
-    oric1_rom:tipo_roms=(n:'basic10.rom';l:$4000;p:0;crc:$f18710b4);
-    microdisc_rom:tipo_roms=(n:'microdis.rom';l:$2000;p:0;crc:$a9664a9c);
 		PATTR_HIRES =4;
 		LATTR_ALT   =1;
 		LATTR_DSIZE =2;
@@ -25,6 +26,7 @@ var
   bios_rom:array[0..$3fff] of byte;
   via_ca2,via_cb2,via_irq,ext_irq:boolean;
   key_row:array[0..7] of byte;
+  key_timer,key_pos:byte;
 
 procedure update_video_oric(linea:word);
 var
@@ -107,78 +109,78 @@ end;
 procedure eventos_oric;
 begin
 if event.arcade then begin
-  if arcade_input.up[0] then key_row[4]:=(key_row[4] and $f7) else key_row[4]:=(key_row[4] or 8);
-  if arcade_input.down[0] then key_row[4]:=(key_row[4] and $bf) else key_row[4]:=(key_row[4] or $40);
-  if arcade_input.left[0] then key_row[4]:=(key_row[4] and $df) else key_row[4]:=(key_row[4] or $20);
-  if arcade_input.right[0] then key_row[4]:=(key_row[4] and $7f) else key_row[4]:=(key_row[4] or $80);
-end else if event.keyboard then begin
+  fillchar(key_row,8,$ff);
+  if arcade_input.up[0] then key_row[4]:=key_row[4] and $f7;
+  if arcade_input.down[0] then key_row[4]:=key_row[4] and $bf;
+  if arcade_input.left[0] then key_row[4]:=key_row[4] and $df;
+  if arcade_input.right[0] then key_row[4]:=key_row[4] and $7f;
   //Row 0
-  if keyboard[KEYBOARD_7] then key_row[0]:=(key_row[0] and $fe) else key_row[0]:=(key_row[0] or 1);
-  if keyboard[KEYBOARD_n] then key_row[0]:=(key_row[0] and $fd) else key_row[0]:=(key_row[0] or 2);
-  if keyboard[KEYBOARD_5] then key_row[0]:=(key_row[0] and $fb) else key_row[0]:=(key_row[0] or 4);
-  if keyboard[KEYBOARD_v] then key_row[0]:=(key_row[0] and $f7) else key_row[0]:=(key_row[0] or 8);
-  if keyboard[KEYBOARD_1] then key_row[0]:=(key_row[0] and $df) else key_row[0]:=(key_row[0] or $20);
-  if keyboard[KEYBOARD_x] then key_row[0]:=(key_row[0] and $bf) else key_row[0]:=(key_row[0] or $40);
-  if keyboard[KEYBOARD_3] then key_row[0]:=(key_row[0] and $7f) else key_row[0]:=(key_row[0] or $80);
+  if keyboard[KEYBOARD_7] then key_row[0]:=key_row[0] and $fe;
+  if keyboard[KEYBOARD_n] then key_row[0]:=key_row[0] and $fd;
+  if keyboard[KEYBOARD_5] then key_row[0]:=key_row[0] and $fb;
+  if keyboard[KEYBOARD_v] then key_row[0]:=key_row[0] and $f7;
+  if keyboard[KEYBOARD_1] then key_row[0]:=key_row[0] and $df;
+  if keyboard[KEYBOARD_x] then key_row[0]:=key_row[0] and $bf;
+  if keyboard[KEYBOARD_3] then key_row[0]:=key_row[0] and $7f;
   //Row 1
-  if keyboard[KEYBOARD_j] then key_row[1]:=(key_row[1] and $fe) else key_row[1]:=(key_row[1] or 1);
-  if keyboard[KEYBOARD_t] then key_row[1]:=(key_row[1] and $fd) else key_row[1]:=(key_row[1] or 2);
-  if keyboard[KEYBOARD_r] then key_row[1]:=(key_row[1] and $fb) else key_row[1]:=(key_row[1] or 4);
-  if keyboard[KEYBOARD_f] then key_row[1]:=(key_row[1] and $f7) else key_row[1]:=(key_row[1] or 8);
-  if keyboard[KEYBOARD_tab] then key_row[1]:=(key_row[1] and $df) else key_row[1]:=(key_row[1] or $20);
-  if keyboard[KEYBOARD_q] then key_row[1]:=(key_row[1] and $bf) else key_row[1]:=(key_row[1] or $40);
-  if keyboard[KEYBOARD_d] then key_row[1]:=(key_row[1] and $7f) else key_row[1]:=(key_row[1] or $80);
+  if keyboard[KEYBOARD_j] then key_row[1]:=key_row[1] and $fe;
+  if keyboard[KEYBOARD_t] then key_row[1]:=key_row[1] and $fd;
+  if keyboard[KEYBOARD_r] then key_row[1]:=key_row[1] and $fb;
+  if keyboard[KEYBOARD_f] then key_row[1]:=key_row[1] and $f7;
+  if keyboard[KEYBOARD_tab] then key_row[1]:=key_row[1] and $df;
+  if keyboard[KEYBOARD_q] then key_row[1]:=key_row[1] and $bf;
+  if keyboard[KEYBOARD_d] then key_row[1]:=key_row[1] and $7f;
   //Row 2
-  if keyboard[KEYBOARD_m] then key_row[2]:=(key_row[2] and $fe) else key_row[2]:=(key_row[2] or 1);
-  if keyboard[KEYBOARD_6] then key_row[2]:=(key_row[2] and $fd) else key_row[2]:=(key_row[2] or 2);
-  if keyboard[KEYBOARD_b] then key_row[2]:=(key_row[2] and $fb) else key_row[2]:=(key_row[2] or 4);
-  if keyboard[KEYBOARD_4] then key_row[2]:=(key_row[2] and $f7) else key_row[2]:=(key_row[2] or 8);
-  if keyboard[KEYBOARD_LCTRL] then key_row[2]:=(key_row[2] and $ef) else key_row[2]:=(key_row[2] or $10);
-  if keyboard[KEYBOARD_z] then key_row[2]:=(key_row[2] and $df) else key_row[2]:=(key_row[2] or $20);
-  if keyboard[KEYBOARD_2] then key_row[2]:=(key_row[2] and $bf) else key_row[2]:=(key_row[2] or $40);
-  if keyboard[KEYBOARD_c] then key_row[2]:=(key_row[2] and $7f) else key_row[2]:=(key_row[2] or $80);
+  if keyboard[KEYBOARD_m] then key_row[2]:=key_row[2] and $fe;
+  if keyboard[KEYBOARD_6] then key_row[2]:=key_row[2] and $fd;
+  if keyboard[KEYBOARD_b] then key_row[2]:=key_row[2] and $fb;
+  if keyboard[KEYBOARD_4] then key_row[2]:=key_row[2] and $f7;
+  if keyboard[KEYBOARD_LCTRL] then key_row[2]:=key_row[2] and $ef;
+  if keyboard[KEYBOARD_z] then key_row[2]:=key_row[2] and $df;
+  if keyboard[KEYBOARD_2] then key_row[2]:=key_row[2] and $bf;
+  if keyboard[KEYBOARD_c] then key_row[2]:=key_row[2] and $7f;
   //Row 3
-  if keyboard[KEYBOARD_k] then key_row[3]:=(key_row[3] and $fe) else key_row[3]:=(key_row[3] or 1);
-  if keyboard[KEYBOARD_9] then key_row[3]:=(key_row[3] and $fd) else key_row[3]:=(key_row[3] or 2);
-  if keyboard[KEYBOARD_FILA1_T2] then key_row[3]:=(key_row[3] and $fb) else key_row[3]:=(key_row[3] or 4);
-  if keyboard[KEYBOARD_FILA3_T3] then key_row[3]:=(key_row[3] and $f7) else key_row[3]:=(key_row[3] or 8);
-  //if keyboard[KEYBOARD_LCTRL] then key_row[3]:=(key_row[3] and $ef) else key_row[3]:=(key_row[3] or $10);
-  //if keyboard[KEYBOARD_z] then key_row[3]:=(key_row[3] and $df) else key_row[3]:=(key_row[3] or $20);
-  if keyboard[KEYBOARD_FILA3_T0] then key_row[3]:=(key_row[3] and $bf) else key_row[3]:=(key_row[3] or $40);
-  if keyboard[KEYBOARD_FILA1_T1] then key_row[3]:=(key_row[3] and $7f) else key_row[3]:=(key_row[3] or $80);
+  if keyboard[KEYBOARD_k] then key_row[3]:=key_row[3] and $fe;
+  if keyboard[KEYBOARD_9] then key_row[3]:=key_row[3] and $fd;
+  if keyboard[KEYBOARD_FILA1_T2] then key_row[3]:=key_row[3] and $fb;
+  if keyboard[KEYBOARD_FILA3_T3] then key_row[3]:=key_row[3] and $f7;
+  //if keyboard[KEYBOARD_LCTRL] then key_row[3]:=key_row[3] and $ef;
+  //if keyboard[KEYBOARD_z] then key_row[3]:=key_row[3] and $df;
+  if keyboard[KEYBOARD_FILA3_T0] then key_row[3]:=key_row[3] and $bf;
+  if keyboard[KEYBOARD_FILA1_T1] then key_row[3]:=key_row[3] and $7f;
   //Row 4
-  if keyboard[KEYBOARD_space] then key_row[4]:=(key_row[4] and $fe) else key_row[4]:=(key_row[4] or 1);
-  if keyboard[KEYBOARD_FILA3_T1] then key_row[4]:=(key_row[4] and $fd) else key_row[4]:=(key_row[4] or 2);
-  if keyboard[KEYBOARD_FILA3_T2] then key_row[4]:=(key_row[4] and $fb) else key_row[4]:=(key_row[4] or 4);
+  if keyboard[KEYBOARD_space] then key_row[4]:=key_row[4] and $fe;
+  if keyboard[KEYBOARD_FILA3_T1] then key_row[4]:=key_row[4] and $fd;
+  if keyboard[KEYBOARD_FILA3_T2] then key_row[4]:=key_row[4] and $fb;
   //Up --> arcade
-  if keyboard[KEYBOARD_LSHIFT] then key_row[4]:=(key_row[4] and $ef) else key_row[4]:=(key_row[4] or $10);
+  if keyboard[KEYBOARD_LSHIFT] then key_row[4]:=key_row[4] and $ef;
   //Left --> Arcade
   //Down --> Arcade
   //Right --> Arcade
   //Row 5
-  if keyboard[KEYBOARD_u] then key_row[5]:=(key_row[5] and $fe) else key_row[5]:=(key_row[5] or 1);
-  if keyboard[KEYBOARD_i] then key_row[5]:=(key_row[5] and $fd) else key_row[5]:=(key_row[5] or 2);
-  if keyboard[KEYBOARD_o] then key_row[5]:=(key_row[5] and $fb) else key_row[5]:=(key_row[5] or 4);
-  if keyboard[KEYBOARD_p] then key_row[5]:=(key_row[5] and $f7) else key_row[5]:=(key_row[5] or 8);
-  if keyboard[KEYBOARD_backspace] then key_row[5]:=(key_row[5] and $df) else key_row[5]:=(key_row[5] or $20);
-  if keyboard[KEYBOARD_FILA2_T1] then key_row[5]:=(key_row[5] and $bf) else key_row[5]:=(key_row[5] or $40);
-  if keyboard[KEYBOARD_FILA2_T2] then key_row[5]:=(key_row[5] and $7f) else key_row[5]:=(key_row[5] or $80);
+  if keyboard[KEYBOARD_u] then key_row[5]:=key_row[5] and $fe;
+  if keyboard[KEYBOARD_i] then key_row[5]:=key_row[5] and $fd;
+  if keyboard[KEYBOARD_o] then key_row[5]:=key_row[5] and $fb;
+  if keyboard[KEYBOARD_p] then key_row[5]:=key_row[5] and $f7;
+  if keyboard[KEYBOARD_backspace] then key_row[5]:=key_row[5] and $df;
+  if keyboard[KEYBOARD_FILA2_T1] then key_row[5]:=key_row[5] and $bf;
+  if keyboard[KEYBOARD_FILA2_T2] then key_row[5]:=key_row[5] and $7f;
   //Row 6
-  if keyboard[KEYBOARD_y] then key_row[6]:=(key_row[6] and $fe) else key_row[6]:=(key_row[6] or 1);
-  if keyboard[KEYBOARD_h] then key_row[6]:=(key_row[6] and $fd) else key_row[6]:=(key_row[6] or 2);
-  if keyboard[KEYBOARD_g] then key_row[6]:=(key_row[6] and $fb) else key_row[6]:=(key_row[6] or 4);
-  if keyboard[KEYBOARD_e] then key_row[6]:=(key_row[6] and $f7) else key_row[6]:=(key_row[6] or 8);
-  if keyboard[KEYBOARD_a] then key_row[6]:=(key_row[6] and $df) else key_row[6]:=(key_row[6] or $20);
-  if keyboard[KEYBOARD_s] then key_row[6]:=(key_row[6] and $bf) else key_row[6]:=(key_row[6] or $40);
-  if keyboard[KEYBOARD_w] then key_row[6]:=(key_row[6] and $7f) else key_row[6]:=(key_row[6] or $80);
+  if keyboard[KEYBOARD_y] then key_row[6]:=key_row[6] and $fe;
+  if keyboard[KEYBOARD_h] then key_row[6]:=key_row[6] and $fd;
+  if keyboard[KEYBOARD_g] then key_row[6]:=key_row[6] and $fb;
+  if keyboard[KEYBOARD_e] then key_row[6]:=key_row[6] and $f7;
+  if keyboard[KEYBOARD_a] then key_row[6]:=key_row[6] and $df;
+  if keyboard[KEYBOARD_s] then key_row[6]:=key_row[6] and $bf;
+  if keyboard[KEYBOARD_w] then key_row[6]:=key_row[6] and $7f;
   //Row 7
-  if keyboard[KEYBOARD_8] then key_row[7]:=(key_row[7] and $fe) else key_row[7]:=(key_row[7] or 1);
-  if keyboard[KEYBOARD_l] then key_row[7]:=(key_row[7] and $fd) else key_row[7]:=(key_row[7] or 2);
-  if keyboard[KEYBOARD_0] then key_row[7]:=(key_row[7] and $fb) else key_row[7]:=(key_row[7] or 4);
-  if keyboard[KEYBOARD_FILA0_T2] then key_row[7]:=(key_row[7] and $f7) else key_row[7]:=(key_row[7] or 8);
-  if keyboard[KEYBOARD_RSHIFT] then key_row[7]:=(key_row[7] and $ef) else key_row[7]:=(key_row[7] or $10);
-  if keyboard[KEYBOARD_return] then key_row[7]:=(key_row[7] and $df) else key_row[7]:=(key_row[7] or $20);
-  if keyboard[KEYBOARD_FILA0_T1] then key_row[7]:=(key_row[7] and $7f) else key_row[7]:=(key_row[7] or $80);
+  if keyboard[KEYBOARD_8] then key_row[7]:=key_row[7] and $fe;
+  if keyboard[KEYBOARD_l] then key_row[7]:=key_row[7] and $fd;
+  if keyboard[KEYBOARD_0] then key_row[7]:=key_row[7] and $fb;
+  if keyboard[KEYBOARD_FILA0_T2] then key_row[7]:=key_row[7] and $f7;
+  if keyboard[KEYBOARD_RSHIFT] then key_row[7]:=key_row[7] and $ef;
+  if keyboard[KEYBOARD_return] then key_row[7]:=key_row[7] and $df;
+  if keyboard[KEYBOARD_FILA0_T1] then key_row[7]:=key_row[7] and $7f;
 end;
 end;
 
@@ -186,7 +188,6 @@ procedure oric_principal;
 var
   f:word;
 begin
-init_controls(false,true,true,false);
 while EmuStatus=EsRunning do begin
   eventos_oric;
   for f:=0 to 311 do begin
@@ -368,6 +369,18 @@ begin
  fillchar(key_row,8,$ff);
  blink_counter:=0;
  pattr:=0;
+ key_pos:=0;
+end;
+
+procedure key_press;
+const
+  run_key:array[0..16] of word=($027f,$02ff,$07fd,$07ff,$05fb,$05ff,$06df,$06ff,$017f,$01ff,$04ef,$037f,$03ff,$04ff,$07df,$07ff,$ffff);
+begin
+key_row[run_key[key_pos] shr 8]:=run_key[key_pos] and $ff;
+if run_key[key_pos]=$ffff then begin
+  timers.enabled(key_timer,false);
+  key_pos:=0;
+end else key_pos:=key_pos+1;
 end;
 
 procedure oric_tapes;
@@ -394,6 +407,7 @@ begin
      tape_window1.BitBtn2.Enabled:=false;
      cinta_tzx.play_tape:=false;
      cadena:=extension+': '+nombre_file;
+     if main_vars.auto_type then timers.enabled(key_timer,true);
   end;
   freemem(datos);
   directory.oric_tap:=ExtractFilePath(romfile);
@@ -447,6 +461,7 @@ for f:=0 to 7 do begin
   colores[f].b:=pal1bit(f shr 2);
 end;
 set_pal(colores,8);
+key_timer:=timers.init(m6502_0.numero_cpu,100000,key_press,nil,false);
 //final
 iniciar_oric:=true;
 end;

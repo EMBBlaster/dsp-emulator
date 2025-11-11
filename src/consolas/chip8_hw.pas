@@ -1,8 +1,7 @@
 unit chip8_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,controls_engine,sysutils,dialogs,sound_engine,pal_engine,
+uses main_engine,controls_engine,sysutils,dialogs,sound_engine,pal_engine,
      gfx_engine,misc_functions;
 
 function iniciar_chip8:boolean;
@@ -323,7 +322,7 @@ end;
 
 procedure eventos_chip8;
 begin
-  if event.keyboard then begin
+  if event.arcade then begin
     chip8_0.key[0]:=keyboard[KEYBOARD_X];
     chip8_0.key[1]:=keyboard[KEYBOARD_1];
     chip8_0.key[2]:=keyboard[KEYBOARD_2];
@@ -347,7 +346,6 @@ procedure chip8_principal;
 var
   f:byte;
 begin
-init_controls(false,true,false,false);
 while EmuStatus=EsRunning do begin
   for f:=0 to 11 do begin
     chip8_cpu;
@@ -403,7 +401,6 @@ begin
 iniciar_audio(false);
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=chip8_principal;
 llamadas_maquina.reset:=reset_chip8;
 llamadas_maquina.cartuchos:=abrir_chip8;

@@ -1,14 +1,13 @@
-unit spectrum_48k;
+﻿unit spectrum_48k;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,z80_sp,misc_functions,graphics,controls_engine,dialogs,lenguaje,
-     sysutils,rom_engine,main_engine,gfx_engine,pal_engine,sound_engine,
-     z80pio,file_engine;
+uses dialogs;
 
 var
-    rom_cambiada_48:boolean=false;
+    rom_cambiada_48:boolean;
     linea_48:word;
     spec_16k:boolean;
+    key_timer:byte;
 
 function iniciar_48k:boolean;
 procedure spec48_putbyte(direccion:word;valor:byte);
@@ -16,8 +15,12 @@ procedure spec48_outbyte(puerto:word;valor:byte);
 procedure borde_48_full(linea:word);
 
 implementation
+uses tap_tzx,spectrum_misc,nz80,z80_sp,misc_functions,lenguaje,
+     sysutils,rom_engine,main_engine,gfx_engine,pal_engine,sound_engine,
+     z80pio,file_engine,timer_engine,controls_engine;
 
-uses tap_tzx,spectrum_misc;
+var
+  key_pos:byte;
 
 procedure video48k(linea:word);
 var
@@ -65,19 +68,6 @@ for x:=0 to 31 do begin
       inc(ptemp);
       video:=video shl 1;
     end;
-    {if (video and $40)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-    inc(ptemp);
-    if (video and $20)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-    inc(ptemp);
-    if (video and $10)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-    inc(ptemp);
-    if (video and 8)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-    inc(ptemp);
-    if (video and 4)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-    inc(ptemp);
-    if (video and 2)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];
-    inc(ptemp);
-    if (video and 1)<>0 then ptemp^:=paleta[color] else ptemp^:=paleta[color2];}
     putpixel(pant_x,linea+48,8,punbuf,1);
   end;
   pos_video:=pos_video+1;
@@ -137,7 +127,6 @@ end;
 
 procedure spectrum48_main;
 begin
-init_controls(true,true,true,false);
 while EmuStatus=EsRunning do begin
   for linea_48:=0 to 311 do begin
     if mouse.tipo=MGUNSTICK then evalua_gunstick;
@@ -217,14 +206,14 @@ begin
 temp:=$ff;
 if (puerto and 1)=0 then begin //ULA
   if var_spectrum.sd_1 then temp:=$df;
-  if (puerto and $8000)=0 then temp:=temp and var_spectrum.keyB_SPC;
-  if (puerto and $4000)=0 then temp:=temp and var_spectrum.keyH_ENT;
-  if (puerto and $2000)=0 then temp:=temp and var_spectrum.keyY_P;
-  if (puerto and $1000)=0 then temp:=temp and var_spectrum.key6_0;
-  if (puerto and $800)=0 then temp:=temp and var_spectrum.key1_5;
-  if (puerto and $400)=0 then temp:=temp and var_spectrum.keyQ_T;
-  if (puerto and $200)=0 then temp:=temp and var_spectrum.keyA_G;
-  if (puerto and $100)=0 then temp:=temp and var_spectrum.keyCAPS_V;
+  if (puerto and $8000)=0 then temp:=temp and var_spectrum.keys[7];
+  if (puerto and $4000)=0 then temp:=temp and var_spectrum.keys[6];
+  if (puerto and $2000)=0 then temp:=temp and var_spectrum.keys[5];
+  if (puerto and $1000)=0 then temp:=temp and var_spectrum.keys[4];
+  if (puerto and $800)=0 then temp:=temp and var_spectrum.keys[3];
+  if (puerto and $400)=0 then temp:=temp and var_spectrum.keys[2];
+  if (puerto and $200)=0 then temp:=temp and var_spectrum.keys[1];
+  if (puerto and $100)=0 then temp:=temp and var_spectrum.keys[0];
   spec48_inbyte:=(temp and $bf) or cinta_tzx.value or var_spectrum.altavoz;
 end else begin //Resto
     //Floating bus
@@ -323,7 +312,21 @@ end;
 
 procedure spec48k_reset;
 begin
+  copymemory(@memoria[0],@mem_snd[0],$4000);
+  rom_cambiada_48:=false;
   reset_misc;
+  key_pos:=0;
+end;
+
+procedure key_press;
+const
+  run_key:array[0..10] of word=($06f7,$06ff,$07fd,$05fe,$05ff,$05fe,$05ff,$07ff,$06fe,$06ff,$ffff);
+begin
+var_spectrum.keys[run_key[key_pos] shr 8]:=run_key[key_pos] and $ff;
+if run_key[key_pos]=$ffff then begin
+  timers.enabled(key_timer,false);
+  key_pos:=0;
+end else key_pos:=key_pos+1;
 end;
 
 function iniciar_48k:boolean;
@@ -335,8 +338,7 @@ var
   cadena:string;
 begin
 iniciar_audio(false);
-if main_vars.tipo_maquina=0 then spec_16k:=false
-  else spec_16k:=true;
+spec_16k:=(main_vars.tipo_maquina=5);
 llamadas_maquina.bucle_general:=spectrum48_main;
 llamadas_maquina.reset:=spec48k_reset;
 llamadas_maquina.fps_max:=3500000/69888;
@@ -366,6 +368,7 @@ for h:=0 to 191 do begin
   copymemory(@var_spectrum.retraso[f],@cmemory,128);
   inc(f,224);
 end;
+key_timer:=timers.init(spec_z80.numero_cpu,250000,key_press,nil,false);
 iniciar_48k:=true;
 end;
 

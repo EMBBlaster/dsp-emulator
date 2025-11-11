@@ -1,13 +1,9 @@
 unit jrpacman_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,namco_snd,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_jrpacman:boolean;
-
-implementation
 
 const
         //JR. Pac-man
@@ -18,10 +14,14 @@ const
         jrpacman_pal:array[0..2] of tipo_roms=(
         (n:'jrprom.9e';l:$100;p:0;crc:$029d35c4),(n:'jrprom.9f';l:$100;p:$100;crc:$eee34a79),
         (n:'jrprom.9p';l:$100;p:$200;crc:$9f6ea9d8));
-        jrpacman_char:array[0..1] of tipo_roms=(
-        (n:'jrp2c.bin';l:$2000;p:0;crc:$0527ff9b),(n:'jrp2e.bin';l:$2000;p:$2000;crc:$73477193));
         jrpacman_sound:tipo_roms=(n:'jrprom.7p';l:$100;p:0;crc:$a9cc86bf);
-        //DIP
+        jrpacman_char:array[0..2] of tipo_roms=(
+        (n:'jrp2c.bin';l:$2000;p:0;crc:$0527ff9b),(n:'jrp2e.bin';l:$2000;p:$2000;crc:$73477193),());
+
+implementation
+uses nz80,main_engine,namco_snd,controls_engine,gfx_engine,pal_engine,sound_engine;
+
+const
         jrpacman_dip_a:def_dip2=(mask:$10;name:'Rack Test';number:2;val2:($10,0);name2:('Off','On'));
         jrpacman_dip_b:def_dip2=(mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail'));
         jrpacman_dip_c:array [0..3] of def_dip2=(
@@ -105,20 +105,22 @@ end;
 procedure eventos_jrpacman;
 begin
 if event.arcade then begin
+  marcade.in0:=$ef;
+  marcade.in1:=$7f;
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $bf;
   //P2
-  if arcade_input.up[1] then marcade.in0:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.up[1] then marcade.in0:=marcade.in1 and $fe;
+  if arcade_input.left[1] then marcade.in0:=marcade.in1 and $fd;
+  if arcade_input.right[1] then marcade.in0:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in0:=marcade.in1 and $f7;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $bf;
 end;
 end;
 
@@ -126,7 +128,6 @@ procedure jrpacman_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 223 do begin
     eventos_jrpacman;

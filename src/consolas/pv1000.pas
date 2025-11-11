@@ -1,9 +1,7 @@
-unit pv1000;
+﻿unit pv1000;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,sysutils,gfx_engine,timer_engine,
-     sound_engine,pal_engine,misc_functions;
+uses main_engine;
 
 function iniciar_pv1000:boolean;
 
@@ -33,7 +31,8 @@ var
   pv1000_0:tpv1000;
 
 implementation
-uses principal,snapshot;
+uses principal,snapshot,nz80,controls_engine,sysutils,gfx_engine,timer_engine,
+     sound_engine,pal_engine,misc_functions;
 
 const
 pv1000_paleta:array[0..7] of integer=(
@@ -112,7 +111,6 @@ procedure pv1000_principal;
 var
   f:word;
 begin
-init_controls(false,true,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
       eventos_pv1000;
@@ -330,7 +328,6 @@ var
 begin
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=pv1000_principal;
 llamadas_maquina.reset:=reset_pv1000;
 llamadas_maquina.cartuchos:=abrir_pv1000;

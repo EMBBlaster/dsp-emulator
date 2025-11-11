@@ -1,42 +1,41 @@
 unit rainbowislands_hw;
-
 //{$DEFINE MCU=1}
-
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,ym_2151,
-     taito_sound,rom_engine,pal_engine,sound_engine{$IFDEF MCU},taito_cchip{$ELSE IF},rainbow_cchip{$ENDIF};
+uses rom_engine;
 
 function iniciar_rainbow:boolean;
 
-implementation
 const
-        rainbow_rom:array[0..5] of tipo_roms=(
-        (n:'b22-10-1.19';l:$10000;p:0;crc:$e34a50ca),(n:'b22-11-1.20';l:$10000;p:$1;crc:$6a31a093),
-        (n:'b22-08-1.21';l:$10000;p:$20000;crc:$15d6e17a),(n:'b22-09-1.22';l:$10000;p:$20001;crc:$454e66bc),
+        {$IFDEF MCU}rainbow_cchip_eeprom:tipo_roms=(n:'cchip_b22-15.53';l:$2000;p:0;crc:$08c588a6);
+        rainbowe_cchip_eeprom:tipo_roms=(n:'cchip_b39-05.53';l:$2000;p:0;crc:$397735e3);{$ENDIF}
+        rainbow_rom:array[0..3] of tipo_roms=(
+        (n:'b22-10-1.19';l:$10000;p:0;crc:$e34a50ca),(n:'b22-11-1.20';l:$10000;p:1;crc:$6a31a093),
+        (n:'b22-08-1.21';l:$10000;p:$20000;crc:$15d6e17a),(n:'b22-09-1.22';l:$10000;p:$20001;crc:$454e66bc));
+        rainbow_rom2:array[0..1] of tipo_roms=(
         (n:'b22-03.23';l:$20000;p:$40000;crc:$3ebb0fb8),(n:'b22-04.24';l:$20000;p:$40001;crc:$91625e7f));
         rainbow_char:tipo_roms=(n:'b22-01.2';l:$80000;p:0;crc:$b76c9168);
         rainbow_sound:tipo_roms=(n:'b22-14.43';l:$10000;p:0;crc:$113c1a5b);
         rainbow_sprites1:tipo_roms=(n:'b22-02.5';l:$80000;p:0;crc:$1b87ecf0);
-        rainbow_sprites2:array[0..1] of tipo_roms=(
-        (n:'b22-12.7';l:$10000;p:$80000;crc:$67a76dc6),(n:'b22-13.6';l:$10000;p:$80001;crc:$2fda099f));
-        rainbowe_rom:array[0..5] of tipo_roms=(
-        (n:'b39-01.19';l:$10000;p:0;crc:$50690880),(n:'b39-02.20';l:$10000;p:$1;crc:$4dead71f),
-        (n:'b39-03.21';l:$10000;p:$20000;crc:$4a4cb785),(n:'b39-04.22';l:$10000;p:$20001;crc:$4caa53bd),
-        (n:'b22-03.23';l:$20000;p:$40000;crc:$3ebb0fb8),(n:'b22-04.24';l:$20000;p:$40001;crc:$91625e7f));
-        {$IFDEF MCU}rainbow_cchip_eeprom:tipo_roms=(n:'cchip_b22-15.53';l:$2000;p:0;crc:$08c588a6);
-        rainbowe_cchip_eeprom:tipo_roms=(n:'cchip_b39-05.53';l:$2000;p:0;crc:$397735e3);{$ENDIF}
-        //DIP
-        rainbow_dip1:array [0..2] of def_dip=(
-        (mask:$30;name:'Coin A';number:4;dip:((dip_val:$10;dip_name:'ModeA 2C-1C/ModeB 3C-1C'),(dip_val:$30;dip_name:'ModeAB 1C-1C'),(dip_val:$0;dip_name:'ModeA 2C-3C/ModeB 4C-1C'),(dip_val:$20;dip_name:'ModeA 1C-2C/ModeB 2C-1C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c0;name:'Coin B';number:4;dip:((dip_val:$40;dip_name:'ModeA 2C-1C/ModeB 1C-4C'),(dip_val:$c0;dip_name:'ModeA 1C-1C/ModeB 1C-2C'),(dip_val:$0;dip_name:'ModeA 2C-3C/ModeB 1C-6C'),(dip_val:$80;dip_name:'ModeA 1C-2C/ModeB 1C-3C'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //DIP
-        rainbow_dip2:array [0..5] of def_dip=(
-        (mask:4;name:'Bonus Life';number:2;dip:((dip_val:$4;dip_name:'100k 1000k'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:8;name:'Complete Bonus';number:2;dip:((dip_val:$8;dip_name:'1up'),(dip_val:$0;dip_name:'100k'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Lives';number:4;dip:((dip_val:$10;dip_name:'1'),(dip_val:$0;dip_name:'2'),(dip_val:$30;dip_name:'3'),(dip_val:$20;dip_name:'4'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Languaje';number:2;dip:((dip_val:$0;dip_name:'English'),(dip_val:$40;dip_name:'Japanese'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Coin Mode';number:2;dip:((dip_val:$80;dip_name:'Mode A (Japan)'),(dip_val:$0;dip_name:'Mode B (World)'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        rainbow_sprites2:array[0..2] of tipo_roms=(
+        (n:'b22-12.7';l:$10000;p:$80000;crc:$67a76dc6),(n:'b22-13.6';l:$10000;p:$80001;crc:$2fda099f),());
+        rainbowe_rom:array[0..4] of tipo_roms=(
+        (n:'b39-01.19';l:$10000;p:0;crc:$50690880),(n:'b39-02.20';l:$10000;p:1;crc:$4dead71f),
+        (n:'b39-03.21';l:$10000;p:$20000;crc:$4a4cb785),(n:'b39-04.22';l:$10000;p:$20001;crc:$4caa53bd),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,ym_2151,taito_sound,
+     pal_engine,sound_engine{$IFDEF MCU},taito_cchip{$ELSE IF},rainbow_cchip{$ENDIF};
+
+const
+        rainbow_dip_a:array [0..1] of def_dip2=(
+        (mask:$30;name:'Coin A';number:4;val4:($10,$30,0,$20);name4:('ModeA 2C-1C/ModeB 3C-1C','ModeAB 1C-1C','ModeA 2C-3C/ModeB 4C-1C','ModeA 1C-2C/ModeB 2C-1C')),
+        (mask:$c0;name:'Coin B';number:4;val4:($40,$c0,0,$80);name4:('ModeA 2C-1C/ModeB 1C-4C','ModeA 1C-1C/ModeB 1C-2C','ModeA 2C-3C/ModeB 1C-6C','ModeA 1C-2C/ModeB 1C-3C')));
+        rainbow_dip_b:array [0..4] of def_dip2=(
+        (mask:4;name:'Bonus Life';number:2;val2:(4,0);name2:('100k 1000k','None')),
+        (mask:8;name:'Complete Bonus';number:2;val2:(8,0);name2:('1up','100k')),
+        (mask:$30;name:'Lives';number:4;val4:($10,0,$30,$20);name4:('1','2','3','4')),
+        (mask:$40;name:'Languaje';number:2;val2:(0,$40);name2:('English','Japanese')),
+        (mask:$80;name:'Coin Mode';number:2;val2:($80,0);name2:('Mode A (Japan)','Mode B (World)')));
         CPU_SYNC=1;
 
 var
@@ -51,14 +50,14 @@ var
   f,x,y,nchar,atrib,color:word;
   flipx,flipy:boolean;
 begin
-for f:=$fff downto $0 do begin
+for f:=$fff downto 0 do begin
     //background
     atrib:=ram2[f*2];
     color:=atrib and $7f;
     if (gfx[0].buffer[f] or buffer_color[color]) then begin
       x:=f mod 64;
       y:=f div 64;
-      nchar:=(ram2[$1+(f*2)]) and $3fff;
+      nchar:=(ram2[1+(f*2)]) and $3fff;
       flipx:=(atrib and $4000)<>0;
       flipy:=(atrib and $8000)<>0;
       put_gfx_flip(x*8,y*8,nchar,color shl 4,1,0,flipx,flipy);
@@ -80,12 +79,12 @@ end;
 scroll_x_y(1,3,scroll_x1,scroll_y1);
 //Sprites
 for f:=$ff downto 0 do begin
-    nchar:=(ram3[$2+(f*4)]) mod $1400;
+    nchar:=(ram3[2+(f*4)]) mod $1400;
     atrib:=ram3[f*4];
     color:=((atrib and $f) or (spritebank shl 4)) shl 4;
     put_gfx_sprite(nchar,color,(atrib and $4000)<>0,(atrib and $8000)<>0,1);
-    x:=ram3[$3+(f*4)]+16;
-    y:=ram3[$1+(f*4)];
+    x:=ram3[3+(f*4)]+16;
+    y:=ram3[1+(f*4)];
     actualiza_gfx_sprite(x and $1ff,y and $1ff,3,1);
 end;
 scroll_x_y(2,3,scroll_x2,scroll_y2);
@@ -96,17 +95,20 @@ end;
 procedure eventos_rainbow;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=0;
+  marcade.in2:=$ff;
   //800007
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
   //800009
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 or $2) else marcade.in1:=(marcade.in1 and $fd);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or 2;
   //80000B
-  if arcade_input.left[0] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.right[0] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but0[0] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
-  if arcade_input.but1[0] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.left[0] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.right[0] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but0[0] then marcade.in2:=marcade.in2 and $bf;
+  if arcade_input.but1[0] then marcade.in2:=marcade.in2 and $7f;
 end;
 end;
 
@@ -114,7 +116,6 @@ procedure rainbow_principal;
 var
   h,f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
     eventos_rainbow;
@@ -292,7 +293,7 @@ case main_vars.tipo_maquina of
   179:begin
          //MCU
          {$IFDEF MCU}
-         cchip_0:=cchip_chip.create(12000000,256*CPU_SYNC);
+         cchip_0:=cchip_chip.create(12000000);
          cchip_0.change_ad(rainbow_80000d);
          cchip_0.change_in(rainbow_800007,rainbow_800009,rainbow_80000c,nil,nil);
          if not(roms_load(cchip_0.get_eeprom_dir,rainbow_cchip_eeprom)) then exit;
@@ -300,6 +301,7 @@ case main_vars.tipo_maquina of
          rbisland_init_cchip(m68000_0.numero_cpu,0);
          {$ENDIF}
          if not(roms_load16w(@rom,rainbow_rom)) then exit;
+         if not(roms_load16w(@rom,rainbow_rom2)) then exit;
          //cargar sonido+ponerlas en su banco
          if not(roms_load(memoria_temp,rainbow_sound)) then exit;
          copymemory(@tc0140syt_0.snd_rom,memoria_temp,$4000);
@@ -318,35 +320,34 @@ case main_vars.tipo_maquina of
   180:begin
          //MCU
          {$IFDEF MCU}
-         cchip_0:=cchip_chip.create(12000000,256*CPU_SYNC);
+         cchip_0:=cchip_chip.create(12000000);
          cchip_0.change_ad(rainbow_80000d);
          cchip_0.change_in(rainbow_800007,rainbow_800009,rainbow_80000c,nil,nil);
-         if not(roms_load(cchip_0.get_eeprom_dir,rainbow_cchip_eeprom)) then exit;
+         if not(roms_load(cchip_0.get_eeprom_dir,rainbowe_cchip_eeprom)) then exit;
          {$ELSE IF}
          rbisland_init_cchip(m68000_0.numero_cpu,1);
          {$ENDIF}
          if not(roms_load16w(@rom,rainbowe_rom)) then exit;
+         if not(roms_load16w(@rom,rainbow_rom2,true,true,'rbisland.zip')) then exit;
          //cargar sonido+ponerlas en su banco
-         if not(roms_load(memoria_temp,rainbow_sound)) then exit;
+         if not(roms_load(memoria_temp,rainbow_sound,true,true,'rbisland.zip')) then exit;
          copymemory(@tc0140syt_0.snd_rom,memoria_temp,$4000);
          copymemory(@tc0140syt_0.snd_bank_rom[0,0],@memoria_temp[0],$4000);
          copymemory(@tc0140syt_0.snd_bank_rom[1,0],@memoria_temp[$4000],$4000);
          copymemory(@tc0140syt_0.snd_bank_rom[2,0],@memoria_temp[$8000],$4000);
          copymemory(@tc0140syt_0.snd_bank_rom[3,0],@memoria_temp[$c000],$4000);
          //convertir chars
-         if not(roms_load(memoria_temp,rainbow_char)) then exit;
+         if not(roms_load(memoria_temp,rainbow_char,true,true,'rbisland.zip')) then exit;
          convert_chars;
          //convertir sprites
-         if not(roms_load(memoria_temp,rainbow_sprites1)) then exit;
-         if not(roms_load16b(memoria_temp,rainbow_sprites2)) then exit;
+         if not(roms_load(memoria_temp,rainbow_sprites1,true,true,'rbisland.zip')) then exit;
+         if not(roms_load16b(memoria_temp,rainbow_sprites2,true,true,'rbisland.zip')) then exit;
          convert_sprites;
       end;
 end;
 //DIP
-marcade.dswa:=$fe;
-marcade.dswa_val:=@rainbow_dip1;
-marcade.dswb:=$bf;
-marcade.dswb_val:=@rainbow_dip2;
+init_dips(1,rainbow_dip_a,$fe);
+init_dips(2,rainbow_dip_b,$bf);
 //final
 freemem(memoria_temp);
 iniciar_rainbow:=true;

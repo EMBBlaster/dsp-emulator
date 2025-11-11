@@ -1,13 +1,10 @@
-unit expressraider_hw;
+﻿unit expressraider_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,m6809,main_engine,controls_engine,ym_2203,ym_3812,gfx_engine,
-     rom_engine,pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_expraid:boolean;
 
-implementation
 const
         expraid_rom:array[0..1] of tipo_roms=(
         (n:'cz01-2e.16b';l:$4000;p:$4000;crc:$a0ae6756),(n:'cz00-4e.15a';l:$8000;p:$8000;crc:$910f6ccc));
@@ -21,9 +18,15 @@ const
         (n:'cz09.16h';l:$8000;p:0;crc:$1ed250d1),(n:'cz08.14h';l:$8000;p:$8000;crc:$2293fc61),
         (n:'cz13.16k';l:$8000;p:$10000;crc:$7c3bfd00),(n:'cz12.14k';l:$8000;p:$18000;crc:$ea2294c8),
         (n:'cz11.13k';l:$8000;p:$20000;crc:$b7418335),(n:'cz10.11k';l:$8000;p:$28000;crc:$2f611978));
-        expraid_proms:array[0..3] of tipo_roms=(
+        expraid_proms:array[0..4] of tipo_roms=(
         (n:'cy-17.5b';l:$100;p:0;crc:$da31dfbc),(n:'cy-16.6b';l:$100;p:$100;crc:$51f25b4c),
-        (n:'cy-15.7b';l:$100;p:$200;crc:$a6168d7f),(n:'cy-14.9b';l:$100;p:$300;crc:$52aad300));
+        (n:'cy-15.7b';l:$100;p:$200;crc:$a6168d7f),(n:'cy-14.9b';l:$100;p:$300;crc:$52aad300),());
+
+implementation
+uses m6502,m6809,main_engine,controls_engine,ym_2203,ym_3812,gfx_engine,
+     pal_engine,sound_engine,qsnapshot;
+
+const
         expraid_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
         (mask:$c;name:'Coin B';number:4;val4:(0,$c,8,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
@@ -108,28 +111,27 @@ end;
 procedure eventos_expraid;
 begin
 if event.arcade then begin
-  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe else marcade.in0:=marcade.in0 or 1;
-  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb else marcade.in0:=marcade.in0 or 4;
-  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7 else marcade.in0:=marcade.in0 or 8;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef else marcade.in0:=marcade.in0 or $10;
-  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df else marcade.in0:=marcade.in0 or $20;
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
   if (arcade_input.coin[0] and not(old_val)) then begin
       marcade.in2:=(marcade.in2 and $bf);
       m6502_0.change_nmi(ASSERT_LINE);
-  end else begin
-      marcade.in2:=(marcade.in2 or $40);
   end;
   if (arcade_input.coin[1] and not(old_val2)) then begin
       marcade.in2:=(marcade.in2 and $7f);
       m6502_0.change_nmi(ASSERT_LINE);
-  end else begin
-      marcade.in2:=(marcade.in2 or $80);
   end;
   old_val:=arcade_input.coin[0];
   old_val2:=arcade_input.coin[1];
-  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf else marcade.in0:=marcade.in0 or $40;
-  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7f else marcade.in0:=marcade.in0 or $80;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7f;
 end;
 end;
 
@@ -137,7 +139,6 @@ procedure principal_expraid;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
    case f of

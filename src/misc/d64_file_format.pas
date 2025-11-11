@@ -1,7 +1,7 @@
 unit d64_file_format;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,misc_functions,disk_file_format;
+uses main_engine,misc_functions,disk_file_format;
 
 function d64_format(DrvNum:byte;longi_ini:dword;datos:pbyte):boolean;
 

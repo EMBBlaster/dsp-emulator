@@ -7,8 +7,7 @@ interface
 uses
   lib_sdl2,{$IFDEF WINDOWS}windows,{$else}LCLType,LCLIntf,{$endif}
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  Buttons, StdCtrls, ExtCtrls,main_engine,spectrum_128k,spectrum_3,tape_window,
-  vars_hide;
+  Buttons, StdCtrls, ExtCtrls,main_engine,spectrum_128k,spectrum_3,tape_window;
 
 const
         decode_lenslok:array[0..8,0..15] of shortint=(

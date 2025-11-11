@@ -1,13 +1,10 @@
 unit galaga_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,namco_snd,controls_engine,gfx_engine,namcoio_06xx_5xxx,
-     rom_engine,pal_engine,sound_engine,galaga_stars_const,samples,misc_functions;
+uses rom_engine,samples;
 
 function iniciar_galagahw:boolean;
 
-implementation
 const
         //Galaga
         galaga_rom:array[0..3] of tipo_roms=(
@@ -20,20 +17,10 @@ const
         (n:'prom-3.1c';l:$100;p:$120;crc:$4a04bb6b));
         galaga_char:tipo_roms=(n:'gg1_9.4l';l:$1000;p:0;crc:$58b2f47c);
         galaga_sound:tipo_roms=(n:'prom-1.1d';l:$100;p:0;crc:$7a2815b4);
-        galaga_sprites:array[0..1] of tipo_roms=(
-        (n:'gg1_11.4d';l:$1000;p:0;crc:$ad447c80),(n:'gg1_10.4f';l:$1000;p:$1000;crc:$dd6f1afc));
-        galaga_samples:array[0..1] of tipo_nombre_samples=(
-        (nombre:'bang.wav'),(nombre:'init.wav'));
-        galaga_dip_a:array [0..4] of def_dip2=(
-        (mask:3;name:'Difficulty';number:4;val4:(3,0,1,2);name4:('Easy','Medium','Hard','Hardest')),
-        (mask:8;name:'Demo Sounds';number:2;val2:(8,0);name2:('Off','On')),
-        (mask:$10;name:'Freeze';number:2;val2:($10,0);name2:('Off','On')),
-        (mask:$20;name:'Rack test';number:2;val2:($20,0);name2:('Off','On')),
-        (mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail')));
-        galaga_dip_b:array [0..2] of def_dip2=(
-        (mask:7;name:'Coinage';number:8;val8:(4,2,6,7,1,3,5,0);name8:('4C 1C','3C 1C','2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','Free Play')),
-        (mask:$38;name:'Bonus Life';number:8;val8:($20,$18,$10,$30,$38,8,$28,0);name8:('20K 60K 60K+','20K 60K','20K 70K 70K+','20K 80K 80K+','20K 80K','30K 100K 100K+','30K 120K 120K+','None')),
-        (mask:$c0;name:'Lives';number:4;val4:(0,$80,$40,$c0);name4:('2','3','4','5')));
+        galaga_sprites:array[0..2] of tipo_roms=(
+        (n:'gg1_11.4d';l:$1000;p:0;crc:$ad447c80),(n:'gg1_10.4f';l:$1000;p:$1000;crc:$dd6f1afc),());
+        galaga_samples:array[0..2] of tipo_nombre_samples=(
+        (nombre:'bang.wav'),(nombre:'init.wav'),());
         //Dig Dug
         digdug_rom:array[0..3] of tipo_roms=(
         (n:'dd1a.1';l:$1000;p:0;crc:$a80ec984),(n:'dd1a.2';l:$1000;p:$1000;crc:$559f00bd),
@@ -46,22 +33,11 @@ const
         (n:'136007.112';l:$100;p:$120;crc:$e9b3e08e));
         digdug_sound:tipo_roms=(n:'136007.110';l:$100;p:0;crc:$7a2815b4);
         digdug_chars:tipo_roms=(n:'dd1.9';l:$800;p:0;crc:$f14a6fe1);
-        digdug_sprites:array[0..3] of tipo_roms=(
-        (n:'dd1.15';l:$1000;p:0;crc:$e22957c8),(n:'dd1.14';l:$1000;p:$1000;crc:$2829ec99),
-        (n:'dd1.13';l:$1000;p:$2000;crc:$458499e9),(n:'dd1.12';l:$1000;p:$3000;crc:$c58252a0));
         digdug_chars2:tipo_roms=(n:'dd1.11';l:$1000;p:0;crc:$7b383983);
         digdug_background:tipo_roms=(n:'dd1.10b';l:$1000;p:0;crc:$2cf399c2);
-        digdug_dip_a:array [0..2] of def_dip2=(
-        (mask:7;name:'Coin B';number:8;val8:(7,3,1,5,6,2,4,0);name8:('3C 1C','2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','1C 6C','1C 7C')),
-        (mask:$38;name:'Bonus Life';number:8;val8:($20,$10,$30,8,$28,$18,$38,0);name8:('10K 40K 40K+','10K 50K 50K+','20K 60K 60K+','20K 70K 70K+','10K 40K','20K 60K','10K','None')),
-        (mask:$c0;name:'Lives';number:4;val4:(0,$40,$80,$c0);name4:('1','2','3','5')));
-        digdug_dip_b:array [0..5] of def_dip2=(
-        (mask:3;name:'Difficulty';number:4;val4:(0,2,1,3);name4:('Easy','Medium','Hard','Hardest')),
-        (mask:4;name:'Cabinet';number:2;val2:(4,0);name2:('Upright','Cocktail')),
-        (mask:8;name:'Allow Continue';number:2;val2:(8,0);name2:('No','Yes')),
-        (mask:$10;name:'Demo Sounds';number:2;val2:($10,0);name2:('Off','On')),
-        (mask:$20;name:'Freeze';number:2;val2:($20,0);name2:('Off','On')),
-        (mask:$c0;name:'Coin A';number:4;val4:($40,0,$c0,$80);name4:('2C 1C','1C 1C','2C 3C','1C 2C')));
+        digdug_sprites:array[0..4] of tipo_roms=(
+        (n:'dd1.15';l:$1000;p:0;crc:$e22957c8),(n:'dd1.14';l:$1000;p:$1000;crc:$2829ec99),
+        (n:'dd1.13';l:$1000;p:$2000;crc:$458499e9),(n:'dd1.12';l:$1000;p:$3000;crc:$c58252a0),());
         //Xevious
         xevious_rom:array[0..3] of tipo_roms=(
         (n:'xvi_1.3p';l:$1000;p:0;crc:$09964dda),(n:'xvi_2.3m';l:$1000;p:$1000;crc:$60ecce84),
@@ -81,21 +57,11 @@ const
         (n:'xvi_16.4n';l:$1000;p:$4000;crc:$605ca889),(n:'xvi_18.4r';l:$2000;p:$5000;crc:$02417d19));
         xevious_bg:array[0..1] of tipo_roms=(
         (n:'xvi_13.3c';l:$1000;p:$0;crc:$de60ba25),(n:'xvi_14.3d';l:$1000;p:$1000;crc:$535cdbbc));
-        xevious_bg_tiles:array[0..2] of tipo_roms=(
+        xevious_bg_tiles:array[0..3] of tipo_roms=(
         (n:'xvi_9.2a';l:$1000;p:0;crc:$57ed9879),(n:'xvi_10.2b';l:$2000;p:$1000;crc:$ae3ba9e5),
-        (n:'xvi_11.2c';l:$1000;p:$3000;crc:$31e244dd));
-        xevious_samples:array[0..1] of tipo_nombre_samples=(
-        (nombre:'explo2.wav'),(nombre:'explo1.wav'));
-        xevious_dip_a:array [0..3] of def_dip2=(
-        (mask:3;name:'Coin A';number:4;val4:(1,3,0,2);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
-        (mask:$1c;name:'Bonus Life';number:8;val8:($18,$14,$10,$1c,$c,8,4,0);name8:('10K 40K 40K+','10K 50K 50K+','20K 50K 50K+','20K 60K 60K+','20K 70K 70+','20K 80K 80K+','20K 60K','None')),
-        (mask:$60;name:'Lives';number:4;val4:($40,$20,$60,0);name4:('1','2','3','5')),
-        (mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail')));
-        xevious_dip_b:array [0..3] of def_dip2=(
-        (mask:2;name:'Flags Award Bonus Life';number:2;val2:(0,1);name2:('No','Yes')),
-        (mask:$c;name:'Coin B';number:4;val4:(4,$c,0,8);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
-        (mask:$60;name:'Difficulty';number:4;val4:($40,$60,$20,0);name4:('Easy','Normal','Hard','Hardest')),
-        (mask:$80;name:'Freeze';number:2;val2:($80,0);name2:('Off','On')));
+        (n:'xvi_11.2c';l:$1000;p:$3000;crc:$31e244dd),());
+        xevious_samples:array[0..2] of tipo_nombre_samples=(
+        (nombre:'explo2.wav'),(nombre:'explo1.wav'),());
         //Bosconian
         bosco_rom:array[0..3] of tipo_roms=(
         (n:'bos3_1.3n';l:$1000;p:0;crc:$96021267),(n:'bos1_2.3m';l:$1000;p:$1000;crc:$2d8f3ebe),
@@ -106,15 +72,58 @@ const
         bosco_char:tipo_roms=(n:'bos1_14.5d';l:$1000;p:0;crc:$a956d3c5);
         bosco_sprites:tipo_roms=(n:'bos1_13.5e';l:$1000;p:0;crc:$e869219c);
         bosco_dots:tipo_roms=(n:'bos1-4.2r';l:$100;p:0;crc:$9b69b543);
-        bosco_prom:array[0..3] of tipo_roms=(
-        (n:'bos1-6.6b';l:$20;p:0;crc:$d2b96fb0),(n:'bos1-5.4m';l:$100;p:$20;crc:$4e15d59c),
-        (n:'bos1-3.2d';l:$20;p:$120;crc:$b88d5ba9),(n:'bos1-7.7h';l:$20;p:$140;crc:$87d61353));
         bosco_snd:tipo_roms=(n:'bos1-1.1d';l:$100;p:$0;crc:$de2316c6);
         bosco_52xx:array[0..2] of tipo_roms=(
         (n:'bos1_9.5n';l:$1000;p:$0;crc:$09acc978),(n:'bos1_10.5m';l:$1000;p:$1000;crc:$e571e959),
         (n:'bos1_11.5k';l:$1000;p:$2000;crc:$17ac9511));
-        bosco_samples:array[0..2] of tipo_nombre_samples=(
-        (nombre:'bigbang.wav'),(nombre:'midbang.wav'),(nombre:'shot.wav';restart:true;loop:false));
+        bosco_prom:array[0..4] of tipo_roms=(
+        (n:'bos1-6.6b';l:$20;p:0;crc:$d2b96fb0),(n:'bos1-5.4m';l:$100;p:$20;crc:$4e15d59c),
+        (n:'bos1-3.2d';l:$20;p:$120;crc:$b88d5ba9),(n:'bos1-7.7h';l:$20;p:$140;crc:$87d61353),());
+        bosco_samples:array[0..3] of tipo_nombre_samples=(
+        (nombre:'bigbang.wav'),(nombre:'midbang.wav'),(nombre:'shot.wav';restart:true;loop:false),());
+        //Super Xevious
+        sxevious_rom:array[0..3] of tipo_roms=(
+        (n:'cpu_3p.rom';l:$1000;p:0;crc:$1c8d27d5),(n:'cpu_3m.rom';l:$1000;p:$1000;crc:$fd04e615),
+        (n:'xv3_3.2m';l:$1000;p:$2000;crc:$294d5404),(n:'xv3_4.2l';l:$1000;p:$3000;crc:$6a44bf92));
+        sxevious_sub:array[0..2] of tipo_roms=(
+        (n:'xv3_5.3f';l:$1000;p:$0;crc:$d4bd3d81),(n:'xv3_6.3j';l:$1000;p:$1000;crc:$af06be5f),());
+
+implementation
+uses nz80,main_engine,namco_snd,controls_engine,gfx_engine,namcoio_06xx_5xxx,
+     pal_engine,sound_engine,galaga_stars_const,misc_functions;
+
+const
+        galaga_dip_a:array [0..4] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(3,0,1,2);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:8;name:'Demo Sounds';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$10;name:'Freeze';number:2;val2:($10,0);name2:('Off','On')),
+        (mask:$20;name:'Rack test';number:2;val2:($20,0);name2:('Off','On')),
+        (mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail')));
+        galaga_dip_b:array [0..2] of def_dip2=(
+        (mask:7;name:'Coinage';number:8;val8:(4,2,6,7,1,3,5,0);name8:('4C 1C','3C 1C','2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','Free Play')),
+        (mask:$38;name:'Bonus Life';number:8;val8:($20,$18,$10,$30,$38,8,$28,0);name8:('20K 60K 60K+','20K 60K','20K 70K 70K+','20K 80K 80K+','20K 80K','30K 100K 100K+','30K 120K 120K+','None')),
+        (mask:$c0;name:'Lives';number:4;val4:(0,$80,$40,$c0);name4:('2','3','4','5')));
+        digdug_dip_a:array [0..2] of def_dip2=(
+        (mask:7;name:'Coin B';number:8;val8:(7,3,1,5,6,2,4,0);name8:('3C 1C','2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','1C 6C','1C 7C')),
+        (mask:$38;name:'Bonus Life';number:8;val8:($20,$10,$30,8,$28,$18,$38,0);name8:('10K 40K 40K+','10K 50K 50K+','20K 60K 60K+','20K 70K 70K+','10K 40K','20K 60K','10K','None')),
+        (mask:$c0;name:'Lives';number:4;val4:(0,$40,$80,$c0);name4:('1','2','3','5')));
+        digdug_dip_b:array [0..5] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(0,2,1,3);name4:('Easy','Medium','Hard','Hardest')),
+        (mask:4;name:'Cabinet';number:2;val2:(4,0);name2:('Upright','Cocktail')),
+        (mask:8;name:'Allow Continue';number:2;val2:(8,0);name2:('No','Yes')),
+        (mask:$10;name:'Demo Sounds';number:2;val2:($10,0);name2:('Off','On')),
+        (mask:$20;name:'Freeze';number:2;val2:($20,0);name2:('Off','On')),
+        (mask:$c0;name:'Coin A';number:4;val4:($40,0,$c0,$80);name4:('2C 1C','1C 1C','2C 3C','1C 2C')));
+        xevious_dip_a:array [0..3] of def_dip2=(
+        (mask:3;name:'Coin A';number:4;val4:(1,3,0,2);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
+        (mask:$1c;name:'Bonus Life';number:8;val8:($18,$14,$10,$1c,$c,8,4,0);name8:('10K 40K 40K+','10K 50K 50K+','20K 50K 50K+','20K 60K 60K+','20K 70K 70+','20K 80K 80K+','20K 60K','None')),
+        (mask:$60;name:'Lives';number:4;val4:($40,$20,$60,0);name4:('1','2','3','5')),
+        (mask:$80;name:'Cabinet';number:2;val2:($80,0);name2:('Upright','Cocktail')));
+        xevious_dip_b:array [0..3] of def_dip2=(
+        (mask:2;name:'Flags Award Bonus Life';number:2;val2:(0,1);name2:('No','Yes')),
+        (mask:$c;name:'Coin B';number:4;val4:(4,$c,0,8);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
+        (mask:$60;name:'Difficulty';number:4;val4:($40,$60,$20,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:$80;name:'Freeze';number:2;val2:($80,0);name2:('Off','On')));
         bosco_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Difficulty';number:4;val4:(1,3,2,0);name4:('Easy','Medium','Hardest','Auto')),
         (mask:4;name:'Allow Continue';number:2;val2:(0,4);name2:('No','Yes')),
@@ -125,12 +134,6 @@ const
         (mask:7;name:'Coinage';number:8;val8:(1,2,3,7,4,6,5,0);name8:('4C 1C','3C 1C','2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','Free Play')),
         (mask:$38;name:'Bonus Fighter';number:8;val8:($30,$38,8,$10,$18,$20,$28,0);name8:('15K 50K','20K 70K','10K 50K 50K+','15K 50K 50K+','15K 70K 70+','20K 70K 70K+','30K 100K 100K+','None')),
         (mask:$c0;name:'Lives';number:4;val4:(0,$80,$40,$c0);name4:('2','3','4','5')));
-        //Super Xevious
-        sxevious_rom:array[0..3] of tipo_roms=(
-        (n:'cpu_3p.rom';l:$1000;p:0;crc:$1c8d27d5),(n:'cpu_3m.rom';l:$1000;p:$1000;crc:$fd04e615),
-        (n:'xv3_3.2m';l:$1000;p:$2000;crc:$294d5404),(n:'xv3_4.2l';l:$1000;p:$3000;crc:$6a44bf92));
-        sxevious_sub:array[0..1] of tipo_roms=(
-        (n:'xv3_5.3f';l:$1000;p:$0;crc:$d4bd3d81),(n:'xv3_6.3j';l:$1000;p:$1000;crc:$af06be5f));
         sxevious_dip_b:array [0..3] of def_dip2=(
         (mask:1;name:'Flags Award Bonus Life';number:2;val2:(0,1);name2:('No','Yes')),
         (mask:$c;name:'Coin B';number:4;val4:($c,8,4,0);name4:('1C 1C','1C 2C','1C 3C','1C 6C')),
@@ -289,7 +292,6 @@ var
   frame_m,frame_s1,frame_s2:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s1:=z80_2.tframes;
 frame_s2:=z80_1.tframes;
@@ -504,7 +506,6 @@ var
   frame_m,frame_s1,frame_s2:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s1:=z80_2.tframes;
 frame_s2:=z80_1.tframes;
@@ -701,7 +702,6 @@ var
   frame_m,frame_s1,frame_s2:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s1:=z80_2.tframes;
 frame_s2:=z80_1.tframes;
@@ -922,7 +922,6 @@ var
   frame_m,frame_s1,frame_s2:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=z80_0.tframes;
 frame_s1:=z80_2.tframes;
 frame_s2:=z80_1.tframes;

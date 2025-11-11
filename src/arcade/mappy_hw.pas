@@ -1,13 +1,10 @@
-unit mappy_hw;
+﻿unit mappy_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,main_engine,controls_engine,gfx_engine,namco_snd,namcoio_56xx_58xx,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_mappyhw:boolean;
 
-implementation
 const
         //Mappy
         mappy_rom:array[0..2] of tipo_roms=(
@@ -17,10 +14,82 @@ const
         (n:'mp1-5.5b';l:$20;p:0;crc:$56531268),(n:'mp1-6.4c';l:$100;p:$20;crc:$50765082),
         (n:'mp1-7.5k';l:$100;p:$120;crc:$5396bd78));
         mappy_chars:tipo_roms=(n:'mp1_5.3b';l:$1000;p:0;crc:$16498b9f);
-        mappy_sprites:array[0..1] of tipo_roms=(
-        (n:'mp1_6.3m';l:$2000;p:0;crc:$f2d9647a),(n:'mp1_7.3n';l:$2000;p:$2000;crc:$757cf2b6));
         mappy_sound:tipo_roms=(n:'mp1_4.1k';l:$2000;p:$e000;crc:$8182dd5b);
         mappy_sound_prom:tipo_roms=(n:'mp1-3.3m';l:$100;p:0;crc:$16a9166a);
+        mappy_sprites:array[0..2] of tipo_roms=(
+        (n:'mp1_6.3m';l:$2000;p:0;crc:$f2d9647a),(n:'mp1_7.3n';l:$2000;p:$2000;crc:$757cf2b6),());
+        //Dig Dug 2
+        digdug2_rom:array[0..1] of tipo_roms=(
+        (n:'d23_3.1d';l:$4000;p:$8000;crc:$cc155338),(n:'d23_1.1b';l:$4000;p:$c000;crc:$40e46af8));
+        digdug2_proms:array[0..2] of tipo_roms=(
+        (n:'d21-5.5b';l:$20;p:0;crc:$9b169db5),(n:'d21-6.4c';l:$100;p:$20;crc:$55a88695),
+        (n:'d21-7.5k';l:$100;p:$120;crc:$9c55feda));
+        digdug2_chars:tipo_roms=(n:'d21_5.3b';l:$1000;p:0;crc:$afcb4509);
+        digdug2_sound:tipo_roms=(n:'d21_4.1k';l:$2000;p:$e000;crc:$737443b1);
+        digdug2_sound_prom:tipo_roms=(n:'d21-3.3m';l:$100;p:0;crc:$e0074ee2);
+        digdug2_sprites:array[0..2] of tipo_roms=(
+        (n:'d21_6.3m';l:$4000;p:0;crc:$df1f4ad8),(n:'d21_7.3n';l:$4000;p:$4000;crc:$ccadb3ea),());
+        //Super Pacman
+        spacman_rom:array[0..1] of tipo_roms=(
+        (n:'sp1-2.1c';l:$2000;p:$c000;crc:$4bb33d9c),(n:'sp1-1.1b';l:$2000;p:$e000;crc:$846fbb4a));
+        spacman_chars:tipo_roms=(n:'sp1-6.3c';l:$1000;p:0;crc:$91c5935c);
+        spacman_sprites:tipo_roms=(n:'spv-2.3f';l:$2000;p:0;crc:$670a42f2);
+        spacman_sound:tipo_roms=(n:'spc-3.1k';l:$1000;p:$f000;crc:$04445ddb);
+        spacman_sound_prom:tipo_roms=(n:'superpac.3m';l:$100;p:0;crc:$ad43688f);
+        spacman_proms:array[0..3] of tipo_roms=(
+        (n:'superpac.4c';l:$20;p:0;crc:$9ce22c46),(n:'superpac.4e';l:$100;p:$20;crc:$1253c5c1),
+        (n:'superpac.3l';l:$100;p:$120;crc:$d4d7026f),());
+        //The Tower of Druaga
+        todruaga_rom:array[0..1] of tipo_roms=(
+        (n:'td2_3.1d';l:$4000;p:$8000;crc:$fbf16299),(n:'td2_1.1b';l:$4000;p:$c000;crc:$b238d723));
+        todruaga_proms:array[0..2] of tipo_roms=(
+        (n:'td1-5.5b';l:$20;p:0;crc:$122cc395),(n:'td1-6.4c';l:$100;p:$20;crc:$8c661d6a),
+        (n:'td1-7.5k';l:$400;p:$120;crc:$a86c74dd));
+        todruaga_chars:tipo_roms=(n:'td1_5.3b';l:$1000;p:0;crc:$d32b249f);
+        todruaga_sound:tipo_roms=(n:'td1_4.1k';l:$2000;p:$e000;crc:$ae9d06d9);
+        todruaga_sound_prom:tipo_roms=(n:'td1-3.3m';l:$100;p:0;crc:$07104c40);
+        todruaga_sprites:array[0..2] of tipo_roms=(
+        (n:'td1_6.3m';l:$2000;p:0;crc:$e827e787),(n:'td1_7.3n';l:$2000;p:$2000;crc:$962bd060),());
+        //Motos
+        motos_rom:array[0..1] of tipo_roms=(
+        (n:'mo1_3.1d';l:$4000;p:$8000;crc:$1104abb2),(n:'mo1_1.1b';l:$4000;p:$c000;crc:$57b157e2));
+        motos_proms:array[0..2] of tipo_roms=(
+        (n:'mo1-5.5b';l:$20;p:0;crc:$71972383),(n:'mo1-6.4c';l:$100;p:$20;crc:$730ba7fb),
+        (n:'mo1-7.5k';l:$100;p:$120;crc:$7721275d));
+        motos_chars:tipo_roms=(n:'mo1_5.3b';l:$1000;p:0;crc:$5d4a2a22);
+        motos_sound:tipo_roms=(n:'mo1_4.1k';l:$2000;p:$e000;crc:$55e45d21);
+        motos_sound_prom:tipo_roms=(n:'mo1-3.3m';l:$100;p:0;crc:$2accdfb4);
+        motos_sprites:array[0..2] of tipo_roms=(
+        (n:'mo1_6.3m';l:$4000;p:0;crc:$2f0e396e),(n:'mo1_7.3n';l:$4000;p:$4000;crc:$cf8a3b86),());
+        //Grobda
+        grobda_rom:array[0..2] of tipo_roms=(
+        (n:'gr2-3.1d';l:$2000;p:$a000;crc:$8e3a23be),(n:'gr2-2.1c';l:$2000;p:$c000;crc:$19ffa83d),
+        (n:'gr2-1.1b';l:$2000;p:$e000;crc:$0089b13a));
+        grobda_proms:array[0..2] of tipo_roms=(
+        (n:'gr1-6.4c';l:$20;p:0;crc:$c65efa77),(n:'gr1-5.4e';l:$100;p:$20;crc:$a0f66911),
+        (n:'gr1-4.3l';l:$100;p:$120;crc:$f1f2c234));
+        grobda_chars:tipo_roms=(n:'gr1-7.3c';l:$1000;p:0;crc:$4ebfabfd);
+        grobda_sound:tipo_roms=(n:'gr1-4.1k';l:$2000;p:$e000;crc:$3fe78c08);
+        grobda_sound_prom:tipo_roms=(n:'gr1-3.3m';l:$100;p:0;crc:$66eb1467);
+        grobda_sprites:array[0..2] of tipo_roms=(
+        (n:'gr1-5.3f';l:$2000;p:0;crc:$eed43487),(n:'gr1-6.3e';l:$2000;p:$2000;crc:$cebb7362),());
+        //Pac'n'Pal
+        pacnpal_rom:array[0..2] of tipo_roms=(
+        (n:'pap1-3b.1d';l:$2000;p:$a000;crc:$ed64a565),(n:'pap1-2b.1c';l:$2000;p:$c000;crc:$15308bcf),
+        (n:'pap3-1.1b';l:$2000;p:$e000;crc:$3cac401c));
+        pacnpal_chars:tipo_roms=(n:'pap1-6.3c';l:$1000;p:0;crc:$a36b96cb);
+        pacnpal_sprites:tipo_roms=(n:'pap1-5.3f';l:$2000;p:0;crc:$fb6f56e3);
+        pacnpal_sound:tipo_roms=(n:'pap1-4.1k';l:$1000;p:$f000;crc:$330e20de);
+        pacnpal_sound_prom:tipo_roms=(n:'pap1-3.3m';l:$100;p:0;crc:$94782db5);
+        pacnpal_proms:array[0..3] of tipo_roms=(
+        (n:'pap1-6.4c';l:$20;p:0;crc:$52634b41),(n:'pap1-5.4e';l:$100;p:$20;crc:$ac46203c),
+        (n:'pap1-4.3l';l:$100;p:$120;crc:$686bde84),());
+
+implementation
+uses m6809,main_engine,controls_engine,gfx_engine,namco_snd,namcoio_56xx_58xx,
+     pal_engine,sound_engine;
+
+const
         mappy_dip_a:array [0..5] of def_dip=(
         (mask:$7;name:'Difficulty';number:8;dip:((dip_val:$7;dip_name:'Rank A'),(dip_val:$6;dip_name:'Rank B'),(dip_val:$5;dip_name:'Rank C'),(dip_val:$4;dip_name:'Rank D'),(dip_val:$3;dip_name:'Rank E'),(dip_val:$2;dip_name:'Rank F'),(dip_val:$1;dip_name:'Rank G'),(dip_val:$0;dip_name:'Rank H'),(),(),(),(),(),(),(),())),
         (mask:$18;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'2C 1C'),(dip_val:$18;dip_name:'1C 1C'),(dip_val:$10;dip_name:'1C 5C'),(dip_val:$8;dip_name:'1C 7C'),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -33,33 +102,12 @@ const
         (mask:$c0;name:'Lives';number:4;dip:((dip_val:$40;dip_name:'1'),(dip_val:$0;dip_name:'2'),(dip_val:$c0;dip_name:'3'),(dip_val:$80;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),());
         mappy_dip_c:array [0..1] of def_dip=(
         (mask:$4;name:'Cabinet';number:2;dip:((dip_val:$4;dip_name:'Upright'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //Dig Dug 2
-        dd2_rom:array[0..1] of tipo_roms=(
-        (n:'d23_3.1d';l:$4000;p:$8000;crc:$cc155338),(n:'d23_1.1b';l:$4000;p:$c000;crc:$40e46af8));
-        dd2_proms:array[0..2] of tipo_roms=(
-        (n:'d21-5.5b';l:$20;p:0;crc:$9b169db5),(n:'d21-6.4c';l:$100;p:$20;crc:$55a88695),
-        (n:'d21-7.5k';l:$100;p:$120;crc:$9c55feda));
-        dd2_chars:tipo_roms=(n:'d21_5.3b';l:$1000;p:0;crc:$afcb4509);
-        dd2_sprites:array[0..1] of tipo_roms=(
-        (n:'d21_6.3m';l:$4000;p:0;crc:$df1f4ad8),(n:'d21_7.3n';l:$4000;p:$4000;crc:$ccadb3ea));
-        dd2_sound:tipo_roms=(n:'d21_4.1k';l:$2000;p:$e000;crc:$737443b1);
-        dd2_sound_prom:tipo_roms=(n:'d21-3.3m';l:$100;p:0;crc:$e0074ee2);
         digdug2_dip:array [0..5] of def_dip=(
         (mask:$2;name:'Lives';number:2;dip:((dip_val:$2;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c;name:'Coinage';number:4;dip:((dip_val:$c;dip_name:'1C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'1C 2C'),(dip_val:$0;dip_name:'1C 3C'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$30;name:'Bonus Life';number:4;dip:((dip_val:$30;dip_name:'30K 80K and ...'),(dip_val:$20;dip_name:'30K 100K and ...'),(dip_val:$10;dip_name:'30K 100K and ...'),(dip_val:$30;dip_name:'30K 150K and ...'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$40;name:'Level Select';number:2;dip:((dip_val:$40;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$80;name:'Freeze';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //Super Pacman
-        spacman_rom:array[0..1] of tipo_roms=(
-        (n:'sp1-2.1c';l:$2000;p:$c000;crc:$4bb33d9c),(n:'sp1-1.1b';l:$2000;p:$e000;crc:$846fbb4a));
-        spacman_proms:array[0..2] of tipo_roms=(
-        (n:'superpac.4c';l:$20;p:0;crc:$9ce22c46),(n:'superpac.4e';l:$100;p:$20;crc:$1253c5c1),
-        (n:'superpac.3l';l:$100;p:$120;crc:$d4d7026f));
-        spacman_chars:tipo_roms=(n:'sp1-6.3c';l:$1000;p:0;crc:$91c5935c);
-        spacman_sprites:tipo_roms=(n:'spv-2.3f';l:$2000;p:0;crc:$670a42f2);
-        spacman_sound:tipo_roms=(n:'spc-3.1k';l:$1000;p:$f000;crc:$04445ddb);
-        spacman_sound_prom:tipo_roms=(n:'superpac.3m';l:$100;p:0;crc:$ad43688f);
         spacman_dip_a:array [0..4] of def_dip=(
         (mask:$f;name:'Difficulty';number:16;dip:((dip_val:$f;dip_name:'Rank 0 - Normal'),(dip_val:$e;dip_name:'Rank 1-Easyest'),(dip_val:$d;dip_name:'Rank 2'),(dip_val:$c;dip_name:'Rank 3'),(dip_val:$b;dip_name:'Rank 4'),(dip_val:$a;dip_name:'Rank 5'),(dip_val:$6;dip_name:'Rank 6 - Medium'),(dip_val:$8;dip_name:'Rank 7'),(dip_val:$7;dip_name:'Rank 8 - Default'),(dip_val:$6;dip_name:'Rank 9'),(dip_val:$5;dip_name:'Rank A'),(dip_val:$4;dip_name:'Rank B -Hardest'),(dip_val:$3;dip_name:'Rank C - Easy Auto'),(dip_val:$2;dip_name:'Rank D - Auto'),(dip_val:$1;dip_name:'Rank E - Auto'),(dip_val:$0;dip_name:'Rank F - Hard Auto'))),
         (mask:$30;name:'Coin B';number:4;dip:((dip_val:$10;dip_name:'2C 1C'),(dip_val:$30;dip_name:'1C 1C'),(dip_val:$0;dip_name:'2C 3C'),(dip_val:$20;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -69,51 +117,17 @@ const
         (mask:$7;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 6C'),(dip_val:$3;dip_name:'1C 7C'),(),(),(),(),(),(),(),())),
         (mask:$38;name:'Bonus Life';number:8;dip:((dip_val:$8;dip_name:'30K'),(dip_val:$30;dip_name:'30K 80K'),(dip_val:$20;dip_name:'30K 80K 80K+'),(dip_val:$38;dip_name:'30K 100K'),(dip_val:$18;dip_name:'30K 100K 100K+'),(dip_val:$28;dip_name:'20K 120K'),(dip_val:$10;dip_name:'30K 120K 120K+'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),())),
         (mask:$c0;name:'Lives';number:4;dip:((dip_val:$80;dip_name:'1'),(dip_val:$40;dip_name:'2'),(dip_val:$c0;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //The Tower of Druaga
-        todruaga_rom:array[0..1] of tipo_roms=(
-        (n:'td2_3.1d';l:$4000;p:$8000;crc:$fbf16299),(n:'td2_1.1b';l:$4000;p:$c000;crc:$b238d723));
-        todruaga_proms:array[0..2] of tipo_roms=(
-        (n:'td1-5.5b';l:$20;p:0;crc:$122cc395),(n:'td1-6.4c';l:$100;p:$20;crc:$8c661d6a),
-        (n:'td1-7.5k';l:$400;p:$120;crc:$a86c74dd));
-        todruaga_chars:tipo_roms=(n:'td1_5.3b';l:$1000;p:0;crc:$d32b249f);
-        todruaga_sprites:array[0..1] of tipo_roms=(
-        (n:'td1_6.3m';l:$2000;p:0;crc:$e827e787),(n:'td1_7.3n';l:$2000;p:$2000;crc:$962bd060));
-        todruaga_sound:tipo_roms=(n:'td1_4.1k';l:$2000;p:$e000;crc:$ae9d06d9);
-        todruaga_sound_prom:tipo_roms=(n:'td1-3.3m';l:$100;p:0;crc:$07104c40);
         todruaga_dip:array [0..4] of def_dip=(
         (mask:$3;name:'Lives';number:4;dip:((dip_val:$1;dip_name:'1'),(dip_val:$2;dip_name:'2'),(dip_val:$3;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$c;dip_name:'1C 1C'),(dip_val:$4;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$10;name:'Freeze';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c0;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$c0;dip_name:'1C 1C'),(dip_val:$40;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //Motos
-        motos_rom:array[0..1] of tipo_roms=(
-        (n:'mo1_3.1d';l:$4000;p:$8000;crc:$1104abb2),(n:'mo1_1.1b';l:$4000;p:$c000;crc:$57b157e2));
-        motos_proms:array[0..2] of tipo_roms=(
-        (n:'mo1-5.5b';l:$20;p:0;crc:$71972383),(n:'mo1-6.4c';l:$100;p:$20;crc:$730ba7fb),
-        (n:'mo1-7.5k';l:$100;p:$120;crc:$7721275d));
-        motos_chars:tipo_roms=(n:'mo1_5.3b';l:$1000;p:0;crc:$5d4a2a22);
-        motos_sprites:array[0..1] of tipo_roms=(
-        (n:'mo1_6.3m';l:$4000;p:0;crc:$2f0e396e),(n:'mo1_7.3n';l:$4000;p:$4000;crc:$cf8a3b86));
-        motos_sound:tipo_roms=(n:'mo1_4.1k';l:$2000;p:$e000;crc:$55e45d21);
-        motos_sound_prom:tipo_roms=(n:'mo1-3.3m';l:$100;p:0;crc:$2accdfb4);
         motos_dip:array [0..5] of def_dip=(
         (mask:$6;name:'Coinage';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$6;dip_name:'1C 1C'),(dip_val:$4;dip_name:'1C 2C'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$8;name:'Lives';number:2;dip:((dip_val:$8;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$10;name:'Difficulty';number:2;dip:((dip_val:$10;dip_name:'Rank A'),(dip_val:$0;dip_name:'Rank B'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$60;name:'Bonus Life';number:4;dip:((dip_val:$60;dip_name:'10K 30K 50K+'),(dip_val:$40;dip_name:'20K 50K+'),(dip_val:$20;dip_name:'30K 70K+'),(dip_val:$0;dip_name:'20K 70K'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$80;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //Grobda
-        grobda_rom:array[0..2] of tipo_roms=(
-        (n:'gr2-3.1d';l:$2000;p:$a000;crc:$8e3a23be),(n:'gr2-2.1c';l:$2000;p:$c000;crc:$19ffa83d),
-        (n:'gr2-1.1b';l:$2000;p:$e000;crc:$0089b13a));
-        grobda_proms:array[0..2] of tipo_roms=(
-        (n:'gr1-6.4c';l:$20;p:0;crc:$c65efa77),(n:'gr1-5.4e';l:$100;p:$20;crc:$a0f66911),
-        (n:'gr1-4.3l';l:$100;p:$120;crc:$f1f2c234));
-        grobda_chars:tipo_roms=(n:'gr1-7.3c';l:$1000;p:0;crc:$4ebfabfd);
-        grobda_sprites:array[0..1] of tipo_roms=(
-        (n:'gr1-5.3f';l:$2000;p:0;crc:$eed43487),(n:'gr1-6.3e';l:$2000;p:$2000;crc:$cebb7362));
-        grobda_sound:tipo_roms=(n:'gr1-4.1k';l:$2000;p:$e000;crc:$3fe78c08);
-        grobda_sound_prom:tipo_roms=(n:'gr1-3.3m';l:$100;p:0;crc:$66eb1467);
         grobda_dip_a:array [0..3] of def_dip=(
         (mask:$e;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$2;dip_name:'3C 1C'),(dip_val:$6;dip_name:'2C 1C'),(dip_val:$8;dip_name:'1C 1C'),(dip_val:$4;dip_name:'2C 3C'),(dip_val:$a;dip_name:'1C 2C'),(dip_val:$e;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(),(),(),(),(),(),(),())),
         (mask:$70;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$10;dip_name:'3C 1C'),(dip_val:$30;dip_name:'2C 1C'),(dip_val:$40;dip_name:'1C 1C'),(dip_val:$20;dip_name:'2C 3C'),(dip_val:$50;dip_name:'1C 2C'),(dip_val:$70;dip_name:'1C 3C'),(dip_val:$60;dip_name:'1C 4C'),(),(),(),(),(),(),(),())),
@@ -124,17 +138,6 @@ const
         (mask:$10;name:'Demo_Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$20;name:'Level Select';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$20;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c0;name:'Bonus Life';number:4;dip:((dip_val:$0;dip_name:'10K 50K 50K+'),(dip_val:$40;dip_name:'10K 30K'),(dip_val:$c0;dip_name:'10K'),(dip_val:$80;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //Pac'n'Pal
-        pacnpal_rom:array[0..2] of tipo_roms=(
-        (n:'pap1-3b.1d';l:$2000;p:$a000;crc:$ed64a565),(n:'pap1-2b.1c';l:$2000;p:$c000;crc:$15308bcf),
-        (n:'pap3-1.1b';l:$2000;p:$e000;crc:$3cac401c));
-        pacnpal_proms:array[0..2] of tipo_roms=(
-        (n:'pap1-6.4c';l:$20;p:0;crc:$52634b41),(n:'pap1-5.4e';l:$100;p:$20;crc:$ac46203c),
-        (n:'pap1-4.3l';l:$100;p:$120;crc:$686bde84));
-        pacnpal_chars:tipo_roms=(n:'pap1-6.3c';l:$1000;p:0;crc:$a36b96cb);
-        pacnpal_sprites:tipo_roms=(n:'pap1-5.3f';l:$2000;p:0;crc:$fb6f56e3);
-        pacnpal_sound:tipo_roms=(n:'pap1-4.1k';l:$1000;p:$f000;crc:$330e20de);
-        pacnpal_sound_prom:tipo_roms=(n:'pap1-3.3m';l:$100;p:0;crc:$94782db5);
         pacnpal_dip_a:array [0..3] of def_dip=(
         (mask:$7;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 6C'),(dip_val:$3;dip_name:'1C 7C'),(),(),(),(),(),(),(),())),
         (mask:$38;name:'Bonus Life';number:8;dip:((dip_val:$20;dip_name:'20K 70K'),(dip_val:$30;dip_name:'20K 70K 70K+'),(dip_val:$0;dip_name:'30K'),(dip_val:$18;dip_name:'30K 70K'),(dip_val:$10;dip_name:'30K 80K'),(dip_val:$28;dip_name:'30K 100K 80K+'),(dip_val:$8;dip_name:'30K 100K'),(dip_val:$38;dip_name:'None'),(),(),(),(),(),(),(),())),
@@ -398,7 +401,6 @@ procedure mappy_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     if f=224 then begin
@@ -685,18 +687,18 @@ case  main_vars.tipo_maquina of
       namco_5x_0:=namco_5x_chip.create(m6809_0.numero_cpu,NAMCO_58XX);
       namco_5x_1:=namco_5x_chip.create(m6809_0.numero_cpu,NAMCO_56XX);
       //cargar roms
-      if not(roms_load(@memoria,dd2_rom)) then exit;
+      if not(roms_load(@memoria,digdug2_rom)) then exit;
       //Cargar Sound+samples
-      if not(roms_load(@mem_snd,dd2_sound)) then exit;
-      if not(roms_load(namco_snd_0.get_wave_dir,dd2_sound_prom)) then exit;
+      if not(roms_load(@mem_snd,digdug2_sound)) then exit;
+      if not(roms_load(namco_snd_0.get_wave_dir,digdug2_sound_prom)) then exit;
       //convertir chars
-      if not(roms_load(@memoria_temp,dd2_chars)) then exit;
+      if not(roms_load(@memoria_temp,digdug2_chars)) then exit;
       set_chars(true);
       //Sprites
-      if not(roms_load(@memoria_temp,dd2_sprites)) then exit;
+      if not(roms_load(@memoria_temp,digdug2_sprites)) then exit;
       set_sprites(2,0);
       //Color lookup
-      if not(roms_load(@memoria_temp,dd2_proms)) then exit;
+      if not(roms_load(@memoria_temp,digdug2_proms)) then exit;
       set_color_lookup(0,$100);
       //Dip
       marcade.dswa_val:=@digdug2_dip;

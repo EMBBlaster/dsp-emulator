@@ -1,13 +1,10 @@
 unit jailbreak_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
-     timer_engine,rom_engine,pal_engine,konami_decrypt,sound_engine;
+uses rom_engine;
 
 function iniciar_jailbreak:boolean;
 
-implementation
 const
         jailbreak_rom:array[0..1] of tipo_roms=(
         (n:'507p03.11d';l:$4000;p:$8000;crc:$a0b88dfd),(n:'507p02.9d';l:$4000;p:$c000;crc:$444b7d8e));
@@ -16,23 +13,28 @@ const
         jailbreak_sprites:array[0..3] of tipo_roms=(
         (n:'507j04.3e';l:$4000;p:0;crc:$0d269524),(n:'507j05.4e';l:$4000;p:$4000;crc:$27d4f6f4),
         (n:'507j06.5e';l:$4000;p:$8000;crc:$717485cb),(n:'507j07.3f';l:$4000;p:$c000;crc:$e933086f));
-        jailbreak_pal:array[0..3] of tipo_roms=(
-        (n:'507j10.1f';l:$20;p:0;crc:$f1909605),(n:'507j11.2f';l:$20;p:$20;crc:$f70bb122),
-        (n:'507j13.7f';l:$100;p:$40;crc:$d4fe5c97),(n:'507j12.6f';l:$100;p:$140;crc:$0266c7db));
         jailbreak_vlm:tipo_roms=(n:'507l01.8c';l:$4000;p:0;crc:$0c8a3605);
-        //Dip
-        jailbreak_dip_a:array [0..2] of def_dip=(
-        (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$2;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'3C 2C'),(dip_val:$1;dip_name:'4C 3C'),(dip_val:$f;dip_name:'1C 1C'),(dip_val:$3;dip_name:'3C 4C'),(dip_val:$7;dip_name:'2C 3C'),(dip_val:$e;dip_name:'1C 2C'),(dip_val:$6;dip_name:'2C 5C'),(dip_val:$d;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(dip_val:$b;dip_name:'1C 5C'),(dip_val:$a;dip_name:'1C 6C'),(dip_val:$9;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),
-        (mask:$f0;name:'Coin B';number:15;dip:((dip_val:$20;dip_name:'4C 1C'),(dip_val:$50;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$40;dip_name:'3C 2C'),(dip_val:$10;dip_name:'4C 3C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$30;dip_name:'3C 4C'),(dip_val:$70;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$60;dip_name:'2C 5C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$90;dip_name:'1C 7C'),())),());
-        jailbreak_dip_b:array [0..5] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'1'),(dip_val:$2;dip_name:'2'),(dip_val:$1;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$4;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Bonus Life';number:2;dip:((dip_val:$8;dip_name:'30K 70K+'),(dip_val:$0;dip_name:'40K 80K+'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Difficulty';number:4;dip:((dip_val:$30;dip_name:'Easy'),(dip_val:$20;dip_name:'Normal'),(dip_val:$10;dip_name:'Difficult'),(dip_val:$0;dip_name:'Very Difficult'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        jailbreak_dip_c:array [0..2] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Upright Controls';number:2;dip:((dip_val:$2;dip_name:'Single'),(dip_val:$0;dip_name:'Dual'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        jailbreak_pal:array[0..4] of tipo_roms=(
+        (n:'507j10.1f';l:$20;p:0;crc:$f1909605),(n:'507j11.2f';l:$20;p:$20;crc:$f70bb122),
+        (n:'507j13.7f';l:$100;p:$40;crc:$d4fe5c97),(n:'507j12.6f';l:$100;p:$140;crc:$0266c7db),());
+
+implementation
+uses m6809,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
+     timer_engine,pal_engine,konami_decrypt,sound_engine;
+
+const
+        jailbreak_dip_a:array [0..1] of def_dip2=(
+        (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
+        (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
+        jailbreak_dip_b:array [0..4] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('1','2','3','5')),
+        (mask:4;name:'Cabinet';number:2;val2:(0,4);name2:('Upright','Cocktail')),
+        (mask:8;name:'Bonus Life';number:2;val2:(8,0);name2:('30K 70K+','40K 80K+')),
+        (mask:$30;name:'Difficulty';number:4;val4:($30,$20,$10,0);name4:('Easy','Normal','Difficult','Very Difficult')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('Off','On')));
+        jailbreak_dip_c:array [0..1] of def_dip2=(
+        (mask:1;name:'Flip Screen';number:2;val2:(1,0);name2:('Off','On')),
+        (mask:2;name:'Upright Controls';number:2;val2:(2,0);name2:('Single','Dual')));
 
 var
  irq_ena,nmi_ena,scroll_dir:boolean;
@@ -48,7 +50,7 @@ for f:=0 to $7ff do begin
     if gfx[0].buffer[f] then begin
       x:=f mod 64;
       y:=f div 64;
-      atrib:=memoria[$0+f];
+      atrib:=memoria[0+f];
       nchar:=memoria[$800+f]+((atrib and $c0) shl 2);
       color:=(atrib and $f) shl 4;
       put_gfx(x*8,y*8,nchar,color,1,0);
@@ -72,25 +74,28 @@ end;
 procedure eventos_jailbreak;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
   //P2
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
   //SYS
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $ef;
 end;
 end;
 
@@ -98,7 +103,6 @@ procedure jailbreak_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_jailbreak;
@@ -142,7 +146,7 @@ case direccion of
                   memoria[direccion]:=valor;
                end;
   $2020..$203f:begin
-                  scroll_lineas[direccion and $1f]:=(scroll_lineas[direccion and $1f] and $00ff) or ((valor and 1) shl 8);
+                  scroll_lineas[direccion and $1f]:=(scroll_lineas[direccion and $1f] and $ff) or ((valor and 1) shl 8);
                   memoria[direccion]:=valor;
                end;
   $2042:scroll_dir:=(valor and 4)<>0;
@@ -248,12 +252,9 @@ for f:=0 to $ff do begin
   gfx[1].colores[f]:=memoria_temp[$140+f] and $f;  //sprites
 end;
 //DIP
-marcade.dswa:=$ff;
-marcade.dswb:=$19;
-marcade.dswc:=$3;
-marcade.dswa_val:=@jailbreak_dip_a;
-marcade.dswb_val:=@jailbreak_dip_b;
-marcade.dswc_val:=@jailbreak_dip_c;
+init_dips(1,jailbreak_dip_a,$ff);
+init_dips(2,jailbreak_dip_b,$19);
+init_dips(3,jailbreak_dip_c,3);
 //final
 iniciar_jailbreak:=true;
 end;

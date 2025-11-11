@@ -1,12 +1,10 @@
-unit flower_audio;
+﻿unit flower_audio;
 
 interface
-uses sound_engine,timer_engine{$ifdef windows},windows{$endif};
+uses main_engine,sound_engine;
 
 const
   MAX_VOICES=8;
-  DEFGAIN=48;
-  MIXER_LOOKUP=MAX_VOICES*128;
 
 type
   flower_sound_channel=record
@@ -42,6 +40,11 @@ var
   flower_0:flower_chip;
 
 implementation
+uses timer_engine;
+
+const
+  DEFGAIN=48;
+  MIXER_LOOKUP=MAX_VOICES*128;
 
 procedure flower_chip.make_mixer_table;
 var

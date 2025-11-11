@@ -1,6 +1,7 @@
 unit eepromser;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,file_engine;
+uses main_engine,file_engine;
 
 type
   eepromser_chip=class

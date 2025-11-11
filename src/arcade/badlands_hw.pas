@@ -1,28 +1,28 @@
-unit badlands_hw;
+﻿unit badlands_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,atari_mo,file_engine;
+uses rom_engine;
 
 function iniciar_badlands:boolean;
 
-implementation
 const
         badlands_rom:array[0..3] of tipo_roms=(
         (n:'136074-1008.20f';l:$10000;p:0;crc:$a3da5774),(n:'136074-1006.27f';l:$10000;p:1;crc:$aa03b4f3),
         (n:'136074-1009.17f';l:$10000;p:$20000;crc:$0e2e807f),(n:'136074-1007.24f';l:$10000;p:$20001;crc:$99a20c2c));
-        badlands_sound:tipo_roms=(n:'136074-1018.9c';l:$10000;p:$0;crc:$a05fd146);
+        badlands_sound:tipo_roms=(n:'136074-1018.9c';l:$10000;p:0;crc:$a05fd146);
         badlands_back:array[0..5] of tipo_roms=(
         (n:'136074-1012.4n';l:$10000;p:0;crc:$5d124c6c),(n:'136074-1013.2n';l:$10000;p:$10000;crc:$b1ec90d6),
         (n:'136074-1014.4s';l:$10000;p:$20000;crc:$248a6845),(n:'136074-1015.2s';l:$10000;p:$30000;crc:$792296d8),
         (n:'136074-1016.4u';l:$10000;p:$40000;crc:$878f7c66),(n:'136074-1017.2u';l:$10000;p:$50000;crc:$ad0071a3));
-        badlands_mo:array[0..2] of tipo_roms=(
+        badlands_mo:array[0..3] of tipo_roms=(
         (n:'136074-1010.14r';l:$10000;p:0;crc:$c15f629e),(n:'136074-1011.10r';l:$10000;p:$10000;crc:$fb0b6717),
-        (n:'136074-1019.14t';l:$10000;p:$20000;crc:$0e26bff6));
-        badlands_proms:array[0..2] of tipo_roms=(
-        (n:'74s472-136037-101.7u';l:$200;p:0;crc:$2964f76f),(n:'74s472-136037-102.5l';l:$200;p:$200;crc:$4d4fec6c),
-        (n:'74s287-136037-103.4r';l:$100;p:$400;crc:$6c5ccf08));
+        (n:'136074-1019.14t';l:$10000;p:$20000;crc:$0e26bff6),());
+
+implementation
+uses m6502,m68000,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ym_2151,atari_mo,file_engine;
+
+const
         badlands_mo_config:atari_motion_objects_config=(
         	gfxindex:1;               // index to which gfx system */
 	        bankcount:1;              // number of motion object banks */
@@ -128,26 +128,25 @@ end;
 procedure eventos_badlands;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=$ffbf or (marcade.in1 and $40);
+  marcade.in2:=0;
   //Audio CPU
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 2;
   //Buttons
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $df;
   //Pedals
-  if arcade_input.but1[0] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
+  if arcade_input.but1[0] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 or 2;
 end;
 end;
 
 procedure badlands_principal;
 var
-  frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
-frame_m:=m68000_0.tframes;
-frame_s:=m6502_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to 261 do begin
     eventos_badlands;
@@ -164,11 +163,11 @@ while EmuStatus=EsRunning do begin
         end;
     end;
     //main
-    m68000_0.run(frame_m);
-    frame_m:=frame_m+m68000_0.tframes-m68000_0.contador;
+    m68000_0.run(frame_main);
+    frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
     //sound
-    m6502_0.run(frame_s);
-    frame_s:=frame_s+m6502_0.tframes-m6502_0.contador;
+    m6502_0.run(frame_snd);
+    frame_snd:=frame_snd+m6502_0.tframes-m6502_0.contador;
  end;
  if (marcade.in2 and 1)=0 then pedal1:=pedal1-1;
  if (marcade.in2 and 2)=0 then pedal2:=pedal2-1;
@@ -198,7 +197,6 @@ end;
 end;
 
 procedure badlands_putword(direccion:dword;valor:word);
-
 procedure cambiar_color(numero:word);
 var
   color:tcolor;
@@ -214,7 +212,6 @@ begin
   set_pal_color(color,numero);
   if numero<$80 then  buffer_color[(numero shr 4) and 7]:=true;
 end;
-
 begin
 case direccion of
     0..$3ffff:; //ROM
@@ -255,7 +252,7 @@ function badlands_snd_getbyte(direccion:word):byte;
 begin
 case direccion of
      0..$1fff,$4000..$ffff:badlands_snd_getbyte:=mem_snd[direccion];
-     $2000..$27ff:if (direccion and $1)<>0 then badlands_snd_getbyte:=ym2151_0.status;
+     $2000..$27ff:if (direccion and 1)<>0 then badlands_snd_getbyte:=ym2151_0.status;
      $2800..$29ff:case (direccion and 6) of
                     2:begin
                         badlands_snd_getbyte:=soundlatch;
@@ -303,6 +300,8 @@ procedure reset_badlands;
 begin
  m68000_0.reset;
  m6502_0.reset;
+ frame_main:=m68000_0.tframes;
+ frame_snd:=m6502_0.tframes;
  ym2151_0.reset;
  marcade.in0:=0;
  marcade.in1:=$ffbf;
@@ -353,18 +352,16 @@ iniciar_video(336,240);
 //Main CPU
 m68000_0:=cpu_m68000.create(14318180 div 2);
 m68000_0.change_ram16_calls(badlands_getword,badlands_putword);
+if not(roms_load16w(@rom,badlands_rom)) then exit;
 //Sound CPU
 m6502_0:=cpu_m6502.create(14318180 div 8,TCPU_M6502);
 m6502_0.change_ram_calls(badlands_snd_getbyte,badlands_snd_putbyte);
 m6502_0.init_sound(badlands_sound_update);
-//Sound Chips
-ym2151_0:=ym2151_chip.create(14318180 div 4);
-//cargar roms
-if not(roms_load16w(@rom,badlands_rom)) then exit;
-//cargar sonido
 if not(roms_load(@memoria_temp,badlands_sound)) then exit;
 copymemory(@mem_snd[$4000],@memoria_temp[$4000],$c000);
 for f:=0 to 3 do copymemory(@sound_rom[f,0],@memoria_temp[f*$1000],$1000);
+//Sound Chips
+ym2151_0:=ym2151_chip.create(14318180 div 4);
 //convertir gfx
 if not(roms_load(@memoria_temp,badlands_back)) then exit;
 for f:=0 to $5ffff do memoria_temp[f]:=not(memoria_temp[f]);
@@ -384,7 +381,7 @@ convert_gfx(1,0,@memoria_temp,@pc_x,@ps_y,false,false);
 atari_mo_0:=tatari_mo.create(nil,@ram[$1000 shr 1],badlands_mo_config,3,336+8,240+8);
 //Init Analog
 init_analog(m68000_0.numero_cpu,m68000_0.clock);
-analog_0(50,10,$0,$ff,$0,false,true,true,true);
+analog_0(50,10,0,$ff,0,false,true,true,true);
 //final
 iniciar_badlands:=true;
 end;

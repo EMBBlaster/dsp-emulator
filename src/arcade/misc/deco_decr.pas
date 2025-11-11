@@ -1,8 +1,7 @@
 unit deco_decr;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$else}main_engine,{$ENDIF}
-     misc_functions,sysutils;
+uses main_engine,misc_functions,sysutils;
 
 const
 

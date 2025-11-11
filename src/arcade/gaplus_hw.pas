@@ -1,18 +1,10 @@
 unit gaplus_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,namco_snd,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,namcoio_56xx_58xx,samples;
+uses rom_engine,samples;
 
 function iniciar_gaplus:boolean;
 
-implementation
-type
-        tstars=record
-          x,y:integer;
-		      col,set_:byte;
-        end;
 const
         gaplus_cpu1:array[0..2] of tipo_roms=(
         (n:'gp2-4.8d';l:$2000;p:$a000;crc:$e525d75d),(n:'gp2-3b.8c';l:$2000;p:$c000;crc:$d77840a4),
@@ -25,22 +17,34 @@ const
         gaplus_sprites:array[0..3] of tipo_roms=(
         (n:'gp2-11.11p';l:$2000;p:0;crc:$57740ff9),(n:'gp2-10.11n';l:$2000;p:$2000;crc:$6cd8ce11),
         (n:'gp2-12.11r';l:$2000;p:$4000;crc:$7316a1f1),(n:'gp2-9.11m';l:$2000;p:$6000;crc:$e6a9ae67));
-        gaplus_prom:array[0..6] of tipo_roms=(
+        gaplus_prom:array[0..7] of tipo_roms=(
         (n:'gp2-3.1p';l:$100;p:$0;crc:$a5091352),(n:'gp2-1.1n';l:$100;p:$100;crc:$8bc8022a),
         (n:'gp2-2.2n';l:$100;p:$200;crc:$8dabc20b),(n:'gp2-7.6s';l:$100;p:$300;crc:$2faa3e09),
         (n:'gp2-6.6p';l:$200;p:$400;crc:$6f99c2da),(n:'gp2-5.6n';l:$200;p:$600;crc:$c7d31657),
-        (n:'gp2-4.3f';l:$100;p:$800;crc:$2d9fbdd8));
+        (n:'gp2-4.3f';l:$100;p:$800;crc:$2d9fbdd8),());
+        gaplus_samples:array [0..1] of tipo_nombre_samples=((nombre:'bang.wav'),());
+
+implementation
+uses m6809,namco_snd,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,namcoio_56xx_58xx;
+
+type
+        tstars=record
+          x,y:integer;
+		      col,set_:byte;
+        end;
+
+const
         gaplus_dip_a:array [0..3] of def_dip2=(
-        (mask:$3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
-        (mask:$8;name:'Demo Sounds';number:2;val2:(0,8);name2:('Off','On')),
+        (mask:3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
+        (mask:8;name:'Demo Sounds';number:2;val2:(0,8);name2:('Off','On')),
         (mask:$30;name:'Coin A';number:4;val4:(0,$10,$30,$20);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
         (mask:$c0;name:'Lives';number:4;val4:($80,$c0,$40,0);name4:('2','3','4','5')));
         gaplus_dip_b:array [0..2] of def_dip2=(
-        (mask:$7;name:'Bonus Life';number:8;val8:(0,1,2,3,4,7,5,6);name8:('30K 70K 70K+','30K 100K 100K+','30K 100K 200K+','50K 100K 100K+','50K 100K 200K+','50K 150K 150K+','50K 150K 300K+','50K 150K')),
-        (mask:$8;name:'Round Advance';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:7;name:'Bonus Life';number:8;val8:(0,1,2,3,4,7,5,6);name8:('30K 70K 70K+','30K 100K 100K+','30K 100K 200K+','50K 100K 100K+','50K 100K 200K+','50K 150K 150K+','50K 150K 300K+','50K 150K')),
+        (mask:8;name:'Round Advance';number:2;val2:(8,0);name2:('Off','On')),
         (mask:$70;name:'Difficulty';number:8;val8:($70,$60,$50,$40,$30,$20,$10,0);name8:('0 - Standard','1 - Easiest','2','3','4','5','6','7 - Hardest')));
-        gaplus_dip_c:def_dip2=(mask:$4;name:'Cabinet';number:2;val2:(4,0);name2:('Upright','Cocktail'));
-        gaplus_samples:tipo_nombre_samples=(nombre:'bang.wav');
+        gaplus_dip_c:def_dip2=(mask:4;name:'Cabinet';number:2;val2:(4,0);name2:('Upright','Cocktail'));
         STARFIELD_CLIPPING_X=16;
         MAX_STARS=100-1;
 
@@ -208,7 +212,6 @@ procedure gaplus_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 223 do begin
     eventos_gaplus;

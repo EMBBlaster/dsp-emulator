@@ -1,13 +1,10 @@
 unit sonson_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,ay_8910,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_sonson:boolean;
 
-implementation
 const
         sonson_rom:array[0..2] of tipo_roms=(
         (n:'ss.01e';l:$4000;p:$4000;crc:$cd40cc54),(n:'ss.02e';l:$4000;p:$8000;crc:$c3476527),
@@ -19,10 +16,15 @@ const
         (n:'ss_9.m5';l:$2000;p:0;crc:$8cb1cacf),(n:'ss_10.m6';l:$2000;p:$2000;crc:$f802815e),
         (n:'ss_11.m3';l:$2000;p:$4000;crc:$4dbad88a),(n:'ss_12.m4';l:$2000;p:$6000;crc:$aa05e687),
         (n:'ss_13.m1';l:$2000;p:$8000;crc:$66119bfa),(n:'ss_14.m2';l:$2000;p:$a000;crc:$e14ef54e));
-        sonson_prom:array[0..3] of tipo_roms=(
+        sonson_prom:array[0..4] of tipo_roms=(
         (n:'ssb4.b2';l:$20;p:0;crc:$c8eaf234),(n:'ssb5.b1';l:$20;p:$20;crc:$0e434add),
-        (n:'ssb2.c4';l:$100;p:$40;crc:$c53321c6),(n:'ssb3.h7';l:$100;p:$140;crc:$7d2c324a));
-        //Dip
+        (n:'ssb2.c4';l:$100;p:$40;crc:$c53321c6),(n:'ssb3.h7';l:$100;p:$140;crc:$7d2c324a),());
+
+implementation
+uses m6809,ay_8910,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,timer_engine,qsnapshot;
+
+const
         sonson_dip_a:array [0..4] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$10;name:'Coinage affects';number:2;val2:($10,0);name2:('Coin A','Coin B')),
@@ -98,7 +100,6 @@ procedure sonson_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     if f=248 then begin

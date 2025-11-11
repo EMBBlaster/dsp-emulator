@@ -1,13 +1,10 @@
 unit pacland_hw;
-interface
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine;
+interface
+uses rom_engine;
 
 function iniciar_pacland:boolean;
 
-implementation
 const
         pacland_rom:array[0..5] of tipo_roms=(
         (n:'pl5_01b.8b';l:$4000;p:$0;crc:$b0ea7631),(n:'pl5_02.8d';l:$4000;p:$4000;crc:$d903e84e),
@@ -20,10 +17,16 @@ const
         (n:'pl1-10.7e';l:$4000;p:$8000;crc:$c7cf1904),(n:'pl1-11.7f';l:$4000;p:$c000;crc:$6621361a));
         pacland_mcu:array[0..1] of tipo_roms=(
         (n:'pl1_7.3e';l:$2000;p:$1000;crc:$8c5becae),(n:'cus60-60a1.mcu';l:$1000;p:0;crc:$076ea82a));
-        pacland_prom:array[0..4] of tipo_roms=(
+        pacland_prom:array[0..5] of tipo_roms=(
         (n:'pl1-2.1t';l:$400;p:$0;crc:$472885de),(n:'pl1-1.1r';l:$400;p:$400;crc:$a78ebdaf),
         (n:'pl1-5.5t';l:$400;p:$800;crc:$4b7ee712),(n:'pl1-4.4n';l:$400;p:$c00;crc:$3a7be418),
-        (n:'pl1-3.6l';l:$400;p:$1000;crc:$80558da8));
+        (n:'pl1-3.6l';l:$400;p:$1000;crc:$80558da8),());
+
+implementation
+uses m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine;
+
+const
         pacland_dip_a:array [0..3] of def_dip2=(
         (mask:3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
         (mask:4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')),
@@ -226,7 +229,6 @@ procedure pacland_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_pacland;

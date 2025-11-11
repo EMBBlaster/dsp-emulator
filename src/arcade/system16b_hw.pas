@@ -1,14 +1,9 @@
 ﻿unit system16b_hw;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ym_2151,dialogs,upd7759,mcs51,sega_315_5195,fd1089;
+uses rom_engine;
 
 function iniciar_system16b:boolean;
-
-implementation
 
 const
         //Altered Beast
@@ -21,11 +16,11 @@ const
         altbeast_tiles:array[0..2] of tipo_roms=(
         (n:'opr-11674.a14';l:$20000;p:0;crc:$a57a66d5),(n:'opr-11675.a15';l:$20000;p:$20000;crc:$2ef2f144),
         (n:'opr-11676.a16';l:$20000;p:$40000;crc:$0c04acac));
-        altbeast_sprites:array[0..7] of tipo_roms=(
+        altbeast_sprites:array[0..8] of tipo_roms=(
         (n:'epr-11677.b1';l:$20000;p:1;crc:$a01425cd),(n:'epr-11681.b5';l:$20000;p:0;crc:$d9e03363),
         (n:'epr-11678.b2';l:$20000;p:$40001;crc:$17a9fc53),(n:'epr-11682.b6';l:$20000;p:$40000;crc:$e3f77c5e),
         (n:'epr-11679.b3';l:$20000;p:$80001;crc:$14dcc245),(n:'epr-11683.b7';l:$20000;p:$80000;crc:$f9a60f06),
-        (n:'epr-11680.b4';l:$20000;p:$c0001;crc:$f43dcdec),(n:'epr-11684.b8';l:$20000;p:$c0000;crc:$b20c0edb));
+        (n:'epr-11680.b4';l:$20000;p:$c0001;crc:$f43dcdec),(n:'epr-11684.b8';l:$20000;p:$c0000;crc:$b20c0edb),());
         //Golden Axe
         goldnaxe_rom:array[0..1] of tipo_roms=(
         (n:'epr-12545.ic2';l:$40000;p:0;crc:$a97c4e4d),(n:'epr-12544.ic1';l:$40000;p:1;crc:$5e38f668));
@@ -35,10 +30,10 @@ const
         goldnaxe_tiles:array[0..2] of tipo_roms=(
         (n:'epr-12385.ic19';l:$20000;p:0;crc:$b8a4e7e0),(n:'epr-12386.ic20';l:$20000;p:$20000;crc:$25d7d779),
         (n:'epr-12387.ic21';l:$20000;p:$40000;crc:$c7fcadf3));
-        goldnaxe_sprites:array[0..5] of tipo_roms=(
+        goldnaxe_sprites:array[0..6] of tipo_roms=(
         (n:'mpr-12378.ic9';l:$40000;p:1;crc:$119e5a82),(n:'mpr-12379.ic12';l:$40000;p:0;crc:$1a0e8c57),
         (n:'mpr-12380.ic10';l:$40000;p:$80001;crc:$bb2c0853),(n:'mpr-12381.ic13';l:$40000;p:$80000;crc:$81ba6ecc),
-        (n:'mpr-12382.ic11';l:$40000;p:$100001;crc:$81601c6f),(n:'mpr-12383.ic14';l:$40000;p:$100000;crc:$5dbacf7a));
+        (n:'mpr-12382.ic11';l:$40000;p:$100001;crc:$81601c6f),(n:'mpr-12383.ic14';l:$40000;p:$100000;crc:$5dbacf7a),());
         //Dinamite Dux
         ddux_rom:array[0..3] of tipo_roms=(
         (n:'epr-12189.a7';l:$20000;p:0;crc:$558e9b5d),(n:'epr-12188.a5';l:$20000;p:1;crc:$802a240f),
@@ -48,9 +43,9 @@ const
         ddux_tiles:array[0..2] of tipo_roms=(
         (n:'mpr-11917.a14';l:$10000;p:0;crc:$6f772190),(n:'mpr-11918.a15';l:$10000;p:$10000;crc:$c731db95),
         (n:'mpr-11919.a16';l:$10000;p:$20000;crc:$64d5a491));
-        ddux_sprites:array[0..3] of tipo_roms=(
+        ddux_sprites:array[0..4] of tipo_roms=(
         (n:'mpr-11920.b1';l:$20000;p:1;crc:$e5d1e3cd),(n:'mpr-11922.b5';l:$20000;p:0;crc:$70b0c4dd),
-        (n:'mpr-11921.b2';l:$20000;p:$40001;crc:$61d2358c),(n:'mpr-11923.b6';l:$20000;p:$40000;crc:$c9ffe47d));
+        (n:'mpr-11921.b2';l:$20000;p:$40001;crc:$61d2358c),(n:'mpr-11923.b6';l:$20000;p:$40000;crc:$c9ffe47d),());
         //E-Swat
         eswat_rom:array[0..1] of tipo_roms=(
         (n:'bootleg_epr-12659.a2';l:$40000;p:0;crc:$3157f69d),(n:'bootleg_epr-12658.a1';l:$40000;p:1;crc:$0feb544b));
@@ -59,10 +54,10 @@ const
         eswat_tiles:array[0..2] of tipo_roms=(
         (n:'mpr-12624.b11';l:$40000;p:0;crc:$375a5ec4),(n:'mpr-12625.b12';l:$40000;p:$40000;crc:$3b8c757e),
         (n:'mpr-12626.b13';l:$40000;p:$80000;crc:$3efca25c));
-        eswat_sprites:array[0..5] of tipo_roms=(
+        eswat_sprites:array[0..6] of tipo_roms=(
         (n:'mpr-12618.b1';l:$40000;p:1;crc:$0d1530bf),(n:'mpr-12621.b4';l:$40000;p:0;crc:$18ff0799),
         (n:'mpr-12619.b2';l:$40000;p:$80001;crc:$32069246),(n:'mpr-12622.b5';l:$40000;p:$80000;crc:$a3dfe436),
-        (n:'mpr-12620.b3';l:$40000;p:$100001;crc:$f6b096e0),(n:'mpr-12623.b6';l:$40000;p:$100000;crc:$6773fef6));
+        (n:'mpr-12620.b3';l:$40000;p:$100001;crc:$f6b096e0),(n:'mpr-12623.b6';l:$40000;p:$100000;crc:$6773fef6),());
         //Passing Shot
         passsht_rom:array[0..1] of tipo_roms=(
         (n:'bootleg_epr-11871.a4';l:$10000;p:0;crc:$f009c017),(n:'bootleg_epr-11870.a1';l:$10000;p:1;crc:$9cd5f12f));
@@ -73,10 +68,10 @@ const
         passsht_tiles:array[0..2] of tipo_roms=(
         (n:'opr-11854.b9';l:$10000;p:0;crc:$d31c0b6c),(n:'opr-11855.b10';l:$10000;p:$10000;crc:$b78762b4),
         (n:'opr-11856.b11';l:$10000;p:$20000;crc:$ea49f666));
-        passsht_sprites:array[0..5] of tipo_roms=(
+        passsht_sprites:array[0..6] of tipo_roms=(
         (n:'opr-11862.b1';l:$10000;p:1;crc:$b6e94727),(n:'opr-11865.b5';l:$10000;p:0;crc:$17e8d5d5),
         (n:'opr-11863.b2';l:$10000;p:$20001;crc:$3e670098),(n:'opr-11866.b6';l:$10000;p:$20000;crc:$50eb71cc),
-        (n:'opr-11864.b3';l:$10000;p:$40001;crc:$05733ca8),(n:'opr-11867.b7';l:$10000;p:$40000;crc:$81e49697));
+        (n:'opr-11864.b3';l:$10000;p:$40001;crc:$05733ca8),(n:'opr-11867.b7';l:$10000;p:$40000;crc:$81e49697),());
         //Aurail
         aurail_rom:array[0..3] of tipo_roms=(
         (n:'epr-13577.a7';l:$20000;p:0;crc:$6701b686),(n:'epr-13576.a5';l:$20000;p:1;crc:$1e428d94),
@@ -87,7 +82,7 @@ const
         (n:'mpr-13450.a14';l:$20000;p:0;crc:$0fc4a7a8),(n:'mpr-13465.b14';l:$20000;p:$20000;crc:$e08135e0),
         (n:'mpr-13451.a15';l:$20000;p:$40000;crc:$1c49852f),(n:'mpr-13466.b15';l:$20000;p:$60000;crc:$e14c6684),
         (n:'mpr-13452.a16';l:$20000;p:$80000;crc:$047bde5e),(n:'mpr-13467.b16';l:$20000;p:$a0000;crc:$6309fec4));
-        aurail_sprites:array[0..15] of tipo_roms=(
+        aurail_sprites:array[0..16] of tipo_roms=(
         (n:'mpr-13453.b1';l:$20000;p:1;crc:$5fa0a9f8),(n:'mpr-13457.b5';l:$20000;p:0;crc:$0d1b54da),
         (n:'mpr-13454.b2';l:$20000;p:$40001;crc:$5f6b33b1),(n:'mpr-13458.b6';l:$20000;p:$40000;crc:$bad340c3),
         (n:'mpr-13455.b3';l:$20000;p:$80001;crc:$4e80520b),(n:'mpr-13459.b7';l:$20000;p:$80000;crc:$7e9165ac),
@@ -95,7 +90,7 @@ const
         (n:'mpr-13440.a1';l:$20000;p:$100001;crc:$4f370b2b),(n:'mpr-13461.b10';l:$20000;p:$100000;crc:$f76014bf),
         (n:'mpr-13441.a2';l:$20000;p:$140001;crc:$37cf9cb4),(n:'mpr-13462.b11';l:$20000;p:$140000;crc:$1061e7da),
         (n:'mpr-13442.a3';l:$20000;p:$180001;crc:$049698ef),(n:'mpr-13463.b12';l:$20000;p:$180000;crc:$7dbcfbf1),
-        (n:'mpr-13443.a4';l:$20000;p:$1c0001;crc:$77a8989e),(n:'mpr-13464.b13';l:$20000;p:$1c0000;crc:$551df422));
+        (n:'mpr-13443.a4';l:$20000;p:$1c0001;crc:$77a8989e),(n:'mpr-13464.b13';l:$20000;p:$1c0000;crc:$551df422),());
         //Riot City
         riotcity_rom:array[0..3] of tipo_roms=(
         (n:'epr-14612.a7';l:$20000;p:0;crc:$a1b331ec),(n:'epr-14610.a5';l:$20000;p:1;crc:$cd4f2c50),
@@ -106,10 +101,10 @@ const
         (n:'epr-14616.a14';l:$20000;p:0;crc:$46d30368),(n:'epr-14625.b14';l:$20000;p:$20000;crc:$abfb80fe),
         (n:'epr-14617.a15';l:$20000;p:$40000;crc:$884e40f9),(n:'epr-14626.b15';l:$20000;p:$60000;crc:$4ef55846),
         (n:'epr-14618.a16';l:$20000;p:$80000;crc:$00eb260e),(n:'epr-14627.b16';l:$20000;p:$a0000;crc:$961e5f82));
-        riotcity_sprites:array[0..5] of tipo_roms=(
+        riotcity_sprites:array[0..6] of tipo_roms=(
         (n:'epr-14619.b1';l:$40000;p:1;crc:$6f2b5ef7),(n:'epr-14622.b5';l:$40000;p:0;crc:$7ca7e40d),
         (n:'epr-14620.b2';l:$40000;p:$80001;crc:$66183333),(n:'epr-14623.b6';l:$40000;p:$80000;crc:$98630049),
-        (n:'epr-14621.b3';l:$40000;p:$100001;crc:$c0f2820e),(n:'epr-14624.b7';l:$40000;p:$100000;crc:$d1a68448));
+        (n:'epr-14621.b3';l:$40000;p:$100001;crc:$c0f2820e),(n:'epr-14624.b7';l:$40000;p:$100000;crc:$d1a68448),());
         //SDI
         sdi_rom:array[0..5] of tipo_roms=(
         (n:'epr-10986a.a4';l:$8000;p:0;crc:$3e136215),(n:'epr-10984a.a1';l:$8000;p:1;crc:$44bf3cf5),
@@ -119,11 +114,11 @@ const
         sdi_tiles:array[0..2] of tipo_roms=(
         (n:'epr-10772.b9';l:$10000;p:0;crc:$182b6301),(n:'epr-10773.b10';l:$10000;p:$10000;crc:$8f7129a2),
         (n:'epr-10774.b11';l:$10000;p:$20000;crc:$4409411f));
-        sdi_sprites:array[0..5] of tipo_roms=(
+        sdi_key:tipo_roms=(n:'317-0028.key';l:$2000;p:0;crc:$1514662f);
+        sdi_sprites:array[0..6] of tipo_roms=(
         (n:'10760.b1';l:$10000;p:1;crc:$70de327b),(n:'10763.b5';l:$10000;p:0;crc:$99ec5cb5),
         (n:'10761.b2';l:$10000;p:$20001;crc:$4e80f80d),(n:'10764.b6';l:$10000;p:$20000;crc:$602da5d5),
-        (n:'10762.b3';l:$10000;p:$40001;crc:$464b5f78),(n:'10765.b7';l:$10000;p:$40000;crc:$0a73a057));
-        sdi_key:tipo_roms=(n:'317-0028.key';l:$2000;p:0;crc:$1514662f);
+        (n:'10762.b3';l:$10000;p:$40001;crc:$464b5f78),(n:'10765.b7';l:$10000;p:$40000;crc:$0a73a057),());
         //Cotton
         cotton_rom:array[0..3] of tipo_roms=(
         (n:'bootleg_epr-13921a.a7';l:$20000;p:0;crc:$92947867),(n:'bootleg_epr-13919a.a5';l:$20000;p:1;crc:$30f131fb),
@@ -134,7 +129,7 @@ const
         (n:'opr-13862.a14';l:$20000;p:0;crc:$a47354b6),(n:'opr-13877.b14';l:$20000;p:$20000;crc:$d38424b5),
         (n:'opr-13863.a15';l:$20000;p:$40000;crc:$8c990026),(n:'opr-13878.b15';l:$20000;p:$60000;crc:$21c15b8a),
         (n:'opr-13864.a16';l:$20000;p:$80000;crc:$d2b175bf),(n:'opr-13879.b16';l:$20000;p:$a0000;crc:$b9d62531));
-        cotton_sprites:array[0..15] of tipo_roms=(
+        cotton_sprites:array[0..16] of tipo_roms=(
         (n:'opr-13865.b1';l:$20000;p:1;crc:$7024f404),(n:'opr-13869.b5';l:$20000;p:0;crc:$ab4b3468),
         (n:'opr-13866.b2';l:$20000;p:$40001;crc:$6169bba4),(n:'opr-13870.b6';l:$20000;p:$40000;crc:$69b41ac3),
         (n:'opr-13867.b3';l:$20000;p:$80001;crc:$b014f02d),(n:'opr-13871.b7';l:$20000;p:$80000;crc:$0801cf02),
@@ -142,7 +137,7 @@ const
         (n:'opr-13852.a1';l:$20000;p:$100001;crc:$943aba8b),(n:'opr-13873.b10';l:$20000;p:$100000;crc:$1bd145f3),
         (n:'opr-13853.a2';l:$20000;p:$140001;crc:$7ea93200),(n:'opr-13874.b11';l:$20000;p:$140000;crc:$4fd59bff),
         (n:'opr-13891.a3';l:$20000;p:$180001;crc:$c6b3c414),(n:'opr-13894.b12';l:$20000;p:$180000;crc:$e3d0bee2),
-        (n:'opr-13855.a4';l:$20000;p:$1c0001;crc:$856f3ee2),(n:'opr-13876.b13';l:$20000;p:$1c0000;crc:$1c5ffad8));
+        (n:'opr-13855.a4';l:$20000;p:$1c0001;crc:$856f3ee2),(n:'opr-13876.b13';l:$20000;p:$1c0000;crc:$1c5ffad8),());
         //Bay Route
         bayroute_rom:array[0..3] of tipo_roms=(
         (n:'bootleg_epr-12517.a7';l:$20000;p:0;crc:$7e90b39d),(n:'bootleg_epr-12516.a5';l:$20000;p:1;crc:$34afc1fd),
@@ -153,9 +148,9 @@ const
         bayroute_tiles:array[0..2] of tipo_roms=(
         (n:'opr-12462.a14';l:$10000;p:0;crc:$a19943b5),(n:'opr-12463.a15';l:$10000;p:$10000;crc:$62f8200d),
         (n:'opr-12464.a16';l:$10000;p:$20000;crc:$c8c59703));
-        bayroute_sprites:array[0..3] of tipo_roms=(
+        bayroute_sprites:array[0..4] of tipo_roms=(
         (n:'mpr-12465.b1';l:$20000;p:1;crc:$11d61b45),(n:'mpr-12467.b5';l:$20000;p:0;crc:$c3b4e4c0),
-        (n:'mpr-12466.b2';l:$20000;p:$40001;crc:$a57f236f),(n:'mpr-12468.b6';l:$20000;p:$40000;crc:$d89c77de));
+        (n:'mpr-12466.b2';l:$20000;p:$40001;crc:$a57f236f),(n:'mpr-12468.b6';l:$20000;p:$40000;crc:$d89c77de),());
         //Sonic Boom
         sonicbom_rom:array[0..3] of tipo_roms=(
         (n:'bootleg_epr-11342.a4';l:$10000;p:0;crc:$089158ef),(n:'bootleg_epr-11340.a1';l:$10000;p:1;crc:$253cbd27),
@@ -166,11 +161,11 @@ const
         sonicbom_tiles:array[0..2] of tipo_roms=(
         (n:'opr-11344.b9';l:$10000;p:0;crc:$59a9f940),(n:'opr-11345.b10';l:$10000;p:$10000;crc:$b44c068b),
         (n:'opr-11346.b11';l:$10000;p:$20000;crc:$e5ada66c));
-        sonicbom_sprites:array[0..7] of tipo_roms=(
+        sonicbom_sprites:array[0..8] of tipo_roms=(
         (n:'opr-11350.b1';l:$10000;p:1;crc:$525ba1df),(n:'opr-11354.b5';l:$10000;p:0;crc:$793fa3ac),
         (n:'opr-11351.b2';l:$10000;p:$20001;crc:$63b1f1ca),(n:'opr-11355.b6';l:$10000;p:$20000;crc:$fe0fa332),
         (n:'opr-11352.b3';l:$10000;p:$40001;crc:$047fa4b0),(n:'opr-11356.b7';l:$10000;p:$40000;crc:$aea3c39d),
-        (n:'opr-11353.b4';l:$10000;p:$60001;crc:$4e0791f8),(n:'opr-11357.b8';l:$10000;p:$60000;crc:$a7c5ea41));
+        (n:'opr-11353.b4';l:$10000;p:$60001;crc:$4e0791f8),(n:'opr-11357.b8';l:$10000;p:$60000;crc:$a7c5ea41),());
         //Time Scanner
         timescan_rom:array[0..5] of tipo_roms=(
         (n:'epr-10853.a4';l:$8000;p:0;crc:$24d7c5fb),(n:'epr-10850.a1';l:$8000;p:1;crc:$f1575732),
@@ -181,12 +176,17 @@ const
         timescan_tiles:array[0..2] of tipo_roms=(
         (n:'epr-10543.b9';l:$8000;p:0;crc:$07dccc37),(n:'epr-10544.b10';l:$8000;p:$8000;crc:$84fb9a3a),
         (n:'epr-10545.b11';l:$8000;p:$10000;crc:$c8694bc0));
-        timescan_sprites:array[0..7] of tipo_roms=(
+        timescan_sprites:array[0..8] of tipo_roms=(
         (n:'epr-10548.b1';l:$8000;p:1;crc:$aa150735),(n:'epr-10552.b5';l:$8000;p:0;crc:$6fcbb9f7),
         (n:'epr-10549.b2';l:$8000;p:$20001;crc:$2f59f067),(n:'epr-10553.b6';l:$8000;p:$20000;crc:$8a220a9f),
         (n:'epr-10550.b3';l:$8000;p:$40001;crc:$f05069ff),(n:'epr-10554.b7';l:$8000;p:$40000;crc:$dc64f809),
-        (n:'epr-10551.b4';l:$8000;p:$60001;crc:$435d811f),(n:'epr-10555.b8';l:$8000;p:$60000;crc:$2143c471));
-        //Dip
+        (n:'epr-10551.b4';l:$8000;p:$60001;crc:$435d811f),(n:'epr-10555.b8';l:$8000;p:$60000;crc:$2143c471),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ym_2151,dialogs,upd7759,mcs51,sega_315_5195,fd1089;
+
+const
         system16b_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(7,8,9,5,4,$f,3,2,1,6,$e,$d,$c,$b,$a,0);name16:('4C 1C','3C 1C','2C 1C','2C 1C - 5C 3C - 6C 4C','2C 1C - 4C 3C','1C 1C','1C 1C 5C 6C','1C 1C - 4C 5C','1C 1C - 2C 3C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play or 1C 1C')),
         (mask:$f0;name:'Coin B';number:16;val16:($70,$80,$90,$50,$40,$f0,$30,$20,$10,$60,$e0,$d0,$c0,$b0,$a0,0);name16:('4C 1C','3C 1C','2C 1C','2C 1C - 5C 3C - 6C 4C','2C 1C - 4C 3C','1C 1C','1C 1C - 5C 6C','1C 1C - 4C 5C','1C 1C - 2C 3C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play or 1C 1C')));
@@ -507,32 +507,35 @@ end;
 procedure eventos_system16b;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  marcade.in2:=$ffff;
   //P1
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.but3[0] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $ff7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.but3[0] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $ffbf;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $ff7f;
   //P2
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 and $fffe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $fffd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $fffb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.but3[1] then marcade.in2:=(marcade.in2 and $fff7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $ffef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $ffdf) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $ffbf) else marcade.in2:=(marcade.in2 or $40);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $ff7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 and $fffe;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $fffd;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $fffb;
+  if arcade_input.but3[1] then marcade.in2:=marcade.in2 and $fff7;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $ffef;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $ffdf;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $ffbf;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $ff7f;
   //Service
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ffdf;
   //SDI solo!
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffb7) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffb7;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $ff7f;
 end;
 end;
 
@@ -541,7 +544,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
      eventos_system16b;
@@ -570,7 +572,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
      eventos_system16b;
@@ -1440,7 +1441,7 @@ case main_vars.tipo_maquina of
         //Main CPU
         if not(roms_load16w(pword(memoria_temp),sdi_rom)) then exit;
         if not(roms_load(@fd1089_key,sdi_key)) then exit;
-        fd1089_decrypt($30000,pword(memoria_temp),@rom,@rom_data,@fd1089_key,fd_typeA);
+        fd1089_decrypt($30000,pword(memoria_temp),@rom,@rom_data,@fd1089_key,FD_TYPEA);
         region0_read:=region0_5358_read_fd;
         region1_read:=region1_5358_read_fd;
         region1_rom_pos:=$10000 shr 1;

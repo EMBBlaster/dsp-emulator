@@ -1,7 +1,7 @@
-unit samples;
+﻿unit samples;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     dialogs,sound_engine,file_engine,main_engine;
+uses main_engine,dialogs,sysutils;
 
 const
   MAX_SAMPLES=30;
@@ -12,6 +12,7 @@ type
       nombre:string;
       restart,loop:boolean;
   end;
+  ptipo_nombre_samples=^tipo_nombre_samples;
   tipo_audio=record
              long:dword;
              playing:boolean;
@@ -48,7 +49,7 @@ function sample_status(num:byte):boolean;
 procedure change_vol_sample(num_sample:byte;amp:single);
 
 implementation
-uses init_games;
+uses init_games,sound_engine,file_engine;
 
 type
   theader=packed record
@@ -104,6 +105,8 @@ datos:=false;
 salir:=false;
 while not(salir) do begin
   copymemory(chunk,ptemp,8);
+  for f:=0 to 3 do chunk.name[f]:={$ifndef fpc}ansichar(LowerCase(chunk.name[f])[1]);
+                                  {$else}ansichar(LowerCase(chunk.name[f]));{$endif}
   inc(ptemp,8);
   inc(longitud,8);
   if chunk.name='fmt ' then begin
@@ -165,7 +168,7 @@ while not(salir) do begin
     end;
     datos:=true;
   end;
-  if ((chunk.name='fact') or (chunk.name='list') or (chunk.name='cue') or (chunk.name='plst') or (chunk.name='labl') or (chunk.name='ltxt') or (chunk.name='smpl') or (chunk.name='note') or (chunk.name='inst')) then begin
+  if ((chunk.name='fact') or (chunk.name='list') or (chunk.name='cue ') or (chunk.name='plst') or (chunk.name='labl') or (chunk.name='ltxt') or (chunk.name='smpl') or (chunk.name='note') or (chunk.name='inst')) then begin
     //Longitud
     inc(ptemp,chunk.size);
     inc(longitud,chunk.size);
@@ -239,6 +242,10 @@ getmem(data_samples,sizeof(tipo_samples));
 getmem(ptemp,$100000);
 sample_size:=length(nombre_samples);
 for f:=0 to (sample_size-1) do begin
+    if nombre_samples[f].nombre='' then begin
+      sample_size:=sample_size-1;
+      continue;
+    end;
     if not(load_file_from_zip(Directory.Arcade_samples+nombre_zip,nombre_samples[f].nombre,ptemp,longitud,crc,false)) then begin
         freemem(data_samples);
         data_samples:=nil;

@@ -1,13 +1,9 @@
 unit karatechamp_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ay_8910,timer_engine,dac;
+uses rom_engine;
 
 function karatechamp_iniciar:boolean;
-
-implementation
 
 const
     karatechamp_rom:array[0..5] of tipo_roms=(
@@ -28,10 +24,15 @@ const
     (n:'b007.bin';l:$2000;p:$c000;crc:$cb91d16b),(n:'b010.bin';l:$2000;p:$e000;crc:$489c9c04),
     (n:'b006.bin';l:$2000;p:$10000;crc:$7346db8a),(n:'b009.bin';l:$2000;p:$12000;crc:$b78714fc),
     (n:'b005.bin';l:$2000;p:$14000;crc:$b2557102),(n:'b008.bin';l:$2000;p:$16000;crc:$c85aba0e));
-    karatechamp_pal:array[0..2] of tipo_roms=(
+    karatechamp_pal:array[0..3] of tipo_roms=(
     (n:'br27';l:$100;p:0;crc:$f683c54a),(n:'br26';l:$100;p:$100;crc:$3ddbb6c4),
-    (n:'br25';l:$100;p:$200;crc:$ba4a5651));
-    //Dip
+    (n:'br25';l:$100;p:$200;crc:$ba4a5651),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ay_8910,timer_engine,dac;
+
+const
     karatechamp_dip:array [0..5] of def_dip2=(
     (mask:3;name:'Coin A';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
     (mask:$c;name:'Coin B';number:4;val4:(0,4,$c,8);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
@@ -76,20 +77,32 @@ end;
 procedure eventos_karatechamp;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //SYS
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $f7;
   //P1
-  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe else marcade.in1:=marcade.in1 or 1;
-  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd else marcade.in1:=marcade.in1 or 2;
-  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb else marcade.in1:=marcade.in1 or 4;
-  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7 else marcade.in1:=marcade.in1 or 8;
-  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $ef else marcade.in1:=marcade.in1 or $10;
-  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $df else marcade.in1:=marcade.in1 or $20;
-  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $bf else marcade.in1:=marcade.in1 or $40;
-  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $7f else marcade.in1:=marcade.in1 or $80;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.but3[0] then marcade.in1:=marcade.in1 and $7f;
+  //P2
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.but3[1] then marcade.in1:=marcade.in1 and $7f;
 end;
 end;
 
@@ -97,7 +110,6 @@ procedure karatechamp_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_karatechamp;
@@ -138,7 +150,7 @@ begin
 case (puerto and $ff) of
   $80:karatechamp_inbyte:=marcade.dswa;
   $90:karatechamp_inbyte:=marcade.in1;
-  $98:karatechamp_inbyte:=$ff;
+  $98:karatechamp_inbyte:=marcade.in2;
   $a0:karatechamp_inbyte:=marcade.in0;
   $a8:;
 end;
@@ -223,6 +235,7 @@ nmi_enable_sound:=false;
 sound_latch:=0;
 marcade.in0:=$ff;
 marcade.in1:=$ff;
+marcade.in2:=$ff;
 end;
 
 function karatechamp_iniciar:boolean;

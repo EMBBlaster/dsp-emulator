@@ -1,13 +1,10 @@
-unit mariobros_hw;
+﻿unit mariobros_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,samples,rom_engine,
-     pal_engine,sound_engine,qsnapshot;
+uses rom_engine,samples;
 
 function iniciar_mario:boolean;
 
-implementation
 const
         mario_rom:array[0..3] of tipo_roms=(
         (n:'tma1-c-7f_f.7f';l:$2000;p:0;crc:$c0c6e014),(n:'tma1-c-7e_f.7e';l:$2000;p:$2000;crc:$94fb60d6),
@@ -15,17 +12,22 @@ const
         mario_pal:tipo_roms=(n:'tma1-c-4p_1.4p';l:$200;p:0;crc:$8187d286);
         mario_char:array[0..1] of tipo_roms=(
         (n:'tma1-v-3f.3f';l:$1000;p:0;crc:$28b0c42c),(n:'tma1-v-3j.3j';l:$1000;p:$1000;crc:$0c8cc04d));
-        mario_sprites:array[0..5] of tipo_roms=(
+        mario_sprites:array[0..6] of tipo_roms=(
         (n:'tma1-v-7m.7m';l:$1000;p:0;crc:$22b7372e),(n:'tma1-v-7n.7n';l:$1000;p:$1000;crc:$4f3a1f47),
         (n:'tma1-v-7p.7p';l:$1000;p:$2000;crc:$56be6ccd),(n:'tma1-v-7s.7s';l:$1000;p:$3000;crc:$56f1d613),
-        (n:'tma1-v-7t.7t';l:$1000;p:$4000;crc:$641f0008),(n:'tma1-v-7u.7u';l:$1000;p:$5000;crc:$7baf5309));
-        mario_samples:array[0..28] of tipo_nombre_samples=(
+        (n:'tma1-v-7t.7t';l:$1000;p:$4000;crc:$641f0008),(n:'tma1-v-7u.7u';l:$1000;p:$5000;crc:$7baf5309),());
+        mario_samples:array[0..29] of tipo_nombre_samples=(
         (nombre:'mario_run.wav';restart:true),(nombre:'luigi_run.wav';restart:true),(nombre:'skid.wav';restart:true),(nombre:'bite_death.wav'),(nombre:'death.wav'),
         (nombre:'tune1.wav';restart:true),(nombre:'tune2.wav';restart:true),(nombre:'tune3.wav';restart:true),(nombre:'tune4.wav';restart:true),(nombre:'tune5.wav';restart:true),(nombre:'tune6.wav';restart:true),
         (nombre:'tune7.wav'),(nombre:'tune8.wav';restart:true),(nombre:'tune9.wav';restart:true),(nombre:'tune10.wav';restart:true),(nombre:'tune11.wav';restart:true),(nombre:'tune12.wav';restart:true),
         (nombre:'tune13.wav';restart:true),(nombre:'tune14.wav';restart:true),(nombre:'tune15.wav';restart:true),(nombre:'tune16.wav';restart:true),(nombre:'tune17.wav'),(nombre:'tune18.wav'),(nombre:'tune19.wav'),
-        (nombre:'coin.wav'),(nombre:'insert_coin.wav'),(nombre:'turtle.wav'),(nombre:'crab.wav'),(nombre:'fly.wav'));
-        //Dip
+        (nombre:'coin.wav'),(nombre:'insert_coin.wav'),(nombre:'turtle.wav'),(nombre:'crab.wav'),(nombre:'fly.wav'),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     qsnapshot;
+
+const
         mario_dip:array [0..3] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','6')),
         (mask:$c;name:'Coinage';number:4;val4:(4,0,8,$c);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
@@ -68,20 +70,22 @@ end;
 
 procedure eventos_mario;
 begin
-if main_vars.service1 then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
   //P1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10 else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $40;
+  if main_vars.service1 then marcade.in0:=marcade.in0 or $80;
   //P2
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10 else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 or $40) else marcade.in1:=(marcade.in1 and $bf);
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 or $40;
 end;
 end;
 
@@ -89,7 +93,6 @@ procedure mario_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_mario;

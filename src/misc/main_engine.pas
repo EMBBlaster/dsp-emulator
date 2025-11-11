@@ -1,13 +1,10 @@
 ﻿unit main_engine;
 interface
 
-uses lib_sdl2,{$IFDEF windows}windows,{$else}LCLType,{$endif}
-     {$ifndef fpc}uchild,{$endif}
-     forms,sysutils,misc_functions,pal_engine,sound_engine,gfx_engine,
-     arcade_config,vars_hide,device_functions,timer_engine;
+uses {$IFnDEF windows}LCLType,{$endif}lib_sdl2,forms,sysutils;
 
 const
-        DSP_VERSION='0.24WIP2';
+        DSP_VERSION='0.24WIP3';
         PANT_SPRITES=20;
         PANT_DOBLE=21;
         PANT_AUX=22;
@@ -19,6 +16,7 @@ const
         MAX_PUNBUF=768;
         FULL_SCREEN_X=800;
         FULL_SCREEN_Y=600;
+        MAX_PANTALLA=24;
         //CPU lines
         CLEAR_LINE=0;
         ASSERT_LINE=1;
@@ -34,15 +32,20 @@ const
         {$else}
         LAZARUS_SCR_POS=50;
         {$endif}
-        {$ENDIF}
+        {$endif}
 
 type
+        {$ifndef fpc}
+        dword=longword;
+        pdword=^dword;
+        {$endif}
         TMain_vars=record
             mensaje_principal,cadena_dir,caption:string;
             frames_sec,tipo_maquina:word;
             idioma,idioma_sel:integer;
             vactual:byte;
             service1,driver_ok,auto_exec,show_crc_error,center_screen,console_init:boolean;
+            auto_type:boolean;
             sort:word;
         end;
         TDirectory=record
@@ -123,6 +126,20 @@ type
         end;
         pdef_dip=^def_dip;
         TEmuStatus=(EsPause,EsRunning,EsStoped);
+        tpantalla=record
+          x:word;  //ancho
+          y:word;  //alto
+          trans:boolean;  //¿es transparente?
+          final_mix,alpha:boolean;
+          sprite_end_x,sprite_end_y,sprite_mask_x,sprite_mask_y:word;
+          mask_x,mask_y:word;
+        end;
+        tipo_sprites=record
+          pos_planos:array[0..7] of dword;
+          bit_pixel:byte;
+          long_sprites:dword;
+          banks:byte;
+        end;
 
 //Video
 procedure iniciar_video(x,y:word;alpha:boolean=false);
@@ -148,11 +165,10 @@ procedure reset_game_general;
 function find_rom_multiple_dirs(rom_name:string):byte;
 procedure split_dirs(dir:string);
 function get_all_dirs:string;
-{$ifndef windows}
-//linux misc
 procedure copymemory(dest,source:pointer;size:integer);
+{$ifndef fpc}
+function QueryPerformanceCounter(var lpPerformanceCount:int64):longbool; stdcall;{$EXTERNALSYM QueryPerformanceCounter}
 {$endif}
-
 var
         //video
         pantalla:array[0..MAX_PANTALLA] of libsdlP_Surface;
@@ -161,6 +177,9 @@ var
         punbuf_alpha:pdword;
         main_screen:tmain_screen;
         dest:libsdl_rect;
+        p_final:array[0..MAX_PANTALLA] of tpantalla;
+        des_gfx:tipo_sprites;
+        scroll_final_x,scroll_final_y:word;
         //Misc
         llamadas_maquina:tllamadas_globales;
         main_vars:TMain_vars;
@@ -178,7 +197,13 @@ var
         memoria,mem_snd,mem_misc:array[0..$ffff] of byte;
 
 implementation
-uses principal,controls_engine,cpu_misc,tap_tzx,spectrum_misc,samples;
+uses principal,controls_engine,cpu_misc,tap_tzx,spectrum_misc,samples,
+     misc_functions,pal_engine,sound_engine,gfx_engine,arcade_config,
+     device_functions,timer_engine;
+
+{$ifndef fpc}
+function QueryPerformanceCounter; external 'kernel32.dll' name 'QueryPerformanceCounter';
+{$endif}
 
 function find_rom_multiple_dirs(rom_name:string):byte;
 var
@@ -276,9 +301,9 @@ end;
 //En linux uso la pantalla de SDL...
 case main_vars.tipo_maquina of
      0..9,1000..1008,2000..2002,3000..3003:begin
-             fix_screen_pos(400,100);
+             fix_screen_pos(400,120);
              principal1.Panel2.width:=principal1.Width;
-             principal1.Panel2.height:=principal1.bitbtn9.height;
+             principal1.Panel2.height:=principal1.bitbtn9.height+2;
           end;
      else fix_screen_pos(400,70);
 end;
@@ -872,12 +897,10 @@ valor_sync:=cont_micro-(res-valor_sync);
 cont_sincroniza:=sdl_getticks();
 {$endif}
 end;
-{$ifndef windows}
 procedure copymemory(dest,source:pointer;size:integer);
 begin
 move(source^,dest^,size);
 end;
-{$endif}
 
 procedure reset_dsp;
 begin
@@ -914,6 +937,7 @@ main_screen.rapido:=false;
 close_all_devices;
 cinta_tzx.tape_stop:=nil;
 cinta_tzx.tape_start:=nil;
+init_mouse(false);
 hide_mouse_cursor;
 timers.clear;
 marcade.dswa_val:=nil;
@@ -930,7 +954,6 @@ close_audio;
 close_video;
 end;
 
-
 procedure reset_game_general;
 begin
 fillchar(buffer_paleta,MAX_COLORES*2,$ff);
@@ -938,7 +961,7 @@ fillchar(buffer_color,MAX_COLORES,1);
 fillchar(keyboard,$100,0);
 reset_gfx;
 reset_audio;
-reset_analog;
+reset_controls;
 reset_samples;
 end;
 

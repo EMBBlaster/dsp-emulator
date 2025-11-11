@@ -1,7 +1,7 @@
 unit taito_68705;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,m6805;
+uses main_engine,m6805;
 
 const
   TIGER_HELI=1;

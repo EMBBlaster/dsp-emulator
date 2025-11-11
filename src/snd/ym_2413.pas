@@ -1,6 +1,7 @@
 unit ym_2413;
+
 interface
-uses {$ifdef windows}windows,{$else}main_engine,{$endif}fm_2151,sound_engine,
+uses main_engine,fm_2151,sound_engine,
      cpu_misc,dialogs,math;
 
 type

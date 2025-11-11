@@ -1,6 +1,8 @@
 unit k053246_k053247_k055673;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,gfx_engine;
+uses main_engine,gfx_engine;
+
 type
      t_k053247_cb=procedure(var code:dword;var color:word;var priority_mask:word);
      k053246_chip=class

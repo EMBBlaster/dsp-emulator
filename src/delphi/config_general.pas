@@ -4,7 +4,7 @@ interface
 uses
   lib_sdl2,Variants,Classes,Controls,Forms,Dialogs,
   StdCtrls,ExtCtrls,lenguaje,main_engine,ComCtrls,Buttons,controls_engine,
-  SHLOBJ,rom_export;
+  SHLOBJ;
 
 type
   TMConfig = class(TForm)
@@ -126,6 +126,9 @@ type
     BitBtn24: TBitBtn;
     BitBtn25: TBitBtn;
     BitBtn26: TBitBtn;
+    GroupBox15: TGroupBox;
+    RadioButton28: TRadioButton;
+    RadioButton29: TRadioButton;
     procedure FormShow(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -195,7 +198,7 @@ var
   config_button:boolean;
 
 implementation
-uses principal,redefine,configgeneral_misc;
+uses principal,redefine,configgeneral_misc,rom_engine;
 {$R *.dfm}
 
 function BrowseForFolder(init_dir,title:string):string;

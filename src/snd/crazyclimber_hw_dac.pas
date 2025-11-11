@@ -1,7 +1,7 @@
 unit crazyclimber_hw_dac;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,timer_engine;
+uses sound_engine,timer_engine;
 
 type
   tcclimber_audio=class

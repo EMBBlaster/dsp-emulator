@@ -1,8 +1,7 @@
 unit deco_bac06;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     gfx_engine,main_engine,pal_engine;
+uses gfx_engine,main_engine,pal_engine;
 
 type
   tyle_chip=class

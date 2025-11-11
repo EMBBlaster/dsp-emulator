@@ -1,13 +1,10 @@
 unit mrdocastle_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,sn_76496,gfx_engine,rom_engine,
-     pal_engine,sound_engine,msm5205;
+uses rom_engine;
 
 function iniciar_mrdocastle:boolean;
 
-implementation
 const
         //Mr Do Castle
         mrdocastle_rom:array[0..3] of tipo_roms=(
@@ -16,10 +13,10 @@ const
         mrdocastle_slave:tipo_roms=(n:'07n_a0.bin';l:$4000;p:0;crc:$f23b5cdb);
         mrdocastle_misc:tipo_roms=(n:'01d.bin';l:$200;p:0;crc:$2747ca77);
         mrdocastle_char:tipo_roms=(n:'03a_a5.bin';l:$4000;p:0;crc:$0636b8f4);
-        mrdocastle_sprites:array[0..3] of tipo_roms=(
-        (n:'04m_a6.bin';l:$2000;p:0;crc:$3bbc9b26),(n:'04l_a7.bin';l:$2000;p:$2000;crc:$3dfaa9d1),
-        (n:'04j_a8.bin';l:$2000;p:$4000;crc:$9afb16e9),(n:'04h_a9.bin';l:$2000;p:$6000;crc:$af24bce0));
         mrdocastle_pal:tipo_roms=(n:'09c.bin';l:$200;p:0;crc:$066f52bc);
+        mrdocastle_sprites:array[0..4] of tipo_roms=(
+        (n:'04m_a6.bin';l:$2000;p:0;crc:$3bbc9b26),(n:'04l_a7.bin';l:$2000;p:$2000;crc:$3dfaa9d1),
+        (n:'04j_a8.bin';l:$2000;p:$4000;crc:$9afb16e9),(n:'04h_a9.bin';l:$2000;p:$6000;crc:$af24bce0),());
         //Do Run Run
         dorunrun_rom:array[0..3] of tipo_roms=(
         (n:'2764.p1';l:$2000;p:0;crc:$95c86f8e),(n:'2764.l1';l:$2000;p:$4000;crc:$e9a65ba7),
@@ -27,10 +24,10 @@ const
         dorunrun_slave:tipo_roms=(n:'27128.p7';l:$4000;p:0;crc:$8b06d461);
         dorunrun_misc:tipo_roms=(n:'bprom2.bin';l:$200;p:0;crc:$2747ca77);
         dorunrun_char:tipo_roms=(n:'27128.a3';l:$4000;p:0;crc:$4be96dcf);
-        dorunrun_sprites:array[0..3] of tipo_roms=(
-        (n:'2764.m4';l:$2000;p:0;crc:$4bb231a0),(n:'2764.l4';l:$2000;p:$2000;crc:$0c08508a),
-        (n:'2764.j4';l:$2000;p:$4000;crc:$79287039),(n:'2764.h4';l:$2000;p:$6000;crc:$523aa999));
         dorunrun_pal:tipo_roms=(n:'dorunrun.clr';l:$100;p:0;crc:$d5bab5d5);
+        dorunrun_sprites:array[0..4] of tipo_roms=(
+        (n:'2764.m4';l:$2000;p:0;crc:$4bb231a0),(n:'2764.l4';l:$2000;p:$2000;crc:$0c08508a),
+        (n:'2764.j4';l:$2000;p:$4000;crc:$79287039),(n:'2764.h4';l:$2000;p:$6000;crc:$523aa999),());
         //Do Wild Ride
         dowild_rom:array[0..3] of tipo_roms=(
         (n:'w1';l:$2000;p:0;crc:$097de78b),(n:'w3';l:$2000;p:$4000;crc:$fc6a1cbb),
@@ -38,10 +35,10 @@ const
         dowild_slave:tipo_roms=(n:'w10';l:$4000;p:0;crc:$d1f37fba);
         dowild_misc:tipo_roms=(n:'8300b-2';l:$200;p:0;crc:$2747ca77);
         dowild_char:tipo_roms=(n:'w5';l:$4000;p:0;crc:$b294b151);
-        dowild_sprites:array[0..3] of tipo_roms=(
-        (n:'w6';l:$2000;p:0;crc:$57e0208b),(n:'w7';l:$2000;p:$2000;crc:$5001a6f7),
-        (n:'w8';l:$2000;p:$4000;crc:$ec503251),(n:'w9';l:$2000;p:$6000;crc:$af7bd7eb));
         dowild_pal:tipo_roms=(n:'dowild.clr';l:$100;p:0;crc:$a703dea5);
+        dowild_sprites:array[0..4] of tipo_roms=(
+        (n:'w6';l:$2000;p:0;crc:$57e0208b),(n:'w7';l:$2000;p:$2000;crc:$5001a6f7),
+        (n:'w8';l:$2000;p:$4000;crc:$ec503251),(n:'w9';l:$2000;p:$6000;crc:$af7bd7eb),());
         //Jumping Jack
         jjack_rom:array[0..3] of tipo_roms=(
         (n:'j1.bin';l:$2000;p:0;crc:$87f29bd2),(n:'j3.bin';l:$2000;p:$4000;crc:$35b0517e),
@@ -49,10 +46,10 @@ const
         jjack_slave:tipo_roms=(n:'j0.bin';l:$4000;p:0;crc:$ab042f04);
         jjack_misc:tipo_roms=(n:'bprom2.bin';l:$200;p:0;crc:$2747ca77);
         jjack_char:tipo_roms=(n:'j5.bin';l:$4000;p:0;crc:$75038ff9);
-        jjack_sprites:array[0..3] of tipo_roms=(
-        (n:'j6.bin';l:$2000;p:0;crc:$5937bd7b),(n:'j7.bin';l:$2000;p:$2000;crc:$cf8ae8e7),
-        (n:'j8.bin';l:$2000;p:$4000;crc:$84f6fc8c),(n:'j9.bin';l:$2000;p:$6000;crc:$3f9bb09f));
         jjack_pal:tipo_roms=(n:'bprom1.bin';l:$200;p:0;crc:$2f0955f2);
+        jjack_sprites:array[0..4] of tipo_roms=(
+        (n:'j6.bin';l:$2000;p:0;crc:$5937bd7b),(n:'j7.bin';l:$2000;p:$2000;crc:$cf8ae8e7),
+        (n:'j8.bin';l:$2000;p:$4000;crc:$84f6fc8c),(n:'j9.bin';l:$2000;p:$6000;crc:$3f9bb09f),());
         //Kick Rider
         kickridr_rom:array[0..3] of tipo_roms=(
         (n:'k1';l:$2000;p:0;crc:$dfdd1ab4),(n:'k3';l:$2000;p:$4000;crc:$412244da),
@@ -60,10 +57,10 @@ const
         kickridr_slave:tipo_roms=(n:'k10';l:$4000;p:0;crc:$6843dbc0);
         kickridr_misc:tipo_roms=(n:'8300b-2';l:$200;p:0;crc:$2747ca77);
         kickridr_char:tipo_roms=(n:'k5';l:$4000;p:0;crc:$3f7d7e49);
-        kickridr_sprites:array[0..3] of tipo_roms=(
-        (n:'k6';l:$2000;p:0;crc:$94252ed3),(n:'k7';l:$2000;p:$2000;crc:$7ef2420e),
-        (n:'k8';l:$2000;p:$4000;crc:$29bed201),(n:'k9';l:$2000;p:$6000;crc:$847584d3));
         kickridr_pal:tipo_roms=(n:'kickridr.clr';l:$100;p:0;crc:$73ec281c);
+        kickridr_sprites:array[0..4] of tipo_roms=(
+        (n:'k6';l:$2000;p:0;crc:$94252ed3),(n:'k7';l:$2000;p:$2000;crc:$7ef2420e),
+        (n:'k8';l:$2000;p:$4000;crc:$29bed201),(n:'k9';l:$2000;p:$6000;crc:$847584d3),());
         //Indoor Soccer
         idsoccer_rom:array[0..3] of tipo_roms=(
         (n:'id01';l:$2000;p:0;crc:$f1c3bf09),(n:'id02';l:$2000;p:$2000;crc:$184e6af0),
@@ -75,10 +72,15 @@ const
         (n:'id06';l:$8000;p:0;crc:$b42a6f4a),(n:'id07';l:$8000;p:$8000;crc:$fa2b1c77),
         (n:'id08';l:$8000;p:$10000;crc:$5e97eab9),(n:'id09';l:$8000;p:$18000;crc:$a2a69223));
         idsoccer_pal:tipo_roms=(n:'id_3d.clr';l:$200;p:0;crc:$a433ff62);
-        idsoccer_adpcm:array[0..2] of tipo_roms=(
+        idsoccer_adpcm:array[0..3] of tipo_roms=(
         (n:'is1';l:$4000;p:0;crc:$9eb76196),(n:'is3';l:$4000;p:$8000;crc:$27bebba3),
-        (n:'is4';l:$4000;p:$c000;crc:$dd5ffaa2));
-        //Dip
+        (n:'is4';l:$4000;p:$c000;crc:$dd5ffaa2),());
+
+implementation
+uses nz80,main_engine,controls_engine,sn_76496,gfx_engine,pal_engine,
+     sound_engine,msm5205;
+
+const
         mrdocastle_dip_a:array [0..6] of def_dip=(
         (mask:$3;name:'Difficulty';number:4;dip:((dip_val:$3;dip_name:'1 (Beginner)'),(dip_val:$2;dip_name:'2'),(dip_val:$1;dip_name:'3'),(dip_val:$0;dip_name:'4 (Advanced)'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$4;name:'Rack Test';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -226,7 +228,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_mrdocastle;

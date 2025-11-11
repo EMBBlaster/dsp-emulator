@@ -1,9 +1,7 @@
-unit sega_315_5313;
+﻿unit sega_315_5313;
 
 interface
-
-uses gfx_engine,{$IFDEF WINDOWS}windows,{$endif}
-     main_engine,pal_engine,tms99xx,dialogs,timer_engine,m68000,sn_76496;
+uses sn_76496;
 
 type
     irq_type=procedure(state:boolean);
@@ -45,6 +43,7 @@ const
   PSG_CLOCK_NTSC=3579545;
 
 implementation
+uses gfx_engine,main_engine,pal_engine,tms99xx,dialogs,timer_engine,m68000;
 
 constructor vdp_5313_chip.create(pal:boolean);
 begin
@@ -101,17 +100,12 @@ begin
 	vblank:=self.vblank_flag;
 	fifo_empty:=1;
 	fifo_full:=0;
-
 	if (self.imode and 1)<>0 then odd_frame:=self.imode_odd_frame xor 1;
-
 	hpos:=m68000_0.contador;
-
 	if (hpos>400) then hblank_flag:=1;
 	if (hpos>460) then hblank_flag:=0;
-
 	// extra case
 	if ((self.regs[$01] and $40)=0) then vblank:=true;
-
 { these aren't *always* 0/1 some of them are open bus return
  d15 - Always 0
  d14 - Always 0
@@ -133,7 +127,6 @@ begin
  d1  - DMA in progress
  d0  - PAL mode flag
 }
-
 	ret:= (1 shl 13) or // ALWAYS 1
 			(1 shl 12) or // ALWAYS 1
 			(1 shl 10) or // ALWAYS 1
@@ -147,7 +140,6 @@ begin
 			(hblank_flag shl 2) or
 			(dma_active shl 1) or
 			(byte(self.vdp_pal) shl 0); // PAL MODE FLAG checked by striker for region prot..
-
 control_port_read:=ret;
 end;
 

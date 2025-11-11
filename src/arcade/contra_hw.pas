@@ -1,13 +1,10 @@
 unit contra_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     hd6309,m6809,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,konami_video,sound_engine;
+uses rom_engine;
 
 function iniciar_contra:boolean;
 
-implementation
 const
         contra_rom:array[0..1] of tipo_roms=(
         (n:'633m03.18a';l:$10000;p:$0;crc:$d045e1da),(n:'633i02.17a';l:$10000;p:$10000;crc:$b2f7bd9a));
@@ -16,10 +13,15 @@ const
         contra_chars2:array[0..1] of tipo_roms=(
         (n:'633e06.16d';l:$40000;p:0;crc:$9cf6faae),(n:'633e07.16f';l:$40000;p:$1;crc:$f2d06638));
         contra_sound:tipo_roms=(n:'633e01.12a';l:$8000;p:$8000;crc:$d1549255);
-        contra_proms:array[0..3] of tipo_roms=(
+        contra_proms:array[0..4] of tipo_roms=(
         (n:'633e08.10g';l:$100;p:0;crc:$9f0949fa),(n:'633e09.12g';l:$100;p:$100;crc:$14ca5e19),
-        (n:'633f10.18g';l:$100;p:$200;crc:$2b244d84),(n:'633f11.20g';l:$100;p:$300;crc:$14ca5e19));
-        //Dip
+        (n:'633f10.18g';l:$100;p:$200;crc:$2b244d84),(n:'633f11.20g';l:$100;p:$300;crc:$14ca5e19),());
+
+implementation
+uses hd6309,m6809,main_engine,controls_engine,gfx_engine,ym_2151,pal_engine,
+     konami_video,sound_engine;
+
+const
         contra_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$f0;name:'Coin B';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','No Coin B')));
@@ -152,7 +154,6 @@ var
   f,h:byte;
   frame_m,frame_s:single;
 begin
-init_controls(false,false,false,true);
 frame_m:=hd6309_0.tframes;
 frame_s:=m6809_0.tframes;
 while EmuStatus=EsRunning do begin

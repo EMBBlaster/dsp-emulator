@@ -1,13 +1,10 @@
-unit hw_88games;
+﻿unit hw_88games;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,konami,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,k052109,k051960,k051316,upd7759;
+uses rom_engine;
 
 function iniciar_hw88games:boolean;
 
-implementation
 const
         hw88games_rom:array[0..1] of tipo_roms=(
         (n:'861m01.k18';l:$8000;p:0;crc:$4a4e2959),(n:'861m02.k16';l:$10000;p:$8000;crc:$e19f15f6));
@@ -31,8 +28,14 @@ const
         (n:'861a04.c';l:$10000;p:$20000;crc:$a00021c5),(n:'861a04.d';l:$10000;p:$30000;crc:$d208304c));
         hw88games_upd7759_0:array[0..1] of tipo_roms=(
         (n:'861a07.a';l:$10000;p:0;crc:$5d035d69),(n:'861a07.b';l:$10000;p:$10000;crc:$6337dd91));
-        hw88games_upd7759_1:array[0..1] of tipo_roms=(
-        (n:'861a07.c';l:$10000;p:0;crc:$5067a38b),(n:'861a07.d';l:$10000;p:$10000;crc:$86731451));
+        hw88games_upd7759_1:array[0..2] of tipo_roms=(
+        (n:'861a07.c';l:$10000;p:0;crc:$5067a38b),(n:'861a07.d';l:$10000;p:$10000;crc:$86731451),());
+
+implementation
+uses nz80,konami,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ym_2151,k052109,k051960,k051316,upd7759;
+
+const
         hw88games_dip_a:array [0..1] of def_dip2=(
         (mask:$10;name:'Flip Screen';number:2;val2:($10,0);name2:('Off','On')),
         (mask:$20;name:'World Records';number:2;val2:($20,0);name2:('Don''t Erase','Erase on Reset')));
@@ -119,7 +122,6 @@ procedure hw88games_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
     for f:=0 to 255 do begin
       if f=240 then begin

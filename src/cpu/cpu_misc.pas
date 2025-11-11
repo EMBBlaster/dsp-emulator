@@ -1,9 +1,27 @@
 unit cpu_misc;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}timer_engine,sound_engine,main_engine;
+uses timer_engine,main_engine;
 
 type
+    parejas=record
+          case byte of
+             0:(l,h:byte);
+             1:(w:word);
+          end;
+    pparejas=^parejas;
+    parejas680X = record
+          case byte of
+             0:(b,a:byte);
+             1:(w:word);
+        end;
+     dparejas = record
+          case byte of
+             0:(l0,h0,l1,h1:byte);
+             1:(wl,wh:word);
+             2:(l:dword);
+         end;
+     pdparejas=^dparejas;
      //Call functions
      tgetbyte=function(direccion:word):byte;
      tputbyte=procedure(direccion:word;valor:byte);
@@ -53,6 +71,8 @@ function cpu_main_init(clock:dword):byte;
 procedure cpu_main_reset;
 
 implementation
+uses sound_engine;
+
 var
   cpu_quantity:byte;
 
@@ -127,4 +147,5 @@ begin
 end;
 
 end.
+
 

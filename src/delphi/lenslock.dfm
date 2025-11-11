@@ -18,7 +18,7 @@ object lenslock1: Tlenslock1
   TextHeight = 13
   object BitBtn1: TBitBtn
     Left = 17
-    Top = 153
+    Top = 143
     Width = 43
     Height = 25
     Caption = 'Show'
@@ -42,7 +42,7 @@ object lenslock1: Tlenslock1
   end
   object BitBtn18: TBitBtn
     Left = 101
-    Top = 153
+    Top = 143
     Width = 43
     Height = 25
     Caption = 'Close'

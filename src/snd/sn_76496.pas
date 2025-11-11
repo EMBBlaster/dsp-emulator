@@ -1,8 +1,7 @@
 unit sn_76496;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,sound_engine,timer_engine,
-     dialogs;
+uses main_engine,sound_engine,timer_engine,dialogs;
 
 type
 

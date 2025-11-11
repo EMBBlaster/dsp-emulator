@@ -1,7 +1,7 @@
 unit k052109;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,gfx_engine;
+uses main_engine,gfx_engine;
 
 type
   t_k052109_cb=procedure(layer,bank:word;var code:dword;var color:word;var flags:word;var priority:word);

@@ -1,13 +1,10 @@
 unit tigerroad_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,mcs51,main_engine,controls_engine,gfx_engine,nz80,ym_2203,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_tigeroad:boolean;
 
-implementation
 const
         //Tiger Road
         tigeroad_rom:array[0..1] of tipo_roms=(
@@ -20,9 +17,9 @@ const
         (n:'tr-03a.2f';l:$20000;p:$80000;crc:$1e0537ea),(n:'tr-06a.2h';l:$20000;p:$a0000;crc:$b636c23a),
         (n:'tr-07a.2j';l:$20000;p:$c0000;crc:$5f907d4d),(n:'tr_08.2l';l:$20000;p:$e0000;crc:$adee35e2));
         tigeroad_fondo_rom:tipo_roms=(n:'tr_13.7l';l:$8000;p:0;crc:$a79be1eb);
-        tigeroad_sprites:array[0..3] of tipo_roms=(
+        tigeroad_sprites:array[0..4] of tipo_roms=(
         (n:'tr-09a.3b';l:$20000;p:0;crc:$3d98ad1e),(n:'tr-10a.2b';l:$20000;p:$20000;crc:$8f6f03d7),
-        (n:'tr-11a.3d';l:$20000;p:$40000;crc:$cd9152e5),(n:'tr-12a.2d';l:$20000;p:$60000;crc:$7d8a99d0));
+        (n:'tr-11a.3d';l:$20000;p:$40000;crc:$cd9152e5),(n:'tr-12a.2d';l:$20000;p:$60000;crc:$7d8a99d0),());
         //F1 Dream
         f1dream_rom:array[0..1] of tipo_roms=(
         (n:'06j_02.bin';l:$20000;p:0;crc:$3c2ec697),(n:'06k_03.bin';l:$20000;p:1;crc:$85ebad91));
@@ -34,9 +31,15 @@ const
         (n:'03h_14.bin';l:$10000;p:$20000;crc:$e33cd438),(n:'02f_11.bin';l:$10000;p:$30000;crc:$4aa49cd7),
         (n:'17f_09.bin';l:$10000;p:$40000;crc:$ca622155),(n:'02h_13.bin';l:$10000;p:$50000;crc:$2a63961e));
         f1dream_fondo_rom:tipo_roms=(n:'07l_15.bin';l:$8000;p:0;crc:$978758b7);
-        f1dream_sprites:array[0..3] of tipo_roms=(
+        f1dream_sprites:array[0..4] of tipo_roms=(
         (n:'03b_06.bin';l:$10000;p:0;crc:$5e54e391),(n:'02b_05.bin';l:$10000;p:$10000;crc:$cdd119fd),
-        (n:'03d_08.bin';l:$10000;p:$20000;crc:$811f2e22),(n:'02d_07.bin';l:$10000;p:$30000;crc:$aa9a1233));
+        (n:'03d_08.bin';l:$10000;p:$20000;crc:$811f2e22),(n:'02d_07.bin';l:$10000;p:$30000;crc:$aa9a1233),());
+
+implementation
+uses m68000,mcs51,main_engine,controls_engine,gfx_engine,nz80,ym_2203,
+     pal_engine,sound_engine;
+
+const
         tigeroad_dip_a:array [0..7] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$38,$30,$28,$20,$18);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
@@ -153,7 +156,6 @@ procedure tigeroad_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=240 then begin
@@ -359,7 +361,6 @@ procedure f1dream_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=240 then begin

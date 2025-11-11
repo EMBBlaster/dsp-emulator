@@ -1,67 +1,69 @@
 unit systeme_hw;
 
 interface
-uses nz80,{$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,controls_engine,sega_vdp,sn_76496,rom_engine,sound_engine,
-     ppi8255,mc8123;
+uses rom_engine;
 
 function iniciar_systeme:boolean;
 
-implementation
-
 const
-  hangonjr_rom:array[0..4] of tipo_roms=(
+  hangonjr_rom:array[0..5] of tipo_roms=(
   (n:'epr-7257b.ic7';l:$8000;p:0;crc:$d63925a7),(n:'epr-7258.ic5';l:$8000;p:$8000;crc:$ee3caab3),
   (n:'epr-7259.ic4';l:$8000;p:$10000;crc:$d2ba9bc9),(n:'epr-7260.ic3';l:$8000;p:$18000;crc:$e14da070),
-  (n:'epr-7261.ic2';l:$8000;p:$20000;crc:$3810cbf5));
-  hangonjr_dip_b:array [0..2] of def_dip=(
-  (mask:$6;name:'Enemies';number:4;dip:((dip_val:$6;dip_name:'Easy'),(dip_val:$4;dip_name:'Medium'),(dip_val:$2;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-  (mask:$18;name:'Difficulty';number:4;dip:((dip_val:$18;dip_name:'Easy'),(dip_val:$10;dip_name:'Medium'),(dip_val:$8;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),());
-  slapshtr_rom:array[0..4] of tipo_roms=(
+  (n:'epr-7261.ic2';l:$8000;p:$20000;crc:$3810cbf5),());
+  slapshtr_rom:array[0..5] of tipo_roms=(
   (n:'epr-7351.ic7';l:$8000;p:0;crc:$894adb04),(n:'epr-7352.ic5';l:$8000;p:$8000;crc:$61c938b6),
   (n:'epr-7353.ic4';l:$8000;p:$10000;crc:$8ee2951a),(n:'epr-7354.ic3';l:$8000;p:$18000;crc:$41482aa0),
-  (n:'epr-7355.ic2';l:$8000;p:$20000;crc:$c67e1aef));
+  (n:'epr-7355.ic2';l:$8000;p:$20000;crc:$c67e1aef),());
   fantzn2_rom:array[0..4] of tipo_roms=(
   (n:'epr-11416.ic7';l:$8000;p:0;crc:$76db7b7b),(n:'epr-11415.ic5';l:$10000;p:$8000;crc:$57b45681),
   (n:'epr-11413.ic3';l:$10000;p:$18000;crc:$a231dc85),(n:'epr-11414.ic4';l:$10000;p:$28000;crc:$6f7a9f5f),
   (n:'epr-11412.ic2';l:$10000;p:$38000;crc:$b14db5af));
-  fantzn2_key:tipo_roms=(n:'317-0057.key';l:$2000;p:0;crc:$ee43d0f0);
-  fantzn2_dip_b:array [0..4] of def_dip=(
-  (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-  (mask:$c;name:'Lives';number:4;dip:((dip_val:$0;dip_name:'2'),(dip_val:$c;dip_name:'3'),(dip_val:$8;dip_name:'4'),(dip_val:$4;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-  (mask:$30;name:'Timer';number:4;dip:((dip_val:$20;dip_name:'90'),(dip_val:$30;dip_name:'80'),(dip_val:$10;dip_name:'70'),(dip_val:$0;dip_name:'60'),(),(),(),(),(),(),(),(),(),(),(),())),
-  (mask:$c0;name:'Difficulty';number:4;dip:((dip_val:$80;dip_name:'Easy'),(dip_val:$c0;dip_name:'Normal'),(dip_val:$40;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),());
+  fantzn2_key:array[0..1] of tipo_roms=((n:'317-0057.key';l:$2000;p:0;crc:$ee43d0f0),());
   //ATENCION: La posicion de las ROMS esta adrede para desencriptarlas bien
   opaopa_rom:array[0..4] of tipo_roms=(
   (n:'epr-11054.ic7';l:$8000;p:0;crc:$024b1244),(n:'epr-11053.ic5';l:$8000;p:$10000;crc:$6bc41d6e),
   (n:'epr-11052.ic4';l:$8000;p:$18000;crc:$395c1d0a),(n:'epr-11051.ic3';l:$8000;p:$20000;crc:$4ca132a2),
   (n:'epr-11050.ic2';l:$8000;p:$28000;crc:$a165e2ef));
-  opaopa_key:tipo_roms=(n:'317-0042.key';l:$2000;p:0;crc:$d6312538);
+  opaopa_key:array[0..1] of tipo_roms=((n:'317-0042.key';l:$2000;p:0;crc:$d6312538),());
+  tetrisse_rom:array[0..3] of tipo_roms=(
+  (n:'epr-12213.7';l:$8000;p:0;crc:$ef3c7a38),(n:'epr-12212.5';l:$8000;p:$8000;crc:$28b550bf),
+  (n:'epr-12211.4';l:$8000;p:$10000;crc:$5aa114e9),());
+  transfrm_rom:array[0..5] of tipo_roms=(
+  (n:'epr-7605.ic7';l:$8000;p:0;crc:$ccf1d123),(n:'epr-7347.ic5';l:$8000;p:$8000;crc:$df0f639f),
+  (n:'epr-7348.ic4';l:$8000;p:$10000;crc:$0f38ea96),(n:'epr-7606.ic3';l:$8000;p:$18000;crc:$9d485df6),
+  (n:'epr-7350.ic2';l:$8000;p:$20000;crc:$0052165d),());
+  ridleofp_rom:array[0..5] of tipo_roms=(
+  (n:'epr-10426.bin';l:$8000;p:0;crc:$4404c7e7),(n:'epr-10425.bin';l:$8000;p:$8000;crc:$35964109),
+  (n:'epr-10424.bin';l:$8000;p:$10000;crc:$fcda1dfa),(n:'epr-10423.bin';l:$8000;p:$18000;crc:$0b87244f),
+  (n:'epr-10422.bin';l:$8000;p:$20000;crc:$14781e56),());
+
+implementation
+uses nz80,main_engine,controls_engine,sega_vdp,sn_76496,sound_engine,ppi8255,
+     mc8123;
+
+const
+  hangonjr_dip_b:array [0..2] of def_dip=(
+  (mask:$6;name:'Enemies';number:4;dip:((dip_val:$6;dip_name:'Easy'),(dip_val:$4;dip_name:'Medium'),(dip_val:$2;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
+  (mask:$18;name:'Difficulty';number:4;dip:((dip_val:$18;dip_name:'Easy'),(dip_val:$10;dip_name:'Medium'),(dip_val:$8;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),());
+  fantzn2_dip_b:array [0..4] of def_dip=(
+  (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+  (mask:$c;name:'Lives';number:4;dip:((dip_val:$0;dip_name:'2'),(dip_val:$c;dip_name:'3'),(dip_val:$8;dip_name:'4'),(dip_val:$4;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
+  (mask:$30;name:'Timer';number:4;dip:((dip_val:$20;dip_name:'90'),(dip_val:$30;dip_name:'80'),(dip_val:$10;dip_name:'70'),(dip_val:$0;dip_name:'60'),(),(),(),(),(),(),(),(),(),(),(),())),
+  (mask:$c0;name:'Difficulty';number:4;dip:((dip_val:$80;dip_name:'Easy'),(dip_val:$c0;dip_name:'Normal'),(dip_val:$40;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),());
   opaopa_dip_b:array [0..4] of def_dip=(
   (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$c;name:'Lives';number:4;dip:((dip_val:$0;dip_name:'2'),(dip_val:$c;dip_name:'3'),(dip_val:$8;dip_name:'4'),(dip_val:$4;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$30;name:'Bonus Life';number:4;dip:((dip_val:$20;dip_name:'25K 45K 70K'),(dip_val:$30;dip_name:'40K 60K 90K'),(dip_val:$10;dip_name:'50K 90K'),(dip_val:$0;dip_name:'None'),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$c0;name:'Difficulty';number:4;dip:((dip_val:$80;dip_name:'Easy'),(dip_val:$c0;dip_name:'Normal'),(dip_val:$40;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),());
-  tetrisse_rom:array[0..2] of tipo_roms=(
-  (n:'epr-12213.7';l:$8000;p:0;crc:$ef3c7a38),(n:'epr-12212.5';l:$8000;p:$8000;crc:$28b550bf),
-  (n:'epr-12211.4';l:$8000;p:$10000;crc:$5aa114e9));
   tetris_dip_b:array [0..2] of def_dip=(
   (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$30;name:'Difficulty';number:4;dip:((dip_val:$20;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$10;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardets'),(),(),(),(),(),(),(),(),(),(),(),())),());
-  transfrm_rom:array[0..4] of tipo_roms=(
-  (n:'epr-7605.ic7';l:$8000;p:0;crc:$ccf1d123),(n:'epr-7347.ic5';l:$8000;p:$8000;crc:$df0f639f),
-  (n:'epr-7348.ic4';l:$8000;p:$10000;crc:$0f38ea96),(n:'epr-7606.ic3';l:$8000;p:$18000;crc:$9d485df6),
-  (n:'epr-7350.ic2';l:$8000;p:$20000;crc:$0052165d));
   transfrm_dip_b:array [0..5] of def_dip=(
   (mask:$1;name:'1 Player Only';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$1;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$c;name:'Lives';number:4;dip:((dip_val:$c;dip_name:'3'),(dip_val:$8;dip_name:'4'),(dip_val:$4;dip_name:'5'),(dip_val:$0;dip_name:'Infinite'),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$30;name:'Bonus Life';number:4;dip:((dip_val:$20;dip_name:'10K 30K 50K 70K'),(dip_val:$30;dip_name:'20K 60K 100K 140K'),(dip_val:$10;dip_name:'30K 80K 130K 180K'),(dip_val:$0;dip_name:'50K 150K 250K'),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$c0;name:'Difficulty';number:4;dip:((dip_val:$40;dip_name:'Easy'),(dip_val:$c0;dip_name:'Normal'),(dip_val:$80;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),());
-  ridleofp_rom:array[0..4] of tipo_roms=(
-  (n:'epr-10426.bin';l:$8000;p:0;crc:$4404c7e7),(n:'epr-10425.bin';l:$8000;p:$8000;crc:$35964109),
-  (n:'epr-10424.bin';l:$8000;p:$10000;crc:$fcda1dfa),(n:'epr-10423.bin';l:$8000;p:$18000;crc:$0b87244f),
-  (n:'epr-10422.bin';l:$8000;p:$20000;crc:$14781e56));
   ridleofp_dip_b:array [0..3] of def_dip=(
   (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'3'),(dip_val:$2;dip_name:'4'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'100'),(),(),(),(),(),(),(),(),(),(),(),())),
   (mask:$8;name:'Ball Speed';number:2;dip:((dip_val:$8;dip_name:'Easy'),(dip_val:$0;dip_name:'Difficult'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -109,7 +111,6 @@ procedure systeme_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to (vdp_0.VIDEO_Y_TOTAL-1) do begin
       eventos_systeme;
@@ -120,7 +121,7 @@ while EmuStatus=EsRunning do begin
   end;
   actualiza_trozo(0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,1,0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,3);
   actualiza_trozo(0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,2,0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,3);
-  actualiza_trozo(0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,3,0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,PANT_TEMP);
+  actualiza_trozo_final(0,0,284,vdp_0.VIDEO_VISIBLE_Y_TOTAL,3);
   video_sync;
 end;
 end;
@@ -356,7 +357,7 @@ iniciar_audio(false);
 if main_vars.tipo_maquina=257 then main_screen.rot90_screen:=true;
 screen_init(1,284,243);
 screen_init(2,284,243,true);
-screen_init(3,284,243);
+screen_init(3,284,243,false,true);
 iniciar_video(284,243);
 //Main CPU
 z80_0:=cpu_z80.create(10738635 div 2);

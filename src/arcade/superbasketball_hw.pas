@@ -1,13 +1,10 @@
 unit superbasketball_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
-     dac,rom_engine,pal_engine,konami_decrypt,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_sbasketb:boolean;
 
-implementation
 const
         sbasketb_rom:array[0..2] of tipo_roms=(
         (n:'405g05.14j';l:$2000;p:$6000;crc:$336dc0ab),(n:'405i03.11j';l:$4000;p:$8000;crc:$d33b82dd),
@@ -21,7 +18,13 @@ const
         (n:'405e18.6a';l:$100;p:$200;crc:$9e533bad),(n:'405e20.19d';l:$100;p:$300;crc:$8ca6de2f),
         (n:'405e19.16d';l:$100;p:$400;crc:$e0bc782f));
         sbasketb_vlm:tipo_roms=(n:'405e15.11f';l:$2000;p:$0;crc:$01bb5ce9);
-        sbasketb_snd:tipo_roms=(n:'405e13.7a';l:$2000;p:$0;crc:$1ec7458b);
+        sbasketb_snd:array[0..1] of tipo_roms=((n:'405e13.7a';l:$2000;p:$0;crc:$1ec7458b),());
+
+implementation
+uses m6809,nz80,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
+     dac,pal_engine,konami_decrypt,sound_engine,qsnapshot;
+
+const
         sbasketb_dip_a:array [0..2] of def_dip=(
         (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$2;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'3C 2C'),(dip_val:$1;dip_name:'4C 3C'),(dip_val:$f;dip_name:'1C 1C'),(dip_val:$3;dip_name:'3C 4C'),(dip_val:$7;dip_name:'2C 3C'),(dip_val:$e;dip_name:'1C 2C'),(dip_val:$6;dip_name:'2C 5C'),(dip_val:$d;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(dip_val:$b;dip_name:'1C 5C'),(dip_val:$a;dip_name:'1C 6C'),(dip_val:$9;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),
         (mask:$f0;name:'Coin B';number:15;dip:((dip_val:$20;dip_name:'4C 1C'),(dip_val:$50;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$40;dip_name:'3C 2C'),(dip_val:$10;dip_name:'4C 3C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$30;dip_name:'3C 4C'),(dip_val:$70;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$60;dip_name:'2C 5C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$90;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),());
@@ -103,7 +106,6 @@ var
   frame_m,frame_s:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=m6809_0.tframes;
 frame_s:=z80_0.tframes;
 while EmuStatus=EsRunning do begin

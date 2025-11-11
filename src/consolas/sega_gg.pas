@@ -1,9 +1,7 @@
 unit sega_gg;
 
 interface
-uses nz80,{$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,controls_engine,sega_vdp,sn_76496,sysutils,misc_functions,
-     sound_engine,sms;
+uses sysutils,sms;
 
 function iniciar_gg:boolean;
 
@@ -11,7 +9,8 @@ var
   gg_0:tmastersystem;
 
 implementation
-uses principal,snapshot;
+uses principal,snapshot,nz80,main_engine,controls_engine,sega_vdp,sn_76496,
+     misc_functions,sound_engine;
 
 procedure eventos_gg;
 begin
@@ -32,7 +31,6 @@ var
   frame:single;
   f:word;
 begin
-init_controls(false,false,true,true);
 frame:=z80_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to (vdp_0.VIDEO_Y_TOTAL-1) do begin
@@ -281,7 +279,6 @@ begin
 iniciar_gg:=false;
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=gg_principal;
 llamadas_maquina.reset:=reset_gg;
 llamadas_maquina.cartuchos:=abrir_gg;

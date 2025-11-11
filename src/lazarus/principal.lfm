@@ -2,7 +2,7 @@ object principal1: Tprincipal1
   Left = 676
   Height = 466
   Top = 233
-  Width = 515
+  Width = 514
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   ActiveControl = Panel1
@@ -10,45 +10,26 @@ object principal1: Tprincipal1
   BorderStyle = bsSingle
   Caption = 'DSP Emulator v'
   ClientHeight = 466
-  ClientWidth = 515
+  ClientWidth = 514
   DesignTimePPI = 144
-  Font.CharSet = ANSI_CHARSET
-  Font.Color = clBlack
-  Font.Height = -17
-  Font.Name = 'Sans'
-  Font.Pitch = fpVariable
-  Font.Quality = fqDraft
   Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
   object Panel1: TPanel
     Left = 0
-    Height = 50
+    Height = 68
     Top = 0
-    Width = 515
+    Width = 514
     Align = alTop
-    ClientHeight = 50
-    ClientWidth = 515
-    Font.CharSet = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -17
-    Font.Name = 'Sans'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    ParentFont = False
+    ClientHeight = 68
+    ClientWidth = 514
     TabOrder = 0
     object BitBtn2: TBitBtn
-      Left = 8
-      Height = 48
+      Left = 6
+      Height = 63
       Hint = 'Reset'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 63
       Glyph.Data = {
         A2070000424DA207000000000000360000002800000019000000190000000100
         1800000000006C07000000000000000000000000000000000000FFFFFFFFFFFF
@@ -114,7 +95,6 @@ object principal1: Tprincipal1
         FFFFFFFFFF00
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
@@ -122,19 +102,11 @@ object principal1: Tprincipal1
       OnClick = Reset1Click
     end
     object BitBtn3: TBitBtn
-      Left = 60
-      Height = 48
+      Left = 70
+      Height = 63
       Hint = 'Play'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      Layout = blGlyphTop
-      ParentFont = False
+      Width = 63
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
@@ -142,18 +114,12 @@ object principal1: Tprincipal1
       OnClick = BitBtn3Click
     end
     object BitBtn5: TBitBtn
-      Left = 114
-      Height = 48
+      Left = 135
+      Height = 63
       Hint = 'Slow'
       Top = 2
-      Width = 48
+      Width = 63
       BorderSpacing.Left = 2
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
       Glyph.Data = {
         A2070000424DA207000000000000360000002800000019000000190000000100
         1800000000006C07000000000000000000000000000000000000FFFFFFFFFFFF
@@ -219,7 +185,6 @@ object principal1: Tprincipal1
         FFFFFFFFFF00
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
@@ -227,17 +192,11 @@ object principal1: Tprincipal1
       OnClick = fSlow
     end
     object BitBtn6: TBitBtn
-      Left = 166
-      Height = 48
+      Left = 198
+      Height = 63
       Hint = 'Fastest'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 63
       Glyph.Data = {
         A2070000424DA207000000000000360000002800000019000000190000000100
         1800000000006C07000000000000000000000000000000000000FFFFFFFFFFFF
@@ -303,7 +262,6 @@ object principal1: Tprincipal1
         FFFFFFFFFF00
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 3
@@ -311,17 +269,11 @@ object principal1: Tprincipal1
       OnClick = fFast
     end
     object btncfg: TBitBtn
-      Left = 218
-      Height = 48
+      Left = 262
+      Height = 63
       Hint = 'Config DSP'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 63
       Glyph.Data = {
         AA080000424DAA080000000000008A0000007C0000001A0000001A0000000100
         18000000000020080000741200007412000000000000000000000000FF0000FF
@@ -395,7 +347,6 @@ object principal1: Tprincipal1
         F8F8F8F8F8F8F8F8F8F8F8F80000
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 4
@@ -403,17 +354,11 @@ object principal1: Tprincipal1
       OnClick = fConfigurar_general
     end
     object BitBtn19: TBitBtn
-      Left = 380
-      Height = 48
+      Left = 447
+      Height = 63
       Hint = 'Save Image'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 63
       Glyph.Data = {
         EE070000424DEE070000000000003600000028000000190000001A0000000100
         180000000000B807000000000000000000000000000000000000FFFFFFFFFFFF
@@ -481,7 +426,6 @@ object principal1: Tprincipal1
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 5
@@ -489,17 +433,11 @@ object principal1: Tprincipal1
       OnClick = fSaveGIF
     end
     object BitBtn8: TBitBtn
-      Left = 274
-      Height = 48
+      Left = 324
+      Height = 63
       Hint = 'Config Dip Switch'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 63
       Glyph.Data = {
         C6060000424DC60600000000000036000000280000001A000000150000000100
         18000000000090060000C40E0000C40E00000000000000000000FFFFFFFFFFFF
@@ -558,7 +496,6 @@ object principal1: Tprincipal1
         FFFFFFFFFFFFFFFF0000
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 6
@@ -566,17 +503,11 @@ object principal1: Tprincipal1
       OnClick = BitBtn8Click
     end
     object BitBtn13: TBitBtn
-      Left = 326
-      Height = 48
+      Left = 386
+      Height = 63
       Hint = 'Change Driver'
       Top = 2
-      Width = 48
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 63
       Glyph.Data = {
         56080000424D560800000000000036000000280000001A0000001A0000000100
         1800000000002008000074120000741200000000000000000000F8F8F8FAFAFA
@@ -647,7 +578,6 @@ object principal1: Tprincipal1
         F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F6F60000
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 7
@@ -659,20 +589,24 @@ object principal1: Tprincipal1
     Left = 0
     Height = 28
     Top = 438
-    Width = 515
+    Width = 514
     Align = alBottom
     ClientHeight = 28
-    ClientWidth = 515
+    ClientWidth = 514
     Font.Height = -17
     ParentFont = False
     TabOrder = 1
     object Image1: TImage
-      Left = 477
-      Height = 28
-      Top = -2
-      Width = 38
+      AnchorSideRight.Control = Panel5
+      AnchorSideRight.Side = asrBottom
+      AnchorSideBottom.Control = Panel5
+      AnchorSideBottom.Side = asrCenter
+      Left = 481
+      Height = 22
+      Top = 3
+      Width = 32
       Anchors = [akRight, akBottom]
-      Center = True
+      ParentShowHint = False
       Picture.Data = {
         07544269746D6170E6040000424DE60400000000000036000000280000001400
         00000F0000000100200000000000B00400000000000000000000000000000000
@@ -719,14 +653,13 @@ object principal1: Tprincipal1
       Visible = False
     end
     object StatusBar1: TStatusBar
-      Left = 1
+      Left = 2
       Height = 36
-      Top = -9
+      Top = -10
       Width = 470
       Align = alNone
       Anchors = [akLeft, akBottom]
       AutoSize = False
-      Color = clBlack
       Panels = <      
         item
           Alignment = taCenter
@@ -745,25 +678,19 @@ object principal1: Tprincipal1
   end
   object Panel2: TPanel
     Left = 0
-    Height = 64
-    Top = 48
-    Width = 523
+    Height = 75
+    Top = 66
+    Width = 522
     Anchors = [akTop, akLeft, akRight]
-    ClientHeight = 64
-    ClientWidth = 523
+    ClientHeight = 75
+    ClientWidth = 522
     TabOrder = 2
     object BitBtn9: TBitBtn
-      Left = 124
-      Height = 54
+      Left = 159
+      Height = 72
       Hint = 'Open Snapshot'
       Top = 2
-      Width = 54
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 70
       Glyph.Data = {
         360C0000424D360C000000000000360000002800000020000000200000000100
         180000000000000C000000000000000000000000000000000000FFFFFFFFFFFF
@@ -865,7 +792,6 @@ object principal1: Tprincipal1
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 0
@@ -873,17 +799,11 @@ object principal1: Tprincipal1
       OnClick = fLoadCinta
     end
     object BitBtn10: TBitBtn
-      Left = 182
-      Height = 54
+      Left = 240
+      Height = 72
       Hint = 'Open Disk'
       Top = 2
-      Width = 54
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 70
       Glyph.Data = {
         360C0000424D360C000000000000360000002800000020000000200000000100
         180000000000000C0000C40E0000C40E00000000000000000000FFFFFF000000
@@ -985,7 +905,6 @@ object principal1: Tprincipal1
         FFFFFFFFFF2F302F2F302F2F302F2F302F2F302FFFFFFFFFFFFF
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
@@ -993,17 +912,11 @@ object principal1: Tprincipal1
       OnClick = fLoadCartucho
     end
     object BitBtn11: TBitBtn
-      Left = 242
-      Height = 54
+      Left = 318
+      Height = 72
       Hint = 'Save Snapshot'
       Top = 2
-      Width = 54
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 70
       Glyph.Data = {
         360C0000424D360C000000000000360000002800000020000000200000000100
         180000000000000C000064000000640000000000000000000000FFFFFFFFFFFF
@@ -1105,145 +1018,18 @@ object principal1: Tprincipal1
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
       TabStop = False
       OnClick = fSaveSnapShot
     end
-    object BitBtn12: TBitBtn
-      Left = 302
-      Height = 54
-      Hint = 'Poke Memory'
-      Top = 2
-      Width = 54
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
-      Glyph.Data = {
-        360C0000424D360C000000000000360000002800000020000000200000000100
-        180000000000000C000000000000000000000000000000000000FFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-        00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000008686
-        86000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000008686
-        86000000FFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000C0C0C09696960000007777
-        77000000FFFFFF000000868686000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000C0C0C0C0C0C08686860000008686
-        86000000000000000000777777000000FFFFFFFFFFFF000000FFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF777777C0C0C0C0C0C086868600000099CC
-        CC000000868686000000868686000000FFFFFF000000868686000000FFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFF000000868686C0C0C0F1F1F18686868686860000
-        00868686868686000000868686000000000000000000868686000000FFFFFFFF
-        FFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFF000000000000C0C0C0868686F1F1F1DDDDDDD7D7D76699997777
-        7786868686868600000099CCCC000000868686000000777777000000FFFFFF00
-        0000868686000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFF000000868686777777C0C0C0868686B2B2B2DDDDDDD7D7D7D7D7D7D7D7
-        D766999986868677777700000086868686868600000086868600000000000000
-        0000777777000000FFFFFFFFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        C0C0C0C0C0C0C0C0C0868686C0C0C0868686C0C0C0DDDDDDD7D7D7C0C0C0C0C0
-        C0C0C0C0B2B2B2669999C0C0C0C0C0C0C0C0C000000099CCCC000000C0C0C0C0
-        C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0FFFFFFFFFFFFFFFFFFFFFFFF777777
-        C0C0C0000000C0C0C0777777DDDDDDDDDDDD868686D7D7D7C0C0C00000000000
-        00000000C0C0C0CCCCCCC0C0C0000000C0C0C0777777000000C0C0C0000000C0
-        C0C0000000000000000000000000000000C0C0C0FFFFFFFFFFFFFFFFFF868686
-        C0C0C0000000C0C0C0868686868686777777D7D7D7C0C0C0000000C0C0C0C0C0
-        C0C0C0C0000000C0C0C0C0C0C0000000C0C0C0669999C0C0C0000000C0C0C0C0
-        C0C0000000C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0FFFFFFFFFFFFFFFFFF868686
-        C0C0C0000000C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0000000C0C0C0CCCCCCCCCC
-        CCCCCCCCC0C0C0000000C0C0C0000000C0C0C0B2B2B2C0C0C0000000C0C0C0C0
-        C0C0000000C0C0C0777777000000868686000000000000FFFFFFFFFFFF868686
-        C0C0C0000000000000000000000000C0C0C0C0C0C0000000C0C0C0CCCCCCCCCC
-        CCC0C0C0C0C0C0000000C0C0C0000000000000C0C0C0000000C0C0C0B2B2B2C0
-        C0C0000000C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0000000FFFFFFFFFFFF868686
-        C0C0C0000000C0C0C0C0C0C0C0C0C0000000C0C0C0000000C0C0C0D7D7D7C0C0
-        C0CCCCCCC0C0C0000000C0C0C0000000C0C0C0000000000000C0C0C0B2B2B2C0
-        C0C0000000000000000000000000000000C0C0C0000000FFFFFFFFFFFFFFFFFF
-        C0C0C0000000C0C0C0DDDDDDC0C0C0000000C0C0C0000000C0C0C0C0C0C0CCCC
-        CCC0C0C0C0C0C0000000C0C0C0000000C0C0C0C0C0C0000000C0C0C0A4A0A0C0
-        C0C0000000C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0000000FFFFFFFFFFFFFFFFFF
-        FFFFFF000000C0C0C0C0C0C0C0C0C0000000C0C0C0C0C0C0000000C0C0C0C0C0
-        C0C0C0C0000000C0C0C0C0C0C0000000C0C0C0B2B2B2C0C0C0000000C0C0C0C0
-        C0C0000000C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0000000FFFFFFFFFFFFFFFFFF
-        FFFFFF000000000000000000000000C0C0C0D7D7D7B2B2B2C0C0C00000000000
-        00000000C0C0C0C0C0C0C0C0C0000000C0C0C0B2B2B2B2B2B2C0C0C0000000C0
-        C0C0000000000000000000000000000000C0C0C0FFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFC0C0C0000000669999868686CCCCCCC0C0C0C0C0
-        C0C0C0C0B2B2B2C0C0C0C0C0C0C0C0C0C0C0C0B2B2B2A4A0A0B2B2B2C0C0C0C0
-        C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF868686868686B2B2
-        B2C0C0C0C0C0C0B2B2B2B2B2B2B2B2B2A4A0A0B2B2B2B2B2B2A4A0A0A4A0A0A4
-        A0A0A4A0A0A4A0A0999999000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000006699
-        99868686B2B2B2B2B2B2B2B2B2A4A0A0B2B2B2A4A0A0B2B2B2A4A0A0A4A0A0A4
-        A0A0999999999999000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFF868686868686B2B2B2B2B2B2A4A0A0B2B2B2A4A0A0A4A0A0A4A0A0A4
-        A0A0A4A0A0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFF000000669999868686B2B2B2A4A0A0A4A0A0A4A0A0A4A0A0A4
-        A0A0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF868686868686B2B2B2A4A0A0A4A0A000
-        0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000669999868686000000FF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      }
-      Layout = blGlyphTop
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 3
-      TabStop = False
-      OnClick = BitBtn12Click
-    end
     object BitBtn14: TBitBtn
-      Left = 362
-      Height = 54
+      Left = 396
+      Height = 72
       Hint = 'Fast Load'
       Top = 2
-      Width = 54
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 70
       Glyph.Data = {
         360C0000424D360C000000000000360000002800000020000000200000000100
         180000000000000C000000000000000000000000000000000000FFFFFFFFFFFF
@@ -1345,25 +1131,18 @@ object principal1: Tprincipal1
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 4
+      TabOrder = 3
       TabStop = False
       OnClick = BitBtn14Click
     end
     object BitBtn1: TBitBtn
-      Left = 66
-      Height = 54
+      Left = 84
+      Height = 72
       Hint = 'Config'
       Top = 2
-      Width = 54
-      Font.CharSet = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -17
-      Font.Name = 'Sans'
-      Font.Pitch = fpVariable
-      Font.Quality = fqDraft
+      Width = 70
       Glyph.Data = {
         7E090000424D7E0900000000000036000000280000001D0000001B0000000100
         18000000000048090000C40E0000C40E00000000000000000000F5F5F5F5F5F5
@@ -1444,10 +1223,9 @@ object principal1: Tprincipal1
         F500
       }
       Layout = blGlyphTop
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 5
+      TabOrder = 4
       TabStop = False
       OnClick = BitBtn8Click
     end
@@ -1758,6 +1536,14 @@ object principal1: Tprincipal1
             end
             object cavelon1: TMenuItem
               Caption = 'Cavelon'
+              OnClick = CambiarMaquina
+            end
+            object mars1: TMenuItem
+              Caption = 'Mars'
+              OnClick = CambiarMaquina
+            end
+            object devilfish1: TMenuItem
+              Caption = 'Devil Fish'
               OnClick = CambiarMaquina
             end
           end
@@ -2507,6 +2293,10 @@ object principal1: Tprincipal1
           end
           object WyvernF01: TMenuItem
             Caption = 'Wyvern F-0'
+            OnClick = CambiarMaquina
+          end
+          object drmicro1: TMenuItem
+            Caption = 'Dr. Micro'
             OnClick = CambiarMaquina
           end
         end

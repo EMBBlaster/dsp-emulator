@@ -1,7 +1,7 @@
 unit kabuki_decript;
 
 interface
-{$IFDEF WINDOWS}uses windows;{$ENDIF}
+uses main_engine;
 
 procedure kabuki_cps1_decode(rom,dest_op,dest_data:pbyte;swap_key1,swap_key2:dword;addr_key:word;xor_key:byte);
 procedure kabuki_mitchell_decode(rom,dest_op,dest_data:pbyte;banks:byte;swap_key1,swap_key2:dword;addr_key:word;xor_key:byte);

@@ -1,13 +1,10 @@
 unit system86_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,ym_2151,
-     rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_system86:boolean;
 
-implementation
 const
         //Rolling Thunder
         rthunder_rom:tipo_roms=(n:'rt3_1b.9c';l:$8000;p:$8000;crc:$7d252a1b);
@@ -31,22 +28,8 @@ const
         (n:'rt1-1.3r';l:$200;p:0;crc:$8ef3bb9d),(n:'rt1-2.3s';l:$200;p:$200;crc:$6510a8f2),
         (n:'rt1-3.4v';l:$800;p:$400;crc:$95c7d944),(n:'rt1-4.5v';l:$800;p:$c00;crc:$1391fec9),
         (n:'rt1-5.6u';l:$20;p:$1400;crc:$e4130804));
-        rthunder_adpcm:array[0..1] of tipo_roms=(
-        (n:'rt1_21.f3';l:$10000;p:0;crc:$454968f3),(n:'rt2_22.h3';l:$10000;p:$20000;crc:$fe963e72));
-        rthunder_dip_a:array [0..5] of def_dip=(
-        (mask:$3;name:'Coin B';number:4;dip:((dip_val:0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Invulnerability';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        rthunder_dip_b:array [0..7] of def_dip=(
-        (mask:$1;name:'Continues';number:2;dip:((dip_val:$0;dip_name:'3'),(dip_val:$1;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$6;name:'Cabinet';number:4;dip:((dip_val:$6;dip_name:'Upright 1 Player'),(dip_val:$2;dip_name:'Upright 1 Player'),(dip_val:$4;dip_name:'Upright 2 Players'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Level Select';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Difficulty';number:2;dip:((dip_val:$10;dip_name:'Normal'),(dip_val:$0;dip_name:'Easy'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Timer value';number:2;dip:((dip_val:$20;dip_name:'120secs'),(dip_val:$0;dip_name:'150secs'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Bonus Life';number:2;dip:((dip_val:$40;dip_name:'70K 200K'),(dip_val:$0;dip_name:'100K 300K'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Lives';number:2;dip:((dip_val:$80;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        rthunder_adpcm:array[0..2] of tipo_roms=(
+        (n:'rt1_21.f3';l:$10000;p:0;crc:$454968f3),(n:'rt2_22.h3';l:$10000;p:$20000;crc:$fe963e72),());
         //Hopping Mappy
         hopmappy_rom:tipo_roms=(n:'hm1_1.9c';l:$8000;p:$8000;crc:$1a83914e);
         hopmappy_sub_rom:tipo_roms=(n:'hm1_2.12c';l:$4000;p:$c000;crc:$c46cda65);
@@ -55,21 +38,10 @@ const
         hopmappy_sprites:tipo_roms=(n:'hm1_4.12h';l:$8000;p:0;crc:$78719c52);
         hopmappy_mcu:array[0..1] of tipo_roms=(
         (n:'hm1_3.6b';l:$2000;p:$1000;crc:$6496e1db),(n:'cus60-60a1.mcu';l:$1000;p:0;crc:$076ea82a));
-        hopmappy_prom:array[0..4] of tipo_roms=(
+        hopmappy_prom:array[0..5] of tipo_roms=(
         (n:'hm1-1.3r';l:$200;p:0;crc:$cc801088),(n:'hm1-2.3s';l:$200;p:$200;crc:$a1cb71c5),
         (n:'hm1-3.4v';l:$800;p:$400;crc:$e362d613),(n:'hm1-4.5v';l:$800;p:$c00;crc:$678252b4),
-        (n:'hm1-5.6u';l:$20;p:$1400;crc:$475bf500));
-        hopmappy_dip_a:array [0..4] of def_dip=(
-        (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$4;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$18;name:'Lives';number:4;dip:((dip_val:$10;dip_name:'1'),(dip_val:$8;dip_name:'2'),(dip_val:$18;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        hopmappy_dip_b:array [0..5] of def_dip=(
-        (mask:$1;name:'Cabinet';number:2;dip:((dip_val:$1;dip_name:'Upright'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Level Select';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Flip Screen';number:2;dip:((dip_val:$20;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$40;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Difficulty';number:2;dip:((dip_val:$80;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'hm1-5.6u';l:$20;p:$1400;crc:$475bf500),());
         //Sky Kid Deluxe
         skykiddx_rom:array[0..1] of tipo_roms=(
         (n:'sk3_2.9d';l:$8000;p:0;crc:$74b8f8e2),(n:'sk3_1b.9c';l:$8000;p:$8000;crc:$767b3514));
@@ -82,20 +54,10 @@ const
         (n:'sk3_5.12h';l:$8000;p:0;crc:$5c7d4399),(n:'sk3_6.12k';l:$8000;p:$8000;crc:$c908a3b2));
         skykiddx_mcu:array[0..1] of tipo_roms=(
         (n:'sk3_4.6b';l:$4000;p:$1000;crc:$e6cae2d6),(n:'cus60-60a1.mcu';l:$1000;p:0;crc:$076ea82a));
-        skykiddx_prom:array[0..4] of tipo_roms=(
+        skykiddx_prom:array[0..5] of tipo_roms=(
         (n:'sk3-1.3r';l:$200;p:0;crc:$9e81dedd),(n:'sk3-2.3s';l:$200;p:$200;crc:$cbfec4dd),
         (n:'sk3-3.4v';l:$800;p:$400;crc:$81714109),(n:'sk3-4.5v';l:$800;p:$c00;crc:$1bf25acc),
-        (n:'sk3-5.6u';l:$20;p:$1400;crc:$e4130804));
-        skykiddx_dip_a:array [0..5] of def_dip=(
-        (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Level Select';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        skykiddx_dip_b:array [0..3] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$1;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Bonus Life';number:4;dip:((dip_val:$0;dip_name:'20K 80K+'),(dip_val:$10;dip_name:'20K 80K'),(dip_val:$20;dip_name:'30K 90K+'),(dip_val:$30;dip_name:'30K 90K'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c0;name:'Lives';number:4;dip:((dip_val:$80;dip_name:'1'),(dip_val:$40;dip_name:'2'),(dip_val:$c0;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'sk3-5.6u';l:$20;p:$1400;crc:$e4130804),());
         //The Return to Istahar
         roishtar_rom:array[0..1] of tipo_roms=(
         (n:'ri1_2.9d';l:$2000;p:$4000;crc:$fcd58d91),(n:'ri1_1c.9c';l:$8000;p:$8000;crc:$14acbacb));
@@ -111,17 +73,10 @@ const
         (n:'ri1_11.12t';l:$8000;p:$30000;crc:$fb6bc533));
         roishtar_mcu:array[0..1] of tipo_roms=(
         (n:'ri1_4.6b';l:$8000;p:$1000;crc:$552172b8),(n:'cus60-60a1.mcu';l:$1000;p:0;crc:$076ea82a));
-        roishtar_prom:array[0..4] of tipo_roms=(
+        roishtar_prom:array[0..5] of tipo_roms=(
         (n:'ri1-1.3r';l:$200;p:0;crc:$29cd0400),(n:'ri1-2.3s';l:$200;p:$200;crc:$02fd278d),
         (n:'ri1-3.4v';l:$800;p:$400;crc:$cbd7e53f),(n:'ri1-4.5v';l:$800;p:$c00;crc:$22921617),
-        (n:'ri1-5.6u';l:$20;p:$1400;crc:$e2188075));
-        roishtar_dip_a:array [0..2] of def_dip=(
-        (mask:$7;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 5C'),(dip_val:$3;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$40;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        roishtar_dip_b:array [0..3] of def_dip=(
-        (mask:$7;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 5C'),(dip_val:$3;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$40;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Freeze';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'ri1-5.6u';l:$20;p:$1400;crc:$e2188075),());
         //Genpei ToumaDen
         genpeitd_rom:tipo_roms=(n:'gt1_1b.9c';l:$8000;p:$8000;crc:$75396194);
         genpeitd_rom_bank:tipo_roms=(n:'gt1_10b.f1';l:$10000;p:0;crc:$5721ad0d);
@@ -141,20 +96,9 @@ const
         (n:'gt1-1.3r';l:$200;p:0;crc:$2f0ddddb),(n:'gt1-2.3s';l:$200;p:$200;crc:$87d27025),
         (n:'gt1-3.4v';l:$800;p:$400;crc:$c178de99),(n:'gt1-4.5v';l:$800;p:$c00;crc:$9f48ef17),
         (n:'gt1-5.6u';l:$20;p:$1400;crc:$e4130804));
-        genpeitd_adpcm:array[0..2] of tipo_roms=(
+        genpeitd_adpcm:array[0..3] of tipo_roms=(
         (n:'gt1_17.f3';l:$20000;p:0;crc:$26181ff8),(n:'gt1_18.h3';l:$20000;p:$20000;crc:$7ef9e5ea),
-        (n:'gt1_19.k3';l:$20000;p:$40000;crc:$38e11f6c));
-        genpeitd_dip_a:array [0..5] of def_dip=(
-        (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$8;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
-        genpeitd_dip_b:array [0..4] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$1;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$2;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Difficulty';number:4;dip:((dip_val:$20;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$10;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c0;name:'Candle';number:4;dip:((dip_val:$80;dip_name:'40'),(dip_val:$c0;dip_name:'50'),(dip_val:$40;dip_name:'60'),(dip_val:$0;dip_name:'70'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'gt1_19.k3';l:$20000;p:$40000;crc:$38e11f6c),());
         //Wonder Momo
         wndrmomo_rom:tipo_roms=(n:'wm1_1.9c';l:$8000;p:$8000;crc:$34b50bf0);
         wndrmomo_rom_bank:tipo_roms=(n:'wm1_16.f1';l:$10000;p:0;crc:$e565f8f3);
@@ -174,9 +118,68 @@ const
         (n:'wm1-1.3r';l:$200;p:0;crc:$1af8ade8),(n:'wm1-2.3s';l:$200;p:$200;crc:$8694e213),
         (n:'wm1-3.4v';l:$800;p:$400;crc:$2ffaf9a4),(n:'wm1-4.5v';l:$800;p:$c00;crc:$f4e83e0b),
         (n:'wm1-5.6u';l:$20;p:$1400;crc:$e4130804));
-        wndrmomo_adpcm:array[0..3] of tipo_roms=(
+        wndrmomo_adpcm:array[0..4] of tipo_roms=(
         (n:'wm1_17.f3';l:$10000;p:0;crc:$bea3c318),(n:'wm1_18.h3';l:$10000;p:$20000;crc:$6d73bcc5),
-        (n:'wm1_19.k3';l:$10000;p:$40000;crc:$d288e912),(n:'wm1_20.m3';l:$10000;p:$60000;crc:$076a72cb));
+        (n:'wm1_19.k3';l:$10000;p:$40000;crc:$d288e912),(n:'wm1_20.m3';l:$10000;p:$60000;crc:$076a72cb),());
+
+implementation
+uses m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,ym_2151,
+     pal_engine,sound_engine;
+
+const
+        rthunder_dip_a:array [0..5] of def_dip=(
+        (mask:$3;name:'Coin B';number:4;dip:((dip_val:0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8;name:'Invulnerability';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        rthunder_dip_b:array [0..7] of def_dip=(
+        (mask:$1;name:'Continues';number:2;dip:((dip_val:$0;dip_name:'3'),(dip_val:$1;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$6;name:'Cabinet';number:4;dip:((dip_val:$6;dip_name:'Upright 1 Player'),(dip_val:$2;dip_name:'Upright 1 Player'),(dip_val:$4;dip_name:'Upright 2 Players'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8;name:'Level Select';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Difficulty';number:2;dip:((dip_val:$10;dip_name:'Normal'),(dip_val:$0;dip_name:'Easy'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Timer value';number:2;dip:((dip_val:$20;dip_name:'120secs'),(dip_val:$0;dip_name:'150secs'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Bonus Life';number:2;dip:((dip_val:$40;dip_name:'70K 200K'),(dip_val:$0;dip_name:'100K 300K'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Lives';number:2;dip:((dip_val:$80;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        hopmappy_dip_a:array [0..4] of def_dip=(
+        (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$4;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$18;name:'Lives';number:4;dip:((dip_val:$10;dip_name:'1'),(dip_val:$8;dip_name:'2'),(dip_val:$18;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        hopmappy_dip_b:array [0..5] of def_dip=(
+        (mask:$1;name:'Cabinet';number:2;dip:((dip_val:$1;dip_name:'Upright'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Level Select';number:2;dip:((dip_val:$10;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Flip Screen';number:2;dip:((dip_val:$20;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$40;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Difficulty';number:2;dip:((dip_val:$80;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        skykiddx_dip_a:array [0..5] of def_dip=(
+        (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8;name:'Level Select';number:2;dip:((dip_val:$8;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        skykiddx_dip_b:array [0..3] of def_dip=(
+        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$1;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$30;name:'Bonus Life';number:4;dip:((dip_val:$0;dip_name:'20K 80K+'),(dip_val:$10;dip_name:'20K 80K'),(dip_val:$20;dip_name:'30K 90K+'),(dip_val:$30;dip_name:'30K 90K'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$c0;name:'Lives';number:4;dip:((dip_val:$80;dip_name:'1'),(dip_val:$40;dip_name:'2'),(dip_val:$c0;dip_name:'3'),(dip_val:$0;dip_name:'5'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        roishtar_dip_a:array [0..2] of def_dip=(
+        (mask:$7;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 5C'),(dip_val:$3;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$40;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        roishtar_dip_b:array [0..3] of def_dip=(
+        (mask:$7;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 3C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 5C'),(dip_val:$3;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$40;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Freeze';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        genpeitd_dip_a:array [0..5] of def_dip=(
+        (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$8;name:'Allow Continue';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$8;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$60;name:'Coin A';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$20;dip_name:'2C 1C'),(dip_val:$60;dip_name:'1C 1C'),(dip_val:$40;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),());
+        genpeitd_dip_b:array [0..4] of def_dip=(
+        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$1;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$2;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$2;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$30;name:'Difficulty';number:4;dip:((dip_val:$20;dip_name:'Easy'),(dip_val:$30;dip_name:'Normal'),(dip_val:$10;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$c0;name:'Candle';number:4;dip:((dip_val:$80;dip_name:'40'),(dip_val:$c0;dip_name:'50'),(dip_val:$40;dip_name:'60'),(dip_val:$0;dip_name:'70'),(),(),(),(),(),(),(),(),(),(),(),())),());
         wndrmomo_dip_a:array [0..5] of def_dip=(
         (mask:$3;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'2C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$4;name:'Freeze';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -330,7 +333,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_system86;

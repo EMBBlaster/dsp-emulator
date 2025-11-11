@@ -1,14 +1,10 @@
 unit tmnt_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,upd7759,ym_2151,k052109,k051960,misc_functions,
-     samples,k053244_k053245,k053260,k053251,eepromser,k007232;
+uses rom_engine;
 
 function iniciar_tmnt:boolean;
 
-implementation
 const
         //TMNT
         tmnt_rom:array[0..3] of tipo_roms=(
@@ -20,11 +16,11 @@ const
         tmnt_sprites:array[0..3] of tipo_roms=(
         (n:'963a17.h4';l:$80000;p:0;crc:$b5239a44),(n:'963a15.k4';l:$80000;p:$2;crc:$1f324eed),
         (n:'963a18.h6';l:$80000;p:$100000;crc:$dd51adef),(n:'963a16.k6';l:$80000;p:$100002;crc:$d4bd9984));
-        tmnt_prom:array[0..1] of tipo_roms=(
-        (n:'963a30.g7';l:$100;p:0;crc:$abd82680),(n:'963a31.g19';l:$100;p:$100;crc:$f8004a1c));
         tmnt_upd:tipo_roms=(n:'963a27.d18';l:$20000;p:0;crc:$2dfd674b);
         tmnt_title:tipo_roms=(n:'963a25.d5';l:$80000;p:0;crc:$fca078c7);
         tmnt_k007232:tipo_roms=(n:'963a26.c13';l:$20000;p:0;crc:$e2ac3063);
+        tmnt_prom:array[0..2] of tipo_roms=(
+        (n:'963a30.g7';l:$100;p:0;crc:$abd82680),(n:'963a31.g19';l:$100;p:$100;crc:$f8004a1c),());
         //Sunset Riders
         ssriders_rom:array[0..3] of tipo_roms=(
         (n:'064ebd02.8e';l:$40000;p:0;crc:$8deef9ac),(n:'064ebd03.8g';l:$40000;p:$1;crc:$2370c107),
@@ -32,11 +28,17 @@ const
         ssriders_sound:tipo_roms=(n:'064e01.2f';l:$10000;p:0;crc:$44b9bc52);
         ssriders_char:array[0..1] of tipo_roms=(
         (n:'064e12.16k';l:$80000;p:0;crc:$e2bdc619),(n:'064e11.12k';l:$80000;p:$2;crc:$2d8ca8b0));
-        ssriders_sprites:array[0..1] of tipo_roms=(
-        (n:'064e09.7l';l:$100000;p:0;crc:$4160c372),(n:'064e07.3l';l:$100000;p:$2;crc:$64dd673c));
         ssriders_eeprom:tipo_roms=(n:'ssriders_ebd.nv';l:$80;p:0;crc:$cbc903f6);
         ssriders_k053260:tipo_roms=(n:'064e06.1d';l:$100000;p:0;crc:$59810df9);
-        //DIP
+        ssriders_sprites:array[0..2] of tipo_roms=(
+        (n:'064e09.7l';l:$100000;p:0;crc:$4160c372),(n:'064e07.3l';l:$100000;p:$2;crc:$64dd673c),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,upd7759,ym_2151,k052109,k051960,misc_functions,
+     samples,k053244_k053245,k053260,k053251,eepromser,k007232;
+
+const
         tmnt_dip_a:array [0..1] of def_dip=(
         (mask:$f;name:'Coinage';number:16;dip:((dip_val:$0;dip_name:'5C 1C'),(dip_val:$2;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'2C 3C'),(dip_val:$1;dip_name:'4C 3C'),(dip_val:$f;dip_name:'1C 1C'),(dip_val:$3;dip_name:'3C 4C'),(dip_val:$7;dip_name:'2C 3C'),(dip_val:$e;dip_name:'1C 2C'),(dip_val:$6;dip_name:'2C 5C'),(dip_val:$d;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(dip_val:$b;dip_name:'1C 5C'),(dip_val:$a;dip_name:'1C 6C'),(dip_val:$9;dip_name:'1C 7C'))),());
         tmnt_dip_b:array [0..3] of def_dip=(
@@ -94,27 +96,30 @@ end;
 procedure eventos_tmnt;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $Fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $F7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $7f;
   //P2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or $1);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $Fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or $4);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $F7) else marcade.in2:=(marcade.in2 or $8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 and $bf;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $7f;
   //COIN
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
 end;
 end;
 
@@ -122,7 +127,6 @@ procedure tmnt_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_tmnt;
@@ -311,7 +315,6 @@ procedure ssriders_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
     eventos_tmnt;
@@ -756,7 +759,7 @@ case main_vars.tipo_maquina of
         ym2151_0:=ym2151_chip.create(3579545);
         getmem(k053260_rom,$100000);
         if not(roms_load(k053260_rom,ssriders_k053260)) then exit;
-        k053260_0:=tk053260_chip.create(3579545,k053260_rom,$100000,0.70);
+        k053260_0:=tk053260_chip.create(3579545,k053260_rom,$100000,1);
         //Iniciar video
         getmem(char_rom,$100000);
         if not(roms_load32b(char_rom,ssriders_char)) then exit;

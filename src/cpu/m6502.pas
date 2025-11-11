@@ -1,8 +1,8 @@
-unit M6502;
+﻿unit M6502;
 //{$define DEBUG}
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,timer_engine,cpu_misc;
+uses main_engine,dialogs,sysutils,cpu_misc;
+
 type
         band_m6502=record
                 n,o_v,t,brk,dec,int,z,c:boolean;
@@ -49,6 +49,7 @@ var
   m6502_0,m6502_1,m6502_2:cpu_m6502;
 
 implementation
+uses timer_engine;
 
 const
         tipo_dir_m65c02:array[0..255] of byte=(

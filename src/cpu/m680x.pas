@@ -1,10 +1,8 @@
 unit m680x;
 
-interface
-
 {$DEFINE DEBUG=1}
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,timer_engine,vars_hide,cpu_misc;
+interface
+uses main_engine,dialogs,sysutils,timer_engine,cpu_misc;
 
 const
   TCPU_M6801=1; //RAM 128b y ROM 2k internas

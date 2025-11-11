@@ -1,4 +1,4 @@
-unit uchild;
+﻿unit uchild;
 
 interface
 
@@ -8,17 +8,11 @@ uses
 
 type
   TfrChild = class(TForm)
-    Image1: TImage;
   private
   public
   end;
 
 implementation
-
-//procedure TfrChild.setfocus;
-//begin
-  //Windows.SetFocus(self.Handle);
-//end;
 
 {$R *.DFM}
 end.

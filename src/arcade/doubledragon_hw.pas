@@ -1,13 +1,10 @@
 unit doubledragon_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     hd6309,m680x,m6809,nz80,ym_2151,msm5205,main_engine,controls_engine,
-     gfx_engine,oki6295,rom_engine,pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_ddragon:boolean;
 
-implementation
 const
         //Double Dragon
         ddragon_rom:array[0..3] of tipo_roms=(
@@ -24,8 +21,8 @@ const
         (n:'21j-c';l:$10000;p:$20000;crc:$bb0bc76f),(n:'21j-d';l:$10000;p:$30000;crc:$cb4f231b),
         (n:'21j-e';l:$10000;p:$40000;crc:$a0a0c261),(n:'21j-f';l:$10000;p:$50000;crc:$6ba152f6),
         (n:'21j-g';l:$10000;p:$60000;crc:$3220a0b6),(n:'21j-h';l:$10000;p:$70000;crc:$65c7517d));
-        ddragon_adpcm:array[0..1] of tipo_roms=(
-        (n:'21j-6';l:$10000;p:0;crc:$34755de3),(n:'21j-7';l:$10000;p:$10000;crc:$904de6f8));
+        ddragon_adpcm:array[0..2] of tipo_roms=(
+        (n:'21j-6';l:$10000;p:0;crc:$34755de3),(n:'21j-7';l:$10000;p:$10000;crc:$904de6f8),());
         //Double Dragon II
         ddragon2_rom:array[0..3] of tipo_roms=(
         (n:'26a9-04.bin';l:$8000;p:0;crc:$f2cfc649),(n:'26aa-03.bin';l:$8000;p:$8000;crc:$44dd5d4b),
@@ -39,9 +36,14 @@ const
         (n:'26j0-0.bin';l:$20000;p:0;crc:$db309c84),(n:'26j1-0.bin';l:$20000;p:$20000;crc:$c3081e0c),
         (n:'26af-0.bin';l:$20000;p:$40000;crc:$3a615aad),(n:'26j2-0.bin';l:$20000;p:$60000;crc:$589564ae),
         (n:'26j3-0.bin';l:$20000;p:$80000;crc:$daf040d6),(n:'26a10-0.bin';l:$20000;p:$a0000;crc:$6d16d889));
-        ddragon2_adpcm:array[0..1] of tipo_roms=(
-        (n:'26j6-0.bin';l:$20000;p:0;crc:$a84b2a29),(n:'26j7-0.bin';l:$20000;p:$20000;crc:$bc6a48d5));
-        //Dip
+        ddragon2_adpcm:array[0..2] of tipo_roms=(
+        (n:'26j6-0.bin';l:$20000;p:0;crc:$a84b2a29),(n:'26j7-0.bin';l:$20000;p:$20000;crc:$bc6a48d5),());
+
+implementation
+uses hd6309,m680x,m6809,nz80,ym_2151,msm5205,main_engine,controls_engine,
+     gfx_engine,oki6295,pal_engine,sound_engine;
+
+const
         ddragon_dip_a:array [0..3] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$38,$30,$28,$20,$18);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
@@ -180,7 +182,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 271 do begin
     eventos_ddragon;
@@ -376,7 +377,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 271 do begin
     case f of

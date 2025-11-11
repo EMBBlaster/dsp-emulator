@@ -1,8 +1,6 @@
 unit i2cmem;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ELSE}main_engine,{$ENDIF}
-     file_engine;
 
 type
   i2cmem_chip=class
@@ -51,6 +49,7 @@ var
   i2cmem_0:i2cmem_chip;
 
 implementation
+uses main_engine,file_engine;
 
 constructor i2cmem_chip.create(tipo:byte);
 begin

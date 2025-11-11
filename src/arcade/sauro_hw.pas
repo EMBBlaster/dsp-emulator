@@ -1,13 +1,10 @@
-unit sauro_hw;
+﻿unit sauro_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,timer_engine,ym_3812;
+uses rom_engine;
 
 function iniciar_sauro:boolean;
 
-implementation
 const
         sauro_rom:array[0..1] of tipo_roms=(
         (n:'sauro-2.bin';l:$8000;p:0;crc:$19f8de25),(n:'sauro-1.bin';l:$8000;p:$8000;crc:$0f8b876f));
@@ -19,10 +16,15 @@ const
         (n:'sauro-6.bin';l:$8000;p:0;crc:$4b77cb0f),(n:'sauro-7.bin';l:$8000;p:$8000;crc:$187da060));
         sauro_char_fg:array[0..1] of tipo_roms=(
         (n:'sauro-4.bin';l:$8000;p:0;crc:$9b617cda),(n:'sauro-5.bin';l:$8000;p:$8000;crc:$a6e2640d));
-        sauro_sprites:array[0..3] of tipo_roms=(
+        sauro_sprites:array[0..4] of tipo_roms=(
         (n:'sauro-8.bin';l:$8000;p:0;crc:$e08b5d5e),(n:'sauro-9.bin';l:$8000;p:$8000;crc:$7c707195),
-        (n:'sauro-10.bin';l:$8000;p:$10000;crc:$c93380d1),(n:'sauro-11.bin';l:$8000;p:$18000;crc:$f47982a8));
-        //DIP
+        (n:'sauro-10.bin';l:$8000;p:$10000;crc:$c93380d1),(n:'sauro-11.bin';l:$8000;p:$18000;crc:$f47982a8),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     timer_engine,ym_3812;
+
+const
         sauro_dip_a:array [0..5] of def_dip2=(
         (mask:2;name:'Demo Sounds';number:2;val2:(0,2);name2:('Off','On')),
         (mask:4;name:'Cabinet';number:2;val2:(4,0);name2:('Upright','Cocktail')),
@@ -89,24 +91,26 @@ end;
 procedure eventos_sauro;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
   //P1
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or $80;
   //P2
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or $40) else marcade.in1:=(marcade.in1 and $bf);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or $80) else marcade.in1:=(marcade.in1 and $7f);
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or $40;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or $80;
 end;
 end;
 
@@ -114,7 +118,6 @@ procedure sauro_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_sauro;

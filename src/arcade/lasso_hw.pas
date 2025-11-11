@@ -1,13 +1,10 @@
 unit lasso_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,main_engine,controls_engine,sn_76496,gfx_engine,rom_engine,
-     pal_engine,sound_engine,misc_functions;
+uses rom_engine;
 
 function iniciar_lasso:boolean;
 
-implementation
 const
         lasso_rom:array[0..1] of tipo_roms=(
         (n:'wm3';l:$2000;p:$8000;crc:$f93addd6),(n:'wm4';l:$2000;p:$a000;crc:$77719859));
@@ -17,8 +14,24 @@ const
         lasso_sub:tipo_roms=(n:'wm5';l:$1000;p:$8000;crc:$7dc3ff07);
         lasso_char:array[0..1] of tipo_roms=(
         (n:'2';l:$2000;p:$4000;crc:$7db77256),(n:'wm2';l:$2000;p:$6000;crc:$9e7d0b6f));
-        lasso_pal:array[0..1] of tipo_roms=(
-        (n:'82s123.69';l:$20;p:0;crc:$1eabb04d),(n:'82s123.70';l:$20;p:$20;crc:$09060f8c));
+        lasso_pal:array[0..2] of tipo_roms=(
+        (n:'82s123.69';l:$20;p:0;crc:$1eabb04d),(n:'82s123.70';l:$20;p:$20;crc:$09060f8c),());
+        chameleo_rom:array[0..3] of tipo_roms=(
+        (n:'chamel4.bin';l:$2000;p:$4000;crc:$97379c47),(n:'chamel5.bin';l:$2000;p:$6000;crc:$0a2cadfd),
+        (n:'chamel6.bin';l:$2000;p:$8000;crc:$b023c354),(n:'chamel7.bin';l:$2000;p:$a000;crc:$a5a03375));
+        chameleo_snd:array[0..2] of tipo_roms=(
+        (n:'chamel3.bin';l:$1000;p:$1000;crc:$52eab9ec),(n:'chamel2.bin';l:$1000;p:$6000;crc:$81dcc49c),
+        (n:'chamel1.bin';l:$1000;p:$7000;crc:$96031d3b));
+        chameleo_char:array[0..1] of tipo_roms=(
+        (n:'chamel8.bin';l:$2000;p:$4000;crc:$dc67916b),(n:'chamel9.bin';l:$2000;p:$6000;crc:$6b559bf1));
+        chameleo_pal:array[0..2] of tipo_roms=(
+        (n:'chambprm.bin';l:$20;p:0;crc:$e3ad76df),(n:'chamaprm.bin';l:$20;p:$20;crc:$c7063b54),());
+
+implementation
+uses m6502,main_engine,controls_engine,sn_76496,gfx_engine,pal_engine,
+     sound_engine,misc_functions;
+
+const
         lasso_dip_a:array [0..4] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(1,0);name2:('Upright','Cocktail')),
         (mask:$e;name:'Coin A';number:8;val8:(2,0,8,4,$c,6,$a,$e);name8:('2C 1C','1C 1C','1C 2C','1C 3C','1C 6C','ND','ND','ND')),
@@ -29,16 +42,6 @@ const
         (mask:1;name:'Warm-Up';number:2;val2:(1,0);name2:('No','Yes')),
         (mask:2;name:'Warm-Up Language';number:2;val2:(0,2);name2:('English','German')),
         (mask:8;name:'Invulnerability';number:2;val2:(0,8);name2:('Off','On')));
-        chameleo_rom:array[0..3] of tipo_roms=(
-        (n:'chamel4.bin';l:$2000;p:$4000;crc:$97379c47),(n:'chamel5.bin';l:$2000;p:$6000;crc:$0a2cadfd),
-        (n:'chamel6.bin';l:$2000;p:$8000;crc:$b023c354),(n:'chamel7.bin';l:$2000;p:$a000;crc:$a5a03375));
-        chameleo_snd:array[0..2] of tipo_roms=(
-        (n:'chamel3.bin';l:$1000;p:$1000;crc:$52eab9ec),(n:'chamel2.bin';l:$1000;p:$6000;crc:$81dcc49c),
-        (n:'chamel1.bin';l:$1000;p:$7000;crc:$96031d3b));
-        chameleo_char:array[0..1] of tipo_roms=(
-        (n:'chamel8.bin';l:$2000;p:$4000;crc:$dc67916b),(n:'chamel9.bin';l:$2000;p:$6000;crc:$6b559bf1));
-        chameleo_pal:array[0..1] of tipo_roms=(
-        (n:'chambprm.bin';l:$20;p:0;crc:$e3ad76df),(n:'chamaprm.bin';l:$20;p:$20;crc:$c7063b54));
         chameleon_dip_a:array [0..3] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(1,0);name2:('Upright','Cocktail')),
         (mask:$e;name:'Coin A';number:8;val8:(2,0,8,4,$c,6,$a,$e);name8:('2C 1C','1C 1C','1C 2C','1C 3C','1C 6C','ND','ND','ND')),
@@ -154,36 +157,35 @@ end;
 procedure eventos_lasso;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=$30;
   //P1
-  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 1 else marcade.in0:=marcade.in0 and $fe;
-  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 2 else marcade.in0:=marcade.in0 and $fd;
-  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 4 else marcade.in0:=marcade.in0 and $fb;
-  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 8 else marcade.in0:=marcade.in0 and $f7;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10 else marcade.in0:=marcade.in0 and $ef;
-  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or $20 else marcade.in0:=marcade.in0 and $df;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or $20;
   //P2
-  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 1 else marcade.in1:=marcade.in1 and $fe;
-  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 2 else marcade.in1:=marcade.in1 and $fd;
-  if arcade_input.up[1] then marcade.in1:=marcade.in1 or 4 else marcade.in1:=marcade.in1 and $fb;
-  if arcade_input.down[1] then marcade.in1:=marcade.in1 or 8 else marcade.in1:=marcade.in1 and $f7;
-  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10 else marcade.in1:=marcade.in1 and $ef;
-  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or $20 else marcade.in1:=marcade.in1 and $df;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or $20;
   //System
   if arcade_input.coin[0] then begin
       marcade.in2:=(marcade.in2 and $df);
       m6502_0.change_nmi(ASSERT_LINE);
   end else begin
-      marcade.in2:=(marcade.in2 or $20);
       if arcade_input.coin[1] then begin
           marcade.in2:=(marcade.in2 and $ef);
           m6502_0.change_nmi(ASSERT_LINE);
-      end else begin
-          marcade.in2:=(marcade.in2 or $10);
-          m6502_0.change_nmi(CLEAR_LINE);
-      end;
+      end else m6502_0.change_nmi(CLEAR_LINE);
   end;
-  if arcade_input.start[1] then marcade.in2:=marcade.in2 or $40 else marcade.in2:=marcade.in2 and $bf;
-  if arcade_input.start[0] then marcade.in2:=marcade.in2 or $80 else marcade.in2:=marcade.in2 and $7f;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 or $40;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 or $80;
 end;
 end;
 
@@ -191,7 +193,6 @@ procedure principal_lasso;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_lasso;
@@ -214,7 +215,6 @@ procedure principal_chameleon;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
     eventos_lasso;

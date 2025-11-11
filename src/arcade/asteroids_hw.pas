@@ -1,32 +1,35 @@
 unit asteroids_hw;
 
 interface
-uses asteroids_hw_audio,m6502,main_engine,controls_engine,gfx_engine,
-     timer_engine,samples,rom_engine,pal_engine,sound_engine,avg_dvg;
+uses rom_engine,samples;
 
 function iniciar_as:boolean;
 
-implementation
 const
         as_rom:array[0..3] of tipo_roms=(
         (n:'035145-04e.ef2';l:$800;p:$6800;crc:$b503eaf7),(n:'035144-04e.h2';l:$800;p:$7000;crc:$25233192),
         (n:'035143-02.j2';l:$800;p:$7800;crc:$312caa02),(n:'035127-02.np3';l:$800;p:$5000;crc:$8b71fd9e));
-        as_prom:tipo_roms=(n:'034602-01.c8';l:$100;p:$0;crc:$97953db8);
-        as_samples:array[0..2] of tipo_nombre_samples=((nombre:'explode1.wav'),
-        (nombre:'explode2.wav'),(nombre:'explode3.wav'));
+        as_prom:array[0..1] of tipo_roms=((n:'034602-01.c8';l:$100;p:$0;crc:$97953db8),());
+        asteroids_samples:array[0..3] of tipo_nombre_samples=(
+        (nombre:'explode1.wav'),(nombre:'explode2.wav'),(nombre:'explode3.wav'),());
+        llander_rom:array[0..6] of tipo_roms=(
+        (n:'034572-02.f1';l:$800;p:$6000;crc:$b8763eea),(n:'034571-02.de1';l:$800;p:$6800;crc:$77da4b2f),
+        (n:'034570-01.c1';l:$800;p:$7000;crc:$2724e591),(n:'034569-02.b1';l:$800;p:$7800;crc:$72837a4e),
+        (n:'034599-01.r3';l:$800;p:$4800;crc:$355a9371),(n:'034598-01.np3';l:$800;p:$5000;crc:$9c4ffa68),
+        (n:'034597-01.m3';l:$800;p:$5800;crc:$ebb744f2));
+        llander_prom:array[0..1] of tipo_roms=((n:'034602-01.c8';l:$100;p:$0;crc:$97953db8),());
+
+implementation
+uses asteroids_hw_audio,m6502,main_engine,controls_engine,gfx_engine,
+     timer_engine,pal_engine,sound_engine,avg_dvg;
+
+const
         asteroids_dip_a:array [0..4] of def_dip2=(
         (mask:$3;name:'Lenguaje';number:4;val4:(0,1,2,3);name4:('English','German','French','Spanish')),
         (mask:$4;name:'Lives';number:2;val2:(4,0);name2:('3','4')),
         (mask:$8;name:'Center Mech';number:2;val2:(0,8);name2:('X 1','X 2')),
         (mask:$30;name:'Right Mech';number:4;val4:(0,$10,$20,$30);name4:('X 1','X 4','X 5','X 6')),
         (mask:$c0;name:'Coinage';number:4;val4:($c0,$80,$40,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')));
-        llander_rom:array[0..6] of tipo_roms=(
-        (n:'034572-02.f1';l:$800;p:$6000;crc:$b8763eea),(n:'034571-02.de1';l:$800;p:$6800;crc:$77da4b2f),
-        (n:'034570-01.c1';l:$800;p:$7000;crc:$2724e591),(n:'034569-02.b1';l:$800;p:$7800;crc:$72837a4e),
-        (n:'034599-01.r3';l:$800;p:$4800;crc:$355a9371),(n:'034598-01.np3';l:$800;p:$5000;crc:$9c4ffa68),
-        (n:'034597-01.m3';l:$800;p:$5800;crc:$ebb744f2));
-        llander_prom:tipo_roms=(n:'034602-01.c8';l:$100;p:$0;crc:$97953db8);
-
 
 var
   hay_samples:boolean;
@@ -136,15 +139,17 @@ end;
 procedure eventos_as;
 begin
 if event.arcade then begin
-  if arcade_input.but2[0] then marcade.in0:=marcade.in0 or $8 else marcade.in0:=marcade.in0 and $f7;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10 else marcade.in0:=marcade.in0 and $ef;
-  if arcade_input.coin[0] then marcade.in1:=marcade.in1 or 1 else marcade.in1:=marcade.in1 and $fe;
-  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or 2 else marcade.in1:=marcade.in1 and $fd;
-  if arcade_input.start[0] then marcade.in1:=marcade.in1 or 8 else marcade.in1:=marcade.in1 and $f7;
-  if arcade_input.start[1] then marcade.in1:=marcade.in1 or $10 else marcade.in1:=marcade.in1 and $ef;
-  if arcade_input.but1[0] then marcade.in1:=marcade.in1 or $20 else marcade.in1:=marcade.in1 and $df;
-  if arcade_input.right[0] then marcade.in1:=marcade.in1 or $40 else marcade.in1:=marcade.in1 and $bf;
-  if arcade_input.left[0] then marcade.in1:=marcade.in1 or $80 else marcade.in1:=marcade.in1 and $7F;
+  marcade.in0:=0;
+  marcade.in1:=0;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or $40;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or $80;
 end;
 end;
 
@@ -153,7 +158,6 @@ var
   frame:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame:=m6502_0.tframes;
 while EmuStatus=EsRunning do begin
  for f:=0 to 299 do begin
@@ -295,7 +299,7 @@ case main_vars.tipo_maquina of
         avgdvg_0:=avgdvg_chip.create(m6502_0.numero_cpu,1,$4000,40);
         if not(roms_load(avgdvg_0.get_prom_data,as_prom)) then exit;
         //samples
-        hay_samples:=load_samples(as_samples);
+        hay_samples:=load_samples(asteroids_samples);
         //dip
         init_dips(1,asteroids_dip_a,$84);
       end;

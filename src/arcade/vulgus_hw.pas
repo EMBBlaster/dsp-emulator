@@ -1,13 +1,10 @@
 unit vulgus_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,pal_engine,
-     sound_engine,timer_engine;
+uses rom_engine;
 
 function iniciar_vulgus:boolean;
 
-implementation
 const
         vulgus_rom:array[0..4] of tipo_roms=(
         (n:'vulgus.002';l:$2000;p:0;crc:$e49d6c5d),(n:'vulgus.003';l:$2000;p:$2000;crc:$51acef76),
@@ -22,11 +19,16 @@ const
         vulgus_sprites:array[0..3] of tipo_roms=(
         (n:'2-2n.bin';l:$2000;p:0;crc:$6db1b10d),(n:'2-3n.bin';l:$2000;p:$2000;crc:$5d8c34ec),
         (n:'2-4n.bin';l:$2000;p:$4000;crc:$0071a2e3),(n:'2-5n.bin';l:$2000;p:$6000;crc:$4023a1ec));
-        vulgus_tiles:array[0..5] of tipo_roms=(
+        vulgus_tiles:array[0..6] of tipo_roms=(
         (n:'2-2a.bin';l:$2000;p:0;crc:$e10aaca1),(n:'2-3a.bin';l:$2000;p:$2000;crc:$8da520da),
         (n:'2-4a.bin';l:$2000;p:$4000;crc:$206a13f1),(n:'2-5a.bin';l:$2000;p:$6000;crc:$b6d81984),
-        (n:'2-6a.bin';l:$2000;p:$8000;crc:$5a26b38f),(n:'2-7a.bin';l:$2000;p:$a000;crc:$1e1ca773));
-        //Dip
+        (n:'2-6a.bin';l:$2000;p:$8000;crc:$5a26b38f),(n:'2-7a.bin';l:$2000;p:$a000;crc:$1e1ca773),());
+
+implementation
+uses nz80,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,timer_engine;
+
+const
         vulgus_dip_a:array [0..2] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(1,2,3,0);name4:('1','2','3','5')),
         (mask:$1c;name:'Coin B';number:8;val8:($10,8,$18,4,$1c,$c,$14,0);name8:('5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','Invalid')),
@@ -104,25 +106,28 @@ end;
 procedure eventos_vulgus;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
   //system
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $7f;
 end;
 end;
 
@@ -130,7 +135,6 @@ procedure vulgus_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_vulgus;
@@ -204,10 +208,10 @@ begin
 case direccion of
   0..$1fff:;
   $4000..$47ff:mem_snd[direccion]:=valor;
-  $8000:ay8910_0.Control(valor);
-  $8001:ay8910_0.Write(valor);
-  $c000:ay8910_1.Control(valor);
-  $c001:ay8910_1.Write(valor);
+  $8000:ay8910_0.control(valor);
+  $8001:ay8910_0.write(valor);
+  $c000:ay8910_1.control(valor);
+  $c001:ay8910_1.write(valor);
 end;
 end;
 

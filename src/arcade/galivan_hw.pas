@@ -1,13 +1,10 @@
-unit galivan_hw;
+﻿unit galivan_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,dac,rom_engine,pal_engine,
-     sound_engine,timer_engine,ym_3812;
+uses rom_engine;
 
 function iniciar_galivan:boolean;
 
-implementation
 const
         galivan_rom:array[0..2] of tipo_roms=(
         (n:'1.1b';l:$8000;p:0;crc:$1e66b3f8),(n:'2.3b';l:$4000;p:$8000;crc:$a45964f1),
@@ -22,22 +19,10 @@ const
         (n:'gv14.4f';l:$8000;p:0;crc:$03e2229f),(n:'gv13.1f';l:$8000;p:$8000;crc:$bca9e66b));
         galivan_bg_tiles:array[0..1] of tipo_roms=(
         (n:'gv6.19d';l:$4000;p:0;crc:$da38168b),(n:'gv5.17d';l:$4000;p:$4000;crc:$22492d2a));
-        galivan_pal:array[0..4] of tipo_roms=(
+        galivan_pal:array[0..5] of tipo_roms=(
         (n:'mb7114e.9f';l:$100;p:0;crc:$de782b3e),(n:'mb7114e.10f';l:$100;p:$100;crc:$0ae2a857),
         (n:'mb7114e.11f';l:$100;p:$200;crc:$7ba8b9d1),(n:'mb7114e.2d';l:$100;p:$300;crc:$75466109),
-        (n:'mb7114e.7f';l:$100;p:$400;crc:$06538736));
-        galivan_dip_a:array [0..6] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'3'),(dip_val:$2;dip_name:'4'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$c;dip_name:'20K 60K+'),(dip_val:$8;dip_name:'50K 60K+'),(dip_val:$4;dip_name:'20K 90K+'),(dip_val:$0;dip_name:'50K 90K+'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$20;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$40;name:'Power Invulnerability';number:2;dip:((dip_val:$40;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Life Invulnerability';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        galivan_dip_b:array [0..4] of def_dip=(
-        (mask:$3;name:'Coin A';number:4;dip:((dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'1C 2C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$4;dip_name:'2C 3C'),(dip_val:$c;dip_name:'1C 3C'),(dip_val:$8;dip_name:'1C 6C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$10;name:'Difficulty';number:2;dip:((dip_val:$10;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$20;name:'Flip Screen';number:2;dip:((dip_val:$20;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'mb7114e.7f';l:$100;p:$400;crc:$06538736),());
         dangar_rom:array[0..2] of tipo_roms=(
         (n:'8.1b';l:$8000;p:0;crc:$fe4a3fd6),(n:'9.3b';l:$4000;p:$8000;crc:$809d280f),
         (n:'10.4b';l:$4000;p:$c000;crc:$99a3591b));
@@ -51,10 +36,29 @@ const
         (n:'12.f4';l:$8000;p:0;crc:$55711884),(n:'11.f1';l:$8000;p:$8000;crc:$8cf11419));
         dangar_bg_tiles:array[0..1] of tipo_roms=(
         (n:'7.19d';l:$4000;p:0;crc:$6dba32cf),(n:'6.17d';l:$4000;p:$4000;crc:$6c899071));
-        dangar_pal:array[0..4] of tipo_roms=(
+        dangar_pal:array[0..5] of tipo_roms=(
         (n:'82s129.9f';l:$100;p:0;crc:$b29f6a07),(n:'82s129.10f';l:$100;p:$100;crc:$c6de5ecb),
         (n:'82s129.11f';l:$100;p:$200;crc:$a5bbd6dc),(n:'82s129.2d';l:$100;p:$300;crc:$a4ac95a5),
-        (n:'82s129.7f';l:$100;p:$400;crc:$29bc6216));
+        (n:'82s129.7f';l:$100;p:$400;crc:$29bc6216),());
+
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,dac,pal_engine,sound_engine,
+     timer_engine,ym_3812;
+
+const
+        galivan_dip_a:array [0..6] of def_dip=(
+        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'3'),(dip_val:$2;dip_name:'4'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$c;dip_name:'20K 60K+'),(dip_val:$8;dip_name:'50K 60K+'),(dip_val:$4;dip_name:'20K 90K+'),(dip_val:$0;dip_name:'50K 90K+'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$10;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$20;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$40;name:'Power Invulnerability';number:2;dip:((dip_val:$40;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Life Invulnerability';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        galivan_dip_b:array [0..4] of def_dip=(
+        (mask:$3;name:'Coin A';number:4;dip:((dip_val:$1;dip_name:'2C 1C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$2;dip_name:'1C 2C'),(dip_val:$0;dip_name:'Free Play'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$c;name:'Coin B';number:4;dip:((dip_val:$0;dip_name:'3C 1C'),(dip_val:$4;dip_name:'2C 3C'),(dip_val:$c;dip_name:'1C 3C'),(dip_val:$8;dip_name:'1C 6C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$10;name:'Difficulty';number:2;dip:((dip_val:$10;dip_name:'Easy'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$20;name:'Flip Screen';number:2;dip:((dip_val:$20;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         dangar_dip_a:array [0..5] of def_dip=(
         (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'3'),(dip_val:$2;dip_name:'4'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$c;dip_name:'20K 60K+'),(dip_val:$8;dip_name:'50K 60K+'),(dip_val:$4;dip_name:'20K 90K+'),(dip_val:$0;dip_name:'50K 90K+'),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -128,27 +132,30 @@ end;
 procedure eventos_galivan;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $7f;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 and $7f;
   //SYSTEM
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
 end;
 end;
 
@@ -156,7 +163,6 @@ procedure galivan_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
   eventos_galivan;

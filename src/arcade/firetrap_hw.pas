@@ -1,13 +1,10 @@
 unit firetrap_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m6502,mcs51,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_3812,msm5205;
+uses rom_engine;
 
 function iniciar_firetrap:boolean;
 
-implementation
 const
         firetrap_rom:array[0..2] of tipo_roms=(
         (n:'di-02.4a';l:$8000;p:0;crc:$3d1e4bf7),(n:'di-01.3a';l:$8000;p:$8000;crc:$9bbae38b),
@@ -25,10 +22,15 @@ const
         firetrap_sprites:array[0..3] of tipo_roms=(
         (n:'di-16.17h';l:$8000;p:0;crc:$0de055d7),(n:'di-13.13h';l:$8000;p:$8000;crc:$869219da),
         (n:'di-14.14h';l:$8000;p:$10000;crc:$6b65812e),(n:'di-15.15h';l:$8000;p:$18000;crc:$3e27f77d));
-        firetrap_pal:array[0..2] of tipo_roms=(
+        firetrap_pal:array[0..3] of tipo_roms=(
         (n:'firetrap.3b';l:$100;p:0;crc:$8bb45337),(n:'firetrap.4b';l:$100;p:$100;crc:$d5abfc64),
-        (n:'firetrap.1a';l:$100;p:$200;crc:$d67f3514));
-        //DIP
+        (n:'firetrap.1a';l:$100;p:$200;crc:$d67f3514),());
+
+implementation
+uses nz80,m6502,mcs51,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ym_3812,msm5205;
+
+const
         firetrap_dip_a:array [0..5] of def_dip=(
         (mask:7;name:'Coin A';number:5;dip:((dip_val:$7;dip_name:'1C 1C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$3;dip_name:'1C 4C'),(dip_val:$4;dip_name:'1C 6C'),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$18;name:'Coin B';number:4;dip:((dip_val:0;dip_name:'4C 1C'),(dip_val:$8;dip_name:'3C 1C'),(dip_val:$10;dip_name:'2C 1C'),(dip_val:$18;dip_name:'1C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -168,7 +170,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 271 do begin
     eventos_firetrap;

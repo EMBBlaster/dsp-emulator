@@ -1,7 +1,7 @@
 unit mos6526_old;
 //{$DEFINE DEBUG}
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}dialogs,sysutils,cpu_misc,main_engine;
+uses dialogs,sysutils,cpu_misc,main_engine;
 
 type
   mos6526_chip=class

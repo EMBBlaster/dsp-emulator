@@ -1,17 +1,8 @@
-unit thunderx_hw;
+﻿unit thunderx_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,konami,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,k052109,k051960,k007232,timer_engine;
+uses rom_engine;
 
-function iniciar_thunderx:boolean;
-
-implementation
-
-type
-        tvideo_bank_func=procedure(valor:byte);
-        tfunction_1f98=procedure(valor:byte);
 const
         //Super Contra
         scontra_rom:array[0..1] of tipo_roms=(
@@ -33,20 +24,20 @@ const
         (n:'775-f06c.bin';l:$10000;p:$80002;crc:$5ee6f3c1),(n:'775-f06g.bin';l:$10000;p:$80003;crc:$2645274d),
         (n:'775-f05d.bin';l:$10000;p:$c0000;crc:$ad676a6f),(n:'775-f05h.bin';l:$10000;p:$c0001;crc:$3f925bcf),
         (n:'775-f06d.bin';l:$10000;p:$c0002;crc:$c8b764fa),(n:'775-f06h.bin';l:$10000;p:$c0003;crc:$d6595f59));
-        scontra_k007232:array[0..7] of tipo_roms=(
+        scontra_k007232:array[0..8] of tipo_roms=(
         (n:'775-a04a.bin';l:$10000;p:$0;crc:$7efb2e0f),(n:'775-a04b.bin';l:$10000;p:$10000;crc:$f41a2b33),
         (n:'775-a04c.bin';l:$10000;p:$20000;crc:$e4e58f14),(n:'775-a04d.bin';l:$10000;p:$30000;crc:$d46736f6),
         (n:'775-f04e.bin';l:$10000;p:$40000;crc:$fbf7e363),(n:'775-f04f.bin';l:$10000;p:$50000;crc:$b031ef2d),
-        (n:'775-f04g.bin';l:$10000;p:$60000;crc:$ee107bbb),(n:'775-f04h.bin';l:$10000;p:$70000;crc:$fb0fab46));
+        (n:'775-f04g.bin';l:$10000;p:$60000;crc:$ee107bbb),(n:'775-f04h.bin';l:$10000;p:$70000;crc:$fb0fab46),());
         //Gang Busters
         gbusters_rom:array[0..1] of tipo_roms=(
         (n:'878n02.k13';l:$10000;p:0;crc:$51697aaa),(n:'878j03.k15';l:$10000;p:$10000;crc:$3943a065));
         gbusters_sound:tipo_roms=(n:'878h01.f8';l:$8000;p:0;crc:$96feafaa);
         gbusters_tiles:array[0..1] of tipo_roms=(
         (n:'878c07.h27';l:$40000;p:0;crc:$eeed912c),(n:'878c08.k27';l:$40000;p:2;crc:$4d14626d));
-        gbusters_sprites:array[0..1] of tipo_roms=(
-        (n:'878c05.h5';l:$40000;p:0;crc:$01f4aea5),(n:'878c06.k5';l:$40000;p:2;crc:$edfaaaaf));
         gbusters_k007232:tipo_roms=(n:'878c04.d5';l:$40000;p:0;crc:$9e982d1c);
+        gbusters_sprites:array[0..2] of tipo_roms=(
+        (n:'878c05.h5';l:$40000;p:0;crc:$01f4aea5),(n:'878c06.k5';l:$40000;p:2;crc:$edfaaaaf),());
         //Thunder Cross
         thunderx_rom:array[0..1] of tipo_roms=(
         (n:'873-s02.k13';l:$10000;p:0;crc:$6619333a),(n:'873-s03.k15';l:$10000;p:$10000;crc:$2aec2699));
@@ -56,12 +47,19 @@ const
         (n:'873c07a.f4';l:$10000;p:2;crc:$a8aab84f),(n:'873c07c.f3';l:$10000;p:3;crc:$2521009a),
         (n:'873c06b.e6';l:$10000;p:$40000;crc:$97ad202e),(n:'873c06d.e5';l:$10000;p:$40001;crc:$8393d42e),
         (n:'873c07b.e4';l:$10000;p:$40002;crc:$12a2b8ba),(n:'873c07d.e3';l:$10000;p:$40003;crc:$fae9f965));
-        thunderx_sprites:array[0..7] of tipo_roms=(
+        thunderx_sprites:array[0..8] of tipo_roms=(
         (n:'873c04a.f11';l:$10000;p:0;crc:$f7740bf3),(n:'873c04c.f10';l:$10000;p:1;crc:$5dacbd2b),
         (n:'873c05a.f9';l:$10000;p:2;crc:$d73e107d),(n:'873c05c.f8';l:$10000;p:3;crc:$59903200),
         (n:'873c04b.e11';l:$10000;p:$40000;crc:$9ac581da),(n:'873c04d.e10';l:$10000;p:$40001;crc:$44a4668c),
-        (n:'873c05b.e9';l:$10000;p:$40002;crc:$81059b99),(n:'873c05d.e8';l:$10000;p:$40003;crc:$7fa3d7df));
-        //DIP
+        (n:'873c05b.e9';l:$10000;p:$40002;crc:$81059b99),(n:'873c05d.e8';l:$10000;p:$40003;crc:$7fa3d7df),());
+
+function iniciar_thunderx:boolean;
+
+implementation
+uses nz80,konami,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ym_2151,k052109,k051960,k007232,timer_engine;
+
+const
         scontra_dip_a:array [0..2] of def_dip=(
         (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$02;dip_name:'4C 1C'),(dip_val:$05;dip_name:'3C 1C'),(dip_val:$08;dip_name:'2C 1C'),(dip_val:$04;dip_name:'3C 2C'),(dip_val:$01;dip_name:'4C 3C'),(dip_val:$0f;dip_name:'1C 1C'),(dip_val:$03;dip_name:'3C 4C'),(dip_val:$07;dip_name:'2C 3C'),(dip_val:$0e;dip_name:'1C 2C'),(dip_val:$06;dip_name:'2C 5C'),(dip_val:$0d;dip_name:'1C 3C'),(dip_val:$0c;dip_name:'1C 4C'),(dip_val:$0b;dip_name:'1C 5C'),(dip_val:$0a;dip_name:'1C 6C'),(dip_val:$09;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),
         (mask:$f0;name:'Coin B';number:16;dip:((dip_val:$20;dip_name:'4C 1C'),(dip_val:$50;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$40;dip_name:'3C 2C'),(dip_val:$10;dip_name:'4C 3C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$30;dip_name:'3C 4C'),(dip_val:$70;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$60;dip_name:'2C 5C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$90;dip_name:'1C 7C'),(dip_val:$0;dip_name:'No Coin'))),());
@@ -89,6 +87,9 @@ const
         (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         layer_colorbase:array[0..2] of byte=(48,0,16);
 
+type
+        tvideo_bank_func=procedure(valor:byte);
+        tfunction_1f98=procedure(valor:byte);
 
 var
  tiles_rom,sprite_rom,k007232_rom:pbyte;
@@ -256,7 +257,6 @@ var
   frame_m,frame_s:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=konami_0.tframes;
 frame_s:=z80_0.tframes;
 while EmuStatus=EsRunning do begin

@@ -1,13 +1,10 @@
 unit hw_3x3puzzle;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine;
+uses rom_engine;
 
 function iniciar_puzz3x3:boolean;
 
-implementation
 const
         puzz3x3_rom:array[0..1] of tipo_roms=(
         (n:'1.bin';l:$20000;p:0;crc:$e9c39ee7),(n:'2.bin';l:$20000;p:1;crc:$524963be));
@@ -17,15 +14,10 @@ const
         puzz3x3_gfx2:array[0..3] of tipo_roms=(
         (n:'7.bin';l:$20000;p:0;crc:$45b1f58b),(n:'8.bin';l:$20000;p:1;crc:$c0d404a7),
         (n:'9.bin';l:$20000;p:2;crc:$6b303aa9),(n:'10.bin';l:$20000;p:3;crc:$6d0107bc));
-        puzz3x3_gfx3:array[0..3] of tipo_roms=(
-        (n:'11.bin';l:$20000;p:0;crc:$e124c0b5),(n:'12.bin';l:$20000;p:1;crc:$ae4a8707),
-        (n:'13.bin';l:$20000;p:2;crc:$f06925d1),(n:'14.bin';l:$20000;p:3;crc:$07252636));
         puzz3x3_oki:tipo_roms=(n:'15.bin';l:$80000;p:0;crc:$d3aff355);
-        puzz3x3_dip_a:array [0..4] of def_dip=(
-        (mask:$0300;name:'Coinage';number:4;dip:((dip_val:$300;dip_name:'1C 1C'),(dip_val:$200;dip_name:'1C 2C'),(dip_val:$100;dip_name:'2C 1C'),(dip_val:$0;dip_name:'3C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$0400;name:'Demo Sounds';number:2;dip:((dip_val:$400;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$1800;name:'Difficulty';number:4;dip:((dip_val:$1800;dip_name:'Normal'),(dip_val:$1000;dip_name:'Easy'),(dip_val:$800;dip_name:'Easiest'),(dip_val:$0000;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4000;name:'Free Play/Debug mode';number:2;dip:((dip_val:$4000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        puzz3x3_gfx3:array[0..4] of tipo_roms=(
+        (n:'11.bin';l:$20000;p:0;crc:$e124c0b5),(n:'12.bin';l:$20000;p:1;crc:$ae4a8707),
+        (n:'13.bin';l:$20000;p:2;crc:$f06925d1),(n:'14.bin';l:$20000;p:3;crc:$07252636),());
         casanova_rom:array[0..1] of tipo_roms=(
         (n:'casanova.u7';l:$40000;p:1;crc:$869c2bf2),(n:'casanova.u8';l:$40000;p:$0;crc:$9df77f4b));
         casanova_gfx1:array[0..7] of tipo_roms=(
@@ -39,8 +31,18 @@ const
         casanova_gfx3:array[0..3] of tipo_roms=(
         (n:'casanova.u54';l:$80000;p:0;crc:$e60bf0db),(n:'casanova.u52';l:$80000;p:1;crc:$708f779c),
         (n:'casanova.u50';l:$80000;p:2;crc:$c73b5e98),(n:'casanova.u48';l:$80000;p:3;crc:$af9f59c5));
-        casanova_oki:array[0..1] of tipo_roms=(
-        (n:'casanova.su2';l:$80000;p:0;crc:$84a8320e),(n:'casanova.su3';l:$40000;p:$80000;crc:$334a2d1a));
+        casanova_oki:array[0..2] of tipo_roms=(
+        (n:'casanova.su2';l:$80000;p:0;crc:$84a8320e),(n:'casanova.su3';l:$40000;p:$80000;crc:$334a2d1a),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,sound_engine;
+
+const
+        puzz3x3_dip_a:array [0..4] of def_dip=(
+        (mask:$0300;name:'Coinage';number:4;dip:((dip_val:$300;dip_name:'1C 1C'),(dip_val:$200;dip_name:'1C 2C'),(dip_val:$100;dip_name:'2C 1C'),(dip_val:$0;dip_name:'3C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$0400;name:'Demo Sounds';number:2;dip:((dip_val:$400;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$1800;name:'Difficulty';number:4;dip:((dip_val:$1800;dip_name:'Normal'),(dip_val:$1000;dip_name:'Easy'),(dip_val:$800;dip_name:'Easiest'),(dip_val:$0000;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$4000;name:'Free Play/Debug mode';number:2;dip:((dip_val:$4000;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         casanova_dip_a:array [0..4] of def_dip=(
         (mask:3;name:'Coinage';number:4;dip:((dip_val:$2;dip_name:'1C 2C'),(dip_val:$3;dip_name:'1C 1C'),(dip_val:$1;dip_name:'2C 1C'),(dip_val:$0;dip_name:'3C 1C'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$c;name:'Difficulty';number:4;dip:((dip_val:$8;dip_name:'Easy'),(dip_val:$c;dip_name:'Normal'),(dip_val:$4;dip_name:'Hard'),(dip_val:$0;dip_name:'Very Hard'),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -128,7 +130,6 @@ procedure puzz3x3_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
    eventos_puzz3x3;

@@ -1,13 +1,10 @@
 unit wyvernf0_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,timer_engine,
-     pal_engine,sound_engine,taito_68705,dac,msm5232;
+uses rom_engine;
 
 function iniciar_wyvernf0:boolean;
 
-implementation
 const
         wyvernf0_rom:array[0..5] of tipo_roms=(
         (n:'a39_01-1.ic37';l:$4000;p:0;crc:$a94887ec),(n:'a39_02-1.ic36';l:$4000;p:$4000;crc:$171cfdbe),
@@ -18,10 +15,15 @@ const
         wyvernf0_chars:array[0..3] of tipo_roms=(
         (n:'a39_15.ic99';l:$2000;p:0;crc:$90a66147),(n:'a39_14.ic73';l:$2000;p:$2000;crc:$a31f3507),
         (n:'a39_13.ic100';l:$2000;p:$4000;crc:$be708238),(n:'a39_12.ic74';l:$2000;p:$6000;crc:$1cc389de));
-        wyvernf0_sprites:array[0..3] of tipo_roms=(
+        wyvernf0_sprites:array[0..4] of tipo_roms=(
         (n:'a39_11.ic99';l:$4000;p:0;crc:$af70e1dc),(n:'a39_10.ic78';l:$4000;p:$4000;crc:$a84380fb),
-        (n:'a39_09.ic96';l:$4000;p:$8000;crc:$c0cee243),(n:'a39_08.ic75';l:$4000;p:$c000;crc:$0ad69501));
-        //Dip
+        (n:'a39_09.ic96';l:$4000;p:$8000;crc:$c0cee243),(n:'a39_08.ic75';l:$4000;p:$c000;crc:$0ad69501),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,timer_engine,
+     pal_engine,sound_engine,taito_68705,dac,msm5232;
+
+const
         wyvernf0_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Bonus Life';number:4;val4:(0,1,2,3);name4:('0','1','2','3')),
         (mask:4;name:'Free Play';number:2;val2:(4,0);name2:('Off','On')),
@@ -113,27 +115,32 @@ end;
 procedure eventos_wyvernf0;
 begin
 if event.arcade then begin
+  marcade.in0:=$c0;
+  marcade.in1:=0;
+  marcade.in2:=0;
+  marcade.in3:=0;
+  marcade.in4:=0;
   //P1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
-  if arcade_input.but2[0] then marcade.in3:=(marcade.in3 or 8) else marcade.in3:=(marcade.in3 and $f7);
-  if arcade_input.but1[0] then marcade.in3:=(marcade.in3 or $10) else marcade.in3:=(marcade.in3 and $ef);
-  if arcade_input.but0[0] then marcade.in3:=(marcade.in3 or $20) else marcade.in3:=(marcade.in3 and $df);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.but2[0] then marcade.in3:=marcade.in3 or 8;
+  if arcade_input.but1[0] then marcade.in3:=marcade.in3 or $10;
+  if arcade_input.but0[0] then marcade.in3:=marcade.in3 or $20;
   //P2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 or 8) else marcade.in2:=(marcade.in2 and $f7);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 or $10) else marcade.in2:=(marcade.in2 and $ef);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 or $20) else marcade.in2:=(marcade.in2 and $df);
-  if arcade_input.but2[1] then marcade.in4:=(marcade.in4 or 8) else marcade.in4:=(marcade.in4 and $f7);
-  if arcade_input.but1[1] then marcade.in4:=(marcade.in4 or $10) else marcade.in4:=(marcade.in4 and $ef);
-  if arcade_input.but0[1] then marcade.in4:=(marcade.in4 or $20) else marcade.in4:=(marcade.in4 and $df);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 or 8;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 or $20;
+  if arcade_input.but2[1] then marcade.in4:=marcade.in4 or 8;
+  if arcade_input.but1[1] then marcade.in4:=marcade.in4 or $10;
+  if arcade_input.but0[1] then marcade.in4:=marcade.in4 or $20;
   //SYS
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $20;
 end;
 end;
 
@@ -141,7 +148,6 @@ procedure wyvernf0_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
   eventos_wyvernf0;

@@ -1,15 +1,11 @@
 unit gradius3_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,ym_2151,k052109,k051960,k007232;
+uses rom_engine;
 
 function iniciar_gradius3:boolean;
 
-implementation
 const
-        //gradius3
         gradius3_rom:array[0..1] of tipo_roms=(
         (n:'945_r13.f15';l:$20000;p:0;crc:$cffd103f),(n:'945_r12.e15';l:$20000;p:$1;crc:$0b968ef6));
         gradius3_rom_sub:array[0..7] of tipo_roms=(
@@ -25,21 +21,26 @@ const
         (n:'945_l03a.e6';l:$20000;p:$100002;crc:$a67ef087),(n:'945_l03c.h6';l:$20000;p:$100003;crc:$a56be17a),
         (n:'945_l04b.k8';l:$20000;p:$180000;crc:$843bc67d),(n:'945_l04d.m8';l:$20000;p:$180001;crc:$0a98d08e),
         (n:'945_l03b.e8';l:$20000;p:$180002;crc:$933e68b9),(n:'945_l03d.h8';l:$20000;p:$180003;crc:$f375e87b));
-        gradius3_k007232:array[0..2] of tipo_roms=(
+        gradius3_k007232:array[0..3] of tipo_roms=(
         (n:'945_a10.b15';l:$40000;p:0;crc:$1d083e10),(n:'945_l11a.c18';l:$20000;p:$40000;crc:$6043f4eb),
-        (n:'945_l11b.c20';l:$20000;p:$60000;crc:$89ea3baf));
-        //DIP
+        (n:'945_l11b.c20';l:$20000;p:$60000;crc:$89ea3baf),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,ym_2151,k052109,k051960,k007232;
+
+const
         gradius3_dip_a:array [0..1] of def_dip=(
         (mask:$f;name:'Coinage';number:16;dip:((dip_val:$0;dip_name:'5C 1C'),(dip_val:$2;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'2C 3C'),(dip_val:$1;dip_name:'4C 3C'),(dip_val:$f;dip_name:'1C 1C'),(dip_val:$3;dip_name:'3C 4C'),(dip_val:$7;dip_name:'2C 3C'),(dip_val:$e;dip_name:'1C 2C'),(dip_val:$6;dip_name:'2C 5C'),(dip_val:$d;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(dip_val:$b;dip_name:'1C 5C'),(dip_val:$a;dip_name:'1C 6C'),(dip_val:$9;dip_name:'1C 7C'))),());
         gradius3_dip_b:array [0..5] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'2'),(dip_val:$2;dip_name:'3'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'7'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$4;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'2'),(dip_val:$2;dip_name:'3'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'7'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:4;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$4;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$18;name:'Bonus Life';number:4;dip:((dip_val:$18;dip_name:'20k 70k+'),(dip_val:$10;dip_name:'100k 100k+'),(dip_val:$8;dip_name:'50k'),(dip_val:$0;dip_name:'100k'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$60;name:'Difficulty';number:4;dip:((dip_val:$60;dip_name:'Easy'),(dip_val:$40;dip_name:'Normal'),(dip_val:$20;dip_name:'Difficult'),(dip_val:$0;dip_name:'Very Difficult'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         gradius3_dip_c:array [0..2] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Upright Controls';number:2;dip:((dip_val:$2;dip_name:'Single'),(dip_val:$0;dip_name:'Dual'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (mask:1;name:'Flip Screen';number:2;dip:((dip_val:$1;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:2;name:'Upright Controls';number:2;dip:((dip_val:$2;dip_name:'Single'),(dip_val:$0;dip_name:'Dual'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
 
 var
  rom:array[0..$1ffff] of word;
@@ -145,7 +146,6 @@ procedure gradius3_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
   eventos_gradius3;

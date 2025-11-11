@@ -1,8 +1,7 @@
-unit konami;
+﻿unit konami;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,timer_engine,m6809,cpu_misc;
+uses main_engine,dialogs,sysutils,m6809,cpu_misc;
 
 type
         tset_lines=procedure (valor:byte);
@@ -26,6 +25,7 @@ var
   konami_0:cpu_konami;
 
 implementation
+uses timer_engine;
 
 const
      estados_t:array[0..255] of byte=(
@@ -176,7 +176,7 @@ var
   origen:pword;
   direccion,temp2:word;
 begin
-iindexed:=self.getbyte(r.pc); //Hay que a�adir 1 estado por cojer un byte...
+iindexed:=self.getbyte(r.pc); //Hay que añadir 1 estado por cojer un byte...
 r.pc:=r.pc+1;
 case (iindexed and $70) of
   $20:origen:=@r.x;

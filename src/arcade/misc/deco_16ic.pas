@@ -165,7 +165,7 @@ case (self.control[6] and $60) of
         atrib:=1024 div cols;
         scroll__y_part2(self.pf1.pant,screen,atrib,@self.pf1.rowscroll[$200],self.control[1],self.control[2]);
   end;
-  $40:begin //row_scroll
+  $40,$60:begin //row_scroll
         rows:=512 shr ((self.control[5] shr 3) and $f);
         if self.pf1.is_8x8 then begin
             rows:=rows shr 1;
@@ -173,7 +173,7 @@ case (self.control[6] and $60) of
         end else atrib:=512 div rows;
         scroll__x_part2(self.pf1.pant,screen,atrib,@self.pf1.rowscroll[0],self.control[1],self.control[2]);
   end;
-  $60:halt(0); //col & row scroll
+  //$60:halt(0); //col & row scroll
 end;
 end;
 

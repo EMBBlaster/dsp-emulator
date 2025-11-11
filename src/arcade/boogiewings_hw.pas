@@ -1,14 +1,10 @@
 unit boogiewings_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine,hu6280,deco_16ic,deco_decr,deco_common,deco_104,
-     misc_functions;
+uses rom_engine;
 
 function iniciar_boogwing:boolean;
 
-implementation
 const
         boogwing_rom:array[0..3] of tipo_roms=(
         (n:'kn_00-2.2b';l:$40000;p:0;crc:$e38892b9),(n:'kn_02-2.2e';l:$40000;p:1;crc:$8426efef),
@@ -23,10 +19,16 @@ const
         boogwing_tiles1_1:tipo_roms=(n:'mbd-02.10e';l:$80000;p:0;crc:$b25aa721);
         boogwing_sprites1:array[0..1] of tipo_roms=(
         (n:'mbd-05.16b';l:$200000;p:$200000;crc:$1768c66a),(n:'mbd-06.17b';l:$200000;p:0;crc:$7750847a));
-        boogwing_sprites2:array[0..1] of tipo_roms=(
-        (n:'mbd-07.18b';l:$200000;p:$200000;crc:$241faac1),(n:'mbd-08.19b';l:$200000;p:0;crc:$f13b1e56));
         boogwing_oki1:tipo_roms=(n:'mbd-10.17p';l:$80000;p:0;crc:$f159f76a);
         boogwing_oki2:tipo_roms=(n:'mbd-09.16p';l:$80000;p:0;crc:$f44f2f87);
+        boogwing_sprites2:array[0..2] of tipo_roms=(
+        (n:'mbd-07.18b';l:$200000;p:$200000;crc:$241faac1),(n:'mbd-08.19b';l:$200000;p:0;crc:$f13b1e56),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine,hu6280,deco_16ic,deco_decr,deco_common,deco_104,misc_functions;
+
+const
         boogwing_dip_a:array [0..6] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,7,6,5,4,3,2);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$38,$30,$28,$20,$18,$10);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
@@ -127,7 +129,6 @@ procedure boogwing_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 273 do begin
    eventos_boogwing;
@@ -216,17 +217,17 @@ for f:=0 to 2047 do begin
         else color.r:=r;
     end else begin
       b:=color.b+(((fadeptb-color.b)*fadepsb) div 255);
-      if b>$ff then b:=$ff
-        else if b<0 then b:=0;
-      //color.b:=b;
+      if b>$ff then color.b:=$ff
+        else if b<0 then color.b:=0;
+          //else color.b:=b;
       g:=color.g+(((fadeptg-color.g)*fadepsg) div 255);
-      if g>$ff then g:=$ff
-        else if g<0 then g:=0;
-      //color.g:=g;
+      if g>$ff then color.g:=$ff
+        else if g<0 then color.g:=0;
+          //else color.g:=g;
       r:=color.r+(((fadeptr-color.r)*fadepsr) div 255);
-      if r>$ff then r:=$ff
-        else if r<0 then r:=0;
-      //color.r:=r;
+      if r>$ff then color.r:=$ff
+        else if r<0 then color.r:=0;
+          //else color.r:=r;
     end;
     set_pal_color(color,f);
 end;
@@ -283,9 +284,11 @@ case direccion of
 	                  else palette_ram[(direccion shr 2) and $7ff]:=(palette_ram[(direccion shr 2) and $7ff] and $ffff0000) or valor;
   $3c0000..$3c004f:begin //deco ace
                       tempw:=(direccion and $ff) shr 1;
-                      ace_ram[tempw]:=valor;
-                      if ((tempw>=$20) and (tempw<=$26)) then
-                        update_palette;
+                      if ace_ram[tempw]<>valor then begin
+                        ace_ram[tempw]:=valor;
+                        if ((tempw>=$20) and (tempw<=$26)) then
+                          //update_palette;
+                      end;
                    end;
 end;
 end;
@@ -339,14 +342,10 @@ end;
 
 function iniciar_boogwing:boolean;
 const
-  pt_x:array[0..15] of dword=(256,257,258,259,260,261,262,263,
+  pt_x:array[0..15] of dword=(16*8*2+0,16*8*2+1,16*8*2+2,16*8*2+3,16*8*2+4,16*8*2+5,16*8*2+6,16*8*2+7,
   0, 1, 2, 3, 4, 5, 6, 7);
   pt_y:array[0..15] of dword=(0*16, 1*16, 2*16, 3*16, 4*16, 5*16, 6*16, 7*16,
   8*16,9*16,10*16,11*16,12*16,13*16,14*16,15*16);
-  ps_x:array[0..15] of dword=(512,513,514,515,516,517,518,519,
-   0, 1, 2, 3, 4, 5, 6, 7);
-  ps_y:array[0..15] of dword=(0*32, 1*32, 2*32, 3*32, 4*32, 5*32, 6*32, 7*32,
-	  8*32, 9*32,10*32,11*32,12*32,13*32,14*32,15*32 );
 var
   memoria_temp,memoria_temp2:pbyte;
   memoria_temp_rom:pword;

@@ -1,12 +1,9 @@
-unit m63_hw;
+﻿unit m63_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,mcs48,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine,dac;
+uses rom_engine;
 
 function iniciar_irem_m63:boolean;
-implementation
 
 const
         //Wily Tower
@@ -23,22 +20,11 @@ const
         (n:'wtb5a.bin';l:$2000;p:0;crc:$efc1cbfa),(n:'wtb5b.bin';l:$2000;p:$2000;crc:$ab4bfd07),
         (n:'wtb5d.bin';l:$2000;p:$4000;crc:$40f23e1d));
         wilytower_sound:tipo_roms=(n:'wt4d.bin';l:$1000;p:0;crc:$25a171bf);
-        wilytower_sprites:array[0..5] of tipo_roms=(
+        wilytower_misc:tipo_roms=(n:'wt_a-6d.bin';l:$1000;p:0;crc:$a5dde29b);
+        wilytower_sprites:array[0..6] of tipo_roms=(
         (n:'wt2j.bin';l:$1000;p:0;crc:$d1bf0670),(n:'wt3k.bin';l:$1000;p:$1000;crc:$83c39a0e),
         (n:'wt_a-3m.bin';l:$1000;p:$2000;crc:$e7e468ae),(n:'wt_a-3n.bin';l:$1000;p:$3000;crc:$0741d1a9),
-        (n:'wt_a-3p.bin';l:$1000;p:$4000;crc:$7299f362),(n:'wt_a-3s.bin';l:$1000;p:$5000;crc:$9b37d50d));
-        wilytower_misc:tipo_roms=(n:'wt_a-6d.bin';l:$1000;p:0;crc:$a5dde29b);
-        wilytower_dip_a:array [0..3] of def_dip2=(
-        (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('2','3','4','5')),
-        (mask:$c;name:'Bonus Points Rate';number:4;val4:(0,4,8,$c);name4:('Normal','x1.2','x1.4','x1.6')),
-        (mask:$30;name:'Coin A';number:4;val4:($20,$10,0,$30);name4:('3C 1C','2C 1C','1C 1C','Free Play')),
-        (mask:$c0;name:'Coin B';number:4;val4:(0,$40,$80,$c0);name4:('1C 2C','1C 3C','1C 5C','1C 6C')));
-        wilytower_dip_b:array [0..4] of def_dip2=(
-        (mask:1;name:'Flip Screen';number:2;val2:(0,1);name2:('Off','On')),
-        (mask:2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail')),
-        (mask:4;name:'Coin Mode';number:2;val2:(0,4);name2:('Mode 1','Mode 2')),
-        (mask:$10;name:'Stop Mode';number:2;val2:(0,$10);name2:('Off','On')),
-        (mask:$40;name:'Invulnerability';number:2;val2:(0,$40);name2:('Off','On')));
+        (n:'wt_a-3p.bin';l:$1000;p:$4000;crc:$7299f362),(n:'wt_a-3s.bin';l:$1000;p:$5000;crc:$9b37d50d),());
         //Fighting Basketball
         fightbasket_rom:array[0..4] of tipo_roms=(
         (n:'fb14.0f';l:$2000;p:0;crc:$82032853),(n:'fb13.2f';l:$2000;p:$2000;crc:$5306df0f),
@@ -57,10 +43,27 @@ const
         (n:'fb18.32a';l:$2000;p:$4000;crc:$c23ddcd7),(n:'fb17.34a';l:$2000;p:$6000;crc:$7db28013),
         (n:'fb20.29a';l:$2000;p:$8000;crc:$1a1b48f8),(n:'fb19.31a';l:$2000;p:$a000;crc:$7ff7e321));
         fightbasket_misc:tipo_roms=(n:'fb06.12a';l:$2000;p:0;crc:$bea3df99);
-        fightbasket_samples:array[0..4] of tipo_roms=(
+        fightbasket_samples:array[0..5] of tipo_roms=(
         (n:'fb01.42a';l:$2000;p:0;crc:$1200b220),(n:'fb02.41a';l:$2000;p:$2000;crc:$0b67aa82),
         (n:'fb03.40a';l:$2000;p:$4000;crc:$c71269ed),(n:'fb04.39a';l:$2000;p:$6000;crc:$02ddc42d),
-        (n:'fb05.38a';l:$2000;p:$8000;crc:$72ea6b49));
+        (n:'fb05.38a';l:$2000;p:$8000;crc:$72ea6b49),());
+
+implementation
+uses nz80,mcs48,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,timer_engine,dac;
+
+const
+        wilytower_dip_a:array [0..3] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('2','3','4','5')),
+        (mask:$c;name:'Bonus Points Rate';number:4;val4:(0,4,8,$c);name4:('Normal','x1.2','x1.4','x1.6')),
+        (mask:$30;name:'Coin A';number:4;val4:($20,$10,0,$30);name4:('3C 1C','2C 1C','1C 1C','Free Play')),
+        (mask:$c0;name:'Coin B';number:4;val4:(0,$40,$80,$c0);name4:('1C 2C','1C 3C','1C 5C','1C 6C')));
+        wilytower_dip_b:array [0..4] of def_dip2=(
+        (mask:1;name:'Flip Screen';number:2;val2:(0,1);name2:('Off','On')),
+        (mask:2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail')),
+        (mask:4;name:'Coin Mode';number:2;val2:(0,4);name2:('Mode 1','Mode 2')),
+        (mask:$10;name:'Stop Mode';number:2;val2:(0,$10);name2:('Off','On')),
+        (mask:$40;name:'Invulnerability';number:2;val2:(0,$40);name2:('Off','On')));
         fightbasket_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Coin A';number:4;val4:(3,1,0,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
         (mask:$c;name:'Coin B';number:4;val4:(4,0,8,$c);name4:('1C 1C','1C 2C','1C 4C','99 Credits/Sound Test')),
@@ -120,44 +123,48 @@ end;
 procedure eventos_irem_m63;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
   //P1
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $80;
   //P2
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or $20;
 end;
 end;
 
 procedure eventos_irem_fb;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
   //P1
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or $80;
   //P2
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or $20;
 end;
 end;
 
@@ -165,7 +172,6 @@ procedure irem_m63_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_func;

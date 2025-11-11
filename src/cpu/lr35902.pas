@@ -1,7 +1,7 @@
 unit lr35902;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,timer_engine,dialogs,sysutils,vars_hide,cpu_misc;
+uses main_engine,timer_engine,dialogs,sysutils,cpu_misc;
 
 type
   band_lr=record

@@ -41,7 +41,7 @@ object load_spec: Tload_spec
     ItemHeight = 13
     TabOrder = 2
     OnClick = FileListBox1Click
-    OnDblClick = FileListBox1DblClick
+    OnDblClick = Button2Click
     OnKeyUp = FormKeyUp
   end
   object Button1: TButton

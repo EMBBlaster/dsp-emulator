@@ -1,13 +1,10 @@
 unit returnofinvaders_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     timer_engine,sound_engine,sn_76496,misc_functions,taito_68705;
+uses rom_engine;
 
 function iniciar_retofinv:boolean;
 
-implementation
 const
         retofinv_rom:array[0..2] of tipo_roms=(
         (n:'a37__03.ic70';l:$2000;p:0;crc:$eae7459d),(n:'a37__02.ic71';l:$2000;p:$2000;crc:$72895e37),
@@ -24,10 +21,15 @@ const
         retofinv_proms:array[0..2] of tipo_roms=(
         (n:'a37-06.ic13';l:$100;p:0;crc:$e9643b8b),(n:'a37-07.ic4';l:$100;p:$100;crc:$e8f34e11),
         (n:'a37-08.ic3';l:$100;p:$200;crc:$50030af0));
-        retofinv_clut:array[0..3] of tipo_roms=(
+        retofinv_clut:array[0..4] of tipo_roms=(
         (n:'a37-17.gfxboard.ic36';l:$400;p:0;crc:$c63cf10e),(n:'a37-18.gfxboard.ic37';l:$400;p:$800;crc:$6db07bd1),
-        (n:'a37-19.gfxboard.ic83';l:$400;p:$400;crc:$a92aea27),(n:'a37-20.gfxboard.ic84';l:$400;p:$c00;crc:$77a7aaf6));
-        //Dip
+        (n:'a37-19.gfxboard.ic83';l:$400;p:$400;crc:$a92aea27),(n:'a37-20.gfxboard.ic84';l:$400;p:$c00;crc:$77a7aaf6),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,timer_engine,
+     sound_engine,sn_76496,misc_functions,taito_68705;
+
+const
         retofinv_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Bonus Life';number:4;val4:(3,2,1,0);name4:('30K 80K 80K+','30K 80K','30K','None')),
         (mask:4;name:'Free Play';number:2;val2:(4,0);name2:('No','Yes')),
@@ -123,20 +125,22 @@ end;
 procedure eventos_retofinv;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$cf;
   //P1
-  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $f7 else marcade.in0:=marcade.in0 or 8;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $7f else marcade.in0:=marcade.in0 or $80;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $7f;
   //p2
-  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd else marcade.in1:=marcade.in1 or 2;
-  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $f7 else marcade.in1:=marcade.in1 or 8;
-  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $7f else marcade.in1:=marcade.in1 or $80;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $7f;
   //botones 3
-  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $fe else marcade.in2:=marcade.in2 or 1;
-  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $fd else marcade.in2:=marcade.in2 or 2;
-  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10 else marcade.in2:=marcade.in2 and $ef;
-  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20 else marcade.in2:=marcade.in2 and $df;
-
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or $10;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or $20;
 end;
 end;
 
@@ -144,7 +148,6 @@ procedure principal_retofinv;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
     if main_vblank then z80_0.change_irq(ASSERT_LINE);
     if sub_vblank then z80_1.change_irq(ASSERT_LINE);

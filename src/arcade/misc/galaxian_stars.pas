@@ -1,7 +1,7 @@
-unit galaxian_stars;
+﻿unit galaxian_stars;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,gfx_engine,pal_engine,timer_engine;
+uses main_engine;
 
 const
   GALAXIANS=0;
@@ -33,6 +33,7 @@ var
   galaxian_stars_0:gal_stars;
 
 implementation
+uses gfx_engine,pal_engine,timer_engine;
 
 procedure stars_advance;
 begin

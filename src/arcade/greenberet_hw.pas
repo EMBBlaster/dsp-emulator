@@ -1,13 +1,10 @@
-unit greenberet_hw;
+﻿unit greenberet_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,sn_76496,gfx_engine,timer_engine,
-     rom_engine,file_engine,pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_gberet:boolean;
 
-implementation
 const
         //Green Beret
         gberet_rom:array[0..2] of tipo_roms=(
@@ -17,9 +14,9 @@ const
         (n:'577h09.2f';l:$20;p:0;crc:$c15e7c80),(n:'577h11.6f';l:$100;p:$20;crc:$2a1a992b),
         (n:'577h10.5f';l:$100;p:$120;crc:$e9de1e53));
         gberet_char:tipo_roms=(n:'577l07.3f';l:$4000;p:0;crc:$4da7bd1b);
-        gberet_sprites:array[0..3] of tipo_roms=(
+        gberet_sprites:array[0..4] of tipo_roms=(
         (n:'577l06.5e';l:$4000;p:0;crc:$0f1cb0ca),(n:'577l05.4e';l:$4000;p:$4000;crc:$523a8b66),
-        (n:'577l08.4f';l:$4000;p:$8000;crc:$883933a4),(n:'577l04.3e';l:$4000;p:$c000;crc:$ccecda4c));
+        (n:'577l08.4f';l:$4000;p:$8000;crc:$883933a4),(n:'577l04.3e';l:$4000;p:$c000;crc:$ccecda4c),());
         //Mr Goemon
         mrgoemon_rom:array[0..1] of tipo_roms=(
         (n:'621d01.10c';l:$8000;p:0;crc:$b2219c56),(n:'621d02.12c';l:$8000;p:$8000;crc:$c3337a97));
@@ -27,9 +24,14 @@ const
         (n:'621a06.5f';l:$20;p:0;crc:$7c90de5f),(n:'621a08.7f';l:$100;p:$20;crc:$2fb244dd),
         (n:'621a07.6f';l:$100;p:$120;crc:$3980acdc));
         mrgoemon_char:tipo_roms=(n:'621a05.6d';l:$4000;p:0;crc:$f0a6dfc5);
-        mrgoemon_sprites:array[0..1] of tipo_roms=(
-        (n:'621d03.4d';l:$8000;p:0;crc:$66f2b973),(n:'621d04.5d';l:$8000;p:$8000;crc:$47df6301));
-        //Dip
+        mrgoemon_sprites:array[0..2] of tipo_roms=(
+        (n:'621d03.4d';l:$8000;p:0;crc:$66f2b973),(n:'621d04.5d';l:$8000;p:$8000;crc:$47df6301),());
+
+implementation
+uses nz80,main_engine,controls_engine,sn_76496,gfx_engine,timer_engine,
+     file_engine,pal_engine,sound_engine,qsnapshot;
+
+const
         gberet_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$99,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
@@ -117,7 +119,6 @@ procedure gberet_principal;
 var
   f,ticks_mask:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     if f=240 then update_video_gberet;
@@ -183,7 +184,7 @@ case direccion of
               end;
         $f000:rom_bank:=(valor and $e0) shr 5;
         $f200:sound_latch:=valor;
-        $f400:sn_76496_0.Write(sound_latch);
+        $f400:sn_76496_0.write(sound_latch);
 end;
 end;
 
@@ -328,7 +329,7 @@ z80_0:=cpu_z80.create(3072000);
 z80_0.change_ram_calls(gberet_getbyte,gberet_putbyte);
 z80_0.init_sound(gberet_sound_update);
 //Sound Chips
-sn_76496_0:=sn76496_chip.Create(1536000);
+sn_76496_0:=sn76496_chip.create(1536000);
 case main_vars.tipo_maquina of
   17:begin //Green Beret
         //Timers

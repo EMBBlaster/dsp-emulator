@@ -1,13 +1,10 @@
 unit hypersports_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
-     dac,rom_engine,pal_engine,konami_decrypt,sound_engine,qsnapshot,file_engine;
+uses rom_engine;
 
 function iniciar_hypersports:boolean;
 
-implementation
 const
         hypersports_rom:array[0..5] of tipo_roms=(
         (n:'c01';l:$2000;p:$4000;crc:$0c720eeb),(n:'c02';l:$2000;p:$6000;crc:$560258e0),
@@ -25,15 +22,8 @@ const
         (n:'c03_c27.bin';l:$20;p:0;crc:$bc8a5956),(n:'j12_c28.bin';l:$100;p:$20;crc:$2c891d59),
         (n:'a09_c29.bin';l:$100;p:$120;crc:$811a3f3f));
         hypersports_vlm:tipo_roms=(n:'c08';l:$2000;p:0;crc:$e8f8ea78);
-        hypersports_snd:array[0..1] of tipo_roms=(
-        (n:'c10';l:$2000;p:0;crc:$3dc1a6ff),(n:'c09';l:$2000;p:$2000;crc:$9b525c3e));
-        hypersports_dip_a:def_dip2=(mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play'));
-        hypersports_dip_b:array [0..4] of def_dip2=(
-        (mask:1;name:'After Last Event';number:2;val2:(1,0);name2:('Game Over','Game Continues')),
-        (mask:2;name:'Cabinet';number:2;val2:(0,2);name2:('Upright','Cocktail')),
-        (mask:4;name:'Demo Sounds';number:2;val2:(4,0);name2:('Off','On')),
-        (mask:8;name:'World Records';number:2;val2:(8,0);name2:('Don''t Erase','Erase on Reset')),
-        (mask:$f0;name:'Difficulty';number:16;val16:($f0,$e0,$d0,$c0,$b0,$a0,$90,$80,$70,$60,$50,$40,$30,$20,$10,0);name16:('Easy 1','Easy 2','Easy 3','Easy 4','Normal 1','Normal 2','Normal 3','Normal 4','Normal 5','Normal 6','Normal 7','Normal 8','Difficult 1','Difficult 2','Difficult 3','Difficult 4')));
+        hypersports_snd:array[0..2] of tipo_roms=(
+        (n:'c10';l:$2000;p:0;crc:$3dc1a6ff),(n:'c09';l:$2000;p:$2000;crc:$9b525c3e),());
         roadf_rom:array[0..5] of tipo_roms=(
         (n:'g05_g01.bin';l:$2000;p:$4000;crc:$e2492a06),(n:'g07_f02.bin';l:$2000;p:$6000;crc:$0bf75165),
         (n:'g09_g03.bin';l:$2000;p:$8000;crc:$dde401f8),(n:'g11_f04.bin';l:$2000;p:$a000;crc:$b1283c77),
@@ -43,10 +33,23 @@ const
         (n:'c14_e22.bin';l:$4000;p:$6000;crc:$fbcfbeb9),(n:'c12_d20.bin';l:$2000;p:$a000;crc:$5e0cf994));
         roadf_sprites:array[0..1] of tipo_roms=(
         (n:'j19_e14.bin';l:$4000;p:0;crc:$16d2bcff),(n:'g19_e18.bin';l:$4000;p:$4000;crc:$490685ff));
-        roadf_pal:array[0..2] of tipo_roms=(
-        (n:'c03_c27.bin';l:$20;p:0;crc:$45d5e352),(n:'j12_c28.bin';l:$100;p:$20;crc:$2955e01f),
-        (n:'a09_c29.bin';l:$100;p:$120;crc:$5b3b5f2a));
         roadf_snd:tipo_roms=(n:'a17_d10.bin';l:$2000;p:0;crc:$c33c927e);
+        roadf_pal:array[0..3] of tipo_roms=(
+        (n:'c03_c27.bin';l:$20;p:0;crc:$45d5e352),(n:'j12_c28.bin';l:$100;p:$20;crc:$2955e01f),
+        (n:'a09_c29.bin';l:$100;p:$120;crc:$5b3b5f2a),());
+
+implementation
+uses m6809,nz80,main_engine,controls_engine,sn_76496,vlm_5030,gfx_engine,
+     dac,pal_engine,konami_decrypt,sound_engine,qsnapshot,file_engine;
+
+const
+        hypersports_dip_a:def_dip2=(mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play'));
+        hypersports_dip_b:array [0..4] of def_dip2=(
+        (mask:1;name:'After Last Event';number:2;val2:(1,0);name2:('Game Over','Game Continues')),
+        (mask:2;name:'Cabinet';number:2;val2:(0,2);name2:('Upright','Cocktail')),
+        (mask:4;name:'Demo Sounds';number:2;val2:(4,0);name2:('Off','On')),
+        (mask:8;name:'World Records';number:2;val2:(8,0);name2:('Don''t Erase','Erase on Reset')),
+        (mask:$f0;name:'Difficulty';number:16;val16:($f0,$e0,$d0,$c0,$b0,$a0,$90,$80,$70,$60,$50,$40,$30,$20,$10,0);name16:('Easy 1','Easy 2','Easy 3','Easy 4','Normal 1','Normal 2','Normal 3','Normal 4','Normal 5','Normal 6','Normal 7','Normal 8','Difficult 1','Difficult 2','Difficult 3','Difficult 4')));
         roadf_dip_b:array [0..5] of def_dip2=(
         (mask:1;name:'Allow Continue';number:2;val2:(1,0);name2:('No','Yes')),
         (mask:6;name:'Number of Opponents';number:4;val4:(6,4,2,0);name4:('Few','Normal','Many','Great Many')),
@@ -132,43 +135,49 @@ end;
 procedure eventos_hypersports;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1+P2
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.but2[1] then marcade.in0:=marcade.in0 and $bf;
   //System
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $ef;
 end;
 end;
 
 procedure eventos_roadf;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$bf;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fe else marcade.in0:=marcade.in0 or 1;
-  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fd else marcade.in0:=marcade.in0 or 2;
-  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb else marcade.in0:=marcade.in0 or 4;
-  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7 else marcade.in0:=marcade.in0 or 8;
-  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef else marcade.in0:=marcade.in0 or $10;
-  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df else marcade.in0:=marcade.in0 or $20;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
   //P2
-  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fe else marcade.in1:=marcade.in1 or 1;
-  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fd else marcade.in1:=marcade.in1 or 2;
-  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb else marcade.in1:=marcade.in1 or 4;
-  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7 else marcade.in1:=marcade.in1 or 8;
-  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef else marcade.in1:=marcade.in1 or $10;
-  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df else marcade.in1:=marcade.in1 or $20;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
   //System
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $ef;
 end;
 end;
 
@@ -176,7 +185,6 @@ procedure hypersports_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
       eventos_call;
@@ -258,14 +266,14 @@ case direccion of
     $4000..$4fff:mem_snd[direccion]:=valor;
     $a000:vlm5030_0.data_w(valor);
     $c000..$dfff:begin
-                        offset:=direccion and $1fff;
-                        changes:=offset xor last_addr;
-                        // A4 VLM5030 ST pin
-                        if (changes and $10)<>0 then vlm5030_0.set_st((offset and $10) shr 4);
-                        // A5 VLM5030 RST pin
-                        if (changes and $20)<>0 then vlm5030_0.set_rst((offset and $20) shr 5);
-                        last_addr:=offset;
-                      end;
+                    offset:=direccion and $1fff;
+                    changes:=offset xor last_addr;
+                    // A4 VLM5030 ST pin
+                    if (changes and $10)<>0 then vlm5030_0.set_st((offset and $10) shr 4);
+                    // A5 VLM5030 RST pin
+                    if (changes and $20)<>0 then vlm5030_0.set_rst((offset and $20) shr 5);
+                    last_addr:=offset;
+                 end;
     $e000:dac_0.data8_w(valor);
     $e001:chip_latch:=valor;
     $e002:sn_76496_0.write(chip_latch);

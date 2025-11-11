@@ -1,13 +1,9 @@
-unit finalstarforce_hw;
+﻿unit finalstarforce_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,oki6295,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_finalstarforce:boolean;
-
-implementation
 
 const
         finalstarforce_rom:array[0..1] of tipo_roms=(
@@ -16,9 +12,15 @@ const
         finalstarforce_char:tipo_roms=(n:'fstarf03.rom';l:$20000;p:0;crc:$54375335);
         finalstarforce_bg:array[0..1] of tipo_roms=(
         (n:'fstarf05.rom';l:$80000;p:0;crc:$77a281e7),(n:'fstarf04.rom';l:$80000;p:1;crc:$398a920d));
-        finalstarforce_sprites:array[0..1] of tipo_roms=(
-        (n:'fstarf09.rom';l:$80000;p:0;crc:$d51341d2),(n:'fstarf06.rom';l:$80000;p:1;crc:$07e40e87));
         finalstarforce_oki:tipo_roms=(n:'fstarf08.rom';l:$20000;p:0;crc:$f0ad5693);
+        finalstarforce_sprites:array[0..2] of tipo_roms=(
+        (n:'fstarf09.rom';l:$80000;p:0;crc:$d51341d2),(n:'fstarf06.rom';l:$80000;p:1;crc:$07e40e87),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,oki6295,
+     pal_engine,sound_engine;
+
+const
         finalstarforce_dip_a:array [0..5] of def_dip2=(
         (mask:3;name:'Coin A';number:4;val4:(3,2,1,0);name4:('1C 1C','1C 2C','1C 3C','1C 4C')),
         (mask:$c;name:'Coin B';number:4;val4:(0,4,8,$c);name4:('4C 1C','3C 1C','2C 1C','1C 1C')),
@@ -180,23 +182,24 @@ end;
 procedure eventos_finalstarforce;
 begin
 if event.arcade then begin
+  marcade.in0:=$3fff;
   //P1/P2
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or $4000) else marcade.in0:=(marcade.in0 and $bfff);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 or $8000) else marcade.in0:=(marcade.in0 and $7fff);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ff7f;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or $4000;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 or $8000;
 end;
 end;
 
@@ -204,7 +207,6 @@ procedure finalstarforce_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
   eventos_finalstarforce;
@@ -216,10 +218,8 @@ while EmuStatus=EsRunning do begin
           m68000_0.irq[5]:=ASSERT_LINE;
         end;
   end;
-  //main
   m68000_0.run(frame_main);
   frame_main:=frame_main+m68000_0.tframes-m68000_0.contador;
-  //sound
   z80_0.run(frame_snd);
   frame_snd:=frame_snd+z80_0.tframes-z80_0.contador;
  end;
@@ -285,7 +285,7 @@ case direccion of
     $150000:main_screen.flip_main_screen:=(valor and 1)<>0;
 	  $150010:begin
               sound_latch:=valor;
-              z80_0.change_nmi(ASSERT_LINE);
+              z80_0.change_nmi(PULSE_LINE);
            end;
     $150020:m68000_0.irq[5]:=CLEAR_LINE;
     $150030:;
@@ -304,10 +304,7 @@ begin
     0..$fbff:finalstarforce_snd_getbyte:=mem_snd[direccion];
     $fc00:finalstarforce_snd_getbyte:=oki_6295_0.read;
     $fc05:finalstarforce_snd_getbyte:=ym2151_0.status;
-    $fc08:begin
-            finalstarforce_snd_getbyte:=sound_latch;
-            z80_0.change_nmi(CLEAR_LINE);
-          end;
+    $fc08:finalstarforce_snd_getbyte:=sound_latch;
   end;
 end;
 

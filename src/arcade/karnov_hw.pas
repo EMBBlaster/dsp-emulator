@@ -1,13 +1,10 @@
 unit karnov_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     ym_2203,ym_3812,m6502,sound_engine,mcs51;
+uses rom_engine;
 
 function iniciar_karnov:boolean;
 
-implementation
 const
         //Karnov
         karnov_rom:array[0..5] of tipo_roms=(
@@ -25,8 +22,8 @@ const
         (n:'dn13-.f9';l:$10000;p:$20000;crc:$a03308f9),(n:'dn15-5.f12';l:$8000;p:$30000;crc:$8933fcb8),
         (n:'dn16-.f13';l:$10000;p:$40000;crc:$55e63a11),(n:'dn17-5.f15';l:$8000;p:$50000;crc:$b70ae950),
         (n:'dn18-.f16';l:$10000;p:$60000;crc:$2ad53213),(n:'dn19-5.f18';l:$8000;p:$70000;crc:$8fd4fa40));
-        karnov_proms:array[0..1] of tipo_roms=(
-        (n:'dn-21.k8';l:$400;p:0;crc:$aab0bb93),(n:'dn-20.l6';l:$400;p:$400;crc:$02f78ffb));
+        karnov_proms:array[0..2] of tipo_roms=(
+        (n:'dn-21.k8';l:$400;p:0;crc:$aab0bb93),(n:'dn-20.l6';l:$400;p:$400;crc:$02f78ffb),());
         //Chelnov
         chelnov_rom:array[0..5] of tipo_roms=(
         (n:'ee08-e.j16';l:$10000;p:0;crc:$8275cc3a),(n:'ee11-e.j19';l:$10000;p:1;crc:$889e40a0),
@@ -41,9 +38,14 @@ const
         chelnov_sprites:array[0..3] of tipo_roms=(
         (n:'ee12-.f8';l:$10000;p:0;crc:$9b1c53a5),(n:'ee13-.f9';l:$10000;p:$20000;crc:$72b8ae3e),
         (n:'ee14-.f13';l:$10000;p:$40000;crc:$d8f4bbde),(n:'ee15-.f15';l:$10000;p:$60000;crc:$81e3e68b));
-        chelnov_proms:array[0..1] of tipo_roms=(
-        (n:'ee21.k8';l:$400;p:0;crc:$b1db6586),(n:'ee20.l6';l:$400;p:$400;crc:$41816132));
-        //DIP
+        chelnov_proms:array[0..2] of tipo_roms=(
+        (n:'ee21.k8';l:$400;p:0;crc:$b1db6586),(n:'ee20.l6';l:$400;p:$400;crc:$41816132),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,ym_2203,ym_3812,
+     m6502,sound_engine,mcs51;
+
+const
         karnov_dip:array [0..8] of def_dip2=(
         (mask:3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
         (mask:$c;name:'Coin B';number:4;val4:(0,$c,8,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
@@ -76,33 +78,36 @@ var
 procedure eventos_karnov;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$7f or (marcade.in1 and $80);
+  marcade.in2:=$ff;
   //P1 + P2
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.but2[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.but2[1] then marcade.in0:=marcade.in0 and $bfff;
   //SYSTEM
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $f7;
   //Coin
   if arcade_input.coin[1] then begin
     marcade.in2:=(marcade.in2 and $df);
     mcs51_0.change_irq0(ASSERT_LINE);
-  end else marcade.in2:=(marcade.in2 or $20);
+  end;
   if arcade_input.coin[0] then begin
     marcade.in2:=(marcade.in2 and $bf);
     mcs51_0.change_irq0(ASSERT_LINE);
-   end else marcade.in2:=(marcade.in2 or $40);
+   end;
 end;
 end;
 
@@ -177,7 +182,6 @@ procedure karnov_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
    case f of
@@ -398,7 +402,7 @@ mcs51_0.change_io_calls(in_port0,in_port1,nil,in_port3,out_port0,out_port1,out_p
 //Sound Chips
 ym3812_0:=ym3812_chip.create(YM3526_FM,3000000);
 ym3812_0.change_irq_calls(snd_irq);
-ym2203_0:=ym2203_chip.create(1500000,0.25,0.25);
+ym2203_0:=ym2203_chip.create(1500000,0.5,0.5);
 case main_vars.tipo_maquina of
   219:begin  //Karnov
         //MCU ROM

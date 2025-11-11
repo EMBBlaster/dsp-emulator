@@ -2,8 +2,7 @@ unit tms99xx;
 
 interface
 
-uses gfx_engine,{$IFDEF WINDOWS}windows,{$endif}
-     main_engine,pal_engine;
+uses gfx_engine,main_engine,pal_engine;
 
   type
     irq_type=procedure(int:boolean);

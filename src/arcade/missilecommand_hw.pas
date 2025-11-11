@@ -1,18 +1,26 @@
 unit missilecommand_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}m6502,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,pokey;
+uses rom_engine;
 
 function iniciar_missilec:boolean;
 
-implementation
 const
         missilec_rom:array[0..5] of tipo_roms=(
         (n:'035820-02.h1';l:$800;p:$5000;crc:$7a62ce6a),(n:'035821-02.jk1';l:$800;p:$5800;crc:$df3bd57f),
         (n:'035822-03e.kl1';l:$800;p:$6000;crc:$1a2f599a),(n:'035823-02.ln1';l:$800;p:$6800;crc:$82e552bb),
         (n:'035824-02.np1';l:$800;p:$7000;crc:$606e42e0),(n:'035825-02.r1';l:$800;p:$7800;crc:$f752eaeb));
-        missilec_prom:tipo_roms=(n:'035826-01.l6';l:$20;p:0;crc:$86a22140);
+        missilec_prom:array[0..1] of tipo_roms=((n:'035826-01.l6';l:$20;p:0;crc:$86a22140),());
+        suprmatk_rom:array[0..8] of tipo_roms=(
+        (n:'035820-02.c1';l:$800;p:$5000;crc:$7a62ce6a),(n:'035821-02.b1';l:$800;p:$5800;crc:$df3bd57f),
+        (n:'035822-02.a1';l:$800;p:$6000;crc:$a1cd384a),(n:'035823-02.a5';l:$800;p:$6800;crc:$82e552bb),
+        (n:'035824-02.b5';l:$800;p:$7000;crc:$606e42e0),(n:'035825-02.c5';l:$800;p:$7800;crc:$f752eaeb),
+        (n:'e0.d5';l:$800;p:$8000;crc:$d0b20179),(n:'e1.e5';l:$800;p:$8800;crc:$c6c818a3),());
+
+implementation
+uses m6502,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,pokey;
+
+const
         missilec_dip_a:array [0..3] of def_dip2=(
         (mask:3;name:'Coinage';number:4;val4:(0,2,1,3);name4:('1C 1C','Free Play','2C 1C','1C 2C')),
         (mask:$c;name:'Right Coin';number:4;val4:(0,4,8,$c);name4:('x1','x4','x5','x6')),
@@ -24,11 +32,6 @@ const
         (mask:8;name:'Trackball Size';number:2;val2:(0,8);name2:('Mini','Large')),
         (mask:$70;name:'Bonus City';number:8;val8:($10,$70,$60,$50,$40,$30,$20,0);name8:('8K','10k','12K','14K','15K','18K','20K','None')),
         (mask:$80;name:'Cabinet';number:2;val2:(0,$80);name2:('Upright','Cocktail')));
-        suprmatk_rom:array[0..7] of tipo_roms=(
-        (n:'035820-02.c1';l:$800;p:$5000;crc:$7a62ce6a),(n:'035821-02.b1';l:$800;p:$5800;crc:$df3bd57f),
-        (n:'035822-02.a1';l:$800;p:$6000;crc:$a1cd384a),(n:'035823-02.a5';l:$800;p:$6800;crc:$82e552bb),
-        (n:'035824-02.b5';l:$800;p:$7000;crc:$606e42e0),(n:'035825-02.c5';l:$800;p:$7800;crc:$f752eaeb),
-        (n:'e0.d5';l:$800;p:$8000;crc:$d0b20179),(n:'e1.e5';l:$800;p:$8800;crc:$c6c818a3));
         suprmatk_dip_a:array [0..3] of def_dip2=(
         (mask:3;name:'Coinage';number:4;val4:(0,2,1,3);name4:('1C 1C','Free Play','2C 1C','1C 2C')),
         (mask:$c;name:'Right Coin';number:4;val4:(0,4,8,$c);name4:('x1','x4','x5','x6')),
@@ -81,15 +84,17 @@ end;
 procedure eventos_missilec;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$67 or (marcade.in1 and $80);
   //in0
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $bf;
   //in1
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $fb;
 end;
 end;
 
@@ -97,7 +102,6 @@ procedure principal_missilec;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_missilec;

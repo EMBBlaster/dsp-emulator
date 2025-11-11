@@ -1,13 +1,10 @@
-unit raiden_hw;
+﻿unit raiden_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nec_v20_v30,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,seibu_sound,misc_functions;
+uses rom_engine;
 
 function iniciar_raiden:boolean;
 
-implementation
 const
         raiden_rom_main:array[0..3] of tipo_roms=(
         (n:'1.u0253';l:$10000;p:0;crc:$a4b12785),(n:'2.u0252';l:$10000;p:1;crc:$17640bd5),
@@ -15,12 +12,18 @@ const
         raiden_rom_sub:array[0..1] of tipo_roms=(
         (n:'5.u042';l:$20000;p:0;crc:$ed03562e),(n:'6.u043';l:$20000;p:1;crc:$a19d5b5d));
         raiden_sound:tipo_roms=(n:'8.u212';l:$10000;p:0;crc:$cbe055c7);
-        raiden_chars:array[0..1] of tipo_roms=(
-        (n:'9';l:$8000;p:1;crc:$1922b25e),(n:'10';l:$8000;p:0;crc:$5f90786a));
         raiden_bgtiles:tipo_roms=(n:'sei420';l:$80000;p:0;crc:$da151f0b);
         raiden_fgtiles:tipo_roms=(n:'sei430';l:$80000;p:0;crc:$ac1f57ac);
         raiden_sprites:tipo_roms=(n:'sei440';l:$80000;p:0;crc:$946d7bde);
         raiden_oki:tipo_roms=(n:'7.u203';l:$10000;p:0;crc:$8f927822);
+        raiden_chars:array[0..2] of tipo_roms=(
+        (n:'9';l:$8000;p:1;crc:$1922b25e),(n:'10';l:$8000;p:0;crc:$5f90786a),());
+
+implementation
+uses nec_v20_v30,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,seibu_sound,misc_functions;
+
+const
         CPU_SYNC=4;
 
 var
@@ -140,7 +143,6 @@ procedure raiden_principal;
 var
   f,h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_raiden;

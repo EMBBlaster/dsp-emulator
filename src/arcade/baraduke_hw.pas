@@ -1,12 +1,10 @@
-unit baraduke_hw;
+﻿unit baraduke_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,
-     rom_engine,pal_engine,misc_functions,sound_engine;
+uses rom_engine;
 
 function iniciar_baraduke:boolean;
 
-implementation
 const
         //Baraduke
         baraduke_rom:array[0..2] of tipo_roms=(
@@ -21,20 +19,8 @@ const
         baraduke_sprites:array[0..3] of tipo_roms=(
         (n:'bd1_9.8k';l:$4000;p:0;crc:$87a29acc),(n:'bd1_10.8l';l:$4000;p:$4000;crc:$72b6d20c),
         (n:'bd1_11.8m';l:$4000;p:$8000;crc:$3076af9c),(n:'bd1_12.8n';l:$4000;p:$c000;crc:$8b4c09a3));
-        baraduke_prom:array[0..1] of tipo_roms=(
-        (n:'bd1-1.1n';l:$800;p:$0;crc:$0d78ebc6),(n:'bd1-2.2m';l:$800;p:$800;crc:$03f7241f));
-        baraduke_dip_a:array [0..3] of def_dip2=(
-        (mask:$3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','2C 1C')),
-        (mask:$4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')),
-        (mask:$18;name:'Coin A';number:4;val4:(0,8,$18,$10);name4:('3C 1C','2C 1C','1C 1C','2C 1C')),
-        (mask:$60;name:'Lives';number:4;val4:($40,$60,$20,0);name4:('2','3','4','5')));
-        baraduke_dip_b:array [0..4] of def_dip2=(
-        (mask:$2;name:'Allow Continue From Last Level';number:2;val2:(2,0);name2:('Off','On')),
-        (mask:$4;name:'Freeze';number:2;val2:(4,0);name2:('Off','On')),
-        (mask:$8;name:'Round Select';number:2;val2:(8,0);name2:('Off','On')),
-        (mask:$30;name:'Difficulty';number:4;val4:($20,$30,$10,0);name4:('Easy','Normal','Hard','Very Hard')),
-        (mask:$c0;name:'Bonus Life';number:4;val4:($80,$c0,$40,0);name4:('10K+','10K 20K+','20K+','None')));
-        baraduke_dip_c:def_dip2=(mask:$2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail'));
+        baraduke_prom:array[0..2] of tipo_roms=(
+        (n:'bd1-1.1n';l:$800;p:0;crc:$0d78ebc6),(n:'bd1-2.2m';l:$800;p:$800;crc:$03f7241f),());
         //Metro-cross
         metrocross_rom:array[0..2] of tipo_roms=(
         (n:'mc1-3.9c';l:$2000;p:$6000;crc:$3390b33c),(n:'mc1-1.9a';l:$4000;p:$8000;crc:$10b0977e),
@@ -46,17 +32,36 @@ const
         (n:'mc1-7.4p';l:$4000;p:0;crc:$c9dfa003),(n:'mc1-6.4n';l:$4000;p:$4000;crc:$9686dc3c));
         metrocross_sprites:array[0..1] of tipo_roms=(
         (n:'mc1-8.8k';l:$4000;p:0;crc:$265b31fa),(n:'mc1-9.8l';l:$4000;p:$4000;crc:$541ec029));
-        metrocross_prom:array[0..1] of tipo_roms=(
-        (n:'mc1-1.1n';l:$800;p:$0;crc:$32a78a8b),(n:'mc1-2.2m';l:$800;p:$800;crc:$6f4dca7b));
+        metrocross_prom:array[0..2] of tipo_roms=(
+        (n:'mc1-1.1n';l:$800;p:0;crc:$32a78a8b),(n:'mc1-2.2m';l:$800;p:$800;crc:$6f4dca7b),());
+
+implementation
+uses m6809,m680x,namco_snd,main_engine,controls_engine,gfx_engine,pal_engine,
+     misc_functions,sound_engine;
+
+const
+        baraduke_dip_a:array [0..3] of def_dip2=(
+        (mask:3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','2C 1C')),
+        (mask:4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')),
+        (mask:$18;name:'Coin A';number:4;val4:(0,8,$18,$10);name4:('3C 1C','2C 1C','1C 1C','2C 1C')),
+        (mask:$60;name:'Lives';number:4;val4:($40,$60,$20,0);name4:('2','3','4','5')));
+        baraduke_dip_b:array [0..4] of def_dip2=(
+        (mask:2;name:'Allow Continue From Last Level';number:2;val2:(2,0);name2:('Off','On')),
+        (mask:4;name:'Freeze';number:2;val2:(4,0);name2:('Off','On')),
+        (mask:8;name:'Round Select';number:2;val2:(8,0);name2:('Off','On')),
+        (mask:$30;name:'Difficulty';number:4;val4:($20,$30,$10,0);name4:('Easy','Normal','Hard','Very Hard')),
+        (mask:$c0;name:'Bonus Life';number:4;val4:($80,$c0,$40,0);name4:('10K+','10K 20K+','20K+','None')));
+        baraduke_dip_c:def_dip2=(mask:2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail'));
         metrocross_dip_a:array [0..3] of def_dip2=(
-        (mask:$3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','2C 1C')),
-        (mask:$4;name:'Allow Continue';number:2;val2:(0,4);name2:('No','Yes')),
+        (mask:3;name:'Coin B';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','2C 1C')),
+        (mask:4;name:'Allow Continue';number:2;val2:(0,4);name2:('No','Yes')),
         (mask:$18;name:'Difficulty';number:4;val4:($10,$18,8,0);name4:('Easy','Normal','Hard','Very Hard')),
         (mask:$60;name:'Coin A';number:4;val4:(0,$20,$60,$40);name4:('3C 1C','2C 1C','1C 1C','2C 1C')));
         metrocross_dip_b:array [0..2] of def_dip2=(
         (mask:$20;name:'Freeze';number:2;val2:($20,0);name2:('Off','On')),
         (mask:$40;name:'Round Select';number:2;val2:($40,0);name2:('Off','On')),
         (mask:$80;name:'Demo Sounds';number:2;val2:(0,$80);name2:('Off','On')));
+
 var
  inputport_selected,scroll_y0,scroll_y1:byte;
  counter,scroll_x0,scroll_x1:word;
@@ -72,18 +77,18 @@ var
 const
   gfx_offs:array[0..1,0..1] of byte=((0,1),(2,3));
 begin
-  sprite_xoffs:=memoria[$07f5]-256*(memoria[$07f4] and 1);
-	sprite_yoffs:=memoria[$07f7];
+  sprite_xoffs:=memoria[$7f5]-256*(memoria[$7f4] and 1);
+	sprite_yoffs:=memoria[$7f7];
 	for f:=0 to $7e do begin
     atrib1:=memoria[$180a+(f*$10)];
     if prior<>(atrib1 and 1) then continue;
     atrib2:=memoria[$180e+(f*$10)];
     color:=memoria[$180c+(f*$10)];
     flipx:=(atrib1 and $20)<>0;
-    flipy:=(atrib2 and $01)<>0;
+    flipy:=(atrib2 and 1)<>0;
     sizex:=(atrib1 and $80) shr 7;
-    sizey:=(atrib2 and $04) shr 2;
-		sx:=((memoria[$180d+(f*$10)]+((color and $01) shl 8))+sprite_xoffs+spritex_add) and $1ff;
+    sizey:=(atrib2 and 4) shr 2;
+		sx:=((memoria[$180d+(f*$10)]+((color and 1) shl 8))+sprite_xoffs+spritex_add) and $1ff;
     sy:=(240-memoria[$180f+(f*$10)])-sprite_yoffs-(16*sizey)+spritey_add;
     nchar:=memoria[$180b+(f*$10)]*4;
     if (((atrib1 and $10)<>0) and (sizex=0)) then nchar:=nchar+1;
@@ -118,14 +123,14 @@ for f:=0 to $7ff do begin
   y:=f div 64;
   if gfx[1].buffer[f] then begin
     atrib:=memoria[$2001+(f*2)];
-    nchar:=memoria[$2000+(f*2)]+(atrib and $3) shl 8;
+    nchar:=memoria[$2000+(f*2)]+(atrib and 3) shl 8;
     if prio then put_gfx_trans(x*8,y*8,nchar,atrib shl 3,2,1)
       else put_gfx(x*8,y*8,nchar,atrib shl 3,2,1);
     gfx[1].buffer[f]:=false;
   end;
   if gfx[2].buffer[f] then begin
     atrib:=memoria[$3001+(f*2)];
-    nchar:=memoria[$3000+(f*2)]+(atrib and $3) shl 8;
+    nchar:=memoria[$3000+(f*2)]+(atrib and 3) shl 8;
     if prio then put_gfx(x*8,y*8,nchar,atrib shl 3,3,2)
       else put_gfx_trans(x*8,y*8,nchar,atrib shl 3,3,2);
     gfx[2].buffer[f]:=false;
@@ -148,42 +153,41 @@ end;
 procedure eventos_baraduke;
 begin
 if event.arcade then begin
+  marcade.in0:=$1f;
+  marcade.in1:=$1f;
+  marcade.in2:=$1f;
   //marcade.in0
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $ef;
   //marcade.in1
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
   //marcade.in2
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or $1);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or $4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or $8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
 end;
 end;
 
 procedure baraduke_principal;
 var
   f:word;
-
 procedure copy_sprites_hw;
 var
   i,j:byte;
 begin
-for i:=0 to $7f do begin
-  for j:=10 to 15 do memoria[$1800+(i*$10)+j]:=memoria[$1800+(i*$10)+j-6];
+  for i:=0 to $7f do
+    for j:=10 to 15 do memoria[$1800+(i*$10)+j]:=memoria[$1800+(i*$10)+j-6];
+  copy_sprites:=false;
 end;
-copy_sprites:=false;
-end;
-
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_baraduke;
@@ -264,7 +268,7 @@ procedure baraduke_mcu_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
   $1000..$13ff:namco_snd_0.namcos1_cus30_w(direccion and $3ff,valor);
-  $8000..$bfff:exit;
+  $8000..$bfff:;
   $c000..$c7ff:mem_snd[direccion]:=valor;
 end;
 end;
@@ -288,7 +292,7 @@ end;
 
 procedure out_port1(valor:byte);
 begin
-  if (valor and $e0)=$60 then inputport_selected:=valor and $7;
+  if (valor and $e0)=$60 then inputport_selected:=valor and 7;
 end;
 
 procedure sound_update_baraduke;
@@ -435,9 +439,9 @@ case main_vars.tipo_maquina of
     end;
 end;
 for f:=0 to $7ff do begin
-  colores[f].r:=((memoria_temp[f+$800] shr 0) and $01)*$0e+((memoria_temp[f+$800] shr 1) and $01)*$1f+((memoria_temp[f+$800] shr 2) and $01)*$43+((memoria_temp[f+$800] shr 3) and $01)*$8f;
-  colores[f].g:=((memoria_temp[f] shr 0) and $01)*$0e+((memoria_temp[f] shr 1) and $01)*$1f+((memoria_temp[f] shr 2) and $01)*$43+((memoria_temp[f] shr 3) and $01)*$8f;
-  colores[f].b:=((memoria_temp[f] shr 4) and $01)*$0e+((memoria_temp[f] shr 5) and $01)*$1f+((memoria_temp[f] shr 6) and $01)*$43+((memoria_temp[f] shr 7) and $01)*$8f;
+  colores[f].r:=((memoria_temp[f+$800] shr 0) and 1)*$e+((memoria_temp[f+$800] shr 1) and 1)*$1f+((memoria_temp[f+$800] shr 2) and 1)*$43+((memoria_temp[f+$800] shr 3) and 1)*$8f;
+  colores[f].g:=((memoria_temp[f] shr 0) and 1)*$e+((memoria_temp[f] shr 1) and 1)*$1f+((memoria_temp[f] shr 2) and 1)*$43+((memoria_temp[f] shr 3) and 1)*$8f;
+  colores[f].b:=((memoria_temp[f] shr 4) and 1)*$e+((memoria_temp[f] shr 5) and 1)*$1f+((memoria_temp[f] shr 6) and 1)*$43+((memoria_temp[f] shr 7) and 1)*$8f;
 end;
 set_pal(colores,$800);
 //final

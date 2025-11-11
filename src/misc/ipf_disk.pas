@@ -1,7 +1,7 @@
 unit ipf_disk;
 
 interface
-uses {$ifdef windows}windows,{$else}main_engine,{$endif}dialogs;
+uses main_engine,dialogs;
 
 function ipf_format(DrvNum:byte;longi_ini:dword;datos:pbyte):boolean;
 

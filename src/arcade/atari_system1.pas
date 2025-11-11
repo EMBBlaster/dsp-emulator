@@ -1,18 +1,15 @@
 unit atari_system1;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,m68000,main_engine,controls_engine,gfx_engine,rom_engine,pokey,
-     pal_engine,sound_engine,slapstic,ym_2151,atari_mo;
+uses rom_engine;
 
 function iniciar_atari_sys1:boolean;
 
-implementation
 const
         //System ROMS
-        atari_sys1_bios:array[0..1] of tipo_roms=(
-        (n:'136032.205.l13';l:$4000;p:$0;crc:$88d0be26),(n:'136032.206.l12';l:$4000;p:$1;crc:$3c79ef05));
-        atari_sys1_char:tipo_roms=(n:'136032.104.f5';l:$2000;p:0;crc:$7a29dc07);
+        atari_sys1_bios:array[0..2] of tipo_roms=(
+        (n:'136032.205.l13';l:$4000;p:$0;crc:$88d0be26),(n:'136032.206.l12';l:$4000;p:$1;crc:$3c79ef05),());
+        atari_sys1_char:array[0..1] of tipo_roms=((n:'136032.104.f5';l:$2000;p:0;crc:$7a29dc07),());
         peterpak_rom:array[0..7] of tipo_roms=(
         (n:'136028.142';l:$4000;p:$0;crc:$4f9fc020),(n:'136028.143';l:$4000;p:$1;crc:$9fb257cc),
         (n:'136028.144';l:$4000;p:$8000;crc:$50267619),(n:'136028.145';l:$4000;p:$8001;crc:$7b6a5004),
@@ -27,8 +24,8 @@ const
         (n:'136028.152';l:$8000;p:$a0000;crc:$9553f084),(n:'136028.153';l:$8000;p:$b0000;crc:$c2a9b028),
         (n:'136028.105';l:$4000;p:$104000;crc:$ac9a5a44),(n:'136028.108';l:$4000;p:$114000;crc:$51941e64),
         (n:'136028.111';l:$4000;p:$124000;crc:$246599f3),(n:'136028.114';l:$4000;p:$134000;crc:$918a5082));
-        peterpak_proms:array[0..1] of tipo_roms=(
-        (n:'136028.136';l:$200;p:0;crc:$861cfa36),(n:'136028.137';l:$200;p:$200;crc:$8507e5ea));
+        peterpak_proms:array[0..2] of tipo_roms=(
+        (n:'136028.136';l:$200;p:0;crc:$861cfa36),(n:'136028.137';l:$200;p:$200;crc:$8507e5ea),());
         //Indiana
         indy_rom:array[0..7] of tipo_roms=(
         (n:'136036.432';l:$8000;p:$0;crc:$d888cdf1),(n:'136036.431';l:$8000;p:$1;crc:$b7ac7431),
@@ -47,8 +44,8 @@ const
         (n:'136036.145';l:$8000;p:$120000;crc:$e828e64b),(n:'136036.149';l:$8000;p:$130000;crc:$81503a23),
         (n:'136036.138';l:$8000;p:$180000;crc:$48c4d79d),(n:'136036.142';l:$8000;p:$190000;crc:$7faae75f),
         (n:'136036.146';l:$8000;p:$1a0000;crc:$8ae5a7b5),(n:'136036.150';l:$8000;p:$1b0000;crc:$a10c4bd9));
-        indy_proms:array[0..1] of tipo_roms=(
-        (n:'136036.152';l:$200;p:0;crc:$4f96e57c),(n:'136036.151';l:$200;p:$200;crc:$7daf351f));
+        indy_proms:array[0..2] of tipo_roms=(
+        (n:'136036.152';l:$200;p:0;crc:$4f96e57c),(n:'136036.151';l:$200;p:$200;crc:$7daf351f),());
         //Marble
         marble_rom:array[0..9] of tipo_roms=(
         (n:'136033.623';l:$4000;p:$0;crc:$284ed2e9),(n:'136033.624';l:$4000;p:$1;crc:$d541b021),
@@ -66,8 +63,15 @@ const
         (n:'136033.145';l:$4000;p:$40000;crc:$9062be7f),(n:'136033.146';l:$4000;p:$44000;crc:$14566dca),
         (n:'136033.149';l:$4000;p:$84000;crc:$b6658f06),(n:'136033.151';l:$4000;p:$94000;crc:$84ee1c80),
         (n:'136033.153';l:$4000;p:$a4000;crc:$daa02926));
-        marble_proms:array[0..1] of tipo_roms=(
-        (n:'136033.118';l:$200;p:0;crc:$2101b0ed),(n:'136033.119';l:$200;p:$200;crc:$19f6e767));
+        marble_proms:array[0..2] of tipo_roms=(
+        (n:'136033.118';l:$200;p:0;crc:$2101b0ed),(n:'136033.119';l:$200;p:$200;crc:$19f6e767),());
+
+
+implementation
+uses m6502,m68000,main_engine,controls_engine,gfx_engine,pokey,pal_engine,
+     sound_engine,slapstic,ym_2151,atari_mo;
+
+const
         atari_sys1_mo_config:atari_motion_objects_config=(
         	gfxindex:1;               // index to which gfx system */
 	        bankcount:8;              // number of motion object banks */
@@ -169,7 +173,6 @@ var
   frame_m,frame_s:single;
   h:byte;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 frame_s:=m6502_0.tframes;
 while EmuStatus=EsRunning do begin

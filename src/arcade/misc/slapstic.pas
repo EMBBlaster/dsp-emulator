@@ -1,7 +1,7 @@
 unit slapstic;
 
 interface
-uses m68000{$IFDEF windows},windows{$ENDIF};
+uses m68000,main_engine;
 
 type
   mask_value=record

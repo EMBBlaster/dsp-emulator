@@ -29,7 +29,7 @@ object MConfig: TMConfig
     OnKeyUp = FormKeyUp
   end
   object Button2: TButton
-    Left = 257
+    Left = 301
     Top = 453
     Width = 113
     Height = 41
@@ -45,6 +45,7 @@ object MConfig: TMConfig
     Height = 439
     ActivePage = TabSheet1
     TabOrder = 2
+    TabStop = False
     object TabSheet1: TTabSheet
       Caption = 'Misc'
       object GroupBox3: TGroupBox
@@ -61,7 +62,7 @@ object MConfig: TMConfig
         TabOrder = 0
         object RadioButton6: TRadioButton
           Left = 35
-          Top = 51
+          Top = 49
           Width = 105
           Height = 17
           Caption = 'English'
@@ -76,7 +77,7 @@ object MConfig: TMConfig
         end
         object RadioButton5: TRadioButton
           Left = 35
-          Top = 34
+          Top = 32
           Width = 105
           Height = 17
           Caption = 'Castellano'
@@ -91,7 +92,7 @@ object MConfig: TMConfig
         end
         object RadioButton7: TRadioButton
           Left = 35
-          Top = 68
+          Top = 66
           Width = 105
           Height = 17
           Caption = 'Catal'#224
@@ -106,7 +107,7 @@ object MConfig: TMConfig
         end
         object RadioButton8: TRadioButton
           Left = 35
-          Top = 85
+          Top = 83
           Width = 105
           Height = 17
           Caption = 'Francais'
@@ -121,7 +122,7 @@ object MConfig: TMConfig
         end
         object RadioButton9: TRadioButton
           Left = 35
-          Top = 102
+          Top = 100
           Width = 105
           Height = 17
           Caption = 'German'
@@ -136,7 +137,7 @@ object MConfig: TMConfig
         end
         object RadioButton10: TRadioButton
           Left = 35
-          Top = 119
+          Top = 117
           Width = 105
           Height = 17
           Caption = 'Brazil'
@@ -151,7 +152,7 @@ object MConfig: TMConfig
         end
         object RadioButton11: TRadioButton
           Left = 35
-          Top = 136
+          Top = 134
           Width = 105
           Height = 17
           Caption = 'Italian'
@@ -166,7 +167,7 @@ object MConfig: TMConfig
         end
         object RadioButton12: TRadioButton
           Left = 35
-          Top = 16
+          Top = 15
           Width = 105
           Height = 17
           Caption = 'Auto'
@@ -253,9 +254,9 @@ object MConfig: TMConfig
         end
         object RadioButton18: TRadioButton
           Left = 191
-          Top = 23
+          Top = 26
           Width = 97
-          Height = 15
+          Height = 17
           Caption = 'Scanlines'
           TabOrder = 3
         end
@@ -263,7 +264,7 @@ object MConfig: TMConfig
           Left = 191
           Top = 46
           Width = 97
-          Height = 15
+          Height = 17
           Caption = 'Scanlines 2X'
           TabOrder = 4
         end
@@ -291,7 +292,7 @@ object MConfig: TMConfig
         TabOrder = 3
         object CheckBox2: TCheckBox
           Left = 19
-          Top = 19
+          Top = 15
           Width = 286
           Height = 20
           TabStop = False
@@ -301,9 +302,9 @@ object MConfig: TMConfig
         end
         object CheckBox1: TCheckBox
           Left = 19
-          Top = 37
+          Top = 35
           Width = 300
-          Height = 24
+          Height = 20
           TabStop = False
           Caption = 'Mostar errores CRC de la ROM'
           TabOrder = 1
@@ -311,7 +312,7 @@ object MConfig: TMConfig
         end
         object CheckBox3: TCheckBox
           Left = 19
-          Top = 59
+          Top = 55
           Width = 300
           Height = 20
           TabStop = False
@@ -321,12 +322,56 @@ object MConfig: TMConfig
         end
         object CheckBox17: TCheckBox
           Left = 19
-          Top = 80
+          Top = 75
           Width = 360
           Height = 20
           TabStop = False
           Caption = 'CONSOLA: Cargar juego al principio'
           TabOrder = 3
+          OnKeyUp = FormKeyUp
+        end
+      end
+      object GroupBox15: TGroupBox
+        Left = 235
+        Top = 92
+        Width = 111
+        Height = 60
+        Caption = 'Tape Autotype'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 4
+        object RadioButton28: TRadioButton
+          Left = 14
+          Top = 15
+          Width = 66
+          Height = 17
+          Caption = 'Enabled'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          OnKeyUp = FormKeyUp
+        end
+        object RadioButton29: TRadioButton
+          Left = 14
+          Top = 35
+          Width = 72
+          Height = 17
+          Caption = 'Disabled'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
           OnKeyUp = FormKeyUp
         end
       end
@@ -352,7 +397,7 @@ object MConfig: TMConfig
         Top = 124
         Width = 54
         Height = 22
-        Caption = '...'
+        Caption = 'Open'
         OnClick = SpeedButton1Click
       end
       object Label4: TLabel
@@ -386,7 +431,7 @@ object MConfig: TMConfig
         Top = 76
         Width = 54
         Height = 22
-        Caption = '...'
+        Caption = 'Open'
         OnClick = SpeedButton5Click
       end
       object Label2: TLabel
@@ -407,7 +452,7 @@ object MConfig: TMConfig
         Top = 170
         Width = 55
         Height = 21
-        Caption = '...'
+        Caption = 'Open'
         OnClick = SpeedButton2Click
       end
       object Label3: TLabel
@@ -428,7 +473,7 @@ object MConfig: TMConfig
         Top = 265
         Width = 54
         Height = 22
-        Caption = '...'
+        Caption = 'Open'
         OnClick = SpeedButton6Click
       end
       object Label12: TLabel
@@ -449,7 +494,7 @@ object MConfig: TMConfig
         Top = 213
         Width = 54
         Height = 22
-        Caption = '...'
+        Caption = 'Open'
         OnClick = SpeedButton8Click
       end
       object SpeedButton4: TSpeedButton
@@ -457,7 +502,7 @@ object MConfig: TMConfig
         Top = 27
         Width = 54
         Height = 22
-        Caption = '...'
+        Caption = 'Open'
         OnClick = SpeedButton4Click
       end
       object d1: TEdit
@@ -465,6 +510,7 @@ object MConfig: TMConfig
         Top = 127
         Width = 398
         Height = 21
+        TabStop = False
         TabOrder = 2
       end
       object d4: TEdit
@@ -472,6 +518,7 @@ object MConfig: TMConfig
         Top = 31
         Width = 398
         Height = 21
+        TabStop = False
         TabOrder = 0
       end
       object d5: TEdit
@@ -479,6 +526,7 @@ object MConfig: TMConfig
         Top = 79
         Width = 398
         Height = 21
+        TabStop = False
         TabOrder = 1
       end
       object d2: TEdit
@@ -486,6 +534,7 @@ object MConfig: TMConfig
         Top = 173
         Width = 398
         Height = 21
+        TabStop = False
         TabOrder = 3
       end
       object d3: TEdit
@@ -493,6 +542,7 @@ object MConfig: TMConfig
         Top = 269
         Width = 398
         Height = 21
+        TabStop = False
         TabOrder = 5
       end
       object D6: TEdit
@@ -500,6 +550,7 @@ object MConfig: TMConfig
         Top = 216
         Width = 398
         Height = 21
+        TabStop = False
         TabOrder = 4
       end
     end
@@ -575,11 +626,12 @@ object MConfig: TMConfig
           Width = 74
           Height = 30
           TabOrder = 7
+          TabStop = False
           OnClick = BitBtn10Click
         end
         object RadioButton1: TRadioButton
           Left = 11
-          Top = 29
+          Top = 15
           Width = 70
           Height = 17
           Caption = 'Keyboard'
@@ -588,7 +640,7 @@ object MConfig: TMConfig
         end
         object RadioButton2: TRadioButton
           Left = 11
-          Top = 52
+          Top = 35
           Width = 70
           Height = 17
           Caption = 'Joystick'
@@ -608,6 +660,7 @@ object MConfig: TMConfig
           Font.Style = []
           ParentFont = False
           TabOrder = 2
+          TabStop = False
           OnClick = BitBtn2Click
         end
         object BitBtn3: TBitBtn
@@ -622,6 +675,7 @@ object MConfig: TMConfig
           Font.Style = []
           ParentFont = False
           TabOrder = 3
+          TabStop = False
           OnClick = BitBtn3Click
         end
         object BitBtn1: TBitBtn
@@ -636,6 +690,7 @@ object MConfig: TMConfig
           Font.Style = []
           ParentFont = False
           TabOrder = 4
+          TabStop = False
           OnClick = BitBtn1Click
         end
         object BitBtn4: TBitBtn
@@ -650,29 +705,31 @@ object MConfig: TMConfig
           Font.Style = []
           ParentFont = False
           TabOrder = 5
+          TabStop = False
           OnClick = BitBtn4Click
         end
         object GroupBox7: TGroupBox
-          Left = 3
-          Top = 75
+          Left = 26
+          Top = 55
           Width = 177
-          Height = 52
+          Height = 66
           Color = clBtnFace
           ParentBackground = False
           ParentColor = False
           TabOrder = 12
           object Button7: TButton
-            Left = 43
-            Top = 27
+            Left = 53
+            Top = 34
             Width = 64
             Height = 24
             Caption = 'Get Center'
             TabOrder = 0
+            TabStop = False
             OnClick = Button7Click
           end
           object ComboBox1: TComboBox
             Left = 8
-            Top = 6
+            Top = 7
             Width = 159
             Height = 21
             Enabled = False
@@ -688,6 +745,7 @@ object MConfig: TMConfig
           Width = 74
           Height = 30
           TabOrder = 10
+          TabStop = False
           OnClick = BitBtn16Click
         end
         object BitBtn15: TBitBtn
@@ -696,6 +754,7 @@ object MConfig: TMConfig
           Width = 74
           Height = 30
           TabOrder = 9
+          TabStop = False
           OnClick = BitBtn15Click
         end
         object BitBtn17: TBitBtn
@@ -704,6 +763,7 @@ object MConfig: TMConfig
           Width = 74
           Height = 30
           TabOrder = 11
+          TabStop = False
           OnClick = BitBtn17Click
         end
         object BitBtn11: TBitBtn
@@ -712,6 +772,7 @@ object MConfig: TMConfig
           Width = 74
           Height = 30
           TabOrder = 8
+          TabStop = False
           OnClick = BitBtn11Click
         end
         object BitBtn9: TBitBtn
@@ -720,6 +781,7 @@ object MConfig: TMConfig
           Width = 74
           Height = 30
           TabOrder = 6
+          TabStop = False
           OnClick = BitBtn9Click
         end
         object BitBtn23: TBitBtn
@@ -728,6 +790,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 13
+          TabStop = False
           OnClick = BitBtn23Click
         end
         object BitBtn24: TBitBtn
@@ -736,6 +799,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 14
+          TabStop = False
           OnClick = BitBtn24Click
         end
       end
@@ -804,7 +868,7 @@ object MConfig: TMConfig
         end
         object RadioButton3: TRadioButton
           Left = 16
-          Top = 25
+          Top = 15
           Width = 81
           Height = 17
           Caption = 'Keyboard'
@@ -813,7 +877,7 @@ object MConfig: TMConfig
         end
         object RadioButton4: TRadioButton
           Left = 16
-          Top = 52
+          Top = 35
           Width = 89
           Height = 17
           Caption = 'Joystick'
@@ -827,6 +891,7 @@ object MConfig: TMConfig
           Width = 41
           Height = 33
           TabOrder = 2
+          TabStop = False
           OnClick = BitBtn5Click
         end
         object BitBtn6: TBitBtn
@@ -835,6 +900,7 @@ object MConfig: TMConfig
           Width = 41
           Height = 33
           TabOrder = 3
+          TabStop = False
           OnClick = BitBtn6Click
         end
         object BitBtn7: TBitBtn
@@ -843,6 +909,7 @@ object MConfig: TMConfig
           Width = 40
           Height = 33
           TabOrder = 4
+          TabStop = False
           OnClick = BitBtn7Click
         end
         object BitBtn8: TBitBtn
@@ -851,6 +918,7 @@ object MConfig: TMConfig
           Width = 41
           Height = 33
           TabOrder = 5
+          TabStop = False
           OnClick = BitBtn8Click
         end
         object BitBtn12: TBitBtn
@@ -859,6 +927,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 6
+          TabStop = False
           OnClick = BitBtn12Click
         end
         object BitBtn13: TBitBtn
@@ -867,6 +936,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 7
+          TabStop = False
           OnClick = BitBtn13Click
         end
         object BitBtn14: TBitBtn
@@ -875,6 +945,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 8
+          TabStop = False
           OnClick = BitBtn14Click
         end
         object BitBtn18: TBitBtn
@@ -883,6 +954,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 9
+          TabStop = False
           OnClick = BitBtn18Click
         end
         object BitBtn19: TBitBtn
@@ -891,6 +963,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 10
+          TabStop = False
           OnClick = BitBtn19Click
         end
         object BitBtn20: TBitBtn
@@ -899,34 +972,37 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 11
+          TabStop = False
           OnClick = BitBtn20Click
         end
         object GroupBox10: TGroupBox
-          Left = 19
-          Top = 75
+          Left = 35
+          Top = 55
           Width = 177
-          Height = 52
+          Height = 66
           Color = clBtnFace
           ParentBackground = False
           ParentColor = False
           TabOrder = 12
           object ComboBox2: TComboBox
             Left = 9
-            Top = 6
+            Top = 7
             Width = 159
             Height = 21
             Enabled = False
             TabOrder = 0
+            TabStop = False
             Text = 'ComboBox2'
             OnChange = ComboBox2Change
           end
           object Button8: TButton
-            Left = 48
-            Top = 27
+            Left = 53
+            Top = 34
             Width = 64
             Height = 24
             Caption = 'Get Center'
             TabOrder = 1
+            TabStop = False
             OnClick = Button8Click
           end
         end
@@ -936,6 +1012,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 13
+          TabStop = False
           OnClick = BitBtn25Click
         end
         object BitBtn26: TBitBtn
@@ -944,6 +1021,7 @@ object MConfig: TMConfig
           Width = 75
           Height = 30
           TabOrder = 14
+          TabStop = False
           OnClick = BitBtn26Click
         end
       end
@@ -958,6 +1036,7 @@ object MConfig: TMConfig
         Height = 49
         Caption = 'Export ROM data'
         TabOrder = 0
+        TabStop = False
         OnClick = BitBtn21Click
       end
       object BitBtn22: TBitBtn
@@ -967,6 +1046,7 @@ object MConfig: TMConfig
         Height = 49
         Caption = 'Export SAMPLE data'
         TabOrder = 1
+        TabStop = False
         OnClick = BitBtn22Click
       end
     end
@@ -977,7 +1057,7 @@ object MConfig: TMConfig
         Left = 32
         Top = 79
         Width = 185
-        Height = 209
+        Height = 210
         Caption = 'Player 1'
         TabOrder = 1
         object CheckBox4: TCheckBox
@@ -985,6 +1065,7 @@ object MConfig: TMConfig
           Top = 34
           Width = 109
           Height = 16
+          TabStop = False
           Caption = 'Button 0'
           TabOrder = 0
         end
@@ -993,6 +1074,7 @@ object MConfig: TMConfig
           Top = 56
           Width = 68
           Height = 16
+          TabStop = False
           Caption = 'Button 1'
           TabOrder = 1
         end
@@ -1001,6 +1083,7 @@ object MConfig: TMConfig
           Top = 80
           Width = 65
           Height = 16
+          TabStop = False
           Caption = 'Button 2'
           TabOrder = 2
         end
@@ -1009,6 +1092,7 @@ object MConfig: TMConfig
           Top = 101
           Width = 69
           Height = 16
+          TabStop = False
           Caption = 'Button 3'
           TabOrder = 3
         end
@@ -1017,6 +1101,7 @@ object MConfig: TMConfig
           Top = 123
           Width = 67
           Height = 16
+          TabStop = False
           Caption = 'Button 4'
           TabOrder = 4
         end
@@ -1025,6 +1110,7 @@ object MConfig: TMConfig
           Top = 145
           Width = 64
           Height = 16
+          TabStop = False
           Caption = 'Button 5'
           TabOrder = 5
         end
@@ -1033,14 +1119,15 @@ object MConfig: TMConfig
         Left = 256
         Top = 79
         Width = 185
-        Height = 209
+        Height = 210
         Caption = 'Player 2'
         TabOrder = 2
         object CheckBox10: TCheckBox
           Left = 28
           Top = 34
           Width = 109
-          Height = 16
+          Height = 15
+          TabStop = False
           Caption = 'Button 0'
           TabOrder = 0
         end
@@ -1048,7 +1135,8 @@ object MConfig: TMConfig
           Left = 28
           Top = 56
           Width = 68
-          Height = 16
+          Height = 15
+          TabStop = False
           Caption = 'Button 1'
           TabOrder = 1
         end
@@ -1056,7 +1144,8 @@ object MConfig: TMConfig
           Left = 28
           Top = 80
           Width = 65
-          Height = 16
+          Height = 15
+          TabStop = False
           Caption = 'Button 2'
           TabOrder = 2
         end
@@ -1064,7 +1153,8 @@ object MConfig: TMConfig
           Left = 28
           Top = 101
           Width = 69
-          Height = 16
+          Height = 15
+          TabStop = False
           Caption = 'Button 3'
           TabOrder = 3
         end
@@ -1072,7 +1162,8 @@ object MConfig: TMConfig
           Left = 28
           Top = 123
           Width = 67
-          Height = 16
+          Height = 15
+          TabStop = False
           Caption = 'Button 4'
           TabOrder = 4
         end
@@ -1080,16 +1171,18 @@ object MConfig: TMConfig
           Left = 28
           Top = 145
           Width = 64
-          Height = 16
+          Height = 15
+          TabStop = False
           Caption = 'Button 5'
           TabOrder = 5
         end
       end
       object CheckBox16: TCheckBox
-        Left = 36
+        Left = 172
         Top = 42
         Width = 109
-        Height = 16
+        Height = 17
+        TabStop = False
         Caption = 'Enabled/Disabled'
         TabOrder = 0
         OnClick = CheckBox16Click

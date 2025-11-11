@@ -1,31 +1,33 @@
-unit arabian_hw;
+﻿unit arabian_hw;
 
 interface
-uses nz80,main_engine,controls_engine,gfx_engine,rom_engine,ay_8910,
-     pal_engine,sound_engine,mb88xx;
+uses rom_engine;
 
 function iniciar_arabian:boolean;
-
-implementation
 
 const
         arabian_rom:array[0..3] of tipo_roms=(
         (n:'ic1rev2.87';l:$2000;p:0;crc:$5e1c98b8),(n:'ic2rev2.88';l:$2000;p:$2000;crc:$092f587e),
         (n:'ic3rev2.89';l:$2000;p:$4000;crc:$15145f23),(n:'ic4rev2.90';l:$2000;p:$6000;crc:$32b77b44));
-        arabian_gfx:array[0..3] of tipo_roms=(
-        (n:'tvg-91.ic84';l:$2000;p:0;crc:$c4637822),(n:'tvg-92.ic85';l:$2000;p:$2000;crc:$f7c6866d),
-        (n:'tvg-93.ic86';l:$2000;p:$4000;crc:$71acd48d),(n:'tvg-94.ic87';l:$2000;p:$6000;crc:$82160b9a));
         arabian_mcu:tipo_roms=(n:'sun-8212.ic3';l:$800;p:0;crc:$8869611e);
-        //Dip
+        arabian_gfx:array[0..4] of tipo_roms=(
+        (n:'tvg-91.ic84';l:$2000;p:0;crc:$c4637822),(n:'tvg-92.ic85';l:$2000;p:$2000;crc:$f7c6866d),
+        (n:'tvg-93.ic86';l:$2000;p:$4000;crc:$71acd48d),(n:'tvg-94.ic87';l:$2000;p:$6000;crc:$82160b9a),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,mb88xx;
+
+const
         arabian_dip_a:array [0..4] of def_dip2=(
-        (mask:$1;name:'Lives';number:2;val2:(0,1);name2:('3','5')),
-        (mask:$2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail')),
-        (mask:$4;name:'Flip Screen';number:2;val2:(4,0);name2:('Off','On')),
-        (mask:$8;name:'Difficulty';number:2;val2:(8,0);name2:('Hard','Easy')),
+        (mask:1;name:'Lives';number:2;val2:(0,1);name2:('3','5')),
+        (mask:2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail')),
+        (mask:4;name:'Flip Screen';number:2;val2:(4,0);name2:('Off','On')),
+        (mask:8;name:'Difficulty';number:2;val2:(8,0);name2:('Hard','Easy')),
         (mask:$f0;name:'Coinage';number:16;val16:($10,$20,0,$30,$40,$50,$60,$70,$80,$90,$a0,$e0,$b0,$c0,$d0,$f0);name16:('A 2/1 B 2/1','A 2/1 B 1/3','A 1/1 B 1/1','A 1/1 B 1/2','A 1/1 B 1/3','A 1/1 B 1/4','A 1/1 B 1/5','A 1/1 B 1/6','A 1/2 B 1/2','A 1/2 B 1/4','A 1/2 B 1/5','A 1/2 B 1/6','A 1/2 B 1/10','A 1/2 B 1/11','A 1/2 B 1/12','Free Play')));
         arabian_dip_b:array [0..2] of def_dip2=(
-        (mask:$1;name:'Coin Counters';number:2;val2:(1,0);name2:('1','2')),
-        (mask:$2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')),
+        (mask:1;name:'Coin Counters';number:2;val2:(1,0);name2:('1','2')),
+        (mask:2;name:'Demo Sounds';number:2;val2:(2,0);name2:('Off','On')),
         (mask:$c;name:'Bonus Life';number:4;val4:($c,4,8,0);name4:('30K 70K 40K+','20K Only','40K Only','None')));
 
 var
@@ -49,42 +51,42 @@ end;
 procedure eventos_arabian;
 begin
 if event.arcade then begin
+  marcade.in0:=1;
+  marcade.in1:=0;
+  marcade.in2:=0;
+  marcade.in3:=0;
   //in1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 or $1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 or $2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 or $4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 or $8) else marcade.in1:=(marcade.in1 and $f7);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 or 8;
   //in2
-  if arcade_input.but0[0] then marcade.in2:=(marcade.in2 or $1) else marcade.in2:=(marcade.in2 and $fe);
+  if arcade_input.but0[0] then marcade.in2:=marcade.in2 or 1;
   //in3
-  if arcade_input.coin[0] then marcade.in3:=(marcade.in3 or $1) else marcade.in3:=(marcade.in3 and $fe);
-  if arcade_input.coin[1] then marcade.in3:=(marcade.in3 or $2) else marcade.in3:=(marcade.in3 and $fd);
+  if arcade_input.coin[0] then marcade.in3:=marcade.in3 or 1;
+  if arcade_input.coin[1] then marcade.in3:=marcade.in3 or 2;
   //in0
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or $2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 or $4) else marcade.in0:=(marcade.in0 and $fb);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 or 4;
 end;
 end;
 
 procedure arabian_principal;
 var
-  frame_m,frame_s:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
-frame_m:=z80_0.tframes;
-frame_s:=mb88xx_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
-    //Main
-    z80_0.run(frame_m);
-    frame_m:=frame_m+z80_0.tframes-z80_0.contador;
-    //MCU
-    mb88xx_0.run(frame_s);
-    frame_s:=frame_s+mb88xx_0.tframes-mb88xx_0.contador;
     if f=244 then begin
       update_video_arabian;
       z80_0.change_irq(HOLD_LINE);
     end;
+    //Main
+    z80_0.run(frame_main);
+    frame_main:=frame_main+z80_0.tframes-z80_0.contador;
+    //MCU
+    mb88xx_0.run(frame_snd);
+    frame_snd:=frame_snd+mb88xx_0.tframes-mb88xx_0.contador;
   end;
   eventos_arabian;
   video_sync;
@@ -112,32 +114,32 @@ begin
 	// get a pointer to the pixels
 	base:=y*256+x;
 	// enable writes to AZ/AR
-	if (blitter[0] and $08)<>0 then begin
-    video_ram[base+0]:=(video_ram[base+0] and $fc) or ((valor and $10) shr 3) or ((valor and $01) shr 0);
-		video_ram[base+1]:=(video_ram[base+1] and $fc) or ((valor and $20) shr 4) or ((valor and $02) shr 1);
-		video_ram[base+2]:=(video_ram[base+2] and $fc) or ((valor and $40) shr 5) or ((valor and $04) shr 2);
-		video_ram[base+3]:=(video_ram[base+3] and $fc) or ((valor and $80) shr 6) or ((valor and $08) shr 3);
+	if (blitter[0] and 8)<>0 then begin
+    video_ram[base+0]:=(video_ram[base+0] and $fc) or ((valor and $10) shr 3) or ((valor and 1) shr 0);
+		video_ram[base+1]:=(video_ram[base+1] and $fc) or ((valor and $20) shr 4) or ((valor and 2) shr 1);
+		video_ram[base+2]:=(video_ram[base+2] and $fc) or ((valor and $40) shr 5) or ((valor and 4) shr 2);
+		video_ram[base+3]:=(video_ram[base+3] and $fc) or ((valor and $80) shr 6) or ((valor and 8) shr 3);
 	end;
 	// enable writes to AG/AB
-	if (blitter[0] and $04)<>0 then begin
-		video_ram[base+0]:=(video_ram[base+0] and $f3) or ((valor and $10) shr 1) or ((valor and $01) shl 2);
-		video_ram[base+1]:=(video_ram[base+1] and $f3) or ((valor and $20) shr 2) or ((valor and $02) shl 1);
-		video_ram[base+2]:=(video_ram[base+2] and $f3) or ((valor and $40) shr 3) or ((valor and $04) shl 0);
-		video_ram[base+3]:=(video_ram[base+3] and $f3) or ((valor and $80) shr 4) or ((valor and $08) shr 1);
+	if (blitter[0] and 4)<>0 then begin
+		video_ram[base+0]:=(video_ram[base+0] and $f3) or ((valor and $10) shr 1) or ((valor and 1) shl 2);
+		video_ram[base+1]:=(video_ram[base+1] and $f3) or ((valor and $20) shr 2) or ((valor and 2) shl 1);
+		video_ram[base+2]:=(video_ram[base+2] and $f3) or ((valor and $40) shr 3) or ((valor and 4) shl 0);
+		video_ram[base+3]:=(video_ram[base+3] and $f3) or ((valor and $80) shr 4) or ((valor and 8) shr 1);
 	end;
 	// enable writes to BZ/BR
-	if (blitter[0] and $02)<>0 then begin
-		video_ram[base+0]:=(video_ram[base+0] and $cf) or ((valor and $10) shl 1) or ((valor and $01) shl 4);
-		video_ram[base+1]:=(video_ram[base+1] and $cf) or ((valor and $20) shl 0) or ((valor and $02) shl 3);
-    video_ram[base+2]:=(video_ram[base+2] and $cf) or ((valor and $40) shr 1) or ((valor and $04) shl 2);
-		video_ram[base+3]:=(video_ram[base+3] and $cf) or ((valor and $80) shr 2) or ((valor and $08) shl 1);
+	if (blitter[0] and 2)<>0 then begin
+		video_ram[base+0]:=(video_ram[base+0] and $cf) or ((valor and $10) shl 1) or ((valor and 1) shl 4);
+		video_ram[base+1]:=(video_ram[base+1] and $cf) or ((valor and $20) shl 0) or ((valor and 2) shl 3);
+    video_ram[base+2]:=(video_ram[base+2] and $cf) or ((valor and $40) shr 1) or ((valor and 4) shl 2);
+		video_ram[base+3]:=(video_ram[base+3] and $cf) or ((valor and $80) shr 2) or ((valor and 8) shl 1);
 	end;
 	// enable writes to BG/BB
-	if (blitter[0] and $01)<>0 then begin
-		video_ram[base+0]:=(video_ram[base+0] and $3f) or ((valor and $10) shl 3) or ((valor and $01) shl 6);
-		video_ram[base+1]:=(video_ram[base+1] and $3f) or ((valor and $20) shl 2) or ((valor and $02) shl 5);
-		video_ram[base+2]:=(video_ram[base+2] and $3f) or ((valor and $40) shl 1) or ((valor and $04) shl 4);
-		video_ram[base+3]:=(video_ram[base+3] and $3f) or ((valor and $80) shl 0) or ((valor and $08) shl 3);
+	if (blitter[0] and 1)<>0 then begin
+		video_ram[base+0]:=(video_ram[base+0] and $3f) or ((valor and $10) shl 3) or ((valor and 1) shl 6);
+		video_ram[base+1]:=(video_ram[base+1] and $3f) or ((valor and $20) shl 2) or ((valor and 2) shl 5);
+		video_ram[base+2]:=(video_ram[base+2] and $3f) or ((valor and $40) shl 1) or ((valor and 4) shl 4);
+		video_ram[base+3]:=(video_ram[base+3] and $3f) or ((valor and $80) shl 0) or ((valor and 8) shl 3);
 	end;
 end;
 
@@ -161,14 +163,14 @@ begin
 			// get a pointer to the bitmap
 			base:=((y+j) and $ff)*256+(x and $ff);
 			// bit 0 means write to upper plane (upper 4 bits of our bitmap)
-			if (plane and $01)<>0 then begin
-				if (p4<>8) then video_ram[base+0]:=(video_ram[base+0] and $0f) or (p4 shl 4);
-				if (p3<>8) then video_ram[base+1]:=(video_ram[base+1] and $0f) or (p3 shl 4);
-				if (p2<>8) then video_ram[base+2]:=(video_ram[base+2] and $0f) or (p2 shl 4);
-				if (p1<>8) then video_ram[base+3]:=(video_ram[base+3] and $0f) or (p1 shl 4);
+			if (plane and 1)<>0 then begin
+				if (p4<>8) then video_ram[base+0]:=(video_ram[base+0] and $f) or (p4 shl 4);
+				if (p3<>8) then video_ram[base+1]:=(video_ram[base+1] and $f) or (p3 shl 4);
+				if (p2<>8) then video_ram[base+2]:=(video_ram[base+2] and $f) or (p2 shl 4);
+				if (p1<>8) then video_ram[base+3]:=(video_ram[base+3] and $f) or (p1 shl 4);
 			end;
 			// bit 2 means write to lower plane (lower 4 bits of our bitmap)
-			if (plane and $04)<>0 then begin
+			if (plane and 4)<>0 then begin
 				if (p4<>8) then video_ram[base+0]:=(video_ram[base+0] and $f0) or p4;
 				if (p3<>8) then video_ram[base+1]:=(video_ram[base+1] and $f0) or p3;
 				if (p2<>8) then video_ram[base+2]:=(video_ram[base+2] and $f0) or p2;
@@ -185,8 +187,8 @@ case direccion of
   $8000..$bfff:video_ram_w(direccion,valor); //pant
   $d000..$dfff:memoria[$d000+(direccion and $7ff)]:=valor;
   $e000..$efff:begin  //blitter
-                  blitter[direccion and $7]:=valor;
-                  if (direccion and $7)=6 then blit_area(blitter[0],blitter[1] or (blitter[2] shl 8),blitter[4] shl 2,blitter[3],blitter[6],blitter[5]);
+                  blitter[direccion and 7]:=valor;
+                  if (direccion and 7)=6 then blit_area(blitter[0],blitter[1] or (blitter[2] shl 8),blitter[4] shl 2,blitter[3],blitter[6],blitter[5]);
                end;
 end;
 end;
@@ -289,6 +291,8 @@ begin
  z80_0.reset;
  mb88xx_0.reset;
  ay8910_0.reset;
+ frame_main:=z80_0.tframes;
+ frame_snd:=mb88xx_0.tframes;
  video_control:=0;
  mcu_port_p:=0;
  mcu_port_o:=0;
@@ -367,16 +371,16 @@ begin
 for f:=0 to $3fff do begin
 		v1:=memoria_temp[f];
     v2:=memoria_temp[f+$4000];
-		converted_gfx[f*4+3]:=(v1 and $01) or ((v1 and $10) shr 3) or ((v2 and $01) shl 2) or ((v2 and $10) shr 1);
+		converted_gfx[f*4+3]:=(v1 and 1) or ((v1 and $10) shr 3) or ((v2 and 1) shl 2) or ((v2 and $10) shr 1);
 		v1:=v1 shr 1;
 		v2:=v2 shr 1;
-		converted_gfx[f*4+2]:=(v1 and $01) or ((v1 and $10) shr 3) or ((v2 and $01) shl 2) or ((v2 and $10) shr 1);
+		converted_gfx[f*4+2]:=(v1 and 1) or ((v1 and $10) shr 3) or ((v2 and 1) shl 2) or ((v2 and $10) shr 1);
 		v1:=v1 shr 1;
 		v2:=v2 shr 1;
-		converted_gfx[f*4+1]:=(v1 and $01) or ((v1 and $10) shr 3) or ((v2 and $01) shl 2) or ((v2 and $10) shr 1);
+		converted_gfx[f*4+1]:=(v1 and 1) or ((v1 and $10) shr 3) or ((v2 and 1) shl 2) or ((v2 and $10) shr 1);
 		v1:=v1 shr 1;
 		v2:=v2 shr 1;
-		converted_gfx[f*4+0]:=(v1 and $01) or ((v1 and $10) shr 3) or ((v2 and $01) shl 2) or ((v2 and $10) shr 1);
+		converted_gfx[f*4+0]:=(v1 and 1) or ((v1 and $10) shr 3) or ((v2 and 1) shl 2) or ((v2 and $10) shr 1);
 end;
 end;
 begin

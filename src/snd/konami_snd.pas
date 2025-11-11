@@ -1,11 +1,11 @@
 unit konami_snd;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}ay_8910,sound_engine,nz80,misc_functions;
+uses main_engine,ay_8910,sound_engine,nz80,misc_functions;
 
 type
     konamisnd_chip=class(snd_chip_class)
-        constructor create(amp,ntipo:byte;clock:integer);
+        constructor create(ntipo:byte;amp:single=2);
         destructor free;
     public
           sound_latch,pedir_irq:byte;
@@ -30,6 +30,8 @@ const
   TIPO_JUNGLER=1;
   TIPO_SCRAMBLE=2;
   TIPO_FROGGER=3;
+  CLOCK_S=1789750;
+  CLOCK_T=1789772;
 
 implementation
 
@@ -160,8 +162,12 @@ begin
   end;
 end;
 
-constructor konamisnd_chip.create(amp,ntipo:byte;clock:integer);
+constructor konamisnd_chip.create(ntipo:byte;amp:single);
+var
+  clock:integer;
 begin
+if ((ntipo=TIPO_SCRAMBLE) or (ntipo=TIPO_FROGGER)) then clock:=CLOCK_S
+  else clock:=CLOCK_T;
 self.tipo:=ntipo;
 self.z80:=cpu_z80.create(clock);
 self.z80.init_sound(konamisnd_update);

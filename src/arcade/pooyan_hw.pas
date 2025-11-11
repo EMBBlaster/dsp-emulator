@@ -1,13 +1,10 @@
-unit pooyan_hw;
+﻿unit pooyan_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     konami_snd,sound_engine;
+uses rom_engine;
 
 function iniciar_pooyan:boolean;
 
-implementation
 const
         pooyan_rom:array[0..3] of tipo_roms=(
         (n:'1.4a';l:$2000;p:0;crc:$bb319c63),(n:'2.5a';l:$2000;p:$2000;crc:$a1463d98),
@@ -19,9 +16,14 @@ const
         (n:'8.10g';l:$1000;p:0;crc:$931b29eb),(n:'7.9g';l:$1000;p:$1000;crc:$bbe6d6e4));
         pooyan_sound:array[0..1] of tipo_roms=(
         (n:'xx.7a';l:$1000;p:0;crc:$fbe2b368),(n:'xx.8a';l:$1000;p:$1000;crc:$e1795b3d));
-        pooyan_sprites:array[0..1] of tipo_roms=(
-        (n:'6.9a';l:$1000;p:0;crc:$b2d8c121),(n:'5.8a';l:$1000;p:$1000;crc:$1097c2b6));
-        //Dip
+        pooyan_sprites:array[0..2] of tipo_roms=(
+        (n:'6.9a';l:$1000;p:0;crc:$b2d8c121),(n:'5.8a';l:$1000;p:$1000;crc:$1097c2b6),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,konami_snd,
+     sound_engine;
+
+const
         pooyan_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
@@ -97,7 +99,6 @@ procedure pooyan_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     if f=240 then begin
@@ -202,7 +203,7 @@ iniciar_video(224,256);
 z80_0:=cpu_z80.create(3072000);
 z80_0.change_ram_calls(pooyan_getbyte,pooyan_putbyte);
 //Sound Chip
-konamisnd_0:=konamisnd_chip.create(2,TIPO_TIMEPLT,1789772);
+konamisnd_0:=konamisnd_chip.create(TIPO_TIMEPLT);
 if not(roms_load(@konamisnd_0.memoria,pooyan_sound)) then exit;
 //cargar roms
 if not(roms_load(@memoria,pooyan_rom)) then exit;

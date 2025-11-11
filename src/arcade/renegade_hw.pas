@@ -1,13 +1,10 @@
-unit renegade_hw;
+﻿unit renegade_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,m6809,main_engine,controls_engine,gfx_engine,ym_3812,rom_engine,
-     pal_engine,sound_engine,msm5205,taito_68705;
+uses rom_engine;
 
 function iniciar_renegade:boolean;
 
-implementation
 const
         renegade_rom:array[0..1] of tipo_roms=(
         (n:'na-5.ic52';l:$8000;p:0;crc:$de7e7df4),(n:'nb-5.ic51';l:$8000;p:$8000;crc:$ba683ddf));
@@ -25,10 +22,15 @@ const
         (n:'ni-5.bin';l:$8000;p:$30000;crc:$6f597ed2),(n:'nf-5.bin';l:$8000;p:$38000;crc:$0efc8d45),
         (n:'nl-5.bin';l:$8000;p:$40000;crc:$14778336),(n:'no-5.bin';l:$8000;p:$48000;crc:$147dd23b),
         (n:'ng-5.bin';l:$8000;p:$50000;crc:$a8ee3720),(n:'nm-5.bin';l:$8000;p:$58000;crc:$c100258e));
-        renegade_adpcm:array[0..2] of tipo_roms=(
+        renegade_adpcm:array[0..3] of tipo_roms=(
         (n:'n3-5.ic33';l:$8000;p:0;crc:$78fd6190),(n:'n4-5.ic32';l:$8000;p:$8000;crc:$6557564c),
-        (n:'n5-5.ic31';l:$8000;p:$10000;crc:$7ee43a3c));
-        //Dip
+        (n:'n5-5.ic31';l:$8000;p:$10000;crc:$7ee43a3c),());
+
+implementation
+uses m6502,m6809,main_engine,controls_engine,gfx_engine,ym_3812,pal_engine,
+     sound_engine,msm5205,taito_68705;
+
+const
         renegade_dip_a:array [0..5] of def_dip2=(
         (mask:3;name:'Coin A';number:4;val4:(0,3,2,1);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
         (mask:$c;name:'Coin B';number:4;val4:(0,$c,8,4);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
@@ -127,7 +129,6 @@ procedure principal_renegade;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
    case f of

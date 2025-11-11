@@ -1,7 +1,7 @@
 unit oric_disc;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}disk_file_format,main_engine;
+uses main_engine;
 
 type
   tirq_handler=procedure(valor:byte);
@@ -88,6 +88,8 @@ var
   disc_count:integer=-1;
 
 implementation
+uses disk_file_format;
+
 var
   refreshdisks:boolean;
 

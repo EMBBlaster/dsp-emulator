@@ -1,8 +1,7 @@
-unit taito_cchip;
+﻿unit taito_cchip;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     rom_engine,upd7810,cpu_misc,main_engine,timer_engine;
+uses rom_engine,upd7810,cpu_misc,main_engine,timer_engine;
 
 type
     cchip_chip=class
@@ -53,42 +52,42 @@ end;
 
 function an_0:byte;
 begin
-  an_0:=(cchip_0.in_ad shr 0) and 1;
+  an_0:=((cchip_0.in_ad shr 0) and 1)*$ff;
 end;
 
 function an_1:byte;
 begin
-  an_1:=(cchip_0.in_ad shr 1) and 1;
+  an_1:=((cchip_0.in_ad shr 1) and 1)*$ff;
 end;
 
 function an_2:byte;
 begin
-  an_2:=(cchip_0.in_ad shr 2) and 1;
+  an_2:=((cchip_0.in_ad shr 2) and 1)*$ff;
 end;
 
 function an_3:byte;
 begin
-  an_3:=(cchip_0.in_ad shr 3) and 1;
+  an_3:=((cchip_0.in_ad shr 3) and 1)*$ff;
 end;
 
 function an_4:byte;
 begin
-  an_4:=(cchip_0.in_ad shr 4) and 1;
+  an_4:=((cchip_0.in_ad shr 4) and 1)*$ff;
 end;
 
 function an_5:byte;
 begin
-  an_5:=(cchip_0.in_ad shr 5) and 1;
+  an_5:=((cchip_0.in_ad shr 5) and 1)*$ff;
 end;
 
 function an_6:byte;
 begin
-  an_6:=(cchip_0.in_ad shr 6) and 1;
+  an_6:=((cchip_0.in_ad shr 6) and 1)*$ff;
 end;
 
 function an_7:byte;
 begin
-  an_7:=(cchip_0.in_ad shr 7) and 1;
+  an_7:=((cchip_0.in_ad shr 7) and 1)*$ff;
 end;
 
 function ca_cb(mask:byte):byte;

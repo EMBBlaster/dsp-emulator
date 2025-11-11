@@ -1,14 +1,10 @@
-unit cavemanninja_hw;
+﻿unit cavemanninja_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine,hu6280,deco_16ic,deco_common,deco_104,deco_146,
-     misc_functions;
+uses rom_engine;
 
 function iniciar_cninja:boolean;
 
-implementation
 const
         //Caveman Ninja
         cninja_rom:array[0..5] of tipo_roms=(
@@ -23,17 +19,9 @@ const
         (n:'mag-00.rom';l:$80000;p:0;crc:$a8f05d33),(n:'mag-01.rom';l:$80000;p:$80000;crc:$5b399eed));
         cninja_oki2:tipo_roms=(n:'mag-07.rom';l:$80000;p:0;crc:$08eb5264);
         cninja_oki1:tipo_roms=(n:'gl-06.rom';l:$20000;p:0;crc:$d92e519d);
-        cninja_sprites:array[0..3] of tipo_roms=(
+        cninja_sprites:array[0..4] of tipo_roms=(
         (n:'mag-03.rom';l:$80000;p:0;crc:$2220eb9f),(n:'mag-05.rom';l:$80000;p:1;crc:$56a53254),
-        (n:'mag-04.rom';l:$80000;p:$100000;crc:$144b94cc),(n:'mag-06.rom';l:$80000;p:$100001;crc:$82d44749));
-        cninja_dip:array [0..6] of def_dip2=(
-        (mask:7;name:'Coin A';number:8;val8:(0,1,7,6,5,4,3,2);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
-        (mask:$38;name:'Coin B';number:8;val8:(0,8,$38,$30,$28,$20,$18,$10);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
-        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
-        (mask:$300;name:'Lives';number:4;val4:($100,0,$300,$200);name4:('1','2','3','4')),
-        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Very Hard')),
-        (mask:$1000;name:'Restore Live Meter';number:2;val2:($1000,0);name2:('Off','On')),
-        (mask:$8000;name:'Demo Sounds';number:2;val2:($8000,0);name2:('Off','On')));
+        (n:'mag-04.rom';l:$80000;p:$100000;crc:$144b94cc),(n:'mag-06.rom';l:$80000;p:$100001;crc:$82d44749),());
         //Robocop 2
         robocop2_rom:array[0..7] of tipo_roms=(
         (n:'gq-03.k1';l:$20000;p:0;crc:$a7e90c28),(n:'gq-07.k3';l:$20000;p:1;crc:$d2287ec1),
@@ -50,10 +38,24 @@ const
         robocop2_tiles2:array[0..2] of tipo_roms=(
         (n:'mah-01.z1';l:$80000;p:0;crc:$26e0dfff),(n:'mah-00.y1';l:$80000;p:$80000;crc:$7bd69e41),
         (n:'mah-02.a1';l:$80000;p:$100000;crc:$328a247d));
-        robocop2_sprites:array[0..5] of tipo_roms=(
+        robocop2_sprites:array[0..6] of tipo_roms=(
         (n:'mah-05.y9';l:$80000;p:0;crc:$6773e613),(n:'mah-08.y12';l:$80000;p:1;crc:$88d310a5),
         (n:'mah-06.z9';l:$80000;p:$100000;crc:$27a8808a),(n:'mah-09.z12';l:$80000;p:$100001;crc:$a58c43a7),
-        (n:'mah-07.a9';l:$80000;p:$200000;crc:$526f4190),(n:'mah-10.a12';l:$80000;p:$200001;crc:$14b770da));
+        (n:'mah-07.a9';l:$80000;p:$200000;crc:$526f4190),(n:'mah-10.a12';l:$80000;p:$200001;crc:$14b770da),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine,hu6280,deco_16ic,deco_common,deco_104,deco_146,misc_functions;
+
+const
+        cninja_dip:array [0..6] of def_dip2=(
+        (mask:7;name:'Coin A';number:8;val8:(0,1,7,6,5,4,3,2);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
+        (mask:$38;name:'Coin B';number:8;val8:(0,8,$38,$30,$28,$20,$18,$10);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
+        (mask:$40;name:'Flip Screen';number:2;val2:($40,0);name2:('Off','On')),
+        (mask:$300;name:'Lives';number:4;val4:($100,0,$300,$200);name4:('1','2','3','4')),
+        (mask:$c00;name:'Difficulty';number:4;val4:($800,$c00,$400,0);name4:('Easy','Normal','Hard','Very Hard')),
+        (mask:$1000;name:'Restore Live Meter';number:2;val2:($1000,0);name2:('Off','On')),
+        (mask:$8000;name:'Demo Sounds';number:2;val2:($8000,0);name2:('Off','On')));
         robocop2_dip_a:array [0..7] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,7,6,5,4,3,2);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
         (mask:$38;name:'Coin B';number:8;val8:(0,8,$38,$30,$28,$20,$18,$10);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
@@ -115,33 +117,34 @@ end;
 procedure eventos_cninja;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$f7 or (marcade.in1 and 8);
   //P1
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ff7f;
   //P2
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $7fff) else marcade.in0:=(marcade.in0 or $8000);
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $bfff;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7fff;
   //SYSTEM
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $fd;
 end;
 end;
 
 procedure cninja_principal;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for screen_line:=0 to 273 do begin
    case screen_line of

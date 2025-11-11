@@ -1,23 +1,35 @@
 unit bloodbros_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,seibu_sound,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_bloodbros:boolean;
 
-implementation
 const
         bloodbros_rom:array[0..3] of tipo_roms=(
         (n:'2.u021.7n';l:$20000;p:1;crc:$204dca6e),(n:'1.u022.8n';l:$20000;p:0;crc:$ac6719e7),
         (n:'4.u023.7l';l:$20000;p:$40001;crc:$fd951c2c),(n:'3.u024.8l';l:$20000;p:$40000;crc:$18d3c460));
         bloodbros_sound:tipo_roms=(n:'bb_07.u1016.6a';l:$10000;p:0;crc:$411b94e8);
-        bloodbros_char:array[0..1] of tipo_roms=(
-        (n:'bb_05.u061.6f';l:$10000;p:0;crc:$04ba6d19),(n:'bb_06.u063.6d';l:$10000;p:$10000;crc:$7092e35b));
         bloodbros_tiles:tipo_roms=(n:'blood_bros_bk__=c=1990_tad_corp.u064.4d';l:$100000;p:0;crc:$1aa87ee6);
         bloodbros_sprites:tipo_roms=(n:'blood_bros_obj__=c=1990_tad_corp.u078.2n';l:$100000;p:0;crc:$d27c3952);
         bloodbros_oki:tipo_roms=(n:'bb_08.u095.5a';l:$20000;p:0;crc:$deb1b975);
+        bloodbros_char:array[0..2] of tipo_roms=(
+        (n:'bb_05.u061.6f';l:$10000;p:0;crc:$04ba6d19),(n:'bb_06.u063.6d';l:$10000;p:$10000;crc:$7092e35b),());
+        skysmash_rom:array[0..3] of tipo_roms=(
+        (n:'rom5';l:$20000;p:0;crc:$867f9897),(n:'rom6';l:$20000;p:1;crc:$e9c1d308),
+        (n:'rom7';l:$20000;p:$40000;crc:$d209db4d),(n:'rom8';l:$20000;p:$40001;crc:$d3646728));
+        skysmash_sound:tipo_roms=(n:'rom2';l:$10000;p:0;crc:$75b194cf);
+        skysmash_tiles:tipo_roms=(n:'rom9';l:$100000;p:0;crc:$b0a5eecf);
+        skysmash_sprites:tipo_roms=(n:'rom10';l:$80000;p:0;crc:$1bbcda5d);
+        skysmash_oki:tipo_roms=(n:'rom1';l:$20000;p:0;crc:$e69986f6);
+        skysmash_char:array[0..2] of tipo_roms=(
+        (n:'rom3';l:$10000;p:0;crc:$fbb241be),(n:'rom4';l:$10000;p:$10000;crc:$ad3cde81),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,seibu_sound,pal_engine,
+     sound_engine;
+
+const
         bloodbros_dip:array [0..6] of def_dip2=(
         (mask:$1e;name:'Coinage';number:16;val16:($14,$16,$18,$1a,2,$1c,4,6,$1e,8,$12,$10,$e,$c,$a,0);name16:('6C 1C','5C 1C','4C 1C','3C 1C','8C 3C','2C 1C','5C 3C','3C 2C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play')),
         (mask:$20;name:'Start Coin';number:2;val2:($20,0);name2:('Normal','X2')),
@@ -26,15 +38,6 @@ const
         (mask:$3000;name:'Difficulty';number:4;val4:($2000,$3000,$1000,0);name4:('Easy','Normal','Hard','Very Hard')),
         (mask:$4000;name:'Allow Continue';number:2;val2:(0,$4000);name2:('No','Yes')),
         (mask:$8000;name:'Demo Sounds';number:2;val2:(0,$8000);name2:('Off','On')));
-        skysmash_rom:array[0..3] of tipo_roms=(
-        (n:'rom5';l:$20000;p:0;crc:$867f9897),(n:'rom6';l:$20000;p:1;crc:$e9c1d308),
-        (n:'rom7';l:$20000;p:$40000;crc:$d209db4d),(n:'rom8';l:$20000;p:$40001;crc:$d3646728));
-        skysmash_sound:tipo_roms=(n:'rom2';l:$10000;p:0;crc:$75b194cf);
-        skysmash_char:array[0..1] of tipo_roms=(
-        (n:'rom3';l:$10000;p:0;crc:$fbb241be),(n:'rom4';l:$10000;p:$10000;crc:$ad3cde81));
-        skysmash_tiles:tipo_roms=(n:'rom9';l:$100000;p:0;crc:$b0a5eecf);
-        skysmash_sprites:tipo_roms=(n:'rom10';l:$80000;p:0;crc:$1bbcda5d);
-        skysmash_oki:tipo_roms=(n:'rom1';l:$20000;p:0;crc:$e69986f6);
         skysmash_dip:array [0..6] of def_dip2=(
         (mask:$1e;name:'Coinage';number:16;val16:($14,$16,$18,$1a,2,$1c,4,6,$1e,8,$12,$10,$e,$c,$a,0);name16:('6C 1C','5C 1C','4C 1C','3C 1C','8C 3C','2C 1C','5C 3C','3C 2C','1C 1C','2C 3C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C','Free Play')),
         (mask:$20;name:'Start Coin';number:2;val2:($20,0);name2:('Normal','X2')),
@@ -144,26 +147,29 @@ end;
 procedure eventos_bloodbros;
 begin
 if event.arcade then begin
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ffbf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.but2[1] then marcade.in0:=(marcade.in0 and $bfff) else marcade.in0:=(marcade.in0 or $4000);
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  seibu_snd_0.input:=0;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ffbf;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.but2[1] then marcade.in0:=marcade.in0 and $bfff;
   //Sys
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $ffef;
   //COINS por la CPU de sonido!!
-  if arcade_input.coin[0] then seibu_snd_0.input:=(seibu_snd_0.input or 1) else seibu_snd_0.input:=(seibu_snd_0.input and $fe);
-  if arcade_input.coin[1] then seibu_snd_0.input:=(seibu_snd_0.input or 2) else seibu_snd_0.input:=(seibu_snd_0.input and $fd);
+  if arcade_input.coin[0] then seibu_snd_0.input:=seibu_snd_0.input or 1;
+  if arcade_input.coin[1] then seibu_snd_0.input:=seibu_snd_0.input or 2;
 end;
 end;
 
@@ -171,7 +177,6 @@ procedure bloodbros_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
    for f:=0 to $ff do begin
      eventos_bloodbros;

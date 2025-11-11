@@ -1,10 +1,6 @@
-unit nes;
+﻿unit nes;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,nes_ppu,controls_engine,sysutils,dialogs,misc_functions,
-     sound_engine,file_engine,n2a03,m6502,nes_mappers;
 
 type
     tnes_machine=record
@@ -14,20 +10,13 @@ type
 
 function iniciar_nes:boolean;
 
-const
-  NTSC_CLOCK=1789773;
-  PAL_CLOCK=1662607;
-  NTSC_REFRESH=60.0988;
-  PAL_REFRESH=50.0070;
-  NTSC_LINES=262;
-  PAL_LINES=312;
-
 var
   nes_0:tnes_machine;
   nv_ram_name:string;
 
 implementation
-uses principal,snapshot;
+uses principal,snapshot,main_engine,nes_ppu,controls_engine,sysutils,dialogs,
+     misc_functions,sound_engine,file_engine,n2a03,m6502,nes_mappers;
 
 procedure eventos_nes;
 var
@@ -35,25 +24,23 @@ var
 begin
   if event.arcade then begin
     //Player 1
+    if arcade_input.but1[0] then nes_0.joy1_read:=(nes_0.joy1_read or 1) else nes_0.joy1_read:=(nes_0.joy1_read and $fe);
+    if arcade_input.but0[0] then nes_0.joy1_read:=(nes_0.joy1_read or 2) else nes_0.joy1_read:=(nes_0.joy1_read and $fd);
+    if arcade_input.coin[0] then nes_0.joy1_read:=(nes_0.joy1_read or 4) else nes_0.joy1_read:=(nes_0.joy1_read and $fb);
+    if arcade_input.start[0] then nes_0.joy1_read:=(nes_0.joy1_read or 8) else nes_0.joy1_read:=(nes_0.joy1_read and $f7);
     if arcade_input.up[0] then nes_0.joy1_read:=(nes_0.joy1_read or $10) else nes_0.joy1_read:=(nes_0.joy1_read and $ef);
     if arcade_input.down[0] then nes_0.joy1_read:=(nes_0.joy1_read or $20) else nes_0.joy1_read:=(nes_0.joy1_read and $df);
     if arcade_input.left[0] then nes_0.joy1_read:=(nes_0.joy1_read or $40) else nes_0.joy1_read:=(nes_0.joy1_read and $bf);
     if arcade_input.right[0] then nes_0.joy1_read:=(nes_0.joy1_read or $80) else nes_0.joy1_read:=(nes_0.joy1_read and $7f);
-    if arcade_input.but1[0] then nes_0.joy1_read:=(nes_0.joy1_read or $1) else nes_0.joy1_read:=(nes_0.joy1_read and $fe);
-    if arcade_input.but0[0] then nes_0.joy1_read:=(nes_0.joy1_read or $2) else nes_0.joy1_read:=(nes_0.joy1_read and $fd);
-    if arcade_input.start[0] then nes_0.joy1_read:=(nes_0.joy1_read or $8) else nes_0.joy1_read:=(nes_0.joy1_read and $f7);
-    if arcade_input.coin[0] then nes_0.joy1_read:=(nes_0.joy1_read or $4) else nes_0.joy1_read:=(nes_0.joy1_read and $fb);
     //Player 2
+    if arcade_input.but1[1] then nes_0.joy2_read:=(nes_0.joy2_read or 1) else nes_0.joy2_read:=(nes_0.joy2_read and $fe);
+    if arcade_input.but0[1] then nes_0.joy2_read:=(nes_0.joy2_read or 2) else nes_0.joy2_read:=(nes_0.joy2_read and $fd);
+    if arcade_input.coin[1] then nes_0.joy2_read:=(nes_0.joy2_read or 4) else nes_0.joy2_read:=(nes_0.joy2_read and $fb);
+    if arcade_input.start[1] then nes_0.joy2_read:=(nes_0.joy2_read or 8) else nes_0.joy2_read:=(nes_0.joy2_read and $f7);
     if arcade_input.up[1] then nes_0.joy2_read:=(nes_0.joy2_read or $10) else nes_0.joy2_read:=(nes_0.joy2_read and $ef);
     if arcade_input.down[1] then nes_0.joy2_read:=(nes_0.joy2_read or $20) else nes_0.joy2_read:=(nes_0.joy2_read and $df);
     if arcade_input.left[1] then nes_0.joy2_read:=(nes_0.joy2_read or $40) else nes_0.joy2_read:=(nes_0.joy2_read and $bf);
     if arcade_input.right[1] then nes_0.joy2_read:=(nes_0.joy2_read or $80) else nes_0.joy2_read:=(nes_0.joy2_read and $7f);
-    if arcade_input.but1[1] then nes_0.joy2_read:=(nes_0.joy2_read or $1) else nes_0.joy2_read:=(nes_0.joy2_read and $fe);
-    if arcade_input.but0[1] then nes_0.joy2_read:=(nes_0.joy2_read or $2) else nes_0.joy2_read:=(nes_0.joy2_read and $fd);
-    if arcade_input.start[1] then nes_0.joy2_read:=(nes_0.joy2_read or $8) else nes_0.joy2_read:=(nes_0.joy2_read and $f7);
-    if arcade_input.coin[1] then nes_0.joy2_read:=(nes_0.joy2_read or $4) else nes_0.joy2_read:=(nes_0.joy2_read and $fb);
-  end;
-  if event.keyboard then begin
     //Soft Reset
     if keyboard[KEYBOARD_f5] then begin
         temp_r:=n2a03_0.m6502.get_internal_r;
@@ -68,7 +55,6 @@ procedure nes_principal;
 var
   even:boolean;
 begin
-  init_controls(false,true,false,true);
   even:=true;
   while EmuStatus=EsRunning do begin
     while ppu_nes_0.linea<NTSC_lines do begin
@@ -428,7 +414,6 @@ function iniciar_nes:boolean;
 begin
   principal1.BitBtn10.Glyph:=nil;
   principal1.imagelist2.GetBitmap(2,principal1.BitBtn10.Glyph);
-  principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
   llamadas_maquina.bucle_general:=nes_principal;
   llamadas_maquina.close:=nes_cerrar;
   llamadas_maquina.reset:=nes_reset;

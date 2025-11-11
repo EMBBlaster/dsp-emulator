@@ -1,13 +1,9 @@
-unit vigilante_hw;
+﻿unit vigilante_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,dac,ym_2151,rom_engine,
-     pal_engine,sound_engine,timer_engine;
+uses rom_engine;
 
 function iniciar_vigilante:boolean;
-
-implementation
 
 const
         vigilante_rom:array[0..1] of tipo_roms=(
@@ -19,10 +15,15 @@ const
         (n:'vg_b-6p-.ic64';l:$20000;p:$40000;crc:$afb77461),(n:'vg_b-6n-.ic63';l:$20000;p:$60000;crc:$5065cd35));
         vigilante_dac:tipo_roms=(n:'vg_a-4d-.ic26';l:$10000;p:0;crc:$9b85101d);
         vigilante_sound:tipo_roms=(n:'vg_a-5j-.ic37';l:$10000;p:0;crc:$10582b2d);
-        vigilante_tiles:array[0..2] of tipo_roms=(
+        vigilante_tiles:array[0..3] of tipo_roms=(
         (n:'vg_b-1d-.ic2';l:$10000;p:0;crc:$81b1ee5c),(n:'vg_b-1f-.ic3';l:$10000;p:$10000;crc:$d0d33673),
-        (n:'vg_b-1h-.ic4';l:$10000;p:$20000;crc:$aae81695));
-        //Dip
+        (n:'vg_b-1h-.ic4';l:$10000;p:$20000;crc:$aae81695),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,dac,ym_2151,pal_engine,
+     sound_engine,timer_engine;
+
+const
         vigilante_dip_a:array[0..3] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(2,3,1,0);name4:('2','3','4','5')),
         (mask:4;name:'Difficulty';number:2;val2:(4,0);name2:('Normal','Hard')),
@@ -119,44 +120,43 @@ end;
 procedure eventos_vigilante;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //Service
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $f7;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $7f;
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $7f;
 end;
 end;
 
 procedure vigilante_principal;
 var
-  frame_m,frame_s:single;
   f:byte;
 begin
-init_controls(false,false,false,true);
-frame_m:=z80_0.tframes;
-frame_s:=z80_1.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     //Main CPU
-    z80_0.run(frame_m);
-    frame_m:=frame_m+z80_0.tframes-z80_0.contador;
+    z80_0.run(frame_main);
+    frame_main:=frame_main+z80_0.tframes-z80_0.contador;
     //Sound CPU
-    z80_1.run(frame_s);
-    frame_s:=frame_s+z80_1.tframes-z80_1.contador;
+    z80_1.run(frame_snd);
+    frame_snd:=frame_snd+z80_1.tframes-z80_1.contador;
   end;
   z80_0.change_irq(HOLD_LINE);
   update_video_vigilante;
@@ -306,6 +306,8 @@ procedure reset_vigilante;
 begin
  z80_0.reset;
  z80_1.reset;
+ frame_main:=z80_0.tframes;
+ frame_snd:=z80_1.tframes;
  ym2151_0.reset;
  marcade.in0:=$ff;
  marcade.in1:=$ff;

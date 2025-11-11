@@ -1,19 +1,21 @@
 unit blockout_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,sound_engine,oki6295;
+uses rom_engine;
 
 function iniciar_blockout:boolean;
 
-implementation
 const
         blockout_rom:array[0..1] of tipo_roms=(
         (n:'bo29a0-2.bin';l:$20000;p:0;crc:$b0103427),(n:'bo29a1-2.bin';l:$20000;p:1;crc:$5984d5a2));
         blockout_sound:tipo_roms=(n:'bo29e3-0.bin';l:$8000;p:0;crc:$3ea01f78);
-        blockout_oki:tipo_roms=(n:'bo29e2-0.bin';l:$20000;p:0;crc:$15c5a99d);
-        //DIP
+        blockout_oki:array[0..1] of tipo_roms=((n:'bo29e2-0.bin';l:$20000;p:0;crc:$15c5a99d),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,pal_engine,
+     sound_engine,oki6295;
+
+const
         blockout_dipa:array [0..2] of def_dip2=(
         (mask:3;name:'Coinage';number:4;val4:(0,1,3,2);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
         (mask:$10;name:'1 Coint to Continue';number:2;val2:($10,0);name2:('Off','On')),
@@ -77,29 +79,32 @@ end;
 procedure eventos_blockout;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$ffff;
+  marcade.in1:=$ffff;
   //p1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but2[0] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but3[0] then marcade.in1:=(marcade.in1 and $ffbf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $ff7f) else marcade.in1:=(marcade.in1 or $80);
-  if arcade_input.but0[0] then marcade.dswa:=(marcade.dswa and $ffbf) else marcade.dswa:=(marcade.dswa or $40);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but2[0] then marcade.in1:=marcade.in1 and $ffdf;
+  if arcade_input.but3[0] then marcade.in1:=marcade.in1 and $ffbf;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $ff7f;
+  if arcade_input.but0[0] then marcade.dswa:=marcade.dswa and $ffbf;
   //p2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fffe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fffd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fffb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fff7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $ffef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but2[1] then marcade.in2:=(marcade.in2 and $ffdf) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.but3[1] then marcade.in2:=(marcade.in2 and $ffbf) else marcade.in2:=(marcade.in2 or $40);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $ff7f) else marcade.in2:=(marcade.in2 or $80);
-  if arcade_input.but0[1] then marcade.dswa:=(marcade.dswa and $ff7f) else marcade.dswa:=(marcade.dswa or $80);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fffe;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fffd;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fffb;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fff7;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $ffef;
+  if arcade_input.but2[1] then marcade.in2:=marcade.in2 and $ffdf;
+  if arcade_input.but3[1] then marcade.in2:=marcade.in2 and $ffbf;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $ff7f;
+  if arcade_input.but0[1] then marcade.dswa:=marcade.dswa and $ff7f;
   //system
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fffb;
 end;
 end;
 
@@ -107,7 +112,6 @@ procedure blockout_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
     eventos_blockout;

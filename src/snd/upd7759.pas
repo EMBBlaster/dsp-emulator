@@ -1,8 +1,7 @@
 unit upd7759;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     sound_engine,dialogs;
+uses sound_engine,dialogs,main_engine;
 
 const
   CLOCK_UPD=640000;

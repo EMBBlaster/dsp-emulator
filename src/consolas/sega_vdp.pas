@@ -1,8 +1,7 @@
 unit sega_vdp;
 
 interface
-uses gfx_engine,{$IFDEF WINDOWS}windows,{$endif}
-     main_engine,pal_engine,tms99xx,timer_engine;
+uses gfx_engine,main_engine,pal_engine,tms99xx,timer_engine;
 
 const
   LINES_NTSC=262;

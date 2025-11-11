@@ -1,13 +1,10 @@
 unit tecmo_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,msm5205,ym_3812,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_tecmo:boolean;
 
-implementation
 const
         //Rygar
         rygar_rom:array[0..2] of tipo_roms=(
@@ -22,9 +19,9 @@ const
         (n:'vid_6c.bin';l:$8000;p:$10000;crc:$89868c85),(n:'vid_6b.bin';l:$8000;p:$18000;crc:$35389a7b));
         rygar_adpcm:tipo_roms=(n:'cpu_1f.bin';l:$4000;p:0;crc:$3cc98c5a);
         rygar_sound:tipo_roms=(n:'cpu_4h.bin';l:$2000;p:0;crc:$e4a2fa87);
-        rygar_sprites:array[0..3] of tipo_roms=(
+        rygar_sprites:array[0..4] of tipo_roms=(
         (n:'vid_6k.bin';l:$8000;p:0;crc:$aba6db9e),(n:'vid_6j.bin';l:$8000;p:$8000;crc:$ae1f2ed6),
-        (n:'vid_6h.bin';l:$8000;p:$10000;crc:$46d9e7df),(n:'vid_6g.bin';l:$8000;p:$18000;crc:$45839c9a));
+        (n:'vid_6h.bin';l:$8000;p:$10000;crc:$46d9e7df),(n:'vid_6g.bin';l:$8000;p:$18000;crc:$45839c9a),());
         //Silkworm
         sw_rom:array[0..1] of tipo_roms=(
         (n:'silkworm.4';l:$10000;p:0;crc:$a5277cce),(n:'silkworm.5';l:$10000;p:$10000;crc:$a6c7bb51));
@@ -37,10 +34,15 @@ const
         (n:'silkworm.16';l:$10000;p:$20000;crc:$9292ed63),(n:'silkworm.17';l:$10000;p:$30000;crc:$3fa4563d));
         sw_adpcm:tipo_roms=(n:'silkworm.1';l:$8000;p:0;crc:$5b553644);
         sw_sound:tipo_roms=(n:'silkworm.3';l:$8000;p:0;crc:$b589f587);
-        sw_sprites:array[0..3] of tipo_roms=(
+        sw_sprites:array[0..4] of tipo_roms=(
         (n:'silkworm.6';l:$10000;p:0;crc:$1138d159),(n:'silkworm.7';l:$10000;p:$10000;crc:$d96214f7),
-        (n:'silkworm.8';l:$10000;p:$20000;crc:$0494b38e),(n:'silkworm.9';l:$10000;p:$30000;crc:$8ce3cdf5));
-        //Dip
+        (n:'silkworm.8';l:$10000;p:$20000;crc:$0494b38e),(n:'silkworm.9';l:$10000;p:$30000;crc:$8ce3cdf5),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,msm5205,ym_3812,pal_engine,
+     sound_engine;
+
+const
         rygar_dip_a:array [0..3] of def_dip2=(
         (mask:3;name:'Coin A';number:4;val4:(1,0,2,3);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
         (mask:$c;name:'Coin B';number:4;val4:(4,0,8,$c);name4:('2C 1C','1C 1C','1C 2C','1C 3C')),
@@ -193,7 +195,6 @@ procedure tecmo_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_tecmo;

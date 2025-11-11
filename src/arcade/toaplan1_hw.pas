@@ -1,24 +1,25 @@
 unit toaplan1_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,ym_3812,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_toaplan1:boolean;
 
-implementation
 const
         //Hellfire
         hellfire_rom:array[0..1] of tipo_roms=(
         (n:'b90_14.0';l:$20000;p:0;crc:$101df9f5),(n:'b90_15.1';l:$20000;p:$1;crc:$e67fd452));
         hellfire_sound:tipo_roms=(n:'b90_03.2';l:$8000;p:0;crc:$4058fa67);
-        hellfire_char:array[0..3] of tipo_roms=(
-        (n:'b90_04.3';l:$20000;p:0;crc:$ea6150fc),(n:'b90_05.4';l:$20000;p:$1;crc:$bb52c507),
-        (n:'b90_06.5';l:$20000;p:$40000;crc:$cf5b0252),(n:'b90_07.6';l:$20000;p:$40001;crc:$b98af263));
         hellfire_sprite:array[0..3] of tipo_roms=(
         (n:'b90_11.10';l:$20000;p:0;crc:$c33e543c),(n:'b90_10.9';l:$20000;p:$1;crc:$35fd1092),
         (n:'b90_09.8';l:$20000;p:$40000;crc:$cf01009e),(n:'b90_08.7';l:$20000;p:$40001;crc:$3404a5e3));
+        hellfire_char:array[0..4] of tipo_roms=(
+        (n:'b90_04.3';l:$20000;p:0;crc:$ea6150fc),(n:'b90_05.4';l:$20000;p:$1;crc:$bb52c507),
+        (n:'b90_06.5';l:$20000;p:$40000;crc:$cf5b0252),(n:'b90_07.6';l:$20000;p:$40001;crc:$b98af263),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_3812,pal_engine,
+     sound_engine;
 
 var
  rom:array[0..$1ffff] of word;
@@ -99,7 +100,6 @@ var
   frame_m,frame_s:single;
   f:word;
 begin
-init_controls(false,false,false,true);
 frame_m:=m68000_0.tframes;
 frame_s:=z80_0.tframes;
 while EmuStatus=EsRunning do begin

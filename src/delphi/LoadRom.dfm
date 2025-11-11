@@ -4,21 +4,22 @@ object FLoadRom: TFLoadRom
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Load Rom'
-  ClientHeight = 499
-  ClientWidth = 898
+  ClientHeight = 497
+  ClientWidth = 951
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Color = clDefault
+  Font.Height = 0
+  Font.Name = 'Default'
   Font.Style = []
   KeyPreview = True
   Position = poDesigned
+  OnClose = FormClose
   OnKeyUp = FormKeyUp
   OnShow = FormShow
-  TextHeight = 13
+  TextHeight = 28
   object gpxrominfo: TGroupBox
-    Left = 492
+    Left = 531
     Top = 8
     Width = 400
     Height = 81
@@ -35,71 +36,119 @@ object FLoadRom: TFLoadRom
     object Label1: TLabel
       Left = 8
       Top = 16
-      Width = 29
+      Width = 23
       Height = 13
       Caption = 'Year:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label2: TLabel
       Left = 8
       Top = 44
-      Width = 97
+      Width = 90
       Height = 13
       Caption = 'Hi Score Support:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label3: TLabel
       Left = 8
       Top = 30
-      Width = 38
+      Width = 37
       Height = 13
       Caption = 'Sound:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label4: TLabel
       Left = 120
       Top = 16
       Width = 3
       Height = 13
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label5: TLabel
       Left = 120
       Top = 30
       Width = 3
       Height = 13
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label6: TLabel
       Left = 120
       Top = 44
       Width = 3
       Height = 13
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label9: TLabel
       Left = 120
       Top = 58
       Width = 3
       Height = 13
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
     object Label10: TLabel
       Left = 8
       Top = 58
-      Width = 56
+      Width = 51
       Height = 13
       Caption = 'Company:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -11
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
     end
   end
   object RomList: TStringGrid
-    Left = 195
+    Left = 215
     Top = 8
-    Width = 291
+    Width = 310
     Height = 473
     ColCount = 3
     Ctl3D = False
     DefaultColWidth = 120
-    DefaultRowHeight = 16
+    DefaultRowHeight = 20
     FixedCols = 0
     RowCount = 41
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
+    Font.Color = clDefault
+    Font.Height = -13
+    Font.Name = 'Default'
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
     ParentCtl3D = False
@@ -114,41 +163,28 @@ object FLoadRom: TFLoadRom
       120)
   end
   object BitBtn3: TBitBtn
-    Left = 553
+    Left = 569
     Top = 432
-    Width = 123
+    Width = 128
     Height = 49
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    Kind = bkOK
-    NumGlyphs = 2
-    ParentFont = False
+    Caption = 'OK'
+    Default = True
     TabOrder = 2
     TabStop = False
     OnClick = BitBtn3Click
   end
   object BitBtn1: TBitBtn
-    Left = 728
+    Left = 776
     Top = 432
-    Width = 121
+    Width = 129
     Height = 49
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    Kind = bkCancel
-    NumGlyphs = 2
-    ParentFont = False
+    Caption = 'Cancel'
     TabOrder = 3
     TabStop = False
     OnClick = BitBtn1Click
   end
   object Panel1: TPanel
-    Left = 492
+    Left = 531
     Top = 112
     Width = 402
     Height = 301
@@ -164,124 +200,208 @@ object FLoadRom: TFLoadRom
       Center = True
       Proportional = True
       Stretch = True
-      ExplicitLeft = -25
-      ExplicitTop = -5
-      ExplicitHeight = 300
+      ExplicitLeft = 49
+      ExplicitTop = 0
     end
   end
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
-    Width = 177
-    Height = 405
+    Width = 201
+    Height = 321
     Caption = 'Sort'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -13
+    Font.Name = 'Default'
+    Font.Style = [fsBold]
+    ParentFont = False
     TabOrder = 5
     object RadioButton1: TRadioButton
-      Left = 12
+      Left = 20
       Top = 25
-      Width = 93
-      Height = 25
+      Width = 96
+      Height = 24
       Caption = 'All'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -13
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       OnClick = RadioButton1Click
     end
     object RadioButton2: TRadioButton
-      Left = 12
-      Top = 47
-      Width = 105
-      Height = 25
+      Left = 20
+      Top = 50
+      Width = 143
+      Height = 24
       Caption = 'Computers'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -13
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
       OnClick = RadioButton2Click
     end
     object RadioButton3: TRadioButton
-      Left = 12
-      Top = 76
-      Width = 97
-      Height = 17
+      Left = 20
+      Top = 75
+      Width = 117
+      Height = 24
       Caption = 'Consoles'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -13
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 2
       OnClick = RadioButton3Click
     end
     object RadioButton4: TRadioButton
-      Left = 12
-      Top = 99
-      Width = 124
-      Height = 17
+      Left = 20
+      Top = 100
+      Width = 169
+      Height = 24
       Caption = 'Game && Watch'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -13
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 3
       OnClick = RadioButton4Click
     end
     object RadioButton5: TRadioButton
-      Left = 12
-      Top = 120
-      Width = 89
-      Height = 17
+      Left = 20
+      Top = 125
+      Width = 104
+      Height = 24
       Caption = 'Arcade'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -13
+      Font.Name = 'Default'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 4
       OnClick = RadioButton5Click
     end
     object GroupBox2: TGroupBox
       Left = 12
-      Top = 143
-      Width = 149
-      Height = 146
+      Top = 150
+      Width = 165
+      Height = 155
       Caption = 'Arcade Sub-Type'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clDefault
+      Font.Height = -13
+      Font.Name = 'Default'
+      Font.Style = [fsBold]
+      ParentFont = False
       TabOrder = 5
       object CheckBox1: TCheckBox
         Left = 16
-        Top = 16
+        Top = 20
         Width = 121
-        Height = 17
+        Height = 22
         Caption = 'Sport'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = -13
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
         OnClick = CheckBox1Click
       end
       object CheckBox3: TCheckBox
         Left = 16
-        Top = 48
+        Top = 60
         Width = 113
-        Height = 36
+        Height = 22
         Caption = 'Shot'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = -13
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 2
         OnClick = CheckBox1Click
       end
       object CheckBox4: TCheckBox
         Left = 16
-        Top = 79
+        Top = 80
         Width = 113
-        Height = 17
+        Height = 22
         Caption = 'Maze'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = -13
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 3
         OnClick = CheckBox1Click
       end
       object CheckBox2: TCheckBox
         Left = 16
-        Top = 32
+        Top = 40
         Width = 121
-        Height = 25
+        Height = 22
         Caption = 'Run && Gun'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = -13
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
         OnClick = CheckBox1Click
       end
       object CheckBox5: TCheckBox
         Left = 16
-        Top = 97
+        Top = 100
         Width = 89
-        Height = 25
+        Height = 22
         Caption = 'Fight'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = -13
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 4
         OnClick = CheckBox1Click
       end
       object CheckBox6: TCheckBox
         Left = 16
-        Top = 118
+        Top = 120
         Width = 89
-        Height = 25
+        Height = 22
         Caption = 'Drive'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clDefault
+        Font.Height = -13
+        Font.Name = 'Default'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 5
         OnClick = CheckBox1Click
       end
     end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = Timer1Timer
+    Left = 80
+    Top = 376
   end
 end

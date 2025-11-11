@@ -8,8 +8,7 @@ Corregidos opcodes $f2 y $f3
 }
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,dialogs,sysutils,vars_hide,cpu_misc,timer_engine;
+uses main_engine,dialogs,sysutils,cpu_misc,timer_engine;
 
 const
   NEC_V20=0;

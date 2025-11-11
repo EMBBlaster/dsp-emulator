@@ -1,25 +1,22 @@
 unit bagman_hw;
-interface
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ay_8910,bagman_pal;
+interface
+uses rom_engine;
 
 function iniciar_bagman:boolean;
 
-implementation
 const
         //bagman
         bagman_rom:array[0..5] of tipo_roms=(
         (n:'e9_b05.bin';l:$1000;p:0;crc:$e0156191),(n:'f9_b06.bin';l:$1000;p:$1000;crc:$7b758982),
         (n:'f9_b07.bin';l:$1000;p:$2000;crc:$302a077b),(n:'k9_b08.bin';l:$1000;p:$3000;crc:$f04293cb),
         (n:'m9_b09s.bin';l:$1000;p:$4000;crc:$68e83e4f),(n:'n9_b10.bin';l:$1000;p:$5000;crc:$1d6579f7));
-        bagman_pal:array[0..1] of tipo_roms=(
+        bagman_palete:array[0..1] of tipo_roms=(
         (n:'p3.bin';l:$20;p:0;crc:$2a855523),(n:'r3.bin';l:$20;p:$20;crc:$ae6f1019));
         bagman_char:array[0..1] of tipo_roms=(
         (n:'e1_b02.bin';l:$1000;p:0;crc:$4a0a6b55),(n:'j1_b04.bin';l:$1000;p:$1000;crc:$c680ef04));
-        bagman_sprites:array[0..1] of tipo_roms=(
-        (n:'c1_b01.bin';l:$1000;p:0;crc:$705193b2),(n:'f1_b03s.bin';l:$1000;p:$1000;crc:$dba1eda7));
+        bagman_sprites:array[0..2] of tipo_roms=(
+        (n:'c1_b01.bin';l:$1000;p:0;crc:$705193b2),(n:'f1_b03s.bin';l:$1000;p:$1000;crc:$dba1eda7),());
         //Super Bagman
         sbagman_rom:array[0..9] of tipo_roms=(
         (n:'5.9e';l:$1000;p:0;crc:$1b1d6b0a),(n:'6.9f';l:$1000;p:$1000;crc:$ac49cb82),
@@ -31,12 +28,17 @@ const
         (n:'p3.bin';l:$20;p:0;crc:$2a855523),(n:'r3.bin';l:$20;p:$20;crc:$ae6f1019));
         sbagman_char:array[0..1] of tipo_roms=(
         (n:'2.1e';l:$1000;p:0;crc:$f4d3d4e6),(n:'4.1j';l:$1000;p:$1000;crc:$2c6a510d));
-        sbagman_sprites:array[0..1] of tipo_roms=(
-        (n:'1.1c';l:$1000;p:0;crc:$a046ff44),(n:'3.1f';l:$1000;p:$1000;crc:$a4422da4));
-        //DIP
+        sbagman_sprites:array[0..2] of tipo_roms=(
+        (n:'1.1c';l:$1000;p:0;crc:$a046ff44),(n:'3.1f';l:$1000;p:$1000;crc:$a4422da4),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ay_8910,bagman_pal;
+
+const
         bagman_dip:array [0..5] of def_dip2=(
-        (mask:$3;name:'Lives';number:4;val4:(3,2,1,0);name4:('2','3','4','5')),
-        (mask:$4;name:'Coinage';number:2;val2:(0,4);name2:('2C/1C 1C/1C 1C/3C 1C/7C','1C/1C 1C/2C 1C/6C 1C/14C')),
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('2','3','4','5')),
+        (mask:4;name:'Coinage';number:2;val2:(0,4);name2:('2C/1C 1C/1C 1C/3C 1C/7C','1C/1C 1C/2C 1C/6C 1C/14C')),
         (mask:$18;name:'Difficulty';number:4;val4:($18,$10,8,0);name4:('Easy','Medium','Hard','Hardest')),
         (mask:$20;name:'Language';number:2;val2:($20,0);name2:('English','French')),
         (mask:$40;name:'Bonus Life';number:2;val2:($40,0);name2:('30K','40K')),
@@ -81,40 +83,39 @@ end;
 procedure eventos_bagman;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
   //P1
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $7f;
   //P2
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $7f;
 end;
 end;
 
 procedure bagman_principal;
 var
-  frame:single;
   f:word;
 begin
-init_controls(false,false,false,true);
-frame:=z80_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
-    z80_0.run(frame);
-    frame:=frame+z80_0.tframes-z80_0.contador;
-    if f=239 then begin
+    if f=240 then begin
       if irq_enable then z80_0.change_irq(HOLD_LINE);
       update_video_bagman;
     end;
+    z80_0.run(frame_main);
+    frame_main:=frame_main+z80_0.tframes-z80_0.contador;
   end;
   eventos_bagman;
   video_sync;
@@ -145,7 +146,7 @@ case direccion of
           video_enable:=(valor and 1)<>0;
           if video_enable then fillchar(gfx[0].buffer,$400,1);
         end;
-  $a800..$a805:bagman_pal16r6_w(direccion and $7,valor);
+  $a800..$a805:bagman_pal16r6_w(direccion and 7,valor);
 end;
 end;
 
@@ -157,8 +158,8 @@ end;
 procedure bagman_outbyte(puerto:word;valor:byte);
 begin
 case (puerto and $ff) of
-  $08:ay8910_0.control(valor);
-  $09:ay8910_0.write(valor);
+  8:ay8910_0.control(valor);
+  9:ay8910_0.write(valor);
 end;
 end;
 
@@ -181,6 +182,7 @@ end;
 procedure reset_bagman;
 begin
  z80_0.reset;
+ frame_main:=z80_0.tframes;
  ay8910_0.reset;
  irq_enable:=true;
  video_enable:=true;
@@ -255,7 +257,7 @@ case main_vars.tipo_maquina of
         if not(roms_load(@memoria_temp,bagman_sprites)) then exit;
         conv_chars(2);
         //poner la paleta
-        if not(roms_load(@memoria_temp,bagman_pal)) then exit;
+        if not(roms_load(@memoria_temp,bagman_palete)) then exit;
      end;
   172:begin  //Super Bagman
         //cargar roms
@@ -288,18 +290,18 @@ compute_resistor_weights(0,	255, -1.0,
 			2,@resistances_b,@bweights,470,0);
 for f:=0 to $3f do begin
 		// red component
-		bit0:=(memoria_temp[f] shr 0) and $01;
-		bit1:=(memoria_temp[f] shr 1) and $01;
-		bit2:=(memoria_temp[f] shr 2) and $01;
+		bit0:=(memoria_temp[f] shr 0) and 1;
+		bit1:=(memoria_temp[f] shr 1) and 1;
+		bit2:=(memoria_temp[f] shr 2) and 1;
 		colores[f].r:=combine_3_weights(@rweights,bit0,bit1,bit2);
 		// green component
-		bit0:=(memoria_temp[f] shr 3) and $01;
-		bit1:=(memoria_temp[f] shr 4) and $01;
-		bit2:=(memoria_temp[f] shr 5) and $01;
+		bit0:=(memoria_temp[f] shr 3) and 1;
+		bit1:=(memoria_temp[f] shr 4) and 1;
+		bit2:=(memoria_temp[f] shr 5) and 1;
 		colores[f].g:=combine_3_weights(@gweights,bit0,bit1,bit2);
 		// blue component
-		bit0:=(memoria_temp[f] shr 6) and $01;
-		bit1:=(memoria_temp[f] shr 7) and $01;
+		bit0:=(memoria_temp[f] shr 6) and 1;
+		bit1:=(memoria_temp[f] shr 7) and 1;
 		colores[f].b:=combine_2_weights(@bweights,bit0,bit1);
 end;
 set_pal(colores,$40);

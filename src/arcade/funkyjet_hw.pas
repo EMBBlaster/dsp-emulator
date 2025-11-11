@@ -1,22 +1,25 @@
-unit funkyjet_hw;
+﻿unit funkyjet_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     oki6295,sound_engine,hu6280,deco_16ic,deco_decr,deco_common,misc_functions,
-     deco_146;
+uses rom_engine;
 
 function iniciar_funkyjet:boolean;
 
-implementation
 const
         funkyjet_rom:array[0..1] of tipo_roms=(
         (n:'jk00.12f';l:$40000;p:0;crc:$712089c1),(n:'jk01.13f';l:$40000;p:1;crc:$be3920d7));
         funkyjet_sound:tipo_roms=(n:'jk02.16f';l:$10000;p:0;crc:$748c0bd8);
         funkyjet_char:tipo_roms=(n:'mat02';l:$80000;p:0;crc:$e4b94c7e);
         funkyjet_oki:tipo_roms=(n:'jk03.15h';l:$20000;p:0;crc:$69a0eaf7);
-        funkyjet_sprites:array[0..1] of tipo_roms=(
-        (n:'mat01';l:$80000;p:0;crc:$24093a8d),(n:'mat00';l:$80000;p:$80000;crc:$fbda0228));
+        funkyjet_sprites:array[0..2] of tipo_roms=(
+        (n:'mat01';l:$80000;p:0;crc:$24093a8d),(n:'mat00';l:$80000;p:$80000;crc:$fbda0228),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,oki6295,
+     sound_engine,hu6280,deco_16ic,deco_decr,deco_common,misc_functions,
+     deco_146;
+
+const
         funkyjet_dip_a:array [0..8] of def_dip2=(
         (mask:2;name:'Flip Screen';number:2;val2:(2,0);name2:('Off','On')),
         (mask:$1c;name:'Coin B';number:8;val8:(0,$10,$1c,$c,$14,4,$18,8);name8:('3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C','1C 6C')),
@@ -70,7 +73,6 @@ procedure funkyjet_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 273 do begin
    case f of

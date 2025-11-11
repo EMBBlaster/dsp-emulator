@@ -3,8 +3,8 @@ unit mos6566;
 {$DEFINE CIA_OLD}
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}dialogs,sysutils,pal_engine,cpu_misc,
-      main_engine,gfx_engine;
+uses dialogs,sysutils,pal_engine,cpu_misc,
+     main_engine,gfx_engine;
 
 type
   mos6566_chip=class

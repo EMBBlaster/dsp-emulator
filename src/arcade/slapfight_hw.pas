@@ -1,13 +1,10 @@
 unit slapfight_hw;
-interface
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,pal_engine,
-     sound_engine,timer_engine,taito_68705;
+interface
+uses rom_engine;
 
 function iniciar_sf_hw:boolean;
 
-implementation
 const
         //Tiger Heli
         tigerh_rom:array[0..2] of tipo_roms=(
@@ -23,9 +20,31 @@ const
         tigerh_sprites:array[0..3] of tipo_roms=(
         (n:'a47_13.8j';l:$4000;p:0;crc:$739a7e7e),(n:'a47_12.6j';l:$4000;p:$4000;crc:$c064ecdb),
         (n:'a47_11.8h';l:$4000;p:$8000;crc:$744fae9b),(n:'a47_10.6h';l:$4000;p:$c000;crc:$e1cf844e));
-        tigerh_tiles:array[0..3] of tipo_roms=(
+        tigerh_tiles:array[0..4] of tipo_roms=(
         (n:'a47_09.4m';l:$4000;p:0;crc:$31fae8a8),(n:'a47_08.6m';l:$4000;p:$4000;crc:$e539af2b),
-        (n:'a47_07.6n';l:$4000;p:$8000;crc:$02fdd429),(n:'a47_06.6p';l:$4000;p:$c000;crc:$11fbcc8c));
+        (n:'a47_07.6n';l:$4000;p:$8000;crc:$02fdd429),(n:'a47_06.6p';l:$4000;p:$c000;crc:$11fbcc8c),());
+        //Slap Fight
+        slapfight_rom:array[0..1] of tipo_roms=(
+        (n:'a77_00.8p';l:$8000;p:0;crc:$674c0e0f),(n:'a77_01.8n';l:$8000;p:$8000;crc:$3c42e4a7));
+        slapfight_snd:tipo_roms=(n:'a77_02.12d';l:$2000;p:0;crc:$87f4705a);
+        slapfight_mcu:tipo_roms=(n:'a77_13.6a';l:$800;p:0;crc:$a70c81d9);
+        slapfight_pal:array[0..2] of tipo_roms=(
+        (n:'21_82s129.12q';l:$100;p:0;crc:$a0efaf99),(n:'20_82s129.12m';l:$100;p:$100;crc:$a56d57e5),
+        (n:'19_82s129.12n';l:$100;p:$200;crc:$5cbf9fbf));
+        slapfight_char:array[0..1] of tipo_roms=(
+        (n:'a77_04.6f';l:$2000;p:0;crc:$2ac7b943),(n:'a77_03.6g';l:$2000;p:$2000;crc:$33cadc93));
+        slapfight_sprites:array[0..3] of tipo_roms=(
+        (n:'a77_12.8j';l:$8000;p:0;crc:$8545d397),(n:'a77_11.7j';l:$8000;p:$8000;crc:$b1b7b925),
+        (n:'a77_10.8h';l:$8000;p:$10000;crc:$422d946b),(n:'a77_09.7h';l:$8000;p:$18000;crc:$587113ae));
+        slapfight_tiles:array[0..4] of tipo_roms=(
+        (n:'a77_08.6k';l:$8000;p:0;crc:$b6358305),(n:'a77_07.6m';l:$8000;p:$8000;crc:$e92d9d60),
+        (n:'a77_06.6n';l:$8000;p:$10000;crc:$5faeeea3),(n:'a77_05.6p';l:$8000;p:$18000;crc:$974e2ea9),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine,timer_engine,taito_68705;
+
+const
         tigerh_dip_a:array [0..5] of def_dip2=(
         (mask:7;name:'Coinage';number:8;val8:(2,4,7,3,6,5,0,1);name8:('3C 1C','2C 1C','1C 1C','2C 3C','1C 2C','1C 3C','Free Play','Invalid')),
         (mask:8;name:'Demo Sounds';number:2;val2:(0,8);name2:('Off','On')),
@@ -37,22 +56,6 @@ const
         (mask:3;name:'Lives';number:4;val4:(1,0,3,2);name4:('1','2','3','5')),
         (mask:$c;name:'Difficulty';number:4;val4:($c,8,4,0);name4:('Easy','Medium','Hard','Hardest')),
         (mask:$10;name:'Bonus Life';number:2;val2:($10,0);name2:('20K 80K+','50K 120K+')));
-        //Slap Fight
-        sf_rom:array[0..1] of tipo_roms=(
-        (n:'a77_00.8p';l:$8000;p:0;crc:$674c0e0f),(n:'a77_01.8n';l:$8000;p:$8000;crc:$3c42e4a7));
-        sf_snd:tipo_roms=(n:'a77_02.12d';l:$2000;p:0;crc:$87f4705a);
-        sf_mcu:tipo_roms=(n:'a77_13.6a';l:$800;p:0;crc:$a70c81d9);
-        sf_pal:array[0..2] of tipo_roms=(
-        (n:'21_82s129.12q';l:$100;p:0;crc:$a0efaf99),(n:'20_82s129.12m';l:$100;p:$100;crc:$a56d57e5),
-        (n:'19_82s129.12n';l:$100;p:$200;crc:$5cbf9fbf));
-        sf_char:array[0..1] of tipo_roms=(
-        (n:'a77_04.6f';l:$2000;p:0;crc:$2ac7b943),(n:'a77_03.6g';l:$2000;p:$2000;crc:$33cadc93));
-        sf_sprites:array[0..3] of tipo_roms=(
-        (n:'a77_12.8j';l:$8000;p:0;crc:$8545d397),(n:'a77_11.7j';l:$8000;p:$8000;crc:$b1b7b925),
-        (n:'a77_10.8h';l:$8000;p:$10000;crc:$422d946b),(n:'a77_09.7h';l:$8000;p:$18000;crc:$587113ae));
-        sf_tiles:array[0..3] of tipo_roms=(
-        (n:'a77_08.6k';l:$8000;p:0;crc:$b6358305),(n:'a77_07.6m';l:$8000;p:$8000;crc:$e92d9d60),
-        (n:'a77_06.6n';l:$8000;p:$10000;crc:$5faeeea3),(n:'a77_05.6p';l:$8000;p:$18000;crc:$974e2ea9));
         sf_dip_a:array [0..5] of def_dip2=(
         (mask:3;name:'Coin B';number:4;val4:(2,3,0,1);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
         (mask:$c;name:'Coin A';number:4;val4:(8,$c,0,4);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
@@ -116,24 +119,26 @@ end;
 procedure eventos_sf_hw;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
   //P1 & P2
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $7f;
   //System
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.start[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.start[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $bf;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $7f;
 end;
 end;
 
@@ -141,7 +146,6 @@ procedure sf_hw_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 269 do begin
     eventos_sf_hw;
@@ -391,30 +395,30 @@ case main_vars.tipo_maquina of
   99:begin //Slap Fight
       //SND CPU
       timers.init(z80_1.numero_cpu,3000000/180,sf_sound_nmi,nil,true);
-      if not(roms_load(@mem_snd,sf_snd)) then exit;
+      if not(roms_load(@mem_snd,slapfight_snd)) then exit;
       //MCU CPU
       taito_68705_0:=taito_68705p.create(3000000);
       taito_68705_0.misc_call:=sf_scroll_y;
-      if not(roms_load(taito_68705_0.get_rom_addr,sf_mcu)) then exit;
+      if not(roms_load(taito_68705_0.get_rom_addr,slapfight_mcu)) then exit;
       //cargar roms
-      if not(roms_load(@memoria_temp,sf_rom)) then exit;
+      if not(roms_load(@memoria_temp,slapfight_rom)) then exit;
       copymemory(@memoria[0],@memoria_temp[0],$8000);
       copymemory(@rom[0,0],@memoria_temp[$8000],$4000);
       copymemory(@rom[1,0],@memoria_temp[$c000],$4000);
       //convertir chars
-      if not(roms_load(@memoria_temp,sf_char)) then exit;
+      if not(roms_load(@memoria_temp,slapfight_char)) then exit;
       make_chars($400);
       //convertir tiles
-      if not(roms_load(@memoria_temp,sf_tiles)) then exit;
+      if not(roms_load(@memoria_temp,slapfight_tiles)) then exit;
       make_tiles($1000);
       //convertir sprites
-      if not(roms_load(@memoria_temp,sf_sprites)) then exit;
+      if not(roms_load(@memoria_temp,slapfight_sprites)) then exit;
       make_sprites($400);
       //Dip
       init_dips(1,sf_dip_a,$7f);
       init_dips(2,sf_dip_b,$ff);
       //Poner colores
-      if not(roms_load(@memoria_temp,sf_pal)) then exit;
+      if not(roms_load(@memoria_temp,slapfight_pal)) then exit;
   end;
 end;
 for f:=0 to $ff do begin

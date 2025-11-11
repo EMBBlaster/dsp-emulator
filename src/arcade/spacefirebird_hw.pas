@@ -1,28 +1,29 @@
 unit spacefirebird_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,rom_engine,mcs48,pal_engine,
-     sound_engine,dac,samples;
+uses rom_engine,samples;
 
 function iniciar_spacefb:boolean;
 
-implementation
 const
-        //spacefb
         spacefb_rom:array[0..7] of tipo_roms=(
         (n:'tst-c-u.5e';l:$800;p:0;crc:$79c3527e),(n:'tst-c-u.5f';l:$800;p:$800;crc:$c0973965),
         (n:'tst-c-u.5h';l:$800;p:$1000;crc:$02c60ec5),(n:'tst-c-u.5i';l:$800;p:$1800;crc:$76fd18c7),
         (n:'tst-c-u.5j';l:$800;p:$2000;crc:$df52c97c),(n:'tst-c-u.5k';l:$800;p:$2800;crc:$1713300c),
         (n:'tst-c-u.5m';l:$800;p:$3000;crc:$6286f534),(n:'tst-c-u.5n';l:$800;p:$3800;crc:$1c9f91ee));
-        spacefb_gfx:array[0..1] of tipo_roms=(
-        (n:'tst-v-a.5k';l:$800;p:0;crc:$236e1ff7),(n:'tst-v-a.6k';l:$800;p:$800;crc:$bf901a4e));
         spacefb_bullet:tipo_roms=(n:'4i.vid';l:$100;p:0;crc:$528e8533);
         spacefb_mcu:tipo_roms=(n:'ic20.snd';l:$400;p:0;crc:$1c8670b3);
         spacefb_prom:tipo_roms=(n:'mb7051.3n';l:$20;p:0;crc:$465d07af);
-        spacefb_samples:array[0..3] of tipo_nombre_samples=(
-        (nombre:'ekilled.wav';restart:true),(nombre:'explode1.wav'),(nombre:'explode2.wav'),(nombre:'shipfire.wav';restart:true));
-        //Dip
+        spacefb_gfx:array[0..2] of tipo_roms=(
+        (n:'tst-v-a.5k';l:$800;p:0;crc:$236e1ff7),(n:'tst-v-a.6k';l:$800;p:$800;crc:$bf901a4e),());
+        spacefb_samples:array[0..4] of tipo_nombre_samples=(
+        (nombre:'ekilled.wav';restart:true),(nombre:'explode1.wav'),(nombre:'explode2.wav'),(nombre:'shipfire.wav';restart:true),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,mcs48,pal_engine,
+     sound_engine,dac;
+
+const
         spacefb_dip:array [0..3] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('3','4','5','6')),
         (mask:$c;name:'Coinage';number:4;val4:(8,4,0,$c);name4:('3C 1C','2C 1C','1C 1C','1C 2C')),
@@ -155,7 +156,6 @@ procedure spacefb_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_spacefb;

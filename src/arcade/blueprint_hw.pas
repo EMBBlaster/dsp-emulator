@@ -1,13 +1,10 @@
 unit blueprint_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine;
+uses rom_engine;
 
 function iniciar_blueprint:boolean;
 
-implementation
 const
         blueprint_rom:array[0..4] of tipo_roms=(
         (n:'bp-1.1m';l:$1000;p:0;crc:$b20069a6),(n:'bp-2.1n';l:$1000;p:$1000;crc:$4a30302e),
@@ -17,19 +14,9 @@ const
         (n:'snd-1.3u';l:$1000;p:0;crc:$fd38777a),(n:'snd-2.3v';l:$1000;p:$2000;crc:$33d5bf5b));
         blueprint_char:array[0..1] of tipo_roms=(
         (n:'bg-1.3c';l:$1000;p:0;crc:$ac2a61bc),(n:'bg-2.3d';l:$1000;p:$1000;crc:$81fe85d7));
-        blueprint_sprites:array[0..2] of tipo_roms=(
+        blueprint_sprites:array[0..3] of tipo_roms=(
         (n:'red.17d';l:$1000;p:0;crc:$a73b6483),(n:'blue.18d';l:$1000;p:$1000;crc:$7d622550),
-        (n:'green.20d';l:$1000;p:$2000;crc:$2fcb4f26));
-        blueprint_dipa:array [0..4] of def_dip2=(
-        (mask:$6;name:'Bonus Life';number:4;val4:(0,2,4,6);name4:('20K','30K','40K','60K')),
-        (mask:$8;name:'Free Play';number:2;val2:(0,8);name2:('Off','On')),
-        (mask:$10;name:'Maze Monster Appears In';number:2;val2:(0,$10);name2:('2nd Maze','3rd Maze')),
-        (mask:$20;name:'Coin A';number:2;val2:($20,0);name2:('2C 1C','1C 1C')),
-        (mask:$40;name:'Coin B';number:2;val2:($40,0);name2:('1C 3C','1C 5C')));
-        blueprint_dipb:array [0..2] of def_dip2=(
-        (mask:$3;name:'Lives';number:4;val4:(0,1,2,3);name4:('2','3','4','5')),
-        (mask:$8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')),
-        (mask:$30;name:'Difficulty';number:4;val4:(0,$10,$20,$30);name4:('Level 1','Level 2','Level 3','Level 4')));
+        (n:'green.20d';l:$1000;p:$2000;crc:$2fcb4f26),());
         saturnzi_rom:array[0..5] of tipo_roms=(
         (n:'r1';l:$1000;p:0;crc:$18a6d68e),(n:'r2';l:$1000;p:$1000;crc:$a7dd2665),
         (n:'r3';l:$1000;p:$2000;crc:$b9cfa791),(n:'r4';l:$1000;p:$3000;crc:$c5a997e7),
@@ -38,15 +25,9 @@ const
         (n:'r7';l:$1000;p:0;crc:$dd43e02f),(n:'r8';l:$1000;p:$2000;crc:$7f9d0877));
         saturnzi_char:array[0..1] of tipo_roms=(
         (n:'r10';l:$1000;p:0;crc:$35987d61),(n:'r9';l:$1000;p:$1000;crc:$ca6a7fda));
-        saturnzi_sprites:array[0..2] of tipo_roms=(
+        saturnzi_sprites:array[0..3] of tipo_roms=(
         (n:'r11';l:$1000;p:0;crc:$6e4e6e5d),(n:'r12';l:$1000;p:$1000;crc:$46fc049e),
-        (n:'r13';l:$1000;p:$2000;crc:$8b3e8c32));
-        saturnzi_dipa:array [0..1] of def_dip2=(
-        (mask:$2;name:'Cabinet';number:2;val2:(0,2);name2:('Upright','Cocktail')),
-        (mask:$c0;name:'Lives';number:4;val4:(0,$40,$80,$c0);name4:('3','4','5','6')));
-        saturnzi_dipb:array [0..1] of def_dip2=(
-        (mask:$2;name:'Coinage';number:2;val2:(2,0);name2:('A 2C/1C B 1C/3C','A 1C/1C B 1C/6C')),
-        (mask:$4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')));
+        (n:'r13';l:$1000;p:$2000;crc:$8b3e8c32),());
         grasspin_rom:array[0..4] of tipo_roms=(
         (n:'prom_1.4b';l:$1000;p:0;crc:$6fd50509),(n:'jaleco-2.4c';l:$1000;p:$1000;crc:$cd319007),
         (n:'jaleco-3.4d';l:$1000;p:$2000;crc:$ac73ccc2),(n:'jaleco-4.4f';l:$1000;p:$3000;crc:$41f6279d),
@@ -55,20 +36,43 @@ const
         (n:'jaleco-6.4j';l:$1000;p:0;crc:$f58bf3b0),(n:'jaleco-7.4l';l:$1000;p:$2000;crc:$2d587653));
         grasspin_char:array[0..1] of tipo_roms=(
         (n:'jaleco-9.4p';l:$1000;p:0;crc:$bccca24c),(n:'jaleco-8.3p';l:$1000;p:$1000;crc:$9d6185ca));
-        grasspin_sprites:array[0..2] of tipo_roms=(
+        grasspin_sprites:array[0..3] of tipo_roms=(
         (n:'jaleco-10.5p';l:$1000;p:0;crc:$3a0765c6),(n:'jaleco-11.6p';l:$1000;p:$1000;crc:$cccfbeb4),
-        (n:'jaleco-12.7p';l:$1000;p:$2000;crc:$615b3299));
-        grasspin_dipa:array [0..1] of def_dip2=(
+        (n:'jaleco-12.7p';l:$1000;p:$2000;crc:$615b3299),());
+
+implementation
+uses nz80,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,timer_engine;
+
+const
+        blueprint_dip_a:array [0..4] of def_dip2=(
+        (mask:6;name:'Bonus Life';number:4;val4:(0,2,4,6);name4:('20K','30K','40K','60K')),
+        (mask:8;name:'Free Play';number:2;val2:(0,8);name2:('Off','On')),
+        (mask:$10;name:'Maze Monster Appears In';number:2;val2:(0,$10);name2:('2nd Maze','3rd Maze')),
+        (mask:$20;name:'Coin A';number:2;val2:($20,0);name2:('2C 1C','1C 1C')),
+        (mask:$40;name:'Coin B';number:2;val2:($40,0);name2:('1C 3C','1C 5C')));
+        blueprint_dip_b:array [0..2] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(0,1,2,3);name4:('2','3','4','5')),
+        (mask:8;name:'Cabinet';number:2;val2:(0,8);name2:('Upright','Cocktail')),
+        (mask:$30;name:'Difficulty';number:4;val4:(0,$10,$20,$30);name4:('Level 1','Level 2','Level 3','Level 4')));
+        saturnzi_dip_a:array [0..1] of def_dip2=(
+        (mask:2;name:'Cabinet';number:2;val2:(0,2);name2:('Upright','Cocktail')),
+        (mask:$c0;name:'Lives';number:4;val4:(0,$40,$80,$c0);name4:('3','4','5','6')));
+        saturnzi_dip_b:array [0..1] of def_dip2=(
+        (mask:2;name:'Coinage';number:2;val2:(2,0);name2:('A 2C/1C B 1C/3C','A 1C/1C B 1C/6C')),
+        (mask:4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')));
+        grasspin_dip_a:array [0..1] of def_dip2=(
         (mask:$60;name:'Coinage';number:4;val4:(0,$40,$60,$20);name4:('2C 1C','2C 3C','1C 1C','1C 2C')),
         (mask:$80;name:'Freeze';number:2;val2:(0,$80);name2:('Off','On')));
-        grasspin_dipb:array [0..2] of def_dip2=(
-        (mask:$3;name:'Lives';number:4;val4:(0,3,2,1);name4:('2','3','4','5')),
+        grasspin_dip_b:array [0..2] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(0,3,2,1);name4:('2','3','4','5')),
         (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
         (mask:$40;name:'Freeze';number:2;val2:(0,$40);name2:('Off','On')));
 
 var
  sound_latch,dipsw,gfx_bank:byte;
  read_dip:function:byte;
+ read_events:procedure;
 
 procedure update_video_blueprint;
 var
@@ -113,24 +117,50 @@ end;
 procedure eventos_blueprint;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
   //p1
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or $10) else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or $40) else marcade.in0:=(marcade.in0 and $bf);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or $80) else marcade.in0:=(marcade.in0 and $7f);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or $80;
   //p2
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or $10) else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or $40) else marcade.in1:=(marcade.in1 and $bf);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or $80) else marcade.in1:=(marcade.in1 and $7f);
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or $40;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or $80;
+end;
+end;
+
+procedure eventos_saturn;
+begin
+if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  //p1
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or $20;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or $40;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or $80;
+  //p2
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or $20;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or $40;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or $80;
 end;
 end;
 
@@ -138,10 +168,9 @@ procedure blueprint_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
-    eventos_blueprint;
+    read_events;
     if f=239 then begin
       z80_0.change_irq(HOLD_LINE);
       update_video_blueprint;
@@ -195,8 +224,8 @@ case direccion of
         end;
   $e000:begin
           main_screen.flip_main_screen:=(valor and 2)=0;
-          if (gfx_bank<>((valor and $4) shr 2)) then begin
-            gfx_bank:=(valor and $4) shr 2;
+          if (gfx_bank<>((valor and 4) shr 2)) then begin
+            gfx_bank:=(valor and 4) shr 2;
             fillchar(gfx[0].buffer,$400,1);
           end;
         end;
@@ -332,6 +361,7 @@ ay8910_1.change_io_calls(ay1_porta_read,ay1_portb_read,nil,nil);
 read_dip:=blueprint_read_dip;
 case main_vars.tipo_maquina of
   377:begin //Blue Print
+        read_events:=eventos_blueprint;
         if not(roms_load(@memoria,blueprint_rom)) then exit;
         if not(roms_load(@mem_snd,blueprint_sonido)) then exit;
         //convertir chars
@@ -341,10 +371,11 @@ case main_vars.tipo_maquina of
         if not(roms_load(@memoria_temp,blueprint_sprites)) then exit;
         convert_sprites($100);
         //DIP
-        init_dips(1,blueprint_dipa,$c3);
-        init_dips(2,blueprint_dipb,$d5);
+        init_dips(1,blueprint_dip_a,$c3);
+        init_dips(2,blueprint_dip_b,$d5);
       end;
   378:begin //Saturn
+        read_events:=eventos_saturn;
         if not(roms_load(@memoria,saturnzi_rom)) then exit;
         if not(roms_load(@mem_snd,saturnzi_sonido)) then exit;
         //convertir chars
@@ -354,10 +385,11 @@ case main_vars.tipo_maquina of
         if not(roms_load(@memoria_temp,saturnzi_sprites)) then exit;
         convert_sprites($100);
         //DIP
-        init_dips(1,saturnzi_dipa,$3d);
-        init_dips(2,saturnzi_dipb,$fd);
+        init_dips(1,saturnzi_dip_a,$3d);
+        init_dips(2,saturnzi_dip_b,$fd);
       end;
   379:begin //Grasspin
+        read_events:=eventos_saturn;
         read_dip:=grasspin_read_dip;
         if not(roms_load(@memoria,grasspin_rom)) then exit;
         if not(roms_load(@mem_snd,grasspin_sonido)) then exit;
@@ -368,16 +400,16 @@ case main_vars.tipo_maquina of
         if not(roms_load(@memoria_temp,grasspin_sprites)) then exit;
         convert_sprites($100);
         //DIP
-        init_dips(1,grasspin_dipa,$7f);
-        init_dips(2,grasspin_dipb,$9f);
+        init_dips(1,grasspin_dip_a,$7f);
+        init_dips(2,grasspin_dip_b,$9f);
       end;
 end;
 //Palette
 for f:=0 to $207 do begin
   if (f<$200) then begin // characters
-      if (f and 2)<>0 then bit0:=((f and $0e0) shr 5)
+      if (f and 2)<>0 then bit0:=((f and $e0) shr 5)
         else bit0:=0;
-      if (f and 1)<>0 then bit1:=((f and $01c) shr 2)
+      if (f and 1)<>0 then bit1:=((f and $1c) shr 2)
         else bit1:=0;
 			pen:=((f and $100) shr 5) or bit0 or bit1;
   end else pen:=f-$200;	// sprites

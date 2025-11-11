@@ -1,29 +1,26 @@
-unit system16a_hw;
-interface
+﻿unit system16a_hw;
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     ppi8255,sound_engine,ym_2151,fd1089,dialogs,mcs48,dac;
+interface
+uses rom_engine;
 
 function iniciar_system16a:boolean;
 
-implementation
 const
         //Shinobi
         shinobi_rom:array[0..3] of tipo_roms=(
         (n:'epr-12010.43';l:$10000;p:0;crc:$7df7f4a2),(n:'epr-12008.26';l:$10000;p:$1;crc:$f5ae64cd),
         (n:'epr-12011.42';l:$10000;p:$20000;crc:$9d46e707),(n:'epr-12009.25';l:$10000;p:$20001;crc:$7961d07e));
         shinobi_sound:tipo_roms=(n:'epr-11267.12';l:$8000;p:0;crc:$dd50b745);
-        shinobi_n7751:tipo_roms=(n:'7751.bin';l:$400;p:0;crc:$6a9534fc);
         shinobi_n7751_data:tipo_roms=(n:'epr-11268.1';l:$8000;p:0;crc:$6d7966da);
         shinobi_tiles:array[0..2] of tipo_roms=(
         (n:'epr-11264.95';l:$10000;p:0;crc:$46627e7d),(n:'epr-11265.94';l:$10000;p:$10000;crc:$87d0f321),
         (n:'epr-11266.93';l:$10000;p:$20000;crc:$efb4af87));
-        shinobi_sprites:array[0..7] of tipo_roms=(
+        shinobi_sprites:array[0..8] of tipo_roms=(
         (n:'epr-11290.10';l:$10000;p:0;crc:$611f413a),(n:'epr-11294.11';l:$10000;p:$1;crc:$5eb00fc1),
         (n:'epr-11291.17';l:$10000;p:$20000;crc:$3c0797c0),(n:'epr-11295.18';l:$10000;p:$20001;crc:$25307ef8),
         (n:'epr-11292.23';l:$10000;p:$40000;crc:$c29ac34e),(n:'epr-11296.24';l:$10000;p:$40001;crc:$04a437f8),
-        (n:'epr-11293.29';l:$10000;p:$60000;crc:$41f41063),(n:'epr-11297.30';l:$10000;p:$60001;crc:$b6e1fd72));
+        (n:'epr-11293.29';l:$10000;p:$60000;crc:$41f41063),(n:'epr-11297.30';l:$10000;p:$60001;crc:$b6e1fd72),());
+        shinobi_n7751:array[0..1] of tipo_roms=((n:'7751.bin';l:$400;p:0;crc:$6a9534fc),());
         //Alex Kidd
         alexkid_rom:array[0..3] of tipo_roms=(
         (n:'epr-10447.43';l:$10000;p:0;crc:$29e87f71),(n:'epr-10445.26';l:$10000;p:$1;crc:$25ce5b6f),
@@ -37,8 +34,8 @@ const
         (n:'epr-10438.17';l:$8000;p:$10000;crc:$738a6362),(n:'epr-10442.18';l:$8000;p:$10001;crc:$86cb9c14),
         (n:'epr-10439.23';l:$8000;p:$20000;crc:$b391aca7),(n:'epr-10443.24';l:$8000;p:$20001;crc:$95d32635),
         (n:'epr-10440.29';l:$8000;p:$30000;crc:$23939508),(n:'epr-10444.30';l:$8000;p:$30001;crc:$82115823));
-        alexkid_n7751_data:array[0..1] of tipo_roms=(
-        (n:'epr-10435.1';l:$8000;p:0;crc:$ad89f6e3),(n:'epr-10436.2';l:$8000;p:$8000;crc:$96c76613));
+        alexkid_n7751_data:array[0..2] of tipo_roms=(
+        (n:'epr-10435.1';l:$8000;p:0;crc:$ad89f6e3),(n:'epr-10436.2';l:$8000;p:$8000;crc:$96c76613),());
         //Fantasy Zone
         fantzone_rom:array[0..5] of tipo_roms=(
         (n:'epr-7385a.43';l:$8000;p:0;crc:$4091af42),(n:'epr-7382a.26';l:$8000;p:$1;crc:$77d67bfd),
@@ -48,10 +45,10 @@ const
         fantzone_tiles:array[0..2] of tipo_roms=(
         (n:'epr-7388.95';l:$8000;p:0;crc:$8eb02f6b),(n:'epr-7389.94';l:$8000;p:$8000;crc:$2f4f71b8),
         (n:'epr-7390.93';l:$8000;p:$10000;crc:$d90609c6));
-        fantzone_sprites:array[0..5] of tipo_roms=(
+        fantzone_sprites:array[0..6] of tipo_roms=(
         (n:'epr-7392.10';l:$8000;p:0;crc:$5bb7c8b6),(n:'epr-7396.11';l:$8000;p:$1;crc:$74ae4b57),
         (n:'epr-7393.17';l:$8000;p:$10000;crc:$14fc7e82),(n:'epr-7397.18';l:$8000;p:$10001;crc:$e05a1e25),
-        (n:'epr-7394.23';l:$8000;p:$20000;crc:$531ca13f),(n:'epr-7398.24';l:$8000;p:$20001;crc:$68807b49));
+        (n:'epr-7394.23';l:$8000;p:$20000;crc:$531ca13f),(n:'epr-7398.24';l:$8000;p:$20001;crc:$68807b49),());
         //Alien Syndrome
         alien_rom:array[0..5] of tipo_roms=(
         (n:'epr-10804.43';l:$8000;p:0;crc:$23f78b83),(n:'epr-10802.26';l:$8000;p:$1;crc:$996768bd),
@@ -67,9 +64,9 @@ const
         (n:'epr-10710.17';l:$10000;p:$20000;crc:$992369eb),(n:'epr-10714.18';l:$10000;p:$20001;crc:$91bf42fb),
         (n:'epr-10711.23';l:$10000;p:$40000;crc:$29166ef6),(n:'epr-10715.24';l:$10000;p:$40001;crc:$a7c57384),
         (n:'epr-10712.29';l:$10000;p:$60000;crc:$876ad019),(n:'epr-10716.30';l:$10000;p:$60001;crc:$40ba1d48));
-        alien_n7751_data:array[0..2] of tipo_roms=(
+        alien_n7751_data:array[0..3] of tipo_roms=(
         (n:'epr-10706.1';l:$8000;p:0;crc:$aa114acc),(n:'epr-10707.2';l:$8000;p:$8000;crc:$800c1d82),
-        (n:'epr-10708.4';l:$8000;p:$10000;crc:$5921ef52));
+        (n:'epr-10708.4';l:$8000;p:$10000;crc:$5921ef52),());
         //WB3
         wb3_rom:array[0..3] of tipo_roms=(
         (n:'epr-12120.43';l:$10000;p:0;crc:$cbd8c99b),(n:'epr-12118.26';l:$10000;p:$1;crc:$e9a3280c),
@@ -79,22 +76,27 @@ const
         wb3_tiles:array[0..2] of tipo_roms=(
         (n:'epr-12086.95';l:$10000;p:0;crc:$45b949df),(n:'epr-12087.94';l:$10000;p:$10000;crc:$6f0396b7),
         (n:'epr-12088.83';l:$10000;p:$20000;crc:$ba8c0749));
-        wb3_sprites:array[0..7] of tipo_roms=(
+        wb3_sprites:array[0..8] of tipo_roms=(
         (n:'epr-12090.10';l:$10000;p:0;crc:$aeeecfca),(n:'epr-12094.11';l:$10000;p:$1;crc:$615e4927),
         (n:'epr-12091.17';l:$10000;p:$20000;crc:$8409a243),(n:'epr-12095.18';l:$10000;p:$20001;crc:$e774ec2c),
         (n:'epr-12092.23';l:$10000;p:$40000;crc:$5c2f0d90),(n:'epr-12096.24';l:$10000;p:$40001;crc:$0cd59d6e),
-        (n:'epr-12093.29';l:$10000;p:$60000;crc:$4891e7bb),(n:'epr-12097.30';l:$10000;p:$60001;crc:$e645902c));
+        (n:'epr-12093.29';l:$10000;p:$60000;crc:$4891e7bb),(n:'epr-12097.30';l:$10000;p:$60001;crc:$e645902c),());
         //Tetris
         tetris_rom:array[0..1] of tipo_roms=(
         (n:'xepr12201.rom';l:$8000;p:1;crc:$343c0670),(n:'xepr12200.rom';l:$8000;p:$0;crc:$0b694740));
-        tetris_key:tipo_roms=(n:'317-0093.key';l:$2000;p:0;crc:$e0064442);
         tetris_sound:tipo_roms=(n:'epr-12205.rom';l:$8000;p:0;crc:$6695dc99);
+        tetris_key:tipo_roms=(n:'317-0093.key';l:$2000;p:0;crc:$e0064442);
         tetris_tiles:array[0..2] of tipo_roms=(
         (n:'epr-12202.rom';l:$10000;p:0;crc:$2f7da741),(n:'epr-12203.rom';l:$10000;p:$10000;crc:$a6e58ec5),
         (n:'epr-12204.rom';l:$10000;p:$20000;crc:$0ae98e23));
-        tetris_sprites:array[0..1] of tipo_roms=(
-        (n:'epr-12169.b1';l:$8000;p:0;crc:$dacc6165),(n:'epr-12170.b5';l:$8000;p:$1;crc:$87354e42));
-        //Dip
+        tetris_sprites:array[0..2] of tipo_roms=(
+        (n:'epr-12169.b1';l:$8000;p:0;crc:$dacc6165),(n:'epr-12170.b5';l:$8000;p:$1;crc:$87354e42),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,pal_engine,ppi8255,
+     sound_engine,ym_2151,fd1089,dialogs,mcs48,dac;
+
+const
         system16a_dip_a:array [0..2] of def_dip=(
         (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$7;dip_name:'4C/1C'),(dip_val:$8;dip_name:'3C/1C'),(dip_val:$9;dip_name:'2C/1C'),(dip_val:$5;dip_name:'2C/1C 5C/3C 6C/4C'),(dip_val:$4;dip_name:'2C/1C 4C/3C'),(dip_val:$f;dip_name:'1C/1C'),(dip_val:$3;dip_name:'1C/1C 5C/6C'),(dip_val:$2;dip_name:'1C/1C 4C/5C'),(dip_val:$1;dip_name:'1C/1C 2C/3C'),(dip_val:$6;dip_name:'2C/3C'),(dip_val:$e;dip_name:'1C/2C'),(dip_val:$d;dip_name:'1C/3C'),(dip_val:$c;dip_name:'1C/4C'),(dip_val:$b;dip_name:'1C/5C'),(dip_val:$a;dip_name:'1C/6C'),(dip_val:$0;dip_name:'Free Play (if Coin B too) or 1C/1C'))),
         (mask:$f0;name:'Coin B';number:16;dip:((dip_val:$70;dip_name:'4C/1C'),(dip_val:$80;dip_name:'3C/1C'),(dip_val:$90;dip_name:'2C/1C'),(dip_val:$50;dip_name:'2C/1C 5C/3C 6C/4C'),(dip_val:$40;dip_name:'2C/1C 4C/3C'),(dip_val:$f0;dip_name:'1C/1C'),(dip_val:$30;dip_name:'1C/1C 5C/6C'),(dip_val:$20;dip_name:'1C/1C 4C/5C'),(dip_val:$10;dip_name:'1C/1C 2C/3C'),(dip_val:$60;dip_name:'2C/3C'),(dip_val:$e0;dip_name:'1C/2C'),(dip_val:$d0;dip_name:'1C/3C'),(dip_val:$c0;dip_name:'1C/4C'),(dip_val:$b0;dip_name:'1C/5C'),(dip_val:$a0;dip_name:'1C/6C'),(dip_val:$00;dip_name:'Free Play (if Coin A too) or 1C/1C'))),());
@@ -365,7 +367,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
      eventos_system16a;
@@ -394,7 +395,6 @@ var
   f:word;
   h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
     eventos_system16a;
@@ -906,7 +906,7 @@ case main_vars.tipo_maquina of
         if not(roms_load16w(@memoria_temp,alien_rom)) then exit;
         //Decode fd1089
         if not(roms_load(@fd1089_key,alien_key)) then exit;
-        fd1089_decrypt($40000,@memoria_temp,@rom,@rom_data,@fd1089_key,fd_typeB);
+        fd1089_decrypt($40000,@memoria_temp,@rom,@rom_data,@fd1089_key,FD_TYPEB);
         //cargar sonido
         if not(roms_load(@mem_snd,alien_sound)) then exit;
         //convertir tiles
@@ -935,7 +935,7 @@ case main_vars.tipo_maquina of
         if not(roms_load16w(@memoria_temp,wb3_rom)) then exit;
         //Decode fd1089
         if not(roms_load(@fd1089_key,wb3_key)) then exit;
-        fd1089_decrypt($40000,@memoria_temp,@rom,@rom_data,@fd1089_key,fd_typeA);
+        fd1089_decrypt($40000,@memoria_temp,@rom,@rom_data,@fd1089_key,FD_TYPEA);
         //cargar sonido
         if not(roms_load(@mem_snd,wb3_sound)) then exit;
         //convertir tiles

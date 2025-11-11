@@ -1,41 +1,33 @@
 object load_dsk: Tload_dsk
   Left = 319
-  Height = 509
+  Height = 407
   Top = 279
-  Width = 741
+  Width = 593
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = 'Open/Abrir DSK'
-  ClientHeight = 509
-  ClientWidth = 741
-  DesignTimePPI = 120
-  Font.CharSet = ANSI_CHARSET
-  Font.Color = clBlack
-  Font.Height = -14
-  Font.Name = 'Tahoma'
-  Font.Pitch = fpVariable
-  Font.Quality = fqDraft
+  ClientHeight = 407
+  ClientWidth = 593
   KeyPreview = True
-  LCLVersion = '4.0.0.3'
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   object GroupBox1: TGroupBox
-    Left = 10
-    Height = 240
-    Top = 260
-    Width = 720
+    Left = 8
+    Height = 192
+    Top = 208
+    Width = 576
     Caption = 'Contenido ZIP / Inside ZIP'
-    ClientHeight = 218
-    ClientWidth = 716
+    ClientHeight = 172
+    ClientWidth = 572
     TabOrder = 0
     object StringGrid1: TStringGrid
-      Left = 8
-      Height = 211
+      Left = 6
+      Height = 169
       Top = -1
-      Width = 702
+      Width = 562
       ColCount = 2
-      DefaultColWidth = 25
-      DefaultRowHeight = 19
+      DefaultColWidth = 20
+      DefaultRowHeight = 15
       FixedCols = 0
       GridLineWidth = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
@@ -43,20 +35,14 @@ object load_dsk: Tload_dsk
       ScrollBars = ssNone
       TabOrder = 0
       TabStop = False
-      TitleFont.CharSet = ANSI_CHARSET
-      TitleFont.Color = clBlack
-      TitleFont.Height = -14
-      TitleFont.Name = 'Tahoma'
-      TitleFont.Pitch = fpVariable
-      TitleFont.Quality = fqDraft
       OnDblClick = StringGrid1DblClick
     end
   end
   object FileListBox1: TFileListBox
-    Left = 10
-    Height = 204
-    Top = 50
-    Width = 585
+    Left = 8
+    Height = 163
+    Top = 40
+    Width = 468
     Directory = 'C:\Users\Dani\Desktop'
     ItemHeight = 0
     Mask = '*.zip;*.dsk;*.ipf'
@@ -66,30 +52,30 @@ object load_dsk: Tload_dsk
     OnDblClick = FileListBox1DblClick
   end
   object Button1: TButton
-    Left = 609
-    Height = 41
-    Top = 170
-    Width = 121
+    Left = 487
+    Height = 33
+    Top = 136
+    Width = 97
     Caption = 'CANCELAR'
     TabOrder = 2
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 609
-    Height = 41
-    Top = 80
-    Width = 121
+    Left = 487
+    Height = 33
+    Top = 64
+    Width = 97
     Caption = 'CARGAR'
     TabOrder = 3
     OnClick = Button2Click
   end
   object DirectoryEdit1: TDirectoryEdit
-    Left = 10
-    Height = 25
-    Top = 10
-    Width = 585
+    Left = 8
+    Height = 23
+    Top = 8
+    Width = 468
     ShowHidden = False
-    ButtonWidth = 29
+    ButtonWidth = 23
     NumGlyphs = 1
     MaxLength = 0
     TabOrder = 4

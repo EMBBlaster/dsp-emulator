@@ -1,42 +1,94 @@
 ﻿unit amstrad_cpc;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,controls_engine,ay_8910,sysutils,gfx_engine,upd765,cargar_dsk,forms,
-     dialogs,rom_engine,misc_functions,main_engine,pal_engine,sound_engine,
-     tape_window,file_engine,ppi8255,lenguaje,disk_file_format,config_cpc,
-     timer_engine,qsnapshot;
+uses sysutils,dialogs,rom_engine;
 
 const
-  cpc464_rom:tipo_roms=(n:'cpc464.rom';l:$8000;p:0;crc:$40852f25);
+  PANTALLA_LARGO_CPC=400;
+  cpc464_rom:array [0..1] of tipo_roms=((n:'cpc464.rom';l:$8000;p:0;crc:$40852f25),());
+  cpc664_rom:array [0..1] of tipo_roms=((n:'cpc664.rom';l:$8000;p:0;crc:$9ab5a036),());
+  cpc6128_rom:array [0..1] of tipo_roms=((n:'cpc6128.rom';l:$8000;p:0;crc:$9e827fe1),());
+  ams_rom:array [0..1] of tipo_roms=((n:'amsdos.rom';l:$4000;p:0;crc:$1fe22ecd),());
+
+type
+  tcpc_crt=packed record
+              borde,char_total,pixel_visible,pant_x,pant_addr:word;
+              regs:array[0..31] of byte;
+              reg:byte;
+              was_hsync,was_vsync,line_is_visible:boolean;
+              bright,character_counter,hsync_counter,vsync_counter:byte;
+              next_line_no_visible,next_line_is_visible,state_hsync,is_in_adjustment_period,state_vsync:boolean;
+              state_row_address,adj_count:byte;
+              end_of_line_address,state_refresh_address,line_address,char_crt:word;
+              color_monitor:boolean;
+           end;
+  tcpc_ga=packed record
+              pen,nvideo,video_mode:byte;
+              pal:array[0..16] of byte;
+              lines_count,lines_sync,rom_selected:byte;
+              change_video,rom_low,rom_high:boolean;
+              marco:array[0..3] of byte;
+              marco_latch,cpc_model,ram_exp:byte;
+           end;
+  tcpc_ppi=packed record
+              port_a_read_latch,port_a_write_latch:byte;
+              port_c_write_latch:byte;
+              tape_motor:boolean;
+              ay_control,keyb_line:byte;
+              keyb_val:array[0..$f] of byte;
+           end;
+  tcpc_rom=packed record
+              data:array[0..$3fff] of byte;
+              enabled:boolean;
+              name:string;
+           end;
+  tcpc_dandanator=packed record
+              enabled:boolean;
+              rom:array[0..31,0..$3fff] of byte;
+              fd_count:byte;
+              zone0_ena,zone1_ena,halted,wait_ret:boolean;
+              zone0_seg,zone1_seg,zone0_rom,zone1_rom:byte;
+              follow_rom:byte;
+              wait_data:byte;
+              enable_follow:boolean;
+           end;
+
+var
+    cpc_mem:array[0..255,0..$3fff] of byte;
+    cpc_rom:array[0..16] of tcpc_rom;
+    cpc_crt:tcpc_crt;
+    cpc_ga:tcpc_ga;
+    cpc_ppi:tcpc_ppi;
+    cpc_dandanator:tcpc_dandanator;
+    tape_timer:byte;
+    cpc_line:word;
+
+function iniciar_cpc:boolean;
+function cpc_load_roms:boolean;
+procedure amstrad_cpc_paleta;
+//GA
+procedure write_ga(puerto:word;val:byte);
+//PAL
+procedure write_ram(puerto:word;val:byte);
+//Main CPU
+procedure cpc_outbyte(puerto:word;valor:byte);
+//PPI 8255
+procedure port_c_write(valor:byte);
+
+implementation
+uses principal,tap_tzx,snapshot,nz80,controls_engine,ay_8910,gfx_engine,
+     upd765,cargar_dsk,misc_functions,main_engine,pal_engine,
+     sound_engine,tape_window,file_engine,ppi8255,lenguaje,disk_file_format,
+     config_cpc,timer_engine,qsnapshot;
+
+const
+  PANTALLA_ALTO=312;
   cpc464f_rom:tipo_roms=(n:'cpc464f.rom';l:$8000;p:0;crc:$17893d60);
   cpc464sp_rom:tipo_roms=(n:'cpc464sp.rom';l:$8000;p:0;crc:$338daf2d);
   cpc464d_rom:tipo_roms=(n:'cpc464d.rom';l:$8000;p:0;crc:$260e45c3);
-  cpc664_rom:tipo_roms=(n:'cpc664.rom';l:$8000;p:0;crc:$9ab5a036);
-  cpc6128_rom:tipo_roms=(n:'cpc6128.rom';l:$8000;p:0;crc:$9e827fe1);
   cpc6128f_rom:tipo_roms=(n:'cpc6128f.rom';l:$8000;p:0;crc:$1574923b);
   cpc6128sp_rom:tipo_roms=(n:'cpc6128sp.rom';l:$8000;p:0;crc:$2fa2e7d6);
   cpc6128d_rom:tipo_roms=(n:'cpc6128d.rom';l:$8000;p:0;crc:$4704685a);
-  ams_rom:tipo_roms=(n:'amsdos.rom';l:$4000;p:0;crc:$1fe22ecd);
-  cpc_paleta:array[0..31] of dword=(
-        $808080,$808080,$00FF80,$FFFF80,
-        $000080,$FF0080,$008080,$FF8080,
-        $FF0080,$FFFF80,$FFFF00,$FFFFFF,
-        $FF0000,$FF00FF,$FF8000,$FF80FF,
-        $000080,$00FF80,$00FF00,$00FFFF,
-        $000000,$0000FF,$008000,$0080FF,
-        $800080,$80FF80,$80FF00,$80FFFF,
-        $800000,$8000FF,$808000,$8080FF);
-  green_classic:array[0..31] of single=(
-        0.5647, 0.5647, 0.7529, 0.9412,
-        0.1882, 0.3765, 0.4706, 0.6588,
-        0.3765, 0.9412, 0.9098, 0.9725,
-        0.3451, 0.4078, 0.6275, 0.6902,
-        0.1882, 0.7529, 0.7216, 0.7843,
-        0.1569, 0.2196, 0.4392, 0.5020,
-        0.2824, 0.8471, 0.8157, 0.8784,
-        0.2510, 0.3137, 0.5333, 0.5961);
   z80t_a:array[0..$ff] of byte= (
  	 4, 12,  8,  8,  4,  4,  8,  4,  4, 12,  8,  8,  4,  4,  8,  4,
 	12, 12,  8,  8,  4,  4,  8,  4, 12, 12,  8,  8,  4,  4,  8,  4,
@@ -139,106 +191,64 @@ const
 	8,  0,  0,  0,  8,  0,  0,  0,  8,  0,  0,  0,  8,  0,  0,  0, //d0
 	8,  0,  0,  0,  8,  0,  0,  0,  8,  0,  0,  0,  8,  0,  0,  0, //e0
 	8,  0,  0,  0,  8,  0,  0,  0,  8,  0,  0,  0,  8,  0,  0,  0);//f0
-  PANTALLA_LARGO_CPC=400;//384;
-
-type
-  tcpc_crt=packed record
-              borde,char_total,pixel_visible,pant_x,pant_addr:word;
-              regs:array[0..31] of byte;
-              reg:byte;
-              was_hsync,was_vsync,line_is_visible:boolean;
-              bright,character_counter,hsync_counter,vsync_counter:byte;
-              next_line_no_visible,next_line_is_visible,state_hsync,is_in_adjustment_period,state_vsync:boolean;
-              state_row_address,adj_count:byte;
-              end_of_line_address,state_refresh_address,line_address,linea_crt:word;
-              color_monitor:boolean;
-           end;
-  tcpc_ga=packed record
-              pen,nvideo,video_mode:byte;
-              pal:array[0..16] of byte;
-              lines_count,lines_sync,rom_selected:byte;
-              change_video,rom_low,rom_high:boolean;
-              marco:array[0..3] of byte;
-              marco_latch,cpc_model,ram_exp:byte;
-           end;
-  tcpc_ppi=packed record
-              port_a_read_latch,port_a_write_latch:byte;
-              port_c_write_latch:byte;
-              tape_motor:boolean;
-              ay_control,keyb_line:byte;
-              keyb_val:array[0..$f] of byte;
-           end;
-  tcpc_rom=packed record
-              data:array[0..$3fff] of byte;
-              enabled:boolean;
-              name:string;
-           end;
-  tcpc_dandanator=packed record
-              enabled:boolean;
-              rom:array[0..31,0..$3fff] of byte;
-              fd_count:byte;
-              zone0_ena,zone1_ena,halted,wait_ret:boolean;
-              zone0_seg,zone1_seg,zone0_rom,zone1_rom:byte;
-              follow_rom:byte;
-              wait_data:byte;
-              enable_follow:boolean;
-           end;
-
-var
-    cpc_mem:array[0..255,0..$3fff] of byte;
-    cpc_rom:array[0..16] of tcpc_rom;
-    cpc_crt:tcpc_crt;
-    cpc_ga:tcpc_ga;
-    cpc_ppi:tcpc_ppi;
-    cpc_dandanator:tcpc_dandanator;
-    tape_timer:byte;
-    cpc_line:word;
-
-function iniciar_cpc:boolean;
-function cpc_load_roms:boolean;
-//GA
-procedure write_ga(puerto:word;val:byte);
-//PAL
-procedure write_ram(puerto:word;val:byte);
-//Main CPU
-procedure cpc_outbyte(puerto:word;valor:byte);
-//PPI 8255
-procedure port_c_write(valor:byte);
-
-implementation
-
-uses principal,tap_tzx,snapshot;
-
-const
-  PANTALLA_ALTO=312;//272;
-  PANTALLA_VSYNC=16;
 
 var
    tape_sound_channel:byte;
+   key_timer,key_pos:byte;
+   mod_address:boolean;
+
+procedure amstrad_cpc_paleta;
+const
+  cpc_paleta:array[0..31] of dword=(
+        $808080,$808080,$00FF80,$FFFF80,
+        $000080,$FF0080,$008080,$FF8080,
+        $FF0080,$FFFF80,$FFFF00,$FFFFFF,
+        $FF0000,$FF00FF,$FF8000,$FF80FF,
+        $000080,$00FF80,$00FF00,$00FFFF,
+        $000000,$0000FF,$008000,$0080FF,
+        $800080,$80FF80,$80FF00,$80FFFF,
+        $800000,$8000FF,$808000,$8080FF);
+  green_classic:array[0..31] of single=(
+        0.5647, 0.5647, 0.7529, 0.9412,
+        0.1882, 0.3765, 0.4706, 0.6588,
+        0.3765, 0.9412, 0.9098, 0.9725,
+        0.3451, 0.4078, 0.6275, 0.6902,
+        0.1882, 0.7529, 0.7216, 0.7843,
+        0.1569, 0.2196, 0.4392, 0.5020,
+        0.2824, 0.8471, 0.8157, 0.8784,
+        0.2510, 0.3137, 0.5333, 0.5961);
+var
+  f:byte;
+  colores:tpaleta;
+  temps:single;
+begin
+if cpc_crt.color_monitor then begin
+  for f:=0 to 31 do begin
+    colores[f].r:=cpc_paleta[f] shr 16;
+    colores[f].g:=(cpc_paleta[f] shr 8) and $ff;
+    colores[f].b:=cpc_paleta[f] and $ff;
+  end;
+end else begin
+  for f:=0 to 31 do begin
+    colores[f].r:=0;
+    temps:=0.01*0*green_classic[f]*255;
+    if temps>255 then temps:=255;
+    colores[f].b:=trunc(temps);
+    temps:=green_classic[f]*255*(1+(cpc_crt.bright/4));
+    if temps>255 then temps:=255;
+    colores[f].g:=trunc(temps);
+  end;
+end;
+set_pal(colores,32);
+end;
 
 procedure eventos_cpc;
 begin
 if event.arcade then begin
-  //P1
-  if arcade_input.up[0] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $fe) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or 1);
-  if arcade_input.down[0] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $fd) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or 2);
-  if arcade_input.left[0] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $fb) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or 4);
-  if arcade_input.right[0] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $f7) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or $8);
-  if arcade_input.but0[0] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $ef) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or $10);
-  if arcade_input.but1[0] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $df) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or $20);
-  //P2
-  if arcade_input.up[1] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $fe) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 1);
-  if arcade_input.down[1] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $fd) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 2);
-  if arcade_input.left[1] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $fb) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 4);
-  if arcade_input.right[1] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $f7) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 8);
-  if arcade_input.but0[1] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $ef) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or $10);
-  if arcade_input.but1[1] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $df) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or $20);
-end else if event.keyboard then begin
   if keyboard[KEYBOARD_F5] then begin
     clear_disk(0);
     change_caption('');
   end;
-  if (keyboard[KEYBOARD_5] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $ef) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or $10);
   if keyboard[KEYBOARD_F1] then begin
       if cinta_tzx.cargada then begin
         if cinta_tzx.play_tape then tape_window1.fStopCinta(nil)
@@ -246,100 +256,115 @@ end else if event.keyboard then begin
       end;
       keyboard[KEYBOARD_F1]:=false;
   end;
+  fillchar(cpc_ppi.keyb_val[0],$10,$ff);
+  //P1
+  if arcade_input.up[0] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $fe;
+  if arcade_input.down[0] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $fd;
+  if arcade_input.left[0] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $fb;
+  if arcade_input.right[0] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $f7;
+  if arcade_input.but0[0] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $ef;
+  if arcade_input.but1[0] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $df;
+  //P2
+  if arcade_input.up[1] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $fe;
+  if arcade_input.down[1] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $fd;
+  if arcade_input.left[1] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $fb;
+  if arcade_input.right[1] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $f7;
+  if arcade_input.but0[1] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $ef;
+  if arcade_input.but1[1] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $df;
   //Line 0
-  if keyboard[KEYBOARD_UP] then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $fe) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $1);
-  if keyboard[KEYBOARD_RIGHT] then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $fd) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $2);
-  if keyboard[KEYBOARD_DOWN] then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $fb) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $4);
-  if (keyboard[KEYBOARD_9] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $f7) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $8);
-  if (keyboard[KEYBOARD_6] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $ef) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $10);
-  if (keyboard[KEYBOARD_3] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $df) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $20);
-  if keyboard[KEYBOARD_HOME] then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $bf) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $40);
-  if keyboard[KEYBOARD_NDOT] then cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] and $7f) else cpc_ppi.keyb_val[0]:=(cpc_ppi.keyb_val[0] or $80);
+  if keyboard[KEYBOARD_UP] then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $fe;
+  if keyboard[KEYBOARD_RIGHT] then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $fd;
+  if keyboard[KEYBOARD_DOWN] then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $fb;
+  if (keyboard[KEYBOARD_9] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $f7;
+  if (keyboard[KEYBOARD_6] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $ef;
+  if (keyboard[KEYBOARD_3] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $df;
+  if keyboard[KEYBOARD_HOME] then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $bf;
+  if keyboard[KEYBOARD_NDOT] then cpc_ppi.keyb_val[0]:=cpc_ppi.keyb_val[0] and $7f;
   //Line 1
-  if keyboard[KEYBOARD_LEFT] then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $fe) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or 1);
-  if keyboard[KEYBOARD_LALT] then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $fd) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or 2);
-  if (keyboard[KEYBOARD_7] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $fb) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or $4);
-  if (keyboard[KEYBOARD_8] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $f7) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or $8);
-  if (keyboard[KEYBOARD_1] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $df) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or $20);
-  if (keyboard[KEYBOARD_2] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $bf) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or $40);
-  if (keyboard[KEYBOARD_0] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] and $7f) else cpc_ppi.keyb_val[1]:=(cpc_ppi.keyb_val[1] or $80);
+  if keyboard[KEYBOARD_LEFT] then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $fe;
+  if keyboard[KEYBOARD_LALT] then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $fd;
+  if (keyboard[KEYBOARD_7] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $fb;
+  if (keyboard[KEYBOARD_8] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $f7;
+  if (keyboard[KEYBOARD_5] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $ef;
+  if (keyboard[KEYBOARD_1] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $df;
+  if (keyboard[KEYBOARD_2] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $bf;
+  if (keyboard[KEYBOARD_0] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[1]:=cpc_ppi.keyb_val[1] and $7f;
   //Line 2
-  if keyboard[KEYBOARD_FILA0_T0] then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $fe) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or 1);
-  if keyboard[KEYBOARD_FILA1_T2] then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $fd) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or 2);
-  if (keyboard[KEYBOARD_RETURN] or keyboard[KEYBOARD_NRETURN]) then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $fb) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or 4);
-  if keyboard[KEYBOARD_FILA2_T3] then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $f7) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or 8);
-  if (keyboard[KEYBOARD_4] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $ef) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or $10);
-  if keyboard[KEYBOARD_LSHIFT] then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $df) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or $20);
-  if keyboard[KEYBOARD_FILA3_T3] then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $bf) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or $40);
-  if keyboard[KEYBOARD_LCTRL] then cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] and $7f) else cpc_ppi.keyb_val[2]:=(cpc_ppi.keyb_val[2] or $80);
+  if keyboard[KEYBOARD_FILA0_T0] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $fe;
+  if keyboard[KEYBOARD_FILA1_T2] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $fd;
+  if keyboard[KEYBOARD_RETURN] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $fb;
+  if keyboard[KEYBOARD_FILA2_T3] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $f7;
+  if (keyboard[KEYBOARD_4] and keyboard[KEYBOARD_RSHIFT]) then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $ef;
+  if keyboard[KEYBOARD_LSHIFT] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $df;
+  if keyboard[KEYBOARD_FILA3_T3] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $bf;
+  if keyboard[KEYBOARD_LCTRL] then cpc_ppi.keyb_val[2]:=cpc_ppi.keyb_val[2] and $7f;
   //Line 3
-  if keyboard[KEYBOARD_FILA0_T2] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $fe) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or 1);
-  if keyboard[KEYBOARD_FILA0_T1] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $fd) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or 2);
-  if keyboard[KEYBOARD_FILA1_T1] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $fb) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or 4);
-  if keyboard[KEYBOARD_p] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $f7) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or 8);
-  if keyboard[KEYBOARD_FILA2_T2] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $ef) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or $10);
-  if keyboard[KEYBOARD_FILA2_T1] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $df) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or $20);
-  if keyboard[KEYBOARD_FILA3_T2] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $bf) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or $40);
-  if keyboard[KEYBOARD_FILA3_T1] then cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] and $7f) else cpc_ppi.keyb_val[3]:=(cpc_ppi.keyb_val[3] or $80);
+  if keyboard[KEYBOARD_FILA0_T2] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $fe;
+  if keyboard[KEYBOARD_FILA0_T1] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $fd;
+  if keyboard[KEYBOARD_FILA1_T1] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $fb;
+  if keyboard[KEYBOARD_p] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $f7;
+  if keyboard[KEYBOARD_FILA2_T2] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $ef;
+  if keyboard[KEYBOARD_FILA2_T1] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $df;
+  if keyboard[KEYBOARD_FILA3_T2] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $bf;
+  if keyboard[KEYBOARD_FILA3_T1] then cpc_ppi.keyb_val[3]:=cpc_ppi.keyb_val[3] and $7f;
   //Line 4
-  if (keyboard[KEYBOARD_0] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $fe) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or 1);
-  if (keyboard[KEYBOARD_9] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $fd) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or 2);
-  if keyboard[KEYBOARD_o] then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $fb) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or 4);
-  if keyboard[KEYBOARD_i] then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $f7) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or 8);
-  if keyboard[KEYBOARD_l] then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $ef) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or $10);
-  if keyboard[KEYBOARD_k] then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $df) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or $20);
-  if keyboard[KEYBOARD_m] then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $bf) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or $40);
-  if keyboard[KEYBOARD_FILA3_T0] then cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] and $7f) else cpc_ppi.keyb_val[4]:=(cpc_ppi.keyb_val[4] or $80);
+  if (keyboard[KEYBOARD_0] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $fe;
+  if (keyboard[KEYBOARD_9] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $fd;
+  if keyboard[KEYBOARD_o] then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $fb;
+  if keyboard[KEYBOARD_i] then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $f7;
+  if keyboard[KEYBOARD_l] then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $ef;
+  if keyboard[KEYBOARD_k] then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $df;
+  if keyboard[KEYBOARD_m] then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $bf;
+  if keyboard[KEYBOARD_FILA3_T0] then cpc_ppi.keyb_val[4]:=cpc_ppi.keyb_val[4] and $7f;
   //Line 5
-  if (keyboard[KEYBOARD_8] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $fe) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or 1);
-  if (keyboard[KEYBOARD_7] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $fd) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or 2);
-  if keyboard[KEYBOARD_u] then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $fb) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or 4);
-  if keyboard[KEYBOARD_y] then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $f7) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or 8);
-  if keyboard[KEYBOARD_h] then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $ef) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or $10);
-  if keyboard[KEYBOARD_j] then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $df) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or $20);
-  if keyboard[KEYBOARD_n] then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $bf) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or $40);
-  if keyboard[KEYBOARD_space] then cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] and $7f) else cpc_ppi.keyb_val[5]:=(cpc_ppi.keyb_val[5] or $80);
+  if (keyboard[KEYBOARD_8] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $fe;
+  if (keyboard[KEYBOARD_7] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $fd;
+  if keyboard[KEYBOARD_u] then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $fb;
+  if keyboard[KEYBOARD_y] then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $f7;
+  if keyboard[KEYBOARD_h] then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $ef;
+  if keyboard[KEYBOARD_j] then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $df;
+  if keyboard[KEYBOARD_n] then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $bf;
+  if keyboard[KEYBOARD_space] then cpc_ppi.keyb_val[5]:=cpc_ppi.keyb_val[5] and $7f;
   //Line 6
-  if (keyboard[KEYBOARD_6] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $fe) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 1);
-  if (keyboard[KEYBOARD_5] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $fd) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 2);
-  if keyboard[KEYBOARD_r] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $fb) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 4);
-  if keyboard[KEYBOARD_t] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $f7) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or 8);
-  if keyboard[KEYBOARD_g] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $ef) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or $10);
-  if keyboard[KEYBOARD_f] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $df) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or $20);
-  if keyboard[KEYBOARD_b] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $bf) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or $40);
-  if keyboard[KEYBOARD_v] then cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] and $7f) else cpc_ppi.keyb_val[6]:=(cpc_ppi.keyb_val[6] or $80);
+  if (keyboard[KEYBOARD_6] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $fe;
+  if (keyboard[KEYBOARD_5] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $fd;
+  if keyboard[KEYBOARD_r] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $fb;
+  if keyboard[KEYBOARD_t] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $f7;
+  if keyboard[KEYBOARD_g] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $ef;
+  if keyboard[KEYBOARD_f] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $df;
+  if keyboard[KEYBOARD_b] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $bf;
+  if keyboard[KEYBOARD_v] then cpc_ppi.keyb_val[6]:=cpc_ppi.keyb_val[6] and $7f;
   //Line 7
-  if (keyboard[KEYBOARD_4] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $fe) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or 1);
-  if (keyboard[KEYBOARD_3] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $fd) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or 2);
-  if keyboard[KEYBOARD_e] then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $fb) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or 4);
-  if keyboard[KEYBOARD_w] then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $f7) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or 8);
-  if keyboard[KEYBOARD_s] then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $ef) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or $10);
-  if keyboard[KEYBOARD_d] then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $df) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or $20);
-  if keyboard[KEYBOARD_c] then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $bf) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or $40);
-  if keyboard[KEYBOARD_x] then cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] and $7f) else cpc_ppi.keyb_val[7]:=(cpc_ppi.keyb_val[7] or $80);
+  if (keyboard[KEYBOARD_4] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $fe;
+  if (keyboard[KEYBOARD_3] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $fd;
+  if keyboard[KEYBOARD_e] then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $fb;
+  if keyboard[KEYBOARD_w] then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $f7;
+  if keyboard[KEYBOARD_s] then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $ef;
+  if keyboard[KEYBOARD_d] then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $df;
+  if keyboard[KEYBOARD_c] then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $bf;
+  if keyboard[KEYBOARD_x] then cpc_ppi.keyb_val[7]:=cpc_ppi.keyb_val[7] and $7f;
   //Line 8
-  if (keyboard[KEYBOARD_1] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $fe) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or 1);
-  if (keyboard[KEYBOARD_2] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $fd) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or 2);
-  if keyboard[KEYBOARD_escape] then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $fb) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or 4);
-  if keyboard[KEYBOARD_q] then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $f7) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or 8);
-  if keyboard[KEYBOARD_tab] then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $ef) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or $10);
-  if keyboard[KEYBOARD_a] then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $df) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or $20);
-  if keyboard[KEYBOARD_CAPSLOCK] then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $bf) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or $40);
-  if keyboard[KEYBOARD_z] then cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] and $7f) else cpc_ppi.keyb_val[8]:=(cpc_ppi.keyb_val[8] or $80);
+  if (keyboard[KEYBOARD_1] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $fe;
+  if (keyboard[KEYBOARD_2] and not(keyboard[KEYBOARD_RSHIFT])) then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $fd;
+  if keyboard[KEYBOARD_escape] then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $fb;
+  if keyboard[KEYBOARD_q] then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $f7;
+  if keyboard[KEYBOARD_tab] then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $ef;
+  if keyboard[KEYBOARD_a] then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $df;
+  if keyboard[KEYBOARD_CAPSLOCK] then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $bf;
+  if keyboard[KEYBOARD_z] then cpc_ppi.keyb_val[8]:=cpc_ppi.keyb_val[8] and $7f;
   //Line 9
   //JOY UP,JOY DOWN,JOY LEFT,JOY RIGHT,FIRE1,FIRE2 --> Arcade
-  if keyboard[KEYBOARD_BACKSPACE] then cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] and $7f) else cpc_ppi.keyb_val[9]:=(cpc_ppi.keyb_val[9] or $80);
+  if keyboard[KEYBOARD_BACKSPACE] then cpc_ppi.keyb_val[9]:=cpc_ppi.keyb_val[9] and $7f;
 end;
 end;
 
 procedure cpc_main;
 begin
-init_controls(false,true,true,false);
 while EmuStatus=EsRunning do begin
   z80_0.run(frame_main);
   frame_main:=frame_main+z80_0.tframes-z80_0.contador;
   eventos_cpc;
-  actualiza_trozo(0,0,PANTALLA_LARGO_CPC,PANTALLA_ALTO-PANTALLA_VSYNC,1,0,0,PANTALLA_LARGO_CPC,PANTALLA_ALTO-PANTALLA_VSYNC,PANT_TEMP);
+  actualiza_trozo(0,0,PANTALLA_LARGO_CPC,PANTALLA_ALTO,1,0,0,PANTALLA_LARGO_CPC,PANTALLA_ALTO,PANT_TEMP);
   video_sync;
 end;
 end;
@@ -409,12 +434,14 @@ end;
 procedure write_ga(puerto:word;val:byte);
 begin
 case (val shr 6) of
-     $0:if (val and $10)=0 then cpc_ga.pen:=val and $f //Select pen
+     0:if (val and $10)=0 then cpc_ga.pen:=val and $f //Select pen
                 else cpc_ga.pen:=$10; //Border
-     $1:cpc_ga.pal[cpc_ga.pen]:=val and $1f;    //Change pen colour
-     $2:begin   //ROM banking and mode switch
-            cpc_ga.nvideo:=val and 3;
-            cpc_ga.change_video:=true;
+     1:cpc_ga.pal[cpc_ga.pen]:=val and $1f;    //Change pen colour
+     2:begin   //ROM banking and mode switch
+            if cpc_ga.nvideo<>(val and 3) then begin
+              cpc_ga.nvideo:=val and 3;
+              cpc_ga.change_video:=true;
+            end;
             cpc_ga.rom_low:=(val and 4)=0;
             cpc_ga.rom_high:=(val and 8)=0;
             if (val and $10)<>0 then begin
@@ -428,11 +455,11 @@ end;
 
 procedure write_crtc(port:byte;val:byte);
 const
-  masks:array[0..$f] of byte=($ff,$ff,$ff,$ff,$7f,$1f,$7f,$7f,$ff,$1f,$7f,$1f,$3f,$ff,$3f,$ff);
+  masks:array[0..$f] of byte=($ff,$ff,$ff,$ff,$7f,$1f,$7f,$7f,3,$1f,$7f,$1f,$3f,$ff,$3f,$ff);
 begin
-  case (port and $3) of
-    $0:cpc_crt.reg:=val and $1f;
-    $1:if (cpc_crt.regs[cpc_crt.reg]<>(val and masks[cpc_crt.reg])) then begin
+  case (port and 3) of
+    0:cpc_crt.reg:=val and $1f;
+    1:if (cpc_crt.regs[cpc_crt.reg]<>(val and masks[cpc_crt.reg])) then begin
           cpc_crt.regs[cpc_crt.reg]:=val and masks[cpc_crt.reg];
           case cpc_crt.reg of
             0:cpc_crt.char_total:=(cpc_crt.regs[0]+1)*8;
@@ -441,19 +468,14 @@ begin
                   else cpc_crt.pixel_visible:=49*8;
                 cpc_crt.borde:=(PANTALLA_LARGO_CPC-cpc_crt.pixel_visible) shr 1;
               end;
-            5:if cpc_crt.adj_count<>0 then begin
+            5:begin
                 cpc_crt.is_in_adjustment_period:=false;
-                cpc_crt.line_address:=(cpc_crt.regs[12] shl 8) or cpc_crt.regs[13];
-                cpc_crt.state_refresh_address:=cpc_crt.line_address;
-                cpc_crt.pant_addr:=((cpc_crt.line_address and $3ff) shl 1) or
-							      ((cpc_crt.state_row_address and $7) shl 11) or
-							      ((cpc_crt.line_address and $3000) shl 2);
                 cpc_crt.adj_count:=0;
-                cpc_crt.next_line_is_visible:=true;
               end;
+            9:mod_address:=true;
           end;
     end;
-    $2,$3:; //Sin uso
+    2,3:; //Sin uso
   end;
 end;
 
@@ -467,13 +489,13 @@ if (puerto and $2000)=0 then begin
     else cpc_ga.rom_selected:=0;
 end;
 if (puerto and $1000)=0 then exit; //printer
-if (puerto and $0800)=0 then pia8255_0.write((puerto and $300) shr 8,valor);
-if (puerto and $0400)=0 then begin //Expansion
+if (puerto and $800)=0 then pia8255_0.write((puerto and $300) shr 8,valor);
+if (puerto and $400)=0 then begin //Expansion
   //puerto and $20=0 Serial
   //puerto and $40=0 Reserved
   if (puerto and $80)=0 then begin //FDC
     case (puerto and $101) of
-      $0,1:WriteFDCMotor(valor); //FDC Motor
+      0,1:WriteFDCMotor(valor); //FDC Motor
       $100,$101:WriteFDCData(valor); //FDC Data
     end;
   end
@@ -504,13 +526,13 @@ var
 begin
 res:=$ff;
 if (puerto and $4000)=0 then res:=read_crtc(puerto shr 8);
-if (puerto and $0800)=0 then res:=pia8255_0.read((puerto and $300) shr 8);
-if (puerto and $0400)=0 then begin //Expansion
+if (puerto and $800)=0 then res:=pia8255_0.read((puerto and $300) shr 8);
+if (puerto and $400)=0 then begin //Expansion
   //puerto and $20=0 Serial
   //puerto and $40=0 Reserved
   if (puerto and $80)=0 then begin //FDC
     case (puerto and $101) of
-      $0,1:; //Not used
+      0,1:; //Not used
       $100:res:=ReadFDCStatus; //FDC Main status
       $101:res:=ReadFDCData //FDC Read data
     end;
@@ -520,11 +542,18 @@ cpc_inbyte:=res;
 end;
 
 procedure amstrad_raised_z80;
+var
+  z80:npreg_z80;
 begin
   cpc_ga.lines_count:=cpc_ga.lines_count and $1f;
   z80_0.change_irq(CLEAR_LINE);
   //Cuando hago la irq hay que hacerlo multiplo de 4!
-  z80_0.contador:=z80_0.contador+3;
+  z80:=z80_0.get_internal_r;
+  case z80.im of
+    0:;
+    1:z80_0.contador:=z80_0.contador+3;
+    2:z80_0.contador:=z80_0.contador+1;
+  end;
 end;
 
 //PPI 8255
@@ -596,7 +625,7 @@ end;
 1 --> El ancho en caracteres VISIBLES de una fila.
 2 --> Caracter en el que se produce el HSYNC
 3 --> 4bits lo: Numero de caracteres que tarda el HSYNC
-      4bits hi: Numero de caracteres que tarda el VSYNC
+      4bits hi: Numero de lineas que tarda el VSYNC
 4 --> La altura en caracteres TOTAL de la pantalla +1
       En el CPC 38+1
 5 --> Numero de lineas que faltan para completar la pantalla cuando termina un frame
@@ -628,11 +657,17 @@ begin
   if cpc_ga.change_video then begin
     cpc_ga.video_mode:=cpc_ga.nvideo;
     cpc_ga.change_video:=false;
+    //Si se ha cambiado la direccion de las lineas, hay que actualizarlo
+    if mod_address then begin
+      cpc_crt.line_address:=(cpc_crt.regs[12] shl 8) or cpc_crt.regs[13];
+      cpc_crt.state_refresh_address:=cpc_crt.line_address;
+      mod_address:=false;
+    end;
   end;
   cpc_line:=(cpc_line+1) mod PANTALLA_ALTO;
   cpc_crt.pant_x:=0;
   cpc_crt.pant_addr:=((cpc_crt.line_address and $3ff) shl 1) or
-							((cpc_crt.state_row_address and $7) shl 11) or
+							((cpc_crt.state_row_address and 7) shl 11) or
 							((cpc_crt.line_address and $3000) shl 2);
   if cpc_crt.next_line_is_visible then begin
     cpc_crt.line_is_visible:=true;
@@ -649,7 +684,7 @@ begin
         else cpc_crt.vsync_counter:=cpc_crt.vsync_counter+1;
   end;
   if (cpc_crt.regs[4]>=cpc_crt.regs[7]) then begin
-    if (cpc_crt.linea_crt=cpc_crt.regs[7]) then begin
+    if (cpc_crt.char_crt=cpc_crt.regs[7]) then begin
       cpc_crt.state_vsync:=true;
       cpc_crt.vsync_counter:=0;
     end;
@@ -660,18 +695,19 @@ begin
       if (cpc_crt.state_row_address=cpc_crt.regs[9]) then begin
           cpc_crt.state_row_address:=0;
 					cpc_crt.line_address:=cpc_crt.end_of_line_address;
-					if (cpc_crt.linea_crt=cpc_crt.regs[4]) then begin
+					if (cpc_crt.char_crt=cpc_crt.regs[4]) then begin
               cpc_crt.is_in_adjustment_period:=true;
               cpc_crt.adj_count:=0;
-              cpc_crt.linea_crt:=0; //IMPORTANTE: durante el adjust se puede producir el vblank
+              cpc_crt.char_crt:=0; //IMPORTANTE: durante el adjust se puede producir el vblank
               adjust;
 					end else begin
-            cpc_crt.linea_crt:=(cpc_crt.linea_crt+1) and $7f;
+            cpc_crt.char_crt:=(cpc_crt.char_crt+1) and $7f;
           end;
       end else begin
         cpc_crt.state_row_address:=(cpc_crt.state_row_address+1) and $1f;
       end;
-      if cpc_crt.linea_crt=cpc_crt.regs[6] then cpc_crt.next_line_no_visible:=true;
+      //cpc_crt.next_line_no_visible:=(cpc_crt.char_crt=cpc_crt.regs[6]);
+      if cpc_crt.char_crt=cpc_crt.regs[6] then cpc_crt.next_line_no_visible:=true;
   end;
   if (not(cpc_crt.was_vsync) and cpc_crt.state_vsync) then cpc_ga.lines_sync:=2;
   if (cpc_crt.was_vsync and not(cpc_crt.state_vsync)) then cpc_line:=0;
@@ -708,9 +744,9 @@ for g:=0 to 1 do begin //Ocho pixels por cada 4T
       end;
       1:begin
           // 3 7      2 6      1 5      0 4
-          p1:=((val and $80) shr 7)+((val and $8) shr 2);
-          p2:=((val and $40) shr 6)+((val and $4) shr 1);
-          p3:=((val and $20) shr 5)+((val and $2) shr 0);
+          p1:=((val and $80) shr 7)+((val and 8) shr 2);
+          p2:=((val and $40) shr 6)+((val and 4) shr 1);
+          p3:=((val and $20) shr 5)+((val and 2) shr 0);
           p4:=((val and $10) shr 4)+((val and 1) shl 1);
           ptemp^:=paleta[cpc_ga.pal[p1]];
           inc(ptemp);
@@ -727,10 +763,10 @@ for g:=0 to 1 do begin //Ocho pixels por cada 4T
           p2:=((val and $40) shr 6);
           p3:=((val and $20) shr 5);
           p4:=((val and $10) shr 4);
-          p5:=((val and $8) shr 3);
-          p6:=((val and $4) shr 2);
-          p7:=((val and $2) shr 1);
-          p8:=((val and $1) shr 0);
+          p5:=((val and 8) shr 3);
+          p6:=((val and 4) shr 2);
+          p7:=((val and 2) shr 1);
+          p8:=((val and 1) shr 0);
           pal1:=paleta[cpc_ga.pal[p1]];
           pal2:=paleta[cpc_ga.pal[p2]];
           temp1:=(((pal1 and $f800)+(pal2 and $f800)) shr 1) and $f800;
@@ -791,7 +827,7 @@ begin
 if (cinta_tzx.cargada and cinta_tzx.play_tape) then play_cinta_tzx(trunc(estados_t*0.875));
 //Clock a el video...
 for f:=1 to (estados_t shr 2) do begin
-  if ((cpc_crt.pant_x<cpc_crt.char_total) and cpc_crt.line_is_visible) then draw_pixels;
+  if ((cpc_crt.pant_x<cpc_crt.char_total) and cpc_crt.line_is_visible and not(cpc_crt.state_vsync) and not(cpc_crt.state_hsync)) then draw_pixels;
   if cpc_crt.state_hsync then begin
     tempb:=cpc_crt.regs[3] and $f;
     if tempb=0 then tempb:=16;
@@ -874,6 +910,7 @@ begin
   pia8255_0.reset;
   if cinta_tzx.cargada then cinta_tzx.play_once:=false;
   cinta_tzx.value:=0;
+  key_pos:=0;
   ResetFDC;
   //Init GA
   cpc_ga.pen:=0;
@@ -897,8 +934,7 @@ begin
   fillchar(cpc_ppi.keyb_val[0],$10,$ff);
   //Dandanator
   cpc_dandanator.fd_count:=0;
-  if cpc_dandanator.enabled then cpc_dandanator.zone0_ena:=true
-    else cpc_dandanator.zone0_ena:=false;
+  cpc_dandanator.zone0_ena:=false;
   cpc_dandanator.zone0_seg:=0;
   cpc_dandanator.zone0_rom:=0;
   cpc_dandanator.zone1_ena:=false;
@@ -911,7 +947,7 @@ begin
   cpc_dandanator.enable_follow:=false;
   //CRT
   fillchar(cpc_crt.regs,$20,0);
-  cpc_crt.linea_crt:=0;
+  cpc_crt.char_crt:=0;
   cpc_crt.was_hsync:=false;
   cpc_crt.was_vsync:=false;
   cpc_crt.character_counter:=0;
@@ -944,6 +980,20 @@ begin
   end;
   cpc_dandanator.enabled:=true;
   abrir_dandanator:=true;
+  cpc_reset;
+  //Importante el orden!
+  cpc_dandanator.zone0_ena:=true;
+end;
+
+procedure key_press;
+const
+  run_key:array[0..28] of word=($02df,$03fb,$03ff,$02ff,$06f7,$06ff,$08df,$08ff,$03f7,$03ff,$07fb,$07ff,$02fb,$02ff,$06fb,$06ff,$05fb,$05ff,$05bf,$05ff,$02df,$08fd,$08ff,$02ff,$02fb,$02ff,$02fb,$02ff,$ffff);
+begin
+cpc_ppi.keyb_val[run_key[key_pos] shr 8]:=run_key[key_pos] and $ff;
+if run_key[key_pos]=$ffff then begin
+  timers.enabled(key_timer,false);
+  key_pos:=0;
+end else key_pos:=key_pos+1;
 end;
 
 procedure amstrad_tapes;
@@ -971,10 +1021,8 @@ begin
   if extension='ROM' then begin
     resultado:=abrir_dandanator(datos,longitud);
     es_cinta:=false;
-    if resultado then begin
-        cadena:='ROM: '+nombre_file;
-        cpc_reset;
-    end else MessageDlg('Error cargando ROM.'+chr(10)+chr(13)+'Error loading the ROM.', mtInformation,[mbOk], 0);
+    if resultado then cadena:='ROM: '+nombre_file
+      else MessageDlg('Error cargando ROM.'+chr(10)+chr(13)+'Error loading the ROM.', mtInformation,[mbOk], 0);
   end;
   if extension='SNA' then begin
       resultado:=abrir_sna_cpc(datos,longitud);
@@ -992,6 +1040,7 @@ begin
         cinta_tzx.play_tape:=false;
         cadena:=extension+': '+nombre_file;
         cpc_ppi.tape_motor:=false;
+        if main_vars.auto_type then timers.enabled(key_timer,true);
      end else MessageDlg('Error cargando cinta/CSW/WAV.'+chr(10)+chr(13)+'Error loading tape/CSW/WAV.', mtInformation,[mbOk], 0);
   end;
   freemem(datos);
@@ -1015,9 +1064,8 @@ if SaveRom(nombre,indice,SAMSTRADCPC) then begin
         case indice of
           1:nombre:=changefileext(nombre,'.sna');
         end;
-        if FileExists(nombre) then begin
+        if FileExists(nombre) then
             if MessageDlg(leng.mensajes[3], mtWarning, [mbYes]+[mbNo],0)=7 then exit;
-        end;
         case indice of
           1:correcto:=grabar_amstrad_sna(nombre);
         end;
@@ -1030,14 +1078,12 @@ procedure tape_timer_exec;
 begin
 if cpc_ppi.tape_motor then begin //Poner en marcha la cinta
   if not(cinta_tzx.play_tape) then begin
-    main_screen.rapido:=true;
     tape_window1.fPlayCinta(nil);
     if not(cinta_tzx.play_once) then cinta_tzx.play_once:=true;
   end;
 end else begin //Pararla
-  main_screen.rapido:=false;
   timers.enabled(tape_timer,false);
-  if cinta_tzx.play_tape then tape_window1.fStopCinta(nil);
+  if (cinta_tzx.play_tape and main_vars.auto_type) then tape_window1.fStopCinta(nil);
 end;
 end;
 
@@ -1218,23 +1264,12 @@ freemem(data);
 close_qsnapshot;
 end;
 
-procedure cpc_close;
-begin
-clear_disk(0);
-clear_disk(1);
-end;
-
 function iniciar_cpc:boolean;
-var
-  f:byte;
-  colores:tpaleta;
-  temps:single;
 begin
 llamadas_maquina.bucle_general:=cpc_main;
 llamadas_maquina.reset:=cpc_reset;
 llamadas_maquina.fps_max:=50.080128205;
 llamadas_maquina.scanlines:=1;
-llamadas_maquina.close:=cpc_close;
 llamadas_maquina.cintas:=amstrad_tapes;
 llamadas_maquina.cartuchos:=amstrad_loaddisk;
 llamadas_maquina.grabar_snapshot:=grabar_amstrad;
@@ -1244,26 +1279,9 @@ principal1.BitBtn10.Glyph:=nil;
 principal1.ImageList2.GetBitmap(3,principal1.BitBtn10.Glyph);
 iniciar_audio(false);
 screen_init(1,PANTALLA_LARGO_CPC,PANTALLA_ALTO+1);
-iniciar_video(PANTALLA_LARGO_CPC,PANTALLA_ALTO-PANTALLA_VSYNC);
+iniciar_video(PANTALLA_LARGO_CPC,PANTALLA_ALTO);
 //Inicializar dispositivos
-if cpc_crt.color_monitor then begin
-  for f:=0 to 31 do begin
-    colores[f].r:=cpc_paleta[f] shr 16;
-    colores[f].g:=(cpc_paleta[f] shr 8) and $ff;
-    colores[f].b:=cpc_paleta[f] and $ff;
-  end;
-end else begin
-  for f:=0 to 31 do begin
-    colores[f].r:=0;
-    temps:=0.01*0*green_classic[f]*255;
-    if temps>255 then temps:=255;
-    colores[f].b:=trunc(temps);
-    temps:=green_classic[f]*255*(1+(cpc_crt.bright/4));
-    if temps>255 then temps:=255;
-    colores[f].g:=trunc(temps);
-  end;
-end;
-set_pal(colores,32);
+amstrad_cpc_paleta;
 z80_0:=cpu_z80.create(4000000);
 z80_0.change_ram_calls(cpc_getbyte,cpc_putbyte);
 z80_0.change_io_calls(cpc_inbyte,cpc_outbyte);
@@ -1276,6 +1294,7 @@ ay8910_0:=ay8910_chip.create(1000000,AY8912,0.8);
 ay8910_0.change_io_calls(cpc_porta_read,nil,nil,nil);
 pia8255_0:=pia8255_chip.create;
 pia8255_0.change_ports(port_a_read,port_b_read,nil,port_a_write,nil,port_c_write);
+key_timer:=timers.init(z80_0.numero_cpu,250000,key_press,nil,false);
 iniciar_cpc:=cpc_load_roms;
 cinta_tzx.tape_stop:=cpc_stop_tape;
 end;

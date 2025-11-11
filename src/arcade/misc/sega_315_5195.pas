@@ -1,7 +1,7 @@
-unit sega_315_5195;
+﻿unit sega_315_5195;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}m68000,nz80,main_engine;
+uses m68000,main_engine;
 
 type
 
@@ -30,6 +30,7 @@ var
   s315_5195_0:t315_5195;
 
 implementation
+uses nz80;
 
 constructor t315_5195.create(cpu_m68k:cpu_m68000;isound_call:tsound_call);
 begin

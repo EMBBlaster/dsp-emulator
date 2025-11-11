@@ -1,16 +1,11 @@
-unit blacktiger_hw;
+﻿unit blacktiger_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,mcs51,main_engine,controls_engine,ym_2203,gfx_engine,timer_engine,
-     rom_engine,file_engine,pal_engine,sound_engine,qsnapshot;
-
+uses rom_engine;
 // {$define speed_debug}
 
 function iniciar_blktiger:boolean;
 
-implementation
-{$ifdef speed_debug}uses principal,sysutils;{$endif}
 const
         blktiger_rom:array[0..4] of tipo_roms=(
         (n:'bdu-01a.5e';l:$8000;p:0;crc:$a8f98f22),(n:'bdu-02a.6e';l:$10000;p:$8000;crc:$7bef96e8),
@@ -20,11 +15,18 @@ const
         blktiger_sprites:array[0..3] of tipo_roms=(
         (n:'bd-08.5a';l:$10000;p:0;crc:$e2f17438),(n:'bd-07.4a';l:$10000;p:$10000;crc:$5fccbd27),
         (n:'bd-10.9a';l:$10000;p:$20000;crc:$fc33ccc6),(n:'bd-09.8a';l:$10000;p:$30000;crc:$f449de01));
-        blktiger_tiles:array[0..3] of tipo_roms=(
-        (n:'bd-12.5b';l:$10000;p:0;crc:$c4524993),(n:'bd-11.4b';l:$10000;p:$10000;crc:$7932c86f),
-        (n:'bd-14.9b';l:$10000;p:$20000;crc:$dc49593a),(n:'bd-13.8b';l:$10000;p:$30000;crc:$7ed7a122));
         blktiger_snd:tipo_roms=(n:'bd-06.1l';l:$8000;p:0;crc:$2cf54274);
         blktiger_mcu:tipo_roms=(n:'bd.6k';l:$1000;p:0;crc:$ac7d14f1);
+        blktiger_tiles:array[0..4] of tipo_roms=(
+        (n:'bd-12.5b';l:$10000;p:0;crc:$c4524993),(n:'bd-11.4b';l:$10000;p:$10000;crc:$7932c86f),
+        (n:'bd-14.9b';l:$10000;p:$20000;crc:$dc49593a),(n:'bd-13.8b';l:$10000;p:$30000;crc:$7ed7a122),());
+
+implementation
+uses {$ifdef speed_debug}principal,sysutils,{$endif}
+     nz80,mcs51,main_engine,controls_engine,ym_2203,gfx_engine,timer_engine,
+     file_engine,pal_engine,sound_engine,qsnapshot;
+
+const
         //Dip
         blktiger_dip_a:array [0..3] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
@@ -111,25 +113,28 @@ end;
 procedure eventos_blktiger;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //SYS
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $bf;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $7f;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $df;
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fb;
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $df;
 end;
 end;
 
@@ -138,7 +143,6 @@ var
   f:word;
   {$ifdef speed_debug}cont1,cont2:int64;{$endif}
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   {$ifdef speed_debug}
   QueryPerformanceCounter(cont1);
@@ -303,9 +307,9 @@ begin
 case direccion of
   0..$7fff:; //ROM
   $c000..$c7ff:mem_snd[direccion]:=valor;
-  $e000:ym2203_0.Control(valor);
+  $e000:ym2203_0.control(valor);
   $e001:ym2203_0.write(valor);
-  $e002:ym2203_1.Control(valor);
+  $e002:ym2203_1.control(valor);
   $e003:ym2203_1.write(valor);
 end;
 end;

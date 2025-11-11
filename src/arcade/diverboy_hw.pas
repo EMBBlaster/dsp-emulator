@@ -1,13 +1,10 @@
-unit diverboy_hw;
+﻿unit diverboy_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     nz80,oki6295,sound_engine;
+uses rom_engine;
 
 function iniciar_diverboy:boolean;
 
-implementation
 const
         diverboy_rom:array[0..1] of tipo_roms=(
         (n:'db_01.bin';l:$20000;p:0;crc:$6aa11366),(n:'db_02.bin';l:$20000;p:1;crc:$45f8a673));
@@ -17,9 +14,14 @@ const
         diverboy_obj2:array[0..3] of tipo_roms=(
         (n:'db_07.bin';l:$20000;p:0;crc:$18485741),(n:'db_10.bin';l:$20000;p:1;crc:$c381d1cc),
         (n:'db_06.bin';l:$20000;p:$40000;crc:$21b4e352),(n:'db_11.bin';l:$20000;p:$40001;crc:$41d29c81));
-        diverboy_oki:array[0..1] of tipo_roms=(
-        (n:'db_03.bin';l:$80000;p:0;crc:$50457505),(n:'db_04.bin';l:$20000;p:$80000;crc:$01b81da0));
-        //Dip
+        diverboy_oki:array[0..2] of tipo_roms=(
+        (n:'db_03.bin';l:$80000;p:0;crc:$50457505),(n:'db_04.bin';l:$20000;p:$80000;crc:$01b81da0),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,nz80,oki6295,
+     sound_engine;
+
+const
         diverboy_dip:array [0..4] of def_dip2=(
         (mask:7;name:'Coinage';number:8;val8:(7,6,5,0,1,2,3,4);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 6C')),
         (mask:8;name:'Lives';number:2;val2:(0,8);name2:('2','3')),
@@ -66,24 +68,26 @@ end;
 procedure eventos_diverboy;
 begin
 if event.arcade then begin
+  marcade.in0:=$ffff;
+  marcade.in1:=$f7;
   //P1+P2
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ffef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $ffdf) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $ff7f) else marcade.in0:=(marcade.in0 or $80);
-  if arcade_input.up[1] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.down[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
-  if arcade_input.left[1] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.right[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.but0[1] then marcade.in0:=(marcade.in0 and $efff) else marcade.in0:=(marcade.in0 or $1000);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $dfff) else marcade.in0:=(marcade.in0 or $2000);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $7fff) else marcade.in0:=(marcade.in0 or $8000);
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fff7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ffef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $ffdf;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $ff7f;
+  if arcade_input.up[1] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.down[1] then marcade.in0:=marcade.in0 and $fdff;
+  if arcade_input.left[1] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.right[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.but0[1] then marcade.in0:=marcade.in0 and $efff;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $dfff;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $7fff;
   //COIN
-  if arcade_input.coin[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.coin[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
+  if arcade_input.coin[0] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.coin[1] then marcade.in1:=marcade.in1 and $fd;
 end;
 end;
 
@@ -91,7 +95,6 @@ procedure diverboy_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 255 do begin
    eventos_diverboy;

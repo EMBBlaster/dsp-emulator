@@ -1,12 +1,10 @@
 unit taitosj_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine,dac,m6805;
+uses rom_engine;
 
 function taitosj_iniciar:boolean;
 
-implementation
 const
         //Elevator Action
         elevator_rom:array[0..3] of tipo_roms=(
@@ -15,10 +13,32 @@ const
         elevator_sonido:array[0..1] of tipo_roms=(
         (n:'ba3__09.2732.ic70';l:$1000;p:0;crc:$6d5f57cb),(n:'ba3__10.2732.ic71';l:$1000;p:$1000;crc:$f0a769a1));
         elevator_mcu:tipo_roms=(n:'ba3__11.mc68705p3.ic24';l:$800;p:0;crc:$9ce75afc);
-        elevator_char:array[0..3] of tipo_roms=(
-        (n:'ba3__05.2764.ic4';l:$2000;p:0;crc:$6c4ee58f),(n:'ba3__06.2764.ic5';l:$2000;p:$2000;crc:$41ab0afc),
-        (n:'ba3__07.2764.ic9';l:$2000;p:$4000;crc:$efe43731),(n:'ba3__08.2764.ic10';l:$2000;p:$6000;crc:$3ca20696));
         elevator_prom:tipo_roms=(n:'eb16.22';l:$100;p:0;crc:$b833b5ea);
+        elevator_char:array[0..4] of tipo_roms=(
+        (n:'ba3__05.2764.ic4';l:$2000;p:0;crc:$6c4ee58f),(n:'ba3__06.2764.ic5';l:$2000;p:$2000;crc:$41ab0afc),
+        (n:'ba3__07.2764.ic9';l:$2000;p:$4000;crc:$efe43731),(n:'ba3__08.2764.ic10';l:$2000;p:$6000;crc:$3ca20696),());
+        //Jungle King
+        junglek_rom:array[0..8] of tipo_roms=(
+        (n:'kn21-1.bin';l:$1000;p:0;crc:$45f55d30),(n:'kn22-1.bin';l:$1000;p:$1000;crc:$07cc9a21),
+        (n:'kn43.bin';l:$1000;p:$2000;crc:$a20e5a48),(n:'kn24.bin';l:$1000;p:$3000;crc:$19ea7f83),
+        (n:'kn25.bin';l:$1000;p:$4000;crc:$844365ea),(n:'kn46.bin';l:$1000;p:$5000;crc:$27a95fd5),
+        (n:'kn47.bin';l:$1000;p:$6000;crc:$5c3199e0),(n:'kn28.bin';l:$1000;p:$7000;crc:$194a2d09),
+        (n:'kn60.bin';l:$1000;p:$8000;crc:$1a9c0a26));
+        junglek_sonido:array[0..2] of tipo_roms=(
+        (n:'kn37.bin';l:$1000;p:0;crc:$dee7f5d4),(n:'kn38.bin';l:$1000;p:$1000;crc:$bffd3d21),
+        (n:'kn59-1.bin';l:$1000;p:$2000;crc:$cee485fc));
+        junglek_prom:tipo_roms=(n:'eb16.22';l:$100;p:0;crc:$b833b5ea);
+        junglek_char:array[0..8] of tipo_roms=(
+        (n:'kn29.bin';l:$1000;p:0;crc:$8f83c290),(n:'kn30.bin';l:$1000;p:$1000;crc:$89fd19f1),
+        (n:'kn51.bin';l:$1000;p:$2000;crc:$70e8fc12),(n:'kn52.bin';l:$1000;p:$3000;crc:$bcbac1a3),
+        (n:'kn53.bin';l:$1000;p:$4000;crc:$b946c87d),(n:'kn34.bin';l:$1000;p:$5000;crc:$320db2e1),
+        (n:'kn55.bin';l:$1000;p:$6000;crc:$70aef58f),(n:'kn56.bin';l:$1000;p:$7000;crc:$932eb667),());
+
+implementation
+uses nz80,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,timer_engine,dac,m6805;
+
+const
         elevator_dip_a:array [0..5] of def_dip=(
         (mask:3;name:'Bonus Life';number:4;dip:((dip_val:$3;dip_name:'10000'),(dip_val:$2;dip_name:'15000'),(dip_val:$1;dip_name:'20000'),(dip_val:$0;dip_name:'25000'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:4;name:'Free Play';number:2;dip:((dip_val:$4;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -31,22 +51,6 @@ const
         (mask:$20;name:'Year Display';number:2;dip:((dip_val:$0;dip_name:'No'),(dip_val:$20;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$40;name:'Hit Detection';number:2;dip:((dip_val:$40;dip_name:'Normal Game'),(dip_val:$0;dip_name:'No Hit'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$80;name:'Coin Slots';number:2;dip:((dip_val:$80;dip_name:'A and B'),(dip_val:$0;dip_name:'A only'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        //Jungle King
-        junglek_rom:array[0..8] of tipo_roms=(
-        (n:'kn21-1.bin';l:$1000;p:0;crc:$45f55d30),(n:'kn22-1.bin';l:$1000;p:$1000;crc:$07cc9a21),
-        (n:'kn43.bin';l:$1000;p:$2000;crc:$a20e5a48),(n:'kn24.bin';l:$1000;p:$3000;crc:$19ea7f83),
-        (n:'kn25.bin';l:$1000;p:$4000;crc:$844365ea),(n:'kn46.bin';l:$1000;p:$5000;crc:$27a95fd5),
-        (n:'kn47.bin';l:$1000;p:$6000;crc:$5c3199e0),(n:'kn28.bin';l:$1000;p:$7000;crc:$194a2d09),
-        (n:'kn60.bin';l:$1000;p:$8000;crc:$1a9c0a26));
-        junglek_sonido:array[0..2] of tipo_roms=(
-        (n:'kn37.bin';l:$1000;p:0;crc:$dee7f5d4),(n:'kn38.bin';l:$1000;p:$1000;crc:$bffd3d21),
-        (n:'kn59-1.bin';l:$1000;p:$2000;crc:$cee485fc));
-        junglek_char:array[0..7] of tipo_roms=(
-        (n:'kn29.bin';l:$1000;p:0;crc:$8f83c290),(n:'kn30.bin';l:$1000;p:$1000;crc:$89fd19f1),
-        (n:'kn51.bin';l:$1000;p:$2000;crc:$70e8fc12),(n:'kn52.bin';l:$1000;p:$3000;crc:$bcbac1a3),
-        (n:'kn53.bin';l:$1000;p:$4000;crc:$b946c87d),(n:'kn34.bin';l:$1000;p:$5000;crc:$320db2e1),
-        (n:'kn55.bin';l:$1000;p:$6000;crc:$70aef58f),(n:'kn56.bin';l:$1000;p:$7000;crc:$932eb667));
-        junglek_prom:tipo_roms=(n:'eb16.22';l:$100;p:0;crc:$b833b5ea);
         junglek_dip_a:array [0..4] of def_dip=(
         (mask:3;name:'Finish Bonus';number:4;dip:((dip_val:$3;dip_name:'None'),(dip_val:$2;dip_name:'Timer x1'),(dip_val:$1;dip_name:'Timer x2'),(dip_val:$0;dip_name:'Timer x3'),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$18;name:'Lives';number:4;dip:((dip_val:$18;dip_name:'3'),(dip_val:$10;dip_name:'4'),(dip_val:$8;dip_name:'5'),(dip_val:$0;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -61,6 +65,7 @@ const
         coin_dip:array [0..2] of def_dip=(
         (mask:$f;name:'Coin A';number:16;dip:((dip_val:$0f;dip_name:'9C 1C'),(dip_val:$0e;dip_name:'8C 1C'),(dip_val:$0d;dip_name:'7C 1C'),(dip_val:$0c;dip_name:'6C 1C'),(dip_val:$0b;dip_name:'5C 1C'),(dip_val:$0a;dip_name:'4C 1C'),(dip_val:$09;dip_name:'3C 1C'),(dip_val:$08;dip_name:'2C 1C'),(dip_val:$00;dip_name:'1C 1C'),(dip_val:$01;dip_name:'1C 2C'),(dip_val:$02;dip_name:'1C 3C'),(dip_val:$03;dip_name:'1C 4C'),(dip_val:$04;dip_name:'1C 5C'),(dip_val:$05;dip_name:'1C 6C'),(dip_val:$06;dip_name:'1C 7C'),(dip_val:$07;dip_name:'1C 8C'))),
         (mask:$f0;name:'Coin B';number:16;dip:((dip_val:$f0;dip_name:'9C 1C'),(dip_val:$e0;dip_name:'8C 1C'),(dip_val:$d0;dip_name:'7C 1C'),(dip_val:$c0;dip_name:'6C 1C'),(dip_val:$b0;dip_name:'5C 1C'),(dip_val:$a0;dip_name:'4C 1C'),(dip_val:$90;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$00;dip_name:'1C 1C'),(dip_val:$10;dip_name:'1C 2C'),(dip_val:$20;dip_name:'1C 3C'),(dip_val:$30;dip_name:'1C 4C'),(dip_val:$40;dip_name:'1C 5C'),(dip_val:$50;dip_name:'1C 6C'),(dip_val:$60;dip_name:'1C 7C'),(dip_val:$70;dip_name:'1C 8C'))),());
+
 var
  memoria_rom:array[0..1,0..$1fff] of byte;
  gfx_rom:array[0..$7fff] of byte;
@@ -205,25 +210,28 @@ end;
 procedure eventos_taitosj;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //p1
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or 8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
   //p2
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
   //System
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $bf) else marcade.in2:=(marcade.in2 or $40);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $7f) else marcade.in2:=(marcade.in2 or $80);
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $ef;
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $df;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $bf;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $7f;
 end;
 end;
 
@@ -231,7 +239,6 @@ procedure taitosj_nomcu_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_taitosj;
@@ -363,7 +370,6 @@ procedure taitosj_mcu_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 255 do begin
     eventos_taitosj;

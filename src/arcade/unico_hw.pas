@@ -1,12 +1,9 @@
-unit unico_hw;
+﻿unit unico_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m68000,main_engine,controls_engine,gfx_engine,rom_engine,pal_engine,
-     sound_engine,ym_3812,oki6295;
+uses rom_engine;
 
 function iniciar_unico:boolean;
-
-implementation
 
 const
         burglarx_rom:array[0..1] of tipo_roms=(
@@ -16,12 +13,27 @@ const
         (n:'bx-rom9';l:$80000;p:$100000;crc:$33f29d79),(n:'bx-rom8';l:$80000;p:$100001;crc:$24367092),
         (n:'bx-rom7';l:$80000;p:$200000;crc:$aff6bdea),(n:'bx-rom6';l:$80000;p:$200001;crc:$246afed2),
         (n:'bx-rom11';l:$80000;p:$300000;crc:$898d176a),(n:'bx-rom5';l:$80000;p:$300001;crc:$fdee1423));
-        burglarx_tiles:array[0..7] of tipo_roms=(
+        burglarx_oki:tipo_roms=(n:'bx-rom1.snd';l:$80000;p:0;crc:$8ae67138);
+        burglarx_tiles:array[0..8] of tipo_roms=(
         (n:'bx-rom14';l:$80000;p:0;crc:$30413373),(n:'bx-rom18';l:$80000;p:$1;crc:$8e7fc99f),
         (n:'bx-rom19';l:$80000;p:$100000;crc:$d40eabcd),(n:'bx-rom15';l:$80000;p:$100001;crc:$78833c75),
         (n:'bx-rom17';l:$80000;p:$200000;crc:$f169633f),(n:'bx-rom12';l:$80000;p:$200001;crc:$71eb160f),
-        (n:'bx-rom13';l:$80000;p:$300000;crc:$da34bbb5),(n:'bx-rom16';l:$80000;p:$300001;crc:$55b28ef9));
-        burglarx_oki:tipo_roms=(n:'bx-rom1.snd';l:$80000;p:0;crc:$8ae67138);
+        (n:'bx-rom13';l:$80000;p:$300000;crc:$da34bbb5),(n:'bx-rom16';l:$80000;p:$300001;crc:$55b28ef9),());
+        zeropnt_rom:array[0..1] of tipo_roms=(
+        (n:'unico_2.rom2';l:$80000;p:0;crc:$1e599509),(n:'unico_3.rom3';l:$80000;p:$1;crc:$588aeef7));
+        zeropnt_sprites:array[0..3] of tipo_roms=(
+        (n:'unico_zpobj_z01.bin';l:$200000;p:0;crc:$1f2768a3),(n:'unico_zpobj_z02.bin';l:$200000;p:$200000;crc:$de34f33a),
+        (n:'unico_zpobj_z03.bin';l:$200000;p:$400000;crc:$d7a657f7),(n:'unico_zpobj_z04.bin';l:$200000;p:$600000;crc:$3aec2f8d));
+        zeropnt_oki:tipo_roms=(n:'unico_1.rom1';l:$80000;p:0;crc:$fd2384fa);
+        zeropnt_tiles:array[0..4] of tipo_roms=(
+        (n:'unico_zpscr_z06.bin';l:$200000;p:0;crc:$e1e53cf0),(n:'unico_zpscr_z05.bin';l:$200000;p:$200000;crc:$0d7d4850),
+        (n:'unico_zpscr_z07.bin';l:$200000;p:$400000;crc:$bb178f32),(n:'unico_zpscr_z08.bin';l:$200000;p:$600000;crc:$672f02e5),());
+
+implementation
+uses m68000,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,
+     ym_3812,oki6295;
+
+const
         burglarx_dip_a:array [0..2] of def_dip2=(
         (mask:$200;name:'Free Play';number:2;val2:($200,0);name2:('Off','On')),
         (mask:$800;name:'Demo Sounds';number:2;val2:($800,0);name2:('Off','On')),
@@ -31,15 +43,6 @@ const
         (mask:$800;name:'Energy';number:2;val2:(0,$800);name2:('2','3')),
         (mask:$3000;name:'Difficulty';number:4;val4:($2000,$3000,$1000,0);name4:('Easy','Normal','Hard','Hardest')),
         (mask:$c000;name:'Lives';number:4;val4:($8000,$c000,$4000,0);name4:('2','3','4','5')));
-        zeropnt_rom:array[0..1] of tipo_roms=(
-        (n:'unico_2.rom2';l:$80000;p:0;crc:$1e599509),(n:'unico_3.rom3';l:$80000;p:$1;crc:$588aeef7));
-        zeropnt_sprites:array[0..3] of tipo_roms=(
-        (n:'unico_zpobj_z01.bin';l:$200000;p:0;crc:$1f2768a3),(n:'unico_zpobj_z02.bin';l:$200000;p:$200000;crc:$de34f33a),
-        (n:'unico_zpobj_z03.bin';l:$200000;p:$400000;crc:$d7a657f7),(n:'unico_zpobj_z04.bin';l:$200000;p:$600000;crc:$3aec2f8d));
-        zeropnt_tiles:array[0..3] of tipo_roms=(
-        (n:'unico_zpscr_z06.bin';l:$200000;p:0;crc:$e1e53cf0),(n:'unico_zpscr_z05.bin';l:$200000;p:$200000;crc:$0d7d4850),
-        (n:'unico_zpscr_z07.bin';l:$200000;p:$400000;crc:$bb178f32),(n:'unico_zpscr_z08.bin';l:$200000;p:$600000;crc:$672f02e5));
-        zeropnt_oki:tipo_roms=(n:'unico_1.rom1';l:$80000;p:0;crc:$fd2384fa);
         zeropnt_dip_b:array [0..1] of def_dip2=(
         (mask:$3000;name:'Difficulty';number:4;val4:($2000,$3000,$1000,0);name4:('Easy','Normal','Hard','Hardest')),
         (mask:$c000;name:'Lives';number:4;val4:($8000,$c000,$4000,0);name4:('2','3','4','5')));
@@ -176,7 +179,6 @@ procedure unico_principal;
 var
   f:byte;
 begin
-init_controls(true,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 223 do begin
   eventos_unico;
@@ -257,7 +259,7 @@ begin
 case direccion of
     0..$fffff:zeropnt_getword:=rom[direccion shr 1];
     //Para que funcione bien, tengo que meterle la pistola por las dos entradas de los players...
-    //Ademas tengo que hacer que tiemble un poco para que funcione el disparo �?
+    //Ademas tengo que hacer que tiemble un poco para que funcione el disparo ¿?
     $800170:zeropnt_getword:=($80 xor scr_frame) shl 8; //P2 Y
     $800174:zeropnt_getword:=($80 xor scr_frame) shl 8; //P2 X
     $800178:zeropnt_getword:=(((raton.y+24) and $ff) xor scr_frame) shl 8; //P1 Y
@@ -321,6 +323,7 @@ begin
 llamadas_maquina.bucle_general:=unico_principal;
 llamadas_maquina.reset:=reset_unico;
 llamadas_maquina.scanlines:=224;
+init_mouse(true);
 iniciar_unico:=false;
 iniciar_audio(true);
 screen_init(1,1024,1024,true);

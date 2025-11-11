@@ -1,23 +1,20 @@
-unit pacman_hw;
+﻿unit pacman_hw;
+
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,namco_snd,controls_engine,gfx_engine,rom_engine,
-     misc_functions,pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_pacman:boolean;
-
-implementation
 
 const
         //Pacman
         pacman_rom:array[0..3] of tipo_roms=(
         (n:'pacman.6e';l:$1000;p:0;crc:$c1e6ab10),(n:'pacman.6f';l:$1000;p:$1000;crc:$1a6fb2d4),
         (n:'pacman.6h';l:$1000;p:$2000;crc:$bcdd1beb),(n:'pacman.6j';l:$1000;p:$3000;crc:$817d94e3));
-        pacman_pal:array[0..1] of tipo_roms=(
-        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'82s126.4a';l:$100;p:$20;crc:$3eb3a8e4));
         pacman_char:tipo_roms=(n:'pacman.5e';l:$1000;p:0;crc:$0c944964);
-        pacman_sound:tipo_roms=(n:'82s126.1m';l:$100;p:0;crc:$a9cc86bf);
-        pacman_sprites:tipo_roms=(n:'pacman.5f';l:$1000;p:0;crc:$958fedf9);
+        pacman_sprites:array[0..1] of tipo_roms=((n:'pacman.5f';l:$1000;p:0;crc:$958fedf9),());
+        pacman_sound:array[0..1] of tipo_roms=((n:'82s126.1m';l:$100;p:0;crc:$a9cc86bf),());
+        pacman_pal:array[0..2] of tipo_roms=(
+        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'82s126.4a';l:$100;p:$20;crc:$3eb3a8e4),());
         //MS-Pacman
         mspacman_rom:array[0..6] of tipo_roms=(
         (n:'pacman.6e';l:$1000;p:0;crc:$c1e6ab10),(n:'pacman.6f';l:$1000;p:$1000;crc:$1a6fb2d4),
@@ -25,41 +22,43 @@ const
         (n:'u5';l:$800;p:$8000;crc:$f45fbbcd),(n:'u6';l:$1000;p:$9000;crc:$a90e7000),
         (n:'u7';l:$1000;p:$b000;crc:$c82cd714));
         mspacman_char:tipo_roms=(n:'5e';l:$1000;p:0;crc:$5c281d01);
-        mspacman_sprites:tipo_roms=(n:'5f';l:$1000;p:0;crc:$615af909);
+        mspacman_sprites:array[0..1] of tipo_roms=((n:'5f';l:$1000;p:0;crc:$615af909),());
         //Crush Roller
         crush_rom:array[0..3] of tipo_roms=(
         (n:'crushkrl.6e';l:$1000;p:0;crc:$a8dd8f54),(n:'crushkrl.6f';l:$1000;p:$1000;crc:$91387299),
         (n:'crushkrl.6h';l:$1000;p:$2000;crc:$d4455f27),(n:'crushkrl.6j';l:$1000;p:$3000;crc:$d59fc251));
         crush_char:tipo_roms=(n:'maketrax.5e';l:$1000;p:0;crc:$91bad2da);
         crush_sprites:tipo_roms=(n:'maketrax.5f';l:$1000;p:0;crc:$aea79f55);
-        crush_pal:array[0..1] of tipo_roms=(
-        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'2s140.4a';l:$100;p:$20;crc:$63efb927));
+        crush_pal:array[0..2] of tipo_roms=(
+        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'2s140.4a';l:$100;p:$20;crc:$63efb927),());
         //Ms Pac Man Twin
         mspactwin_rom:tipo_roms=(n:'m27256.bin';l:$8000;p:0;crc:$77a99184);
         mspactwin_char:array[0..1] of tipo_roms=(
         (n:'4__2716.5d';l:$800;p:0;crc:$483c1d1c),(n:'2__2716.5g';l:$800;p:$800;crc:$c08d73a2));
         mspactwin_sprites:array[0..1] of tipo_roms=(
         (n:'3__2516.5f';l:$800;p:0;crc:$22b0188a),(n:'1__2516.5j';l:$800;p:$800;crc:$0a8c46a0));
-        mspactwin_pal:array[0..1] of tipo_roms=(
-        (n:'mb7051.8h';l:$20;p:0;crc:$ff344446),(n:'82s129.4a';l:$100;p:$20;crc:$a8202d0d));
+        mspactwin_sound:tipo_roms=(n:'mb7052.1k';l:$100;p:0;crc:$a9cc86bf);
+        mspactwin_pal:array[0..2] of tipo_roms=(
+        (n:'mb7051.8h';l:$20;p:0;crc:$ff344446),(n:'82s129.4a';l:$100;p:$20;crc:$a8202d0d),());
         //Birdiy
         birdiy_rom:array[0..3] of tipo_roms=(
         (n:'a6.6a';l:$1000;p:0;crc:$3a58f8ad),(n:'c6.6c';l:$1000;p:$1000;crc:$fec61ea2),
         (n:'a4.4a';l:$1000;p:$2000;crc:$3392783b),(n:'c4.4c';l:$1000;p:$3000;crc:$2391d83d));
-        birdiy_pal:array[0..1] of tipo_roms=(
-        (n:'n82s123n.10n';l:$20;p:0;crc:$ff344446),(n:'n82s129n.9m';l:$100;p:$20;crc:$63efb927));
         birdiy_char:tipo_roms=(n:'c1.1c';l:$1000;p:0;crc:$8f6bf54f);
         birdiy_sprites:tipo_roms=(n:'c3.3c';l:$1000;p:0;crc:$10b55440);
+        birdiy_sound:tipo_roms=(n:'n82s129n.4k';l:$100;p:0;crc:$a9cc86bf);
+        birdiy_pal:array[0..2] of tipo_roms=(
+        (n:'n82s123n.10n';l:$20;p:0;crc:$ff344446),(n:'n82s129n.9m';l:$100;p:$20;crc:$63efb927),());
         //Ponpoko
         ponpoko_rom:array[0..7] of tipo_roms=(
         (n:'ppokoj1.bin';l:$1000;p:0;crc:$ffa3c004),(n:'ppokoj2.bin';l:$1000;p:$1000;crc:$4a496866),
         (n:'ppokoj3.bin';l:$1000;p:$2000;crc:$17da6ca3),(n:'ppokoj4.bin';l:$1000;p:$3000;crc:$9d39a565),
         (n:'ppoko5.bin';l:$1000;p:$8000;crc:$54ca3d7d),(n:'ppoko6.bin';l:$1000;p:$9000;crc:$3055c7e0),
         (n:'ppoko7.bin';l:$1000;p:$a000;crc:$3cbe47ca),(n:'ppokoj8.bin';l:$1000;p:$b000;crc:$04b63fc6));
-        ponpoko_pal:array[0..1] of tipo_roms=(
-        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'82s126.4a';l:$100;p:$20;crc:$3eb3a8e4));
         ponpoko_char:tipo_roms=(n:'ppoko9.bin';l:$1000;p:0;crc:$b73e1a06);
         ponpoko_sprites:tipo_roms=(n:'ppoko10.bin';l:$1000;p:0;crc:$62069b5d);
+        ponpoko_pal:array[0..2] of tipo_roms=(
+        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'82s126.4a';l:$100;p:$20;crc:$3eb3a8e4),());
         //Woodpecker
         woodpeck_rom:array[0..4] of tipo_roms=(
         (n:'f.bin';l:$1000;p:0;crc:$37ea66ca),(n:'i.bin';l:$1000;p:$8000;crc:$cd115dba),
@@ -69,16 +68,17 @@ const
         (n:'pr.8h';l:$20;p:0;crc:$2fc650bd),(n:'pr.4a';l:$100;p:$20;crc:$d8772167));
         woodpeck_char:array[0..1] of tipo_roms=(
         (n:'a.5e';l:$800;p:0;crc:$15a87f62),(n:'c.5h';l:$800;p:$800;crc:$ab4abd88));
-        woodpeck_sprites:array[0..1] of tipo_roms=(
-        (n:'b.5f';l:$800;p:0;crc:$5b9ba95b),(n:'d.5j';l:$800;p:$800;crc:$d7b80a45));
+        woodpeck_sound:tipo_roms=(n:'pr.1k';l:$100;p:0;crc:$a9cc86bf);
+        woodpeck_sprites:array[0..2] of tipo_roms=(
+        (n:'b.5f';l:$800;p:0;crc:$5b9ba95b),(n:'d.5j';l:$800;p:$800;crc:$d7b80a45),());
         //Eyes
         eyes_rom:array[0..3] of tipo_roms=(
         (n:'d7';l:$1000;p:0;crc:$3b09ac89),(n:'e7';l:$1000;p:$1000;crc:$97096855),
         (n:'f7';l:$1000;p:$2000;crc:$731e294e),(n:'h7';l:$1000;p:$3000;crc:$22f7a719));
-        eyes_pal:array[0..1] of tipo_roms=(
-        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'82s129.4a';l:$100;p:$20;crc:$d8d78829));
         eyes_char:tipo_roms=(n:'d5';l:$1000;p:0;crc:$d6af0030);
         eyes_sprites:tipo_roms=(n:'e5';l:$1000;p:0;crc:$a42b5201);
+        eyes_pal:array[0..2] of tipo_roms=(
+        (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'82s129.4a';l:$100;p:$20;crc:$d8d78829),());
         //Alibaba
         alibaba_rom:array[0..5] of tipo_roms=(
         (n:'6e';l:$1000;p:0;crc:$38d701aa),(n:'6f';l:$1000;p:$1000;crc:$3d0e35f3),
@@ -88,8 +88,8 @@ const
         (n:'82s123.e7';l:$20;p:0;crc:$2fc650bd),(n:'82s129.a4';l:$100;p:$20;crc:$3eb3a8e4));
         alibaba_char:array[0..1] of tipo_roms=(
         (n:'5e';l:$800;p:0;crc:$85bcb8f8),(n:'5h';l:$800;p:$800;crc:$38e50862));
-        alibaba_sprites:array[0..1] of tipo_roms=(
-        (n:'5f';l:$800;p:0;crc:$b5715c86),(n:'5k';l:$800;p:$800;crc:$713086b3));
+        alibaba_sprites:array[0..2] of tipo_roms=(
+        (n:'5f';l:$800;p:0;crc:$b5715c86),(n:'5k';l:$800;p:$800;crc:$713086b3),());
         //Piranha
         piranha_rom:array[0..7] of tipo_roms=(
         (n:'pir1.7e';l:$800;p:0;crc:$69a3e6ea),(n:'pir5.6e';l:$800;p:$800;crc:$245e753f),
@@ -100,9 +100,14 @@ const
         (n:'82s123.7f';l:$20;p:0;crc:$2fc650bd),(n:'piranha.4a';l:$100;p:$20;crc:$08c9447b));
         piranha_char:array[0..1] of tipo_roms=(
         (n:'pir9.5e';l:$800;p:0;crc:$0f19eb28),(n:'pir11.5h';l:$800;p:$800;crc:$5f8bdabe));
-        piranha_sprites:array[0..1] of tipo_roms=(
-        (n:'pir10.5f';l:$800;p:0;crc:$d19399fb),(n:'pir12.5j';l:$800;p:$800;crc:$cfb4403d));
-        //DIP
+        piranha_sprites:array[0..2] of tipo_roms=(
+        (n:'pir10.5f';l:$800;p:0;crc:$d19399fb),(n:'pir12.5j';l:$800;p:$800;crc:$cfb4403d),());
+
+implementation
+uses nz80,main_engine,namco_snd,controls_engine,gfx_engine,misc_functions,
+     pal_engine,sound_engine,qsnapshot;
+
+const
         pacman_dip_a:array [0..4] of def_dip2=(
         (mask:3;name:'Coinage';number:4;val4:(3,1,2,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
         (mask:$c;name:'Lives';number:4;val4:(0,4,8,$c);name4:('1','2','3','5')),
@@ -292,12 +297,11 @@ procedure pacman_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     read_events;
     //Si no pinto la pantalla aqui, Ms Pac Man Twin no hace el efecto de la pantalla...
-    //Los timings del Z80 estan bien, supongo que es correcto (parece que no hay da�os colaterales!)
+    //Los timings del Z80 estan bien, supongo que es correcto (parece que no hay daños colaterales!)
     case f of
       96:update_video_pacman;
       224:if irq_vblank then z80_0.change_irq_vector(ASSERT_LINE,irq_vector);
@@ -912,7 +916,7 @@ case main_vars.tipo_maquina of
 		      memoria[$8001+(f*2)]:=BITSWAP8(memoria[$8001+(f*2)] xor $a3,2,4,6,3,7,0,5,1);
 	      end;
         //cargar sonido
-        if not(roms_load(namco_snd_0.get_wave_dir,pacman_sound)) then exit;
+        if not(roms_load(namco_snd_0.get_wave_dir,mspactwin_sound)) then exit;
         //convertir chars
         if not(roms_load(@memoria_temp,mspactwin_char)) then exit;
         conv_chars;
@@ -931,7 +935,7 @@ case main_vars.tipo_maquina of
         read_io:=birdiy_read_io;
         write_io:=birdiy_write_io;
         if not(roms_load(@memoria,birdiy_rom)) then exit;
-        if not(roms_load(namco_snd_0.get_wave_dir,pacman_sound)) then exit;
+        if not(roms_load(namco_snd_0.get_wave_dir,birdiy_sound)) then exit;
         if not(roms_load(@memoria_temp,birdiy_char)) then exit;
         conv_chars;
         if not(roms_load(@memoria_temp,birdiy_sprites)) then exit;
@@ -978,7 +982,7 @@ case main_vars.tipo_maquina of
         read_io:=birdiy_read_io;
         write_io:=pacman_write_io;
         if not(roms_load(@memoria,woodpeck_rom)) then exit;
-        if not(roms_load(namco_snd_0.get_wave_dir,pacman_sound)) then exit;
+        if not(roms_load(namco_snd_0.get_wave_dir,woodpeck_sound)) then exit;
         if not(roms_load(@memoria_temp,woodpeck_char)) then exit;
         decode_eyes;
         conv_chars;

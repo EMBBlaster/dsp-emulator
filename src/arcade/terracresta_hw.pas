@@ -1,13 +1,10 @@
-unit terracresta_hw;
+﻿unit terracresta_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2203,dac,rom_engine,
-     pal_engine,sound_engine,qsnapshot,timer_engine,nb1412_m2,ym_3812;
+uses rom_engine;
 
 function iniciar_terracre:boolean;
 
-implementation
 const
         terracre_rom:array[0..7] of tipo_roms=(
         (n:'1a_4b.rom';l:$4000;p:1;crc:$76f17479),(n:'1a_4d.rom';l:$4000;p:0;crc:$8119f06e),
@@ -23,20 +20,9 @@ const
         (n:'tc2a_15b.bin';l:$4000;p:0;crc:$790ddfa9),(n:'tc2a_17b.bin';l:$4000;p:$4000;crc:$d4531113));
         terracre_fondo:array[0..1] of tipo_roms=(
         (n:'1a_15f.rom';l:$8000;p:0;crc:$984a597f),(n:'1a_17f.rom';l:$8000;p:$8000;crc:$30e297ff));
-        terracre_sprites:array[0..3] of tipo_roms=(
+        terracre_sprites:array[0..4] of tipo_roms=(
         (n:'2a_6e.rom';l:$4000;p:0;crc:$bcf7740b),(n:'2a_7e.rom';l:$4000;p:$4000;crc:$a70b565c),
-        (n:'2a_6g.rom';l:$4000;p:$8000;crc:$4a9ec3e6),(n:'2a_7g.rom';l:$4000;p:$c000;crc:$450749fc));
-        terracre_dip:array [0..9] of def_dip2=(
-        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
-        (mask:$c;name:'Bonus Life';number:4;val4:($c,8,4,0);name4:('20K 60K+','30K 70K+','40K 80K+','50K 90K+')),
-        (mask:$10;name:'Demo Sounds';number:2;val2:(0,$10);name2:('Off','On')),
-        (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
-        (mask:$300;name:'Coin A';number:4;val4:($100,$300,$200,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
-        (mask:$c00;name:'Coin B';number:4;val4:(0,$400,$c00,$800);name4:('3C 1C','2C 3C','1C 3C','1C 6C')),
-        (mask:$1000;name:'Difficulty';number:2;val2:($1000,0);name2:('Easy','Hard')),
-        (mask:$2000;name:'Flip Screen';number:2;val2:($2000,0);name2:('Off','On')),
-        (mask:$4000;name:'Complete Invulnerability';number:2;val2:($4000,0);name2:('Off','On')),
-        (mask:$8000;name:'Base Ship Invulnerability';number:2;val2:($8000,0);name2:('Off','On')));
+        (n:'2a_6g.rom';l:$4000;p:$8000;crc:$4a9ec3e6),(n:'2a_7g.rom';l:$4000;p:$c000;crc:$450749fc),());
         //Amazon
         amazon_rom:array[0..3] of tipo_roms=(
         (n:'11.4d';l:$8000;p:0;crc:$6c7f85c5),(n:'9.4b';l:$8000;p:1;crc:$e1b7a989),
@@ -51,11 +37,29 @@ const
         amazon_sprites:array[0..3] of tipo_roms=(
         (n:'4.6e';l:$4000;p:0;crc:$f77ced7a),(n:'5.7e';l:$4000;p:$4000;crc:$16ef1465),
         (n:'6.6g';l:$4000;p:$8000;crc:$936ec941),(n:'7.7g';l:$4000;p:$c000;crc:$66dd718e));
-        amazon_pal:array[0..4] of tipo_roms=(
+        amazon_prot:tipo_roms=(n:'16.18g';l:$2000;p:0;crc:$1d8d592b);
+        amazon_pal:array[0..5] of tipo_roms=(
         (n:'clr.10f';l:$100;p:0;crc:$6440b341),(n:'clr.11f';l:$100;p:$100;crc:$271e947f),
         (n:'clr.12f';l:$100;p:$200;crc:$7d38621b),(n:'2g';l:$100;p:$300;crc:$44ca16b9),
-        (n:'4e';l:$100;p:$400;crc:$035f2c7b));
-        amazon_prot:tipo_roms=(n:'16.18g';l:$2000;p:0;crc:$1d8d592b);
+        (n:'4e';l:$100;p:$400;crc:$035f2c7b),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2203,dac,pal_engine,
+     sound_engine,qsnapshot,timer_engine,nb1412_m2,ym_3812;
+
+const
+        terracre_dip:array [0..9] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
+        (mask:$c;name:'Bonus Life';number:4;val4:($c,8,4,0);name4:('20K 60K+','30K 70K+','40K 80K+','50K 90K+')),
+        (mask:$10;name:'Demo Sounds';number:2;val2:(0,$10);name2:('Off','On')),
+        (mask:$20;name:'Cabinet';number:2;val2:(0,$20);name2:('Upright','Cocktail')),
+        (mask:$300;name:'Coin A';number:4;val4:($100,$300,$200,0);name4:('2C 1C','1C 1C','1C 2C','Free Play')),
+        (mask:$c00;name:'Coin B';number:4;val4:(0,$400,$c00,$800);name4:('3C 1C','2C 3C','1C 3C','1C 6C')),
+        (mask:$1000;name:'Difficulty';number:2;val2:($1000,0);name2:('Easy','Hard')),
+        (mask:$2000;name:'Flip Screen';number:2;val2:($2000,0);name2:('Off','On')),
+        (mask:$4000;name:'Complete Invulnerability';number:2;val2:($4000,0);name2:('Off','On')),
+        (mask:$8000;name:'Base Ship Invulnerability';number:2;val2:($8000,0);name2:('Off','On')));
+        //Amazon
         amazon_dip:array [0..9] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
         (mask:$c;name:'Bonus Life';number:4;val4:($c,8,4,0);name4:('20K 40K+','50K 40K+','20K 70K+','50K 70K+')),
@@ -126,25 +130,28 @@ end;
 procedure eventos_terracre;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff00;
+  marcade.in1:=$ffff;
+  marcade.in2:=$ffff;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ffdf;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fffe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fffd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fffb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fff7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ffef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $ffdf) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fffe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fffd;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fffb;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fff7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ffef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $ffdf;
   //SYSTEM
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fbff) else marcade.in0:=(marcade.in0 or $400);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $f7ff) else marcade.in0:=(marcade.in0 or $800);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $feff) else marcade.in0:=(marcade.in0 or $100);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fdff) else marcade.in0:=(marcade.in0 or $200);
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fbff;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $f7ff;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $feff;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fdff;
 end;
 end;
 
@@ -152,7 +159,6 @@ procedure terracre_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
   eventos_terracre;
@@ -232,8 +238,8 @@ end;
 procedure terracre_snd_outbyte(puerto:word;valor:byte);
 begin
 case (puerto and $ff) of
-  0:ym2203_0.Control(valor);
-  1:ym2203_0.Write(valor);
+  0:ym2203_0.control(valor);
+  1:ym2203_0.write(valor);
   2:dac_0.signed_data8_w(valor);
   3:dac_1.signed_data8_w(valor);
 end;
@@ -241,7 +247,7 @@ end;
 
 procedure terracre_sound_update;
 begin
-  ym2203_0.Update;
+  ym2203_0.update;
   dac_0.update;
   dac_1.update;
 end;

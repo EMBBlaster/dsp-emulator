@@ -1,11 +1,7 @@
-unit commodore64;
+﻿unit commodore64;
 {$DEFINE CIA_OLD}
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,controls_engine,sysutils,dialogs,misc_functions,
-     rom_engine,sound_engine,file_engine,m6502,mos6566,gfx_engine,
-     tape_window,sid_sound,cargar_dsk,forms,
-     {$IFDEF CIA_OLD}mos6526_old{$ELSE}mos6526{$ENDIF};
+uses forms,sysutils,dialogs,rom_engine;
 
 function iniciar_c64:boolean;
 //CPU
@@ -14,26 +10,37 @@ procedure c64_putbyte(direccion:word;valor:byte);
 var
     char_rom:array[0..$fff] of byte;
     color_ram:array[0..$3ff] of byte;
-    cia_nmi,cia_irq,vic_irq,tape_motor:boolean;
-    c64_keyboard,c64_keyboard_i:array[0..7] of byte;
-
-implementation
-uses tap_tzx,snapshot;
+    c64_keyboard_i,c64_keyboard:array[0..7] of byte;
 
 const
-  c64_kernel:tipo_roms=(n:'901227-03.u4';l:$2000;p:$0;crc:$dbe3e7c7);
-  c64_basic:tipo_roms=(n:'901226-01.u3';l:$2000;p:$0;crc:$f833d117);
-  c64_char:tipo_roms=(n:'901225-01.u5';l:$1000;p:0;crc:$ec4272ee);
+  c64_kernel:array [0..1] of tipo_roms=((n:'901227-03.u4';l:$2000;p:$0;crc:$dbe3e7c7),());
+  c64_basic:array [0..1] of tipo_roms=((n:'901226-01.u3';l:$2000;p:$0;crc:$f833d117),());
+  c64_char:array [0..1] of tipo_roms=((n:'901225-01.u5';l:$1000;p:0;crc:$ec4272ee),());
+
+implementation
+uses tap_tzx,snapshot,main_engine,controls_engine,misc_functions,
+     sound_engine,file_engine,m6502,mos6566,gfx_engine,tape_window,sid_sound,
+     cargar_dsk,timer_engine,{$IFDEF CIA_OLD}mos6526_old{$ELSE}mos6526{$ENDIF};
+
 var
   kernel_rom,basic_rom:array[0..$1fff] of byte;
   tape_control,port_bits,port_val:byte;
   write_ram:boolean;
   read_ram_a,read_ram_e:boolean;
   read_ram_d:byte;
+  key_timer,key_pos:byte;
+  cia_nmi,cia_irq,vic_irq,tape_motor:boolean;
 
 procedure eventos_c64;
 begin
 if event.arcade then begin
+  if keyboard[KEYBOARD_F1] then begin
+      if cinta_tzx.cargada then begin
+        if cinta_tzx.play_tape then tape_window1.fStopCinta(nil)
+          else tape_window1.fPlayCinta(nil);
+      end;
+      keyboard[KEYBOARD_F1]:=false;
+  end;
   //P1
   if arcade_input.up[0] then mos6526_0.joystick1:=(mos6526_0.joystick1 and $fe) else mos6526_0.joystick1:=(mos6526_0.joystick1 or 1);
   if arcade_input.down[0] then mos6526_0.joystick1:=(mos6526_0.joystick1 and $fd) else mos6526_0.joystick1:=(mos6526_0.joystick1 or 2);
@@ -46,15 +53,6 @@ if event.arcade then begin
   if arcade_input.left[1] then mos6526_0.joystick2:=(mos6526_0.joystick2 and $fb) else mos6526_0.joystick2:=(mos6526_0.joystick2 or 4);
   if arcade_input.right[1] then mos6526_0.joystick2:=(mos6526_0.joystick2 and $f7) else mos6526_0.joystick2:=(mos6526_0.joystick2 or 8);
   if arcade_input.but0[1] then mos6526_0.joystick2:=(mos6526_0.joystick2 and $ef) else mos6526_0.joystick2:=(mos6526_0.joystick2 or $10);
-end;
-if event.keyboard then begin
-  if keyboard[KEYBOARD_F1] then begin
-      if cinta_tzx.cargada then begin
-        if cinta_tzx.play_tape then tape_window1.fStopCinta(nil)
-          else tape_window1.fPlayCinta(nil);
-      end;
-      keyboard[KEYBOARD_F1]:=false;
-  end;
   //Line 0
   if keyboard[KEYBOARD_BACKSPACE] then c64_keyboard[0]:=(c64_keyboard[0] and $fe) else c64_keyboard[0]:=(c64_keyboard[0] or $1);
   if keyboard[KEYBOARD_RETURN] then c64_keyboard[0]:=(c64_keyboard[0] and $fd) else c64_keyboard[0]:=(c64_keyboard[0] or $2);
@@ -145,15 +143,12 @@ end;
 procedure c64_principal;
 var
   f:word;
-  frame:single;
 begin
-init_controls(false,false,false,true);
-frame:=0;
 while EmuStatus=EsRunning do begin
  for f:=0 to 311 do begin
-    frame:=frame+mos6566_0.update(f);
-    m6502_0.run(frame);
-    frame:=frame-m6502_0.contador;
+    frame_main:=mos6566_0.update(f);
+    m6502_0.run(frame_main);
+    frame_main:=frame_main-m6502_0.contador;
     if ((f>15) and (f<286)) then putpixel(0,f-16,384,punbuf,1);
  end;
  actualiza_trozo(0,0,384,284,1,0,0,384,284,PANT_TEMP);
@@ -348,24 +343,22 @@ begin
 end;
 
 procedure c64_reset;
-var
-  f:byte;
 begin
 //SIEMPRE ESTO PRIMERO PARA PONER LOS VALORES DE RESET DE LA CPU!!!
 port_bits:=$ef;
 port_val:=$ef;
 actualiza_mem;
 m6502_0.reset;
+frame_main:=m6502_0.tframes;
 mos6526_0.reset;
 {$IFDEF CIA_OLD}
 mos6526_1.reset;
 {$ENDIF}
 mos6566_0.reset;
 sid_0.reset;
-for f:=0 to 7 do begin
-  c64_keyboard[f]:=$ff;
-  c64_keyboard_i[f]:=$ff;
-end;
+fillchar(c64_keyboard[0],8,$ff);
+fillchar(c64_keyboard_i[0],8,$ff);
+fillchar(memoria[0],$10000,0);
 tape_control:=$10;
 vic_irq:=false;
 cia_irq:=false;
@@ -375,6 +368,7 @@ write_ram:=false;
 read_ram_a:=false;
 read_ram_e:=false;
 read_ram_d:=2;
+key_pos:=0;
 end;
 
 procedure c64_tape_start;
@@ -401,6 +395,17 @@ end;
 procedure c64_loaddisk;
 begin
 load_dsk.showmodal;
+end;
+
+procedure key_press;
+const
+  run_key:array[0..10] of word=($05fb,$05ff,$04bf,$04ff,$01fb,$01ff,$02fb,$02ff,$00fd,$00ff,$ffff);
+begin
+c64_keyboard[run_key[key_pos] shr 8]:=run_key[key_pos] and $ff;
+if run_key[key_pos]=$ffff then begin
+  timers.enabled(key_timer,false);
+  key_pos:=0;
+end else key_pos:=key_pos+1;
 end;
 
 procedure c64_tapes;
@@ -438,6 +443,7 @@ begin
         tape_window1.BitBtn2.Enabled:=false;
         cinta_tzx.play_tape:=false;
         cadena:=extension+': '+nombre_file;
+        if main_vars.auto_type then timers.enabled(key_timer,true);
      end else begin
         MessageDlg('Error cargando cinta/WAV.'+chr(10)+chr(13)+'Error loading tape/WAV.', mtInformation,[mbOk], 0);
         cadena:='';
@@ -503,6 +509,7 @@ begin
   iniciar_c64:=true;
   cinta_tzx.tape_start:=c64_tape_start;
   cinta_tzx.tape_stop:=c64_tape_stop;
+  key_timer:=timers.init(m6502_0.numero_cpu,100000,key_press,nil,false);
 end;
 
 end.

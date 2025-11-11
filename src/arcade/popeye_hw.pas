@@ -1,13 +1,10 @@
-unit popeye_hw;
+﻿unit popeye_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,
-     misc_functions,pal_engine,sound_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_popeye:boolean;
 
-implementation
 const
         popeye_rom:array[0..3] of tipo_roms=(
         (n:'tpp2-c_f.7a';l:$2000;p:0;crc:$9af7c821),(n:'tpp2-c_f.7b';l:$2000;p:$2000;crc:$c3704958),
@@ -16,9 +13,9 @@ const
         (n:'tpp2-c.4a';l:$20;p:0;crc:$375e1602),(n:'tpp2-c.3a';l:$20;p:$20;crc:$e950bea1),
         (n:'tpp2-c.5b';l:$100;p:$40;crc:$c5826883),(n:'tpp2-c.5a';l:$100;p:$140;crc:$c576afba));
         popeye_char:tipo_roms=(n:'tpp2-v.5n';l:$1000;p:0;crc:$cca61ddd);
-        popeye_sprites:array[0..3] of tipo_roms=(
+        popeye_sprites:array[0..4] of tipo_roms=(
         (n:'tpp2-v.1e';l:$2000;p:0;crc:$0f2cd853),(n:'tpp2-v.1f';l:$2000;p:$2000;crc:$888f3474),
-        (n:'tpp2-v.1j';l:$2000;p:$4000;crc:$7e864668),(n:'tpp2-v.1k';l:$2000;p:$6000;crc:$49e1d170));
+        (n:'tpp2-v.1j';l:$2000;p:$4000;crc:$7e864668),(n:'tpp2-v.1k';l:$2000;p:$6000;crc:$49e1d170),());
         skyskipper_rom:array[0..6] of tipo_roms=(
         (n:'tnx1-c.2a';l:$1000;p:0;crc:$bdc7f218),(n:'tnx1-c.2b';l:$1000;p:$1000;crc:$cbe601a8),
         (n:'tnx1-c.2c';l:$1000;p:$2000;crc:$5ca79abf),(n:'tnx1-c.2d';l:$1000;p:$3000;crc:$6b7a7071),
@@ -28,10 +25,15 @@ const
         (n:'tnx1-t.4a';l:$20;p:0;crc:$98846924),(n:'tnx1-t.1a';l:$20;p:$20;crc:$c2bca435),
         (n:'tnx1-t.3a';l:$100;p:$40;crc:$8abf9de4),(n:'tnx1-t.2a';l:$100;p:$140;crc:$aa7ff322));
         skyskipper_char:tipo_roms=(n:'tnx1-v.3h';l:$800;p:0;crc:$ecb6a046);
-        skyskipper_sprites:array[0..3] of tipo_roms=(
+        skyskipper_sprites:array[0..4] of tipo_roms=(
         (n:'tnx1-t.1e';l:$1000;p:0;crc:$01c1120e),(n:'tnx1-t.2e';l:$1000;p:$1000;crc:$70292a71),
-        (n:'tnx1-t.3e';l:$1000;p:$2000;crc:$92b6a0e8),(n:'tnx1-t.5e';l:$1000;p:$3000;crc:$cc5f0ac3));
-        //Dip
+        (n:'tnx1-t.3e';l:$1000;p:$2000;crc:$92b6a0e8),(n:'tnx1-t.5e';l:$1000;p:$3000;crc:$cc5f0ac3),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,ay_8910,misc_functions,
+     pal_engine,sound_engine,qsnapshot;
+
+const
         popeye_dip_a:array [0..1] of def_dip2=(
         (mask:$f;name:'Coinage';number:16;val16:(8,5,9,$a,$d,$f,$e,3,0,1,2,4,6,7,$b,$c);name16:('6C 1C','5C 1C','4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','Freeplay','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid','Invalid')),
         (mask:$60;name:'Copyright';number:4;val4:($40,$20,$60,0);name4:('Nintendo','Nintendo Co.,Ltd','Nintendo of America','')));
@@ -158,16 +160,11 @@ begin
    fondo_write:=true;
 end;
 var
-  frame:single;
   f,tempw:word;
 begin
-init_controls(false,false,false,true);
-frame:=z80_0.tframes;
 while EmuStatus=EsRunning do begin
   for f:=0 to 511 do begin
-      z80_0.run(frame);
-      frame:=frame+z80_0.tframes-z80_0.contador;
-      if f=479 then begin
+      if f=480 then begin
           update_video_popeye_hw;
           if nmi_enabled then z80_0.change_nmi(ASSERT_LINE);
           field:=field xor $10;
@@ -188,6 +185,8 @@ while EmuStatus=EsRunning do begin
             cambiar_paleta((palette_bank shr 3) and 1);
           end;
       end;
+      z80_0.run(frame_main);
+      frame_main:=frame_main+z80_0.tframes-z80_0.contador;
   end;
   eventos_popeye;
   video_sync;
@@ -429,6 +428,7 @@ procedure reset_popeye;
 begin
  z80_0.reset;
  ay8910_0.reset;
+ frame_main:=z80_0.tframes;
  marcade.in0:=0;
  marcade.in1:=0;
  marcade.in2:=0;

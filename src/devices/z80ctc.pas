@@ -1,23 +1,22 @@
-unit z80ctc;
+﻿unit z80ctc;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-      z80daisy,timer_engine,main_engine,cpu_misc;
+uses main_engine,cpu_misc;
 
 function ctc0_irq_state:byte;
 function ctc0_irq_ack:byte;
 procedure ctc0_irq_reti;
 
 const
-  NOTIMER_0=(1 shl 0);
-  NOTIMER_1=(1 shl 1);
-  NOTIMER_2=(1 shl 2);
-  NOTIMER_3=(1 shl 3);
   CTC0_TRG00=0;
   CTC0_TRG01=1;
   CTC0_TRG02=2;
   CTC0_TRG03=3;
   CTC0_NONE=4;
+  NOTIMER_0=(1 shl 0);
+  NOTIMER_1=(1 shl 1);
+  NOTIMER_2=(1 shl 2);
+  NOTIMER_3=(1 shl 3);
 
 type
   zc_call=procedure(state:boolean);
@@ -64,6 +63,8 @@ var
   ctc_0:tz80ctc;
 
 implementation
+uses timer_engine,z80daisy;
+
 const
   INTERRUPT			= $80;
   INTERRUPT_ON		= $80;

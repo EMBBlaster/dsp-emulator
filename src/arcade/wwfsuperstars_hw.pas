@@ -1,37 +1,39 @@
 unit wwfsuperstars_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,rom_engine,
-     pal_engine,sound_engine,oki6295;
+uses rom_engine;
 
 function iniciar_wwfsstar:boolean;
 
-implementation
 const
         wwfsstar_rom:array[0..1] of tipo_roms=(
-        (n:'24ac-0_j-1.34';l:$20000;p:0;crc:$ec8fd2c9),(n:'24ad-0_j-1.35';l:$20000;p:$1;crc:$54e614e4));
+        (n:'24ac-0_j-1.34';l:$20000;p:0;crc:$ec8fd2c9),(n:'24ad-0_j-1.35';l:$20000;p:1;crc:$54e614e4));
         wwfsstar_sound:tipo_roms=(n:'24ab-0.12';l:$8000;p:0;crc:$1e44f8aa);
         wwfsstar_oki:array[0..1] of tipo_roms=(
         (n:'24a9-0.46';l:$20000;p:0;crc:$703ff08f),(n:'24j8-0.45';l:$20000;p:$20000;crc:$61138487));
         wwfsstar_char:tipo_roms=(n:'24aa-0_j.58';l:$20000;p:0;crc:$b9201b36);
         wwfsstar_sprites:array[0..5] of tipo_roms=(
         (n:'c951.114';l:$80000;p:0;crc:$fa76d1f0),(n:'24j4-0.115';l:$40000;p:$80000;crc:$c4a589a3),
-        (n:'24j5-0.116';l:$40000;p:$0c0000;crc:$d6bca436),(n:'c950.117';l:$80000;p:$100000;crc:$cca5703d),
+        (n:'24j5-0.116';l:$40000;p:$c0000;crc:$d6bca436),(n:'c950.117';l:$80000;p:$100000;crc:$cca5703d),
         (n:'24j2-0.118';l:$40000;p:$180000;crc:$dc1b7600),(n:'24j3-0.119';l:$40000;p:$1c0000;crc:$3ba12d43));
-        wwfsstar_bg:array[0..1] of tipo_roms=(
-        (n:'24j7-0.113';l:$40000;p:0;crc:$e0a1909e),(n:'24j6-0.112';l:$40000;p:$40000;crc:$77932ef8));
-        //DIP
-        wwfsstar_dip_a:array [0..3] of def_dip=(
-        (mask:$7;name:'Coin A';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$1;dip_name:'3C 1C'),(dip_val:$2;dip_name:'2C 1C'),(dip_val:$7;dip_name:'1C 1C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$5;dip_name:'1C 3C'),(dip_val:$4;dip_name:'1C 4C'),(dip_val:$3;dip_name:'1C 5C'),(),(),(),(),(),(),(),())),
-        (mask:$38;name:'Coin B';number:8;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$8;dip_name:'3C 1C'),(dip_val:$10;dip_name:'2C 1C'),(dip_val:$38;dip_name:'1C 1C'),(dip_val:$30;dip_name:'1C 2C'),(dip_val:$28;dip_name:'1C 3C'),(dip_val:$20;dip_name:'1C 4C'),(dip_val:$18;dip_name:'1C 5C'),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Flip Screen';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        wwfsstar_dip_b:array [0..5] of def_dip=(
-        (mask:$3;name:'Difficulty';number:4;dip:((dip_val:$1;dip_name:'Easy'),(dip_val:$3;dip_name:'Normal'),(dip_val:$2;dip_name:'Hard'),(dip_val:$0;dip_name:'Hardest'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Demo Sounds';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$4;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$8;name:'Super Techniques';number:2;dip:((dip_val:$8;dip_name:'Normal'),(dip_val:$0;dip_name:'Hard'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$30;name:'Time';number:4;dip:((dip_val:$20;dip_name:'+2:30'),(dip_val:$30;dip_name:'Default'),(dip_val:$10;dip_name:'-2:30'),(dip_val:$0;dip_name:'-5:00'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Health for Winning';number:2;dip:((dip_val:$80;dip_name:'No'),(dip_val:$0;dip_name:'Yes'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        wwfsstar_bg:array[0..2] of tipo_roms=(
+        (n:'24j7-0.113';l:$40000;p:0;crc:$e0a1909e),(n:'24j6-0.112';l:$40000;p:$40000;crc:$77932ef8),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ym_2151,pal_engine,
+     sound_engine,oki6295;
+
+const
+        wwfsstar_dip_a:array [0..2] of def_dip2=(
+        (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
+        (mask:$38;name:'Coin B';number:8;val8:(0,8,$10,$38,$30,$28,$20,$18);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
+        (mask:$80;name:'Flip Screen';number:2;val2:($80,0);name2:('Off','On')));
+        wwfsstar_dip_b:array [0..4] of def_dip2=(
+        (mask:3;name:'Difficulty';number:4;val4:(1,3,2,0);name4:('Easy','Normal','Hard','Hardest')),
+        (mask:4;name:'Demo Sounds';number:2;val2:(0,4);name2:('Off','On')),
+        (mask:8;name:'Super Techniques';number:2;val2:(8,0);name2:('Normal','Hard')),
+        (mask:$30;name:'Time';number:4;val4:($20,$30,$10,0);name4:('+2:30','Default','-2:30','-5:00')),
+        (mask:$80;name:'Health for Winning';number:2;val2:($80,0);name2:('No','Yes')));
 
 var
  scroll_x,scroll_y:word;
@@ -47,15 +49,15 @@ var
   flipx,flipy:boolean;
 begin
 //background
-for f:=$0 to $3ff do begin
+for f:=0 to $3ff do begin
   x:=f and $1f;
   y:=f shr 5;
-  pos:=(x and $0f)+((y and $0f) shl 4)+((x and $10) shl 4)+((y and $10) shl 5);
+  pos:=(x and $f)+((y and $f) shl 4)+((x and $10) shl 4)+((y and $10) shl 5);
   atrib:=(bg_ram[pos*2] and $ff) shr 4;
-  color:=atrib and $7;
+  color:=atrib and 7;
   if (gfx[1].buffer[pos] or buffer_color[color+$10]) then begin
     nchar:=(bg_ram[(pos*2)+1] and $ff) or ((bg_ram[pos*2] and $f) shl 8);
-    put_gfx_trans_flip(x*16,y*16,nchar,(color shl 4)+256,3,1,(atrib and $8)<>0,false);
+    put_gfx_trans_flip(x*16,y*16,nchar,(color shl 4)+256,3,1,(atrib and 8)<>0,false);
     gfx[1].buffer[pos]:=false;
   end;
   //text
@@ -71,16 +73,16 @@ scroll_x_y(3,2,scroll_x,scroll_y);
 for f:=0 to $65 do begin
 atrib:=buffer_sprites_w[(f*5)+1];
 if (atrib and 1)<>0 then begin
-  y:=(buffer_sprites_w[f*5] and $00ff) or ((atrib and $0004) shl 6);
+  y:=(buffer_sprites_w[f*5] and $ff) or ((atrib and 4) shl 6);
   y:=(((256-y) and $1ff)-32);
-  x:=(buffer_sprites_w[(f*5)+4] and $00ff) or ((atrib and $0008) shl 5);
+  x:=(buffer_sprites_w[(f*5)+4] and $ff) or ((atrib and 8) shl 5);
   x:=(((256-x) and $1ff)-16);
   atrib2:=buffer_sprites_w[(f*5)+2];
-  flipx:=(atrib2 and $0080)<>0;
-  flipy:=(atrib2 and $0040)<>0;
-  nchar:=(buffer_sprites_w[(f*5)+3] and $00ff) or ((atrib2 and $003f) shl 8);
-  color:=atrib and $00f0;
-  if (atrib and $0002)<>0 then begin //16x32
+  flipx:=(atrib2 and $80)<>0;
+  flipy:=(atrib2 and $40)<>0;
+  nchar:=(buffer_sprites_w[(f*5)+3] and $ff) or ((atrib2 and $3f) shl 8);
+  color:=atrib and $f0;
+  if (atrib and 2)<>0 then begin //16x32
     nchar:=nchar and $3ffe;
     if flipy then a:=16
       else a:=0;
@@ -101,25 +103,28 @@ end;
 procedure eventos_wwfsstar;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$fe or (marcade.in2 and 1);
   //p1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $7f;
   //p2
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.start[1] then marcade.in1:=(marcade.in1 and $7f) else marcade.in1:=(marcade.in1 or $80);
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.start[1] then marcade.in1:=marcade.in1 and $7f;
   //system
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or $4);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fb;
 end;
 end;
 
@@ -127,7 +132,6 @@ procedure wwfsstar_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to 271 do begin
     eventos_wwfsstar;
@@ -156,8 +160,8 @@ function wwfsstar_getword(direccion:dword):word;
 begin
 case direccion of
     0..$3ffff:wwfsstar_getword:=rom[direccion shr 1];
-    $080000..$080fff:wwfsstar_getword:=fg_ram[(direccion and $fff) shr 1];
-    $0c0000..$0c0fff:wwfsstar_getword:=bg_ram[(direccion and $fff) shr 1];
+    $80000..$80fff:wwfsstar_getword:=fg_ram[(direccion and $fff) shr 1];
+    $c0000..$c0fff:wwfsstar_getword:=bg_ram[(direccion and $fff) shr 1];
     $100000..$1003ff:wwfsstar_getword:=buffer_sprites_w[(direccion and $3ff) shr 1];
     $180000..$180001:wwfsstar_getword:=marcade.dswa;
     $180002..$180003:wwfsstar_getword:=marcade.dswb;
@@ -178,8 +182,8 @@ begin
   color.r:=pal4bit(data);
   set_pal_color(color,pos);
   case pos of
-    $000..$0ff:buffer_color[pos shr 4]:=true;
-    $100..$1ff:buffer_color[((pos shr 4) and $7)+$10]:=true;
+    0..$ff:buffer_color[pos shr 4]:=true;
+    $100..$1ff:buffer_color[((pos shr 4) and 7)+$10]:=true;
   end;
 end;
 begin
@@ -316,10 +320,8 @@ gfx[2].trans[0]:=true;
 gfx_set_desc_data(4,0,64*8,$100000*8+0,$100000*8+4,0,4);
 convert_gfx(2,0,memoria_temp,@ps_x,@ps_y,false,false);
 //DIP
-marcade.dswa:=$ff;
-marcade.dswa_val:=@wwfsstar_dip_a;
-marcade.dswb:=$ff;
-marcade.dswb_val:=@wwfsstar_dip_b;
+init_dips(1,wwfsstar_dip_a,$ff);
+init_dips(2,wwfsstar_dip_b,$ff);
 //final
 freemem(memoria_temp);
 iniciar_wwfsstar:=true;

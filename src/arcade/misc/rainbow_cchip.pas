@@ -1,8 +1,7 @@
 unit rainbow_cchip;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$else}main_engine,{$ENDIF}
-     timer_engine,controls_engine;
+uses main_engine,timer_engine,controls_engine;
 
 const
   cram_bank1:array[0..320] of byte=(

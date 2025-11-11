@@ -1,9 +1,7 @@
 unit x1_010;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     {$ifndef windows}main_engine,{$endif}
-     sound_engine,timer_engine,dialogs;
+uses main_engine,sound_engine,timer_engine,dialogs;
 
 const
   VOL_BASE=(2*32*256/30);

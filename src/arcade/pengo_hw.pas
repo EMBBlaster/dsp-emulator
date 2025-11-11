@@ -1,13 +1,10 @@
 unit pengo_hw;
-interface
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,namco_snd,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,sega_decrypt;
+interface
+uses rom_engine;
 
 function iniciar_pengo:boolean;
 
-implementation
 const
         pengo_rom:array[0..7] of tipo_roms=(
         (n:'ep1689c.8';l:$1000;p:0;crc:$f37066a8),(n:'ep1690b.7';l:$1000;p:$1000;crc:$baf48143),
@@ -17,8 +14,14 @@ const
         pengo_pal:array[0..1] of tipo_roms=(
         (n:'pr1633.78';l:$20;p:0;crc:$3a5844ec),(n:'pr1634.88';l:$400;p:$20;crc:$766b139b));
         pengo_sound:tipo_roms=(n:'pr1635.51';l:$100;p:0;crc:$c29dea27);
-        pengo_sprites:array[0..1] of tipo_roms=(
-        (n:'ep1640.92';l:$2000;p:$0;crc:$d7eec6cd),(n:'ep1695.105';l:$2000;p:$4000;crc:$5bfd26e9));
+        pengo_sprites:array[0..2] of tipo_roms=(
+        (n:'ep1640.92';l:$2000;p:$0;crc:$d7eec6cd),(n:'ep1695.105';l:$2000;p:$4000;crc:$5bfd26e9),());
+
+implementation
+uses nz80,main_engine,namco_snd,controls_engine,gfx_engine,pal_engine,
+     sound_engine,sega_decrypt;
+
+const
         pengo_dip_a:array [0..6] of def_dip=(
         (mask:$1;name:'Bonus Life';number:2;dip:((dip_val:$0;dip_name:'30K'),(dip_val:$1;dip_name:'50K'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
         (mask:$2;name:'Demo Sounds';number:2;dip:((dip_val:$2;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
@@ -29,6 +32,7 @@ const
         pengo_dip_b:array [0..2] of def_dip=(
         (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$08;dip_name:'3C 1C'),(dip_val:$04;dip_name:'2C 1C'),(dip_val:$09;dip_name:'2C 1C/5C 3C'),(dip_val:$05;dip_name:'2C 1C/4C 3C'),(dip_val:$0c;dip_name:'1C 1C'),(dip_val:$0d;dip_name:'1C 1C/5C 6C'),(dip_val:$03;dip_name:'1C 1C/4C 5C'),(dip_val:$0b;dip_name:'1C 2C/2C 3C'),(dip_val:$02;dip_name:'1C 2C'),(dip_val:$07;dip_name:'1C 2C/5C 11C'),(dip_val:$0f;dip_name:'1C 3C/4C 9C'),(dip_val:$0a;dip_name:'1C 3C'),(dip_val:$06;dip_name:'1C 4C'),(dip_val:$0e;dip_name:'1C 5C'),(dip_val:$01;dip_name:'1C 6C'))),
         (mask:$f0;name:'Coin B';number:16;dip:((dip_val:$0;dip_name:'4C 1C'),(dip_val:$80;dip_name:'3C 1C'),(dip_val:$40;dip_name:'2C 1C'),(dip_val:$90;dip_name:'2C 1C/5C 3C'),(dip_val:$50;dip_name:'2C 1C/4C 3C'),(dip_val:$c0;dip_name:'1C 1C'),(dip_val:$d0;dip_name:'1C 1C/5C 6C'),(dip_val:$30;dip_name:'1C 1C/4C 5C'),(dip_val:$b0;dip_name:'1C 2C/2C 3C'),(dip_val:$20;dip_name:'1C 2C'),(dip_val:$70;dip_name:'1C 2C/5C 11C'),(dip_val:$f0;dip_name:'1C 3C/4C 9C'),(dip_val:$a0;dip_name:'1C 3C'),(dip_val:$60;dip_name:'1C 4C'),(dip_val:$e0;dip_name:'1C 5C'),(dip_val:$10;dip_name:'1C 6C'))),());
+
 var
  irq_enable:boolean;
  rom_opcode:array[0..$7fff] of byte;
@@ -87,7 +91,6 @@ procedure pengo_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_pengo;

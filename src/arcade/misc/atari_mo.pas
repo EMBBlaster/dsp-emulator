@@ -1,8 +1,7 @@
 unit atari_mo;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     gfx_engine;
+uses gfx_engine,main_engine;
 
 const
   MAX_PER_BANK=1024;

@@ -1,7 +1,7 @@
 unit taito_tc0180vcu;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}main_engine,gfx_engine;
+uses main_engine,gfx_engine;
 
 type
   tc0180vcu_chip=class

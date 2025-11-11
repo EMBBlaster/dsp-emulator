@@ -1,7 +1,7 @@
 unit nb1412_m2;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}dialogs,sysutils;
+uses dialogs,sysutils;
 
 type
   tnb1412_m2=class

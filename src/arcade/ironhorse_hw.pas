@@ -1,38 +1,40 @@
-unit ironhorse_hw;
+﻿unit ironhorse_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,main_engine,controls_engine,gfx_engine,ym_2203,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_ironhorse:boolean;
 
-implementation
 const
         ironhorse_rom:array[0..1] of tipo_roms=(
         (n:'560_k03.13c';l:$8000;p:$4000;crc:$395351b4),(n:'560_k02.12c';l:$4000;p:$c000;crc:$1cff3d59));
         ironhorse_snd:tipo_roms=(n:'560_h01.10c';l:$4000;p:0;crc:$2b17930f);
         ironhorse_gfx:array[0..3] of tipo_roms=(
-        (n:'560_h06.08f';l:$8000;p:0;crc:$f21d8c93),(n:'560_h05.07f';l:$8000;p:$1;crc:$60107859),
+        (n:'560_h06.08f';l:$8000;p:0;crc:$f21d8c93),(n:'560_h05.07f';l:$8000;p:1;crc:$60107859),
         (n:'560_h07.09f';l:$8000;p:$10000;crc:$c761ec73),(n:'560_h04.06f';l:$8000;p:$10001;crc:$c1486f61));
-        ironhorse_pal:array[0..4] of tipo_roms=(
+        ironhorse_pal:array[0..5] of tipo_roms=(
         (n:'03f_h08.bin';l:$100;p:0;crc:$9f6ddf83),(n:'04f_h09.bin';l:$100;p:$100;crc:$e6773825),
         (n:'05f_h10.bin';l:$100;p:$200;crc:$30a57860),(n:'10f_h12.bin';l:$100;p:$300;crc:$5eb33e73),
-        (n:'10f_h11.bin';l:$100;p:$400;crc:$a63e37d8));
-        //Dip
-        ironhorse_dip_a:array [0..2] of def_dip=(
-        (mask:$0f;name:'Coin A';number:16;dip:((dip_val:$2;dip_name:'4C 1C'),(dip_val:$5;dip_name:'3C 1C'),(dip_val:$8;dip_name:'2C 1C'),(dip_val:$4;dip_name:'3C 2C'),(dip_val:$1;dip_name:'4C 3C'),(dip_val:$f;dip_name:'1C 1C'),(dip_val:$3;dip_name:'3C 4C'),(dip_val:$7;dip_name:'2C 3C'),(dip_val:$e;dip_name:'1C 2C'),(dip_val:$6;dip_name:'2C 5C'),(dip_val:$d;dip_name:'1C 3C'),(dip_val:$c;dip_name:'1C 4C'),(dip_val:$b;dip_name:'1C 5C'),(dip_val:$a;dip_name:'1C 6C'),(dip_val:$9;dip_name:'1C 7C'),(dip_val:$0;dip_name:'Free Play'))),
-        (mask:$f0;name:'Coin B';number:15;dip:((dip_val:$20;dip_name:'4C 1C'),(dip_val:$50;dip_name:'3C 1C'),(dip_val:$80;dip_name:'2C 1C'),(dip_val:$40;dip_name:'3C 2C'),(dip_val:$10;dip_name:'4C 3C'),(dip_val:$f0;dip_name:'1C 1C'),(dip_val:$30;dip_name:'3C 4C'),(dip_val:$70;dip_name:'2C 3C'),(dip_val:$e0;dip_name:'1C 2C'),(dip_val:$60;dip_name:'2C 5C'),(dip_val:$d0;dip_name:'1C 3C'),(dip_val:$c0;dip_name:'1C 4C'),(dip_val:$b0;dip_name:'1C 5C'),(dip_val:$a0;dip_name:'1C 6C'),(dip_val:$90;dip_name:'1C 7C'),(dip_val:$0;dip_name:'No Coin B'))),());
-        ironhorse_dip_b:array [0..5] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:$3;dip_name:'2'),(dip_val:$2;dip_name:'3'),(dip_val:$1;dip_name:'5'),(dip_val:$0;dip_name:'7'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$4;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$18;name:'Bonus Life';number:4;dip:((dip_val:$18;dip_name:'30K 70K+'),(dip_val:$10;dip_name:'40K 80K+'),(dip_val:$8;dip_name:'40K'),(dip_val:$0;dip_name:'50K'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$60;name:'Difficulty';number:4;dip:((dip_val:$60;dip_name:'Easy'),(dip_val:$40;dip_name:'Normal'),(dip_val:$20;dip_name:'Difficult'),(dip_val:$0;dip_name:'Very Difficult'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Demo Sounds';number:2;dip:((dip_val:$80;dip_name:'Off'),(dip_val:$0;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
-        ironhorse_dip_c:array [0..3] of def_dip=(
-        (mask:$1;name:'Flip Screen';number:2;dip:((dip_val:$0;dip_name:'Off'),(dip_val:$1;dip_name:'On'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$2;name:'Upright Controls';number:2;dip:((dip_val:$2;dip_name:'Single'),(dip_val:$0;dip_name:'Dual'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$4;name:'Button Layout';number:2;dip:((dip_val:$4;dip_name:'Power Attack Squat'),(dip_val:$0;dip_name:'Squat Attack Power'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (n:'10f_h11.bin';l:$100;p:$400;crc:$a63e37d8),());
+
+implementation
+uses m6809,nz80,main_engine,controls_engine,gfx_engine,ym_2203,pal_engine,
+     sound_engine;
+
+const
+        ironhorse_dip_a:array [0..1] of def_dip2=(
+        (mask:$f;name:'Coin A';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
+        (mask:$f0;name:'Coin B';number:16;val16:($20,$50,$80,$40,$10,$f0,$30,$70,$e0,$60,$d0,$c0,$b0,$a0,$90,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Invalid')));
+        ironhorse_dip_b:array [0..4] of def_dip2=(
+        (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('2','3','5','7')),
+        (mask:4;name:'Cabinet';number:2;val2:(0,4);name2:('Upright','Cocktail')),
+        (mask:$18;name:'Bonus Life';number:4;val4:($18,$10,8,0);name4:('30K 70K+','40K 80K+','40K','50K')),
+        (mask:$60;name:'Difficulty';number:4;val4:($60,$40,$20,0);name4:('Easy','Normal','Difficult','Very Difficult')),
+        (mask:$80;name:'Demo Sounds';number:2;val2:($80,0);name2:('Off','On')));
+        ironhorse_dip_c:array [0..2] of def_dip2=(
+        (mask:1;name:'Flip Screen';number:2;val2:(0,1);name2:('Off','On')),
+        (mask:2;name:'Upright Controls';number:2;val2:(2,0);name2:('Single','Dual')),
+        (mask:4;name:'Button Layout';number:2;val2:(4,0);name2:('Power Attack Squat','Squat Attack Power')));
 
 var
  pedir_nmi,pedir_firq:boolean;
@@ -63,13 +65,13 @@ for f:=0 to $32 do begin
 		x:=memoria[spritebank+3+(f*5)];
 		y:=memoria[spritebank+2+(f*5)];
     atrib:=memoria[spritebank+1+(f*5)];
-    nchar:=(memoria[spritebank+(f*5)] shl 2)+((atrib and $03) shl 10)+((atrib and $0c) shr 2);
+    nchar:=(memoria[spritebank+(f*5)] shl 2)+((atrib and 3) shl 10)+((atrib and $c) shr 2);
 		color:=((((atrib and $f0) shr 4)+16*palettebank) shl 4)+$800;
     atrib:=memoria[spritebank+4+(f*5)];
     flipx:=((atrib and $20) shr 5)<>0;
     flipy:=((atrib and $40) shr 5)<>0;
     case (atrib and $c) of
-      $0:begin  //16x16
+      0:begin  //16x16
           a:=(0 xor byte(flipx)) xor byte(flipy);
           b:=(1 xor byte(flipx)) xor byte(flipy);
           c:=(2 xor byte(flipx)) xor byte(flipy);
@@ -80,14 +82,14 @@ for f:=0 to $32 do begin
           put_gfx_sprite_diff(nchar+d,color,flipx,flipy,0,8,8);
           actualiza_gfx_sprite_size(x,y,2,16,16);
         end;
-      $4:begin  //16x8
+      4:begin  //16x8
           a:=0 xor byte(flipx);
           b:=1 xor byte(flipx);
           put_gfx_sprite_diff(nchar+a,color,flipx,flipy,0,0,0);
           put_gfx_sprite_diff(nchar+b,color,flipx,flipy,0,8,0);
           actualiza_gfx_sprite_size(x,y,2,16,8);
          end;
-      $8:begin  //8x16
+      8:begin  //8x16
           a:=0 xor byte(flipy);
           b:=2 xor byte(flipy);
           put_gfx_sprite_diff(nchar+a,color,flipx,flipy,0,0,0);
@@ -106,55 +108,54 @@ end;
 procedure eventos_ironhorse;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //p1
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or $1);
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or $2);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 and $fb) else marcade.in0:=(marcade.in0 or $4);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 and $f7) else marcade.in0:=(marcade.in0 or $8);
-  if arcade_input.but2[0] then marcade.in0:=(marcade.in0 and $ef) else marcade.in0:=(marcade.in0 or $10);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 and $df) else marcade.in0:=(marcade.in0 or $20);
-  if arcade_input.but1[1] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 and $fe;
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 and $fd;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 and $fb;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 and $f7;
+  if arcade_input.but2[0] then marcade.in0:=marcade.in0 and $ef;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 and $df;
+  if arcade_input.but1[1] then marcade.in0:=marcade.in0 and $bf;
   //p2
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or $1);
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or $2);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or $4);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or $8);
-  if arcade_input.but2[1] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $bf) else marcade.in1:=(marcade.in1 or $40);
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 and $fe;
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 and $fd;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 and $fb;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 and $f7;
+  if arcade_input.but2[1] then marcade.in1:=marcade.in1 and $ef;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 and $df;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $bf;
   //misc
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or $1);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or $2);
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or $8);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 and $fe;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 and $fd;
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 and $f7;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 and $ef;
 end;
 end;
 
 procedure ironhorse_principal;
 var
-  frame_m,frame_s:single;
   f:byte;
   frame:boolean;
 begin
-init_controls(false,false,false,true);
-frame_m:=m6809_0.tframes;
-frame_s:=z80_0.tframes;
 frame:=false;
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
-    //main
-    m6809_0.run(frame_m);
-    frame_m:=frame_m+m6809_0.tframes-m6809_0.contador;
-    //snd
-    z80_0.run(frame_s);
-    frame_s:=frame_s+z80_0.tframes-z80_0.contador;
     case f of
-      47,111,175:if pedir_nmi then m6809_0.change_nmi(PULSE_LINE);
-      239:begin
+      48,112,176:if pedir_nmi then m6809_0.change_nmi(PULSE_LINE);
+      240:begin
             if (pedir_firq and frame) then m6809_0.change_firq(HOLD_LINE);
             if pedir_nmi then m6809_0.change_nmi(PULSE_LINE);
           end;
     end;
+    //main
+    m6809_0.run(frame_main);
+    frame_main:=frame_main+m6809_0.tframes-m6809_0.contador;
+    //snd
+    z80_0.run(frame_snd);
+    frame_snd:=frame_snd+z80_0.tframes-z80_0.contador;
   end;
   update_video_ironhorse;
   eventos_ironhorse;
@@ -181,25 +182,25 @@ procedure ironhorse_putbyte(direccion:word;valor:byte);
 begin
 case direccion of
   0..2,5..$1f,$40..$df,$2800..$3fff:memoria[direccion]:=valor;
-  $3:begin
-       if charbank<>(valor and $3) then begin
-          charbank:=valor and $3;
+  3:begin
+       if charbank<>(valor and 3) then begin
+          charbank:=valor and 3;
           fillchar(gfx[0].buffer[0],$400,1);
        end;
-       spritebank:=$3000+((valor and $8) shl 8);
+       spritebank:=$3000+((valor and 8) shl 8);
      end;
-  $4:begin
-       pedir_nmi:=(valor and $1)<>0;
-       pedir_firq:=(valor and $4)<>0;
+  4:begin
+       pedir_nmi:=(valor and 1)<>0;
+       pedir_firq:=(valor and 4)<>0;
      end;
   $20..$3f:scroll_x[direccion and $1f]:=valor;
   $800:sound_latch:=valor;
   $900:z80_0.change_irq(HOLD_LINE);
-  $a00:if palettebank<>(valor and $7) then begin
-            palettebank:=valor and $7;
+  $a00:if palettebank<>(valor and 7) then begin
+            palettebank:=valor and 7;
             fillchar(gfx[0].buffer[0],$400,1);
        end;
-  $b00:main_screen.flip_main_screen:=(valor and $8)=0;
+  $b00:main_screen.flip_main_screen:=(valor and 8)=0;
   $2000..$27ff:if memoria[direccion]<>valor then begin
                 gfx[0].buffer[direccion and $3ff]:=true;
                 memoria[direccion]:=valor;
@@ -232,14 +233,14 @@ end;
 procedure ironhorse_snd_outbyte(puerto:word;valor:byte);
 begin
 case (puerto and $ff) of
-  0:ym2203_0.Control(valor);
-  1:ym2203_0.Write(valor);
+  0:ym2203_0.control(valor);
+  1:ym2203_0.write(valor);
 end;
 end;
 
 procedure ironhorse_sound_update;
 begin
-  ym2203_0.Update;
+  ym2203_0.update;
 end;
 
 //Main
@@ -247,6 +248,8 @@ procedure reset_ironhorse;
 begin
  m6809_0.reset;
  z80_0.reset;
+ frame_main:=m6809_0.tframes;
+ frame_snd:=z80_0.tframes;
  ym2203_0.reset;
  marcade.in0:=$ff;
  marcade.in1:=$ff;
@@ -308,19 +311,16 @@ end;
 set_pal(colores,256);
 for f:=0 to $1ff do begin
   for j:=0 to 7 do begin
-			valor:=(j shl 5) or ((not(f) and $100) shr 4) or (memoria_temp[f+$300] and $0f);
+			valor:=(j shl 5) or ((not(f) and $100) shr 4) or (memoria_temp[f+$300] and $f);
       valor2:=((f and $100) shl 3) or (j shl 8) or (f and $ff);
       gfx[0].colores[valor2]:=valor;  //chars
       gfx[1].colores[valor2]:=valor;  //sprites
   end;
 end;
 //DIP
-marcade.dswa:=$ff;
-marcade.dswb:=$5a;
-marcade.dswc:=$fe;
-marcade.dswa_val:=@ironhorse_dip_a;
-marcade.dswb_val:=@ironhorse_dip_b;
-marcade.dswc_val:=@ironhorse_dip_c;
+init_dips(1,ironhorse_dip_a,$ff);
+init_dips(2,ironhorse_dip_b,$5a);
+init_dips(3,ironhorse_dip_c,$fe);
 //final
 reset_ironhorse;
 iniciar_ironhorse:=true;

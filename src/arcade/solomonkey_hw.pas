@@ -1,13 +1,9 @@
 unit solomonkey_hw;
-interface
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ay_8910,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine;
+interface
+uses rom_engine;
 
 function iniciar_solomon:boolean;
-
-implementation
 
 const
         solomon_rom:array[0..2] of tipo_roms=(
@@ -19,9 +15,14 @@ const
         solomon_sprites:array[0..3] of tipo_roms=(
         (n:'2.5lm';l:$4000;p:0;crc:$80fa2be3),(n:'3.6lm';l:$4000;p:$4000;crc:$236106b4),
         (n:'4.7lm';l:$4000;p:$8000;crc:$088fe5d9),(n:'5.8lm';l:$4000;p:$c000;crc:$8366232a));
-        solomon_tiles:array[0..1] of tipo_roms=(
-        (n:'10.3p';l:$8000;p:0;crc:$8310c2a1),(n:'9.3m';l:$8000;p:$8000;crc:$ab7e6c42));
-        //Dip
+        solomon_tiles:array[0..2] of tipo_roms=(
+        (n:'10.3p';l:$8000;p:0;crc:$8310c2a1),(n:'9.3m';l:$8000;p:$8000;crc:$ab7e6c42),());
+
+implementation
+uses nz80,main_engine,controls_engine,ay_8910,gfx_engine,pal_engine,
+     sound_engine,timer_engine;
+
+const
         solomon_dip_a:array [0..4] of def_dip2=(
         (mask:1;name:'Demo Sound';number:2;val2:(1,0);name2:('Off','On')),
         (mask:2;name:'Cabinet';number:2;val2:(2,0);name2:('Upright','Cocktail')),
@@ -84,25 +85,28 @@ end;
 procedure eventos_solomon;
 begin
 if event.arcade then begin
+  marcade.in0:=0;
+  marcade.in1:=0;
+  marcade.in2:=0;
   //p1
-  if arcade_input.right[0] then marcade.in0:=(marcade.in0 or 1) else marcade.in0:=(marcade.in0 and $fe);
-  if arcade_input.left[0] then marcade.in0:=(marcade.in0 or 2) else marcade.in0:=(marcade.in0 and $fd);
-  if arcade_input.up[0] then marcade.in0:=(marcade.in0 or 4) else marcade.in0:=(marcade.in0 and $fb);
-  if arcade_input.down[0] then marcade.in0:=(marcade.in0 or 8) else marcade.in0:=(marcade.in0 and $f7);
-  if arcade_input.but0[0] then marcade.in0:=(marcade.in0 or $10)else marcade.in0:=(marcade.in0 and $ef);
-  if arcade_input.but1[0] then marcade.in0:=(marcade.in0 or $20) else marcade.in0:=(marcade.in0 and $df);
+  if arcade_input.right[0] then marcade.in0:=marcade.in0 or 1;
+  if arcade_input.left[0] then marcade.in0:=marcade.in0 or 2;
+  if arcade_input.up[0] then marcade.in0:=marcade.in0 or 4;
+  if arcade_input.down[0] then marcade.in0:=marcade.in0 or 8;
+  if arcade_input.but0[0] then marcade.in0:=marcade.in0 or $10;
+  if arcade_input.but1[0] then marcade.in0:=marcade.in0 or $20;
   //p2
-  if arcade_input.right[1] then marcade.in1:=(marcade.in1 or 1) else marcade.in1:=(marcade.in1 and $fe);
-  if arcade_input.left[1] then marcade.in1:=(marcade.in1 or 2) else marcade.in1:=(marcade.in1 and $fd);
-  if arcade_input.up[1] then marcade.in1:=(marcade.in1 or 4) else marcade.in1:=(marcade.in1 and $fb);
-  if arcade_input.down[1] then marcade.in1:=(marcade.in1 or 8) else marcade.in1:=(marcade.in1 and $f7);
-  if arcade_input.but0[1] then marcade.in1:=(marcade.in1 or $10)else marcade.in1:=(marcade.in1 and $ef);
-  if arcade_input.but1[1] then marcade.in1:=(marcade.in1 or $20) else marcade.in1:=(marcade.in1 and $df);
+  if arcade_input.right[1] then marcade.in1:=marcade.in1 or 1;
+  if arcade_input.left[1] then marcade.in1:=marcade.in1 or 2;
+  if arcade_input.up[1] then marcade.in1:=marcade.in1 or 4;
+  if arcade_input.down[1] then marcade.in1:=marcade.in1 or 8;
+  if arcade_input.but0[1] then marcade.in1:=marcade.in1 or $10;
+  if arcade_input.but1[1] then marcade.in1:=marcade.in1 or $20;
   //system
-  if arcade_input.start[0] then marcade.in2:=(marcade.in2 or 1) else marcade.in2:=(marcade.in2 and $fe);
-  if arcade_input.start[1] then marcade.in2:=(marcade.in2 or 2) else marcade.in2:=(marcade.in2 and $fd);
-  if arcade_input.coin[1] then marcade.in2:=(marcade.in2 or 4) else marcade.in2:=(marcade.in2 and $fb);
-  if arcade_input.coin[0] then marcade.in2:=(marcade.in2 or 8) else marcade.in2:=(marcade.in2 and $f7);
+  if arcade_input.start[0] then marcade.in2:=marcade.in2 or 1;
+  if arcade_input.start[1] then marcade.in2:=marcade.in2 or 2;
+  if arcade_input.coin[1] then marcade.in2:=marcade.in2 or 4;
+  if arcade_input.coin[0] then marcade.in2:=marcade.in2 or 8;
 end;
 end;
 
@@ -110,7 +114,6 @@ procedure solomon_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_solomon;

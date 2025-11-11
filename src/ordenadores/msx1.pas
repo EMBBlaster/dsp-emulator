@@ -1,19 +1,23 @@
 unit msx1;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,tms99xx,sysutils,dialogs,
-     rom_engine,misc_functions,sound_engine,file_engine,ay_8910,ppi8255,
-     tape_window;
+uses sysutils,dialogs,rom_engine;
 
 function iniciar_msx1:boolean;
 
-implementation
-uses snapshot,principal,tap_tzx;
+var
+  key_type:byte;
 
 const
-  mpc100_bios:tipo_roms=(n:'mpc100bios.rom';l:$8000;p:0;crc:$e9ccd789);
+  mpc100_bios:array [0..1] of tipo_roms=((n:'mpc100bios.rom';l:$8000;p:0;crc:$e9ccd789),());
   nms801_bios:tipo_roms=(n:'801bios.rom';l:$8000;p:0;crc:$fa089461);
+
+implementation
+uses snapshot,principal,tap_tzx,nz80,main_engine,controls_engine,tms99xx,
+     misc_functions,sound_engine,file_engine,ay_8910,ppi8255,tape_window,
+     timer_engine;
+
+const
   MAX_CARTRIDGE=$80000;
 
 type
@@ -35,107 +39,109 @@ var
   tape_sound_channel:byte;
   joystick:array[0..1] of byte;
   joy_select:byte;
+  key_timer,key_pos:byte;
 
 procedure eventos_msx1;
 begin
-if event.keyboard then begin
-   //P0
-   if keyboard[KEYBOARD_0] then keypad[0]:=(keypad[0] and $fe) else keypad[0]:=(keypad[0] or 1);
-   if (keyboard[KEYBOARD_1] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=(keypad[0] and $fd) else keypad[0]:=(keypad[0] or 2);
-   if (keyboard[KEYBOARD_2] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=(keypad[0] and $fb) else keypad[0]:=(keypad[0] or 4);
-   if (keyboard[KEYBOARD_3] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=(keypad[0] and $f7) else keypad[0]:=(keypad[0] or 8);
-   if (keyboard[KEYBOARD_4] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=(keypad[0] and $ef) else keypad[0]:=(keypad[0] or $10);
-   if (keyboard[KEYBOARD_5] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=(keypad[0] and $df) else keypad[0]:=(keypad[0] or $20);
-   if keyboard[KEYBOARD_6] then keypad[0]:=(keypad[0] and $bf) else keypad[0]:=(keypad[0] or $40);
-   if keyboard[KEYBOARD_7] then keypad[0]:=(keypad[0] and $7f) else keypad[0]:=(keypad[0] or $80);
-   //P1
-   if keyboard[KEYBOARD_8] then keypad[1]:=(keypad[1] and $fe) else keypad[1]:=(keypad[1] or 1);
-   if keyboard[KEYBOARD_9] then keypad[1]:=(keypad[1] and $fd) else keypad[1]:=(keypad[1] or 2);
-   if keyboard[KEYBOARD_FILA3_T3] then keypad[1]:=(keypad[1] and $fb) else keypad[1]:=(keypad[1] or 4);
-   //if keyboard[KEYBOARD_=] then keypad[1]:=(keypad[1] and $f7) else keypad[1]:=(keypad[1] or 8);
-   if keyboard[KEYBOARD_FILA0_T0] then keypad[1]:=(keypad[1] and $ef) else keypad[1]:=(keypad[1] or $10);
-   if keyboard[KEYBOARD_FILA1_T1] then keypad[1]:=(keypad[1] and $df) else keypad[1]:=(keypad[1] or $20);
-   if keyboard[KEYBOARD_FILA1_T2] then keypad[1]:=(keypad[1] and $bf) else keypad[1]:=(keypad[1] or $40);
-   if keyboard[KEYBOARD_FILA3_T1] then keypad[1]:=(keypad[1] and $7f) else keypad[1]:=(keypad[1] or $80);
-   //P2
-   if keyboard[KEYBOARD_FILA0_T1] then keypad[2]:=(keypad[2] and $fe) else keypad[2]:=(keypad[2] or 1);
-   //if keyboard[KEYBOARD_)] then keypad[2]:=(keypad[2] and $fd) else keypad[2]:=(keypad[2] or 2);
-   if keyboard[KEYBOARD_FILA2_T2] then keypad[2]:=(keypad[2] and $fb) else keypad[2]:=(keypad[2] or 4);
-   if keyboard[KEYBOARD_FILA3_T2] then keypad[2]:=(keypad[2] and $f7) else keypad[2]:=(keypad[2] or 8);
-   //if keyboard[KEYBOARD_/] then keypad[2]:=(keypad[2] and $ef) else keypad[2]:=(keypad[2] or $10);
-   //if keyboard[KEYBOARD_*-] then keypad[2]:=(keypad[2] and $df) else keypad[2]:=(keypad[2] or $20);
-   if keyboard[KEYBOARD_a] then keypad[2]:=(keypad[2] and $bf) else keypad[2]:=(keypad[2] or $40);
-   if keyboard[KEYBOARD_b] then keypad[2]:=(keypad[2] and $7f) else keypad[2]:=(keypad[2] or $80);
-   //P3
-   if keyboard[KEYBOARD_c] then keypad[3]:=(keypad[3] and $fe) else keypad[3]:=(keypad[3] or 1);
-   if keyboard[KEYBOARD_d] then keypad[3]:=(keypad[3] and $fd) else keypad[3]:=(keypad[3] or 2);
-   if keyboard[KEYBOARD_e] then keypad[3]:=(keypad[3] and $fb) else keypad[3]:=(keypad[3] or 4);
-   if keyboard[KEYBOARD_f] then keypad[3]:=(keypad[3] and $f7) else keypad[3]:=(keypad[3] or 8);
-   if keyboard[KEYBOARD_g] then keypad[3]:=(keypad[3] and $ef) else keypad[3]:=(keypad[3] or $10);
-   if keyboard[KEYBOARD_h] then keypad[3]:=(keypad[3] and $df) else keypad[3]:=(keypad[3] or $20);
-   if keyboard[KEYBOARD_i] then keypad[3]:=(keypad[3] and $bf) else keypad[3]:=(keypad[3] or $40);
-   if keyboard[KEYBOARD_j] then keypad[3]:=(keypad[3] and $7f) else keypad[3]:=(keypad[3] or $80);
-   //P4
-   if keyboard[KEYBOARD_k] then keypad[4]:=(keypad[4] and $fe) else keypad[4]:=(keypad[4] or 1);
-   if keyboard[KEYBOARD_l] then keypad[4]:=(keypad[4] and $fd) else keypad[4]:=(keypad[4] or 2);
-   if keyboard[KEYBOARD_m] then keypad[4]:=(keypad[4] and $fb) else keypad[4]:=(keypad[4] or 4);
-   if keyboard[KEYBOARD_n] then keypad[4]:=(keypad[4] and $f7) else keypad[4]:=(keypad[4] or 8);
-   if keyboard[KEYBOARD_o] then keypad[4]:=(keypad[4] and $ef) else keypad[4]:=(keypad[4] or $10);
-   if keyboard[KEYBOARD_p] then keypad[4]:=(keypad[4] and $df) else keypad[4]:=(keypad[4] or $20);
-   if keyboard[KEYBOARD_q] then keypad[4]:=(keypad[4] and $bf) else keypad[4]:=(keypad[4] or $40);
-   if keyboard[KEYBOARD_r] then keypad[4]:=(keypad[4] and $7f) else keypad[4]:=(keypad[4] or $80);
-   //P5
-   if keyboard[KEYBOARD_s] then keypad[5]:=(keypad[5] and $fe) else keypad[5]:=(keypad[5] or 1);
-   if keyboard[KEYBOARD_t] then keypad[5]:=(keypad[5] and $fd) else keypad[5]:=(keypad[5] or 2);
-   if keyboard[KEYBOARD_u] then keypad[5]:=(keypad[5] and $fb) else keypad[5]:=(keypad[5] or 4);
-   if keyboard[KEYBOARD_v] then keypad[5]:=(keypad[5] and $f7) else keypad[5]:=(keypad[5] or 8);
-   if keyboard[KEYBOARD_w] then keypad[5]:=(keypad[5] and $ef) else keypad[5]:=(keypad[5] or $10);
-   if keyboard[KEYBOARD_x] then keypad[5]:=(keypad[5] and $df) else keypad[5]:=(keypad[5] or $20);
-   if keyboard[KEYBOARD_y] then keypad[5]:=(keypad[5] and $bf) else keypad[5]:=(keypad[5] or $40);
-   if keyboard[KEYBOARD_z] then keypad[5]:=(keypad[5] and $7f) else keypad[5]:=(keypad[5] or $80);
-   //P6
-   if keyboard[KEYBOARD_LSHIFT] then keypad[6]:=(keypad[6] and $fe) else keypad[6]:=(keypad[6] or 1);
-   if keyboard[KEYBOARD_LCTRL] then keypad[6]:=(keypad[6] and $fd) else keypad[6]:=(keypad[6] or 2);
-   //if keyboard[KEYBOARD_graph] then keypad[6]:=(keypad[6] and $fb) else keypad[6]:=(keypad[6] or 4);
-   if keyboard[KEYBOARD_CAPSLOCK] then keypad[6]:=(keypad[6] and $f7) else keypad[6]:=(keypad[6] or 8);
-   //if keyboard[KEYBOARD_code] then keypad[6]:=(keypad[6] and $ef) else keypad[6]:=(keypad[6] or $10);
-   if (keyboard[KEYBOARD_1] and keyboard[KEYBOARD_RSHIFT]) then keypad[6]:=(keypad[6] and $df) else keypad[6]:=(keypad[6] or $20);
-   if (keyboard[KEYBOARD_2] and keyboard[KEYBOARD_RSHIFT]) then keypad[6]:=(keypad[6] and $bf) else keypad[6]:=(keypad[6] or $40);
-   if (keyboard[KEYBOARD_3] and keyboard[KEYBOARD_RSHIFT]) then keypad[6]:=(keypad[6] and $7f) else keypad[6]:=(keypad[6] or $80);
-   //P7
-   if (keyboard[KEYBOARD_4] and keyboard[KEYBOARD_RSHIFT]) then keypad[7]:=(keypad[7] and $fe) else keypad[7]:=(keypad[7] or 1);
-   if (keyboard[KEYBOARD_5] and keyboard[KEYBOARD_RSHIFT]) then keypad[7]:=(keypad[7] and $fd) else keypad[7]:=(keypad[7] or 2);
-   if keyboard[KEYBOARD_ESCAPE] then keypad[7]:=(keypad[7] and $fb) else keypad[7]:=(keypad[7] or 4);
-   if keyboard[KEYBOARD_TAB] then keypad[7]:=(keypad[7] and $f7) else keypad[7]:=(keypad[7] or 8);
-   //if keyboard[KEYBOARD_stop] then keypad[7]:=(keypad[7] and $ef) else keypad[7]:=(keypad[7] or $10);
-   if keyboard[KEYBOARD_BACKSPACE] then keypad[7]:=(keypad[7] and $df) else keypad[7]:=(keypad[7] or $20);
-   //if keyboard[KEYBOARD_select] then keypad[7]:=(keypad[7] and $bf) else keypad[7]:=(keypad[7] or $40);
-   if keyboard[KEYBOARD_RETURN] then keypad[7]:=(keypad[7] and $7f) else keypad[7]:=(keypad[7] or $80);
-   //P8
-   if keyboard[KEYBOARD_SPACE] then keypad[8]:=(keypad[8] and $fe) else keypad[8]:=(keypad[8] or 1);
-   if keyboard[KEYBOARD_HOME] then keypad[8]:=(keypad[8] and $fd) else keypad[8]:=(keypad[8] or 2);
-   //if keyboard[KEYBOARD_INSERT] then keypad[8]:=(keypad[8] and $fb) else keypad[8]:=(keypad[8] or 4);
-   //if keyboard[KEYBOARD_DEL] then keypad[8]:=(keypad[8] and $f7) else keypad[8]:=(keypad[8] or 8);
-   if keyboard[KEYBOARD_LEFT] then keypad[8]:=(keypad[8] and $ef) else keypad[8]:=(keypad[8] or $10);
-   if keyboard[KEYBOARD_UP] then keypad[8]:=(keypad[8] and $df) else keypad[8]:=(keypad[8] or $20);
-   if keyboard[KEYBOARD_DOWN] then keypad[8]:=(keypad[8] and $bf) else keypad[8]:=(keypad[8] or $40);
-   if keyboard[KEYBOARD_RIGHT] then keypad[8]:=(keypad[8] and $7f) else keypad[8]:=(keypad[8] or $80);
-end;
 if event.arcade then begin
+   fillchar(keypad[0],10,$ff);
+   //P0
+   if keyboard[KEYBOARD_0] then keypad[0]:=keypad[0] and $fe;
+   if (keyboard[KEYBOARD_1] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=keypad[0] and $fd;
+   if (keyboard[KEYBOARD_2] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=keypad[0] and $fb;
+   if (keyboard[KEYBOARD_3] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=keypad[0] and $f7;
+   if (keyboard[KEYBOARD_4] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=keypad[0] and $ef;
+   if (keyboard[KEYBOARD_5] and not(keyboard[KEYBOARD_RSHIFT])) then keypad[0]:=keypad[0] and $df;
+   if keyboard[KEYBOARD_6] then keypad[0]:=keypad[0] and $bf;
+   if keyboard[KEYBOARD_7] then keypad[0]:=keypad[0] and $7f;
    //P1
-   if arcade_input.up[0] then joystick[0]:=(joystick[0] and $fe) else joystick[0]:=(joystick[0] or 1);
-   if arcade_input.down[0] then joystick[0]:=(joystick[0] and $fd) else joystick[0]:=(joystick[0] or 2);
-   if arcade_input.left[0] then joystick[0]:=(joystick[0] and $fb) else joystick[0]:=(joystick[0] or 4);
-   if arcade_input.right[0] then joystick[0]:=(joystick[0] and $f7) else joystick[0]:=(joystick[0] or 8);
-   if arcade_input.but0[0] then joystick[0]:=(joystick[0] and $ef) else joystick[0]:=(joystick[0] or $10);
-   if arcade_input.but1[0] then joystick[0]:=(joystick[0] and $df) else joystick[0]:=(joystick[0] or $20);
+   if keyboard[KEYBOARD_8] then keypad[1]:=keypad[1] and $fe;
+   if keyboard[KEYBOARD_9] then keypad[1]:=keypad[1] and $fd;
+   if keyboard[KEYBOARD_FILA3_T3] then keypad[1]:=keypad[1] and $fb;
+   //if keyboard[KEYBOARD_=] then keypad[1]:=keypad[1] and $f7;
+   if keyboard[KEYBOARD_FILA0_T0] then keypad[1]:=keypad[1] and $ef;
+   if keyboard[KEYBOARD_FILA1_T1] then keypad[1]:=keypad[1] and $df;
+   if keyboard[KEYBOARD_FILA1_T2] then keypad[1]:=keypad[1] and $bf;
+   if keyboard[KEYBOARD_FILA3_T1] then keypad[1]:=keypad[1] and $7f;
    //P2
-   if arcade_input.up[1] then joystick[1]:=(joystick[1] and $fe) else joystick[1]:=(joystick[1] or 1);
-   if arcade_input.down[1] then joystick[1]:=(joystick[1] and $fd) else joystick[1]:=(joystick[1] or 2);
-   if arcade_input.left[1] then joystick[1]:=(joystick[1] and $fb) else joystick[1]:=(joystick[1] or 4);
-   if arcade_input.right[1] then joystick[1]:=(joystick[1] and $f7) else joystick[1]:=(joystick[1] or 8);
-   if arcade_input.but0[1] then joystick[1]:=(joystick[1] and $ef) else joystick[1]:=(joystick[1] or $10);
-   if arcade_input.but1[1] then joystick[1]:=(joystick[1] and $df) else joystick[1]:=(joystick[1] or $20);
+   if keyboard[KEYBOARD_FILA0_T1] then keypad[2]:=keypad[2] and $fe;
+   //if keyboard[KEYBOARD_)] then keypad[2]:=keypad[2] and $fd;
+   if keyboard[KEYBOARD_FILA2_T2] then keypad[2]:=keypad[2] and $fb;
+   if keyboard[KEYBOARD_FILA3_T2] then keypad[2]:=keypad[2] and $f7;
+   //if keyboard[KEYBOARD_/] then keypad[2]:=keypad[2] and $ef;
+   //if keyboard[KEYBOARD_*-] then keypad[2]:=keypad[2] and $df;
+   if keyboard[KEYBOARD_a] then keypad[2]:=keypad[2] and $bf;
+   if keyboard[KEYBOARD_b] then keypad[2]:=keypad[2] and $7f;
+   //P3
+   if keyboard[KEYBOARD_c] then keypad[3]:=keypad[3] and $fe;
+   if keyboard[KEYBOARD_d] then keypad[3]:=keypad[3] and $fd;
+   if keyboard[KEYBOARD_e] then keypad[3]:=keypad[3] and $fb;
+   if keyboard[KEYBOARD_f] then keypad[3]:=keypad[3] and $f7;
+   if keyboard[KEYBOARD_g] then keypad[3]:=keypad[3] and $ef;
+   if keyboard[KEYBOARD_h] then keypad[3]:=keypad[3] and $df;
+   if keyboard[KEYBOARD_i] then keypad[3]:=keypad[3] and $bf;
+   if keyboard[KEYBOARD_j] then keypad[3]:=keypad[3] and $7f;
+   //P4
+   if keyboard[KEYBOARD_k] then keypad[4]:=keypad[4] and $fe;
+   if keyboard[KEYBOARD_l] then keypad[4]:=keypad[4] and $fd;
+   if keyboard[KEYBOARD_m] then keypad[4]:=keypad[4] and $fb;
+   if keyboard[KEYBOARD_n] then keypad[4]:=keypad[4] and $f7;
+   if keyboard[KEYBOARD_o] then keypad[4]:=keypad[4] and $ef;
+   if keyboard[KEYBOARD_p] then keypad[4]:=keypad[4] and $df;
+   if keyboard[KEYBOARD_q] then keypad[4]:=keypad[4] and $bf;
+   if keyboard[KEYBOARD_r] then keypad[4]:=keypad[4] and $7f;
+   //P5
+   if keyboard[KEYBOARD_s] then keypad[5]:=keypad[5] and $fe;
+   if keyboard[KEYBOARD_t] then keypad[5]:=keypad[5] and $fd;
+   if keyboard[KEYBOARD_u] then keypad[5]:=keypad[5] and $fb;
+   if keyboard[KEYBOARD_v] then keypad[5]:=keypad[5] and $f7;
+   if keyboard[KEYBOARD_w] then keypad[5]:=keypad[5] and $ef;
+   if keyboard[KEYBOARD_x] then keypad[5]:=keypad[5] and $df;
+   if keyboard[KEYBOARD_y] then keypad[5]:=keypad[5] and $bf;
+   if keyboard[KEYBOARD_z] then keypad[5]:=keypad[5] and $7f;
+   //P6
+   if keyboard[KEYBOARD_LSHIFT] then keypad[6]:=keypad[6] and $fe;
+   if keyboard[KEYBOARD_LCTRL] then keypad[6]:=keypad[6] and $fd;
+   //if keyboard[KEYBOARD_graph] then keypad[6]:=keypad[6] and $fb;
+   if keyboard[KEYBOARD_CAPSLOCK] then keypad[6]:=keypad[6] and $f7;
+   //if keyboard[KEYBOARD_code] then keypad[6]:=keypad[6] and $ef;
+   if (keyboard[KEYBOARD_1] and keyboard[KEYBOARD_RSHIFT]) then keypad[6]:=keypad[6] and $df;
+   if (keyboard[KEYBOARD_2] and keyboard[KEYBOARD_RSHIFT]) then keypad[6]:=keypad[6] and $bf;
+   if (keyboard[KEYBOARD_3] and keyboard[KEYBOARD_RSHIFT]) then keypad[6]:=keypad[6] and $7f;
+   //P7
+   if (keyboard[KEYBOARD_4] and keyboard[KEYBOARD_RSHIFT]) then keypad[7]:=keypad[7] and $fe;
+   if (keyboard[KEYBOARD_5] and keyboard[KEYBOARD_RSHIFT]) then keypad[7]:=keypad[7] and $fd;
+   if keyboard[KEYBOARD_ESCAPE] then keypad[7]:=keypad[7] and $fb;
+   if keyboard[KEYBOARD_TAB] then keypad[7]:=keypad[7] and $f7;
+   //if keyboard[KEYBOARD_stop] then keypad[7]:=keypad[7] and $ef;
+   if keyboard[KEYBOARD_BACKSPACE] then keypad[7]:=keypad[7] and $df;
+   //if keyboard[KEYBOARD_select] then keypad[7]:=keypad[7] and $bf;
+   if keyboard[KEYBOARD_RETURN] then keypad[7]:=keypad[7] and $7f;
+   //P8
+   if keyboard[KEYBOARD_SPACE] then keypad[8]:=keypad[8] and $fe;
+   if keyboard[KEYBOARD_HOME] then keypad[8]:=keypad[8] and $fd;
+   //if keyboard[KEYBOARD_INSERT] then keypad[8]:=keypad[8] and $fb;
+   //if keyboard[KEYBOARD_DEL] then keypad[8]:=keypad[8] and $f7;
+   if keyboard[KEYBOARD_LEFT] then keypad[8]:=keypad[8] and $ef;
+   if keyboard[KEYBOARD_UP] then keypad[8]:=keypad[8] and $df;
+   if keyboard[KEYBOARD_DOWN] then keypad[8]:=keypad[8] and $bf;
+   if keyboard[KEYBOARD_RIGHT] then keypad[8]:=keypad[8] and $7f;
+   joystick[0]:=$3f;
+   joystick[1]:=$3f;
+   //P1
+   if arcade_input.up[0] then joystick[0]:=joystick[0] and $fe;
+   if arcade_input.down[0] then joystick[0]:=joystick[0] and $fd;
+   if arcade_input.left[0] then joystick[0]:=joystick[0] and $fb;
+   if arcade_input.right[0] then joystick[0]:=joystick[0] and $f7;
+   if arcade_input.but0[0] then joystick[0]:=joystick[0] and $ef;
+   if arcade_input.but1[0] then joystick[0]:=joystick[0] and $df;
+   //P2
+   if arcade_input.up[1] then joystick[1]:=joystick[1] and $fe;
+   if arcade_input.down[1] then joystick[1]:=joystick[1] and $fd;
+   if arcade_input.left[1] then joystick[1]:=joystick[1] and $fb;
+   if arcade_input.right[1] then joystick[1]:=joystick[1] and $f7;
+   if arcade_input.but0[1] then joystick[1]:=joystick[1] and $ef;
+   if arcade_input.but1[1] then joystick[1]:=joystick[1] and $df;
 end;
 end;
 
@@ -143,7 +149,6 @@ procedure msx1_principal;
 var
   f:word;
 begin
-init_controls(false,true,true,false);
 while EmuStatus=EsRunning do begin
   for f:=0 to 312 do begin
       eventos_msx1;
@@ -288,14 +293,48 @@ begin
   ay8910_0.update;
 end;
 
+procedure key_press;
+const
+  run_key_0:array[0..34] of word=($027f,$02ff,$04fd,$04ff,$04ef,$04ff,$02bf,$02ff,$03fd,$03ff,$06fe,$02fe,$06ff,$02ff,$03fe,$03ff,$02bf,$02ff,$05fe,$05ff,$06fe,$017f,$06ff,$01ff,$06fe,$02fe,$06ff,$02ff,$02fb,$02ff,$047f,$04ff,$077f,$07ff,$ffff);
+  run_key_1:array[0..12] of word=($03fe,$03ff,$04fd,$04ff,$04ef,$04ff,$02bf,$02ff,$03fd,$03ff,$077f,$07ff,$ffff);
+  run_key_2:array[0..22] of word=($047f,$04ff,$05fb,$05ff,$04f7,$04ff,$06fe,$02fe,$06ff,$02ff,$03fe,$03ff,$02bf,$02ff,$05fe,$05ff,$06fe,$017f,$06ff,$01ff,$077f,$07ff,$ffff);
+begin
+case key_type of
+  0:begin
+      keypad[run_key_0[key_pos] shr 8]:=run_key_0[key_pos] and $ff;
+      if run_key_0[key_pos]=$ffff then begin
+        timers.enabled(key_timer,false);
+        key_pos:=0;
+      end else key_pos:=key_pos+1;
+    end;
+  1:begin
+      keypad[run_key_1[key_pos] shr 8]:=run_key_1[key_pos] and $ff;
+      if run_key_1[key_pos]=$ffff then begin
+        timers.enabled(key_timer,false);
+        key_pos:=0;
+      end else key_pos:=key_pos+1;
+    end;
+  2:begin
+      keypad[run_key_2[key_pos] shr 8]:=run_key_2[key_pos] and $ff;
+      if run_key_2[key_pos]=$ffff then begin
+        timers.enabled(key_timer,false);
+        key_pos:=0;
+      end else key_pos:=key_pos+1;
+  end;
+end;
+end;
+
 //Main
 procedure reset_msx1;
+var
+  f:byte;
 begin
  z80_0.reset;
  frame_main:=z80_0.tframes;
  pia8255_0.reset;
  ay8910_0.reset;
  tms_0.reset;
+ key_pos:=0;
  fillchar(keypad[0],10,$ff);
  joystick[0]:=$3f;
  joystick[1]:=$3f;
@@ -308,10 +347,9 @@ begin
  pag_rom[1]:=true;
  pag_ena[0]:=true;
  pag_ena[1]:=true;
- fillchar(slot[3,0].mem[0],$4000,0);
- fillchar(slot[3,1].mem[0],$4000,0);
- fillchar(slot[3,2].mem[0],$4000,0);
- fillchar(slot[3,3].mem[0],$4000,0);
+ for f:=0 to 3 do fillchar(slot[1,f].mem[0],$4000,0);
+ for f:=0 to 3 do fillchar(slot[2,f].mem[0],$4000,0);
+ for f:=0 to 3 do fillchar(slot[3,f].mem[0],$4000,0);
  if cinta_tzx.cargada then cinta_tzx.play_once:=false;
  cinta_tzx.value:=0;
 end;
@@ -328,14 +366,13 @@ begin
     freemem(datos);
     exit;
   end;
-  //abrir_cartucho(datos,longitud);
+  reset_msx1;
   copymemory(@slot[1,1].mem[0],@datos[0],$4000);
   copymemory(@slot[1,2].mem[0],@datos[$4000],$4000);
   slot[1,1].rom:=true;
   slot[1,2].rom:=true;
   slot[1,1].ena:=true;
   slot[1,2].ena:=true;
-  reset_msx1;
   freemem(datos);
   change_caption(nombre_file);
   directory.msx_tap:=ExtractFilePath(romfile);
@@ -368,6 +405,7 @@ begin
     cinta_tzx.play_tape:=false;
     cadena:=extension+': '+nombre_file;
     tape_motor:=false;
+    if ((key_type<>3) and main_vars.auto_type) then timers.enabled(key_timer,true);
   end else MessageDlg('Error cargando cinta/WAV.'+chr(10)+chr(13)+'Error loading tape/WAV.', mtInformation,[mbOk], 0);
   freemem(datos);
   directory.msx_tap:=ExtractFilePath(romfile);
@@ -380,7 +418,6 @@ var
 begin
 principal1.BitBtn10.Glyph:=nil;
 principal1.imagelist2.GetBitmap(4,principal1.BitBtn10.Glyph);
-principal1.BitBtn10.OnClick:=principal1.fLoadCartucho;
 llamadas_maquina.bucle_general:=msx1_principal;
 llamadas_maquina.reset:=reset_msx1;
 llamadas_maquina.cartuchos:=abrir_msx1;
@@ -423,6 +460,8 @@ slot[3,0].ena:=true;
 slot[3,1].ena:=true;
 slot[3,2].ena:=true;
 slot[3,3].ena:=true;
+//Timers
+key_timer:=timers.init(z80_0.numero_cpu,250000,key_press,nil,false);
 iniciar_msx1:=true;
 end;
 

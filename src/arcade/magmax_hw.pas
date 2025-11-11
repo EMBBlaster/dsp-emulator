@@ -1,14 +1,9 @@
-unit magmax_hw;
+﻿unit magmax_hw;
 
 interface
-
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,m68000,main_engine,controls_engine,gfx_engine,ay_8910,rom_engine,
-     pal_engine,sound_engine;
+uses rom_engine;
 
 function iniciar_magmax:boolean;
-
-implementation
 
 const
         magmax_rom:array[0..5] of tipo_roms=(
@@ -28,10 +23,16 @@ const
         (n:'mag_b.14d';l:$100;p:$400;crc:$a0fb7297),(n:'mag_c.15d';l:$100;p:$500;crc:$d84a6f78));
         magmax_fondo1:array[0..1] of tipo_roms=(
         (n:'4.18b';l:$2000;p:0;crc:$1550942e),(n:'5.20b';l:$2000;p:1;crc:$3b93017f));
-        magmax_fondo2:array[0..5] of tipo_roms=(
+        magmax_fondo2:array[0..6] of tipo_roms=(
         (n:'9.18d';l:$2000;p:$4000;crc:$9ecc9ab8),(n:'10.20d';l:$2000;p:$6000;crc:$e2ff7293),
         (n:'11.15f';l:$2000;p:$8000;crc:$91f3edb6),(n:'12.17f';l:$2000;p:$a000;crc:$99771eff),
-        (n:'13.18f';l:$2000;p:$c000;crc:$75f30159),(n:'14.20f';l:$2000;p:$e000;crc:$96babcba));
+        (n:'13.18f';l:$2000;p:$c000;crc:$75f30159),(n:'14.20f';l:$2000;p:$e000;crc:$96babcba),());
+
+implementation
+uses nz80,m68000,main_engine,controls_engine,gfx_engine,ay_8910,pal_engine,
+     sound_engine;
+
+const
         magmax_dip:array [0..8] of def_dip2=(
         (mask:3;name:'Lives';number:4;val4:(3,2,1,0);name4:('3','4','5','6')),
         (mask:$c;name:'Bonus Life';number:4;val4:($c,8,4,0);name4:('30K 80K 50K+','50K 120K 70K+','70K 160K 90K+','90K 200K 110K+')),
@@ -49,9 +50,9 @@ var
  ram:array[0..$7ff] of word;
  ram_video:array[0..$3ff] of word;
  prom_mem,ram_sprites:array[0..$ff] of word;
- ls74_q,ls74_clr,sound_latch:byte;
+ sound_latch:byte;
  rom18b:array[0..$ffff] of byte;
- redraw_bg:boolean;
+ ls74_q,ls74_clr,redraw_bg:boolean;
 
 procedure update_video_magmax;
 procedure draw_background;
@@ -135,25 +136,28 @@ end;
 procedure eventos_magmax;
 begin
 if event.arcade then begin
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $fffe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fffd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fffb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fff7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ffef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $ffdf) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.up[0] then marcade.in1:=marcade.in1 and $fffe;
+  if arcade_input.down[0] then marcade.in1:=marcade.in1 and $fffd;
+  if arcade_input.left[0] then marcade.in1:=marcade.in1 and $fffb;
+  if arcade_input.right[0] then marcade.in1:=marcade.in1 and $fff7;
+  if arcade_input.but0[0] then marcade.in1:=marcade.in1 and $ffef;
+  if arcade_input.but1[0] then marcade.in1:=marcade.in1 and $ffdf;
   //P2
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $fffe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fffd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fffb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fff7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ffef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $ffdf) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.up[1] then marcade.in2:=marcade.in2 and $fffe;
+  if arcade_input.down[1] then marcade.in2:=marcade.in2 and $fffd;
+  if arcade_input.left[1] then marcade.in2:=marcade.in2 and $fffb;
+  if arcade_input.right[1] then marcade.in2:=marcade.in2 and $fff7;
+  if arcade_input.but0[1] then marcade.in2:=marcade.in2 and $ffef;
+  if arcade_input.but1[1] then marcade.in2:=marcade.in2 and $ffdf;
   //SYSTEM
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fffe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fffd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $fffb) else marcade.in0:=(marcade.in0 or 4);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $fff7) else marcade.in0:=(marcade.in0 or 8);
+  if arcade_input.start[0] then marcade.in0:=marcade.in0 and $fffe;
+  if arcade_input.start[1] then marcade.in0:=marcade.in0 and $fffd;
+  if arcade_input.coin[0] then marcade.in0:=marcade.in0 and $fffb;
+  if arcade_input.coin[1] then marcade.in0:=marcade.in0 and $fff7;
 end;
 end;
 
@@ -161,12 +165,11 @@ procedure magmax_principal;
 var
   f:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
  for f:=0 to $ff do begin
     eventos_magmax;
     case f of
-       64,192:if (ls74_clr<>0) then ls74_q:=1;
+       64,192:if ls74_clr then ls74_q:=true;
        240:begin
              update_video_magmax;
              m68000_0.irq[1]:=ASSERT_LINE;
@@ -250,27 +253,27 @@ begin
   0:magmax_snd_inbyte:=ay8910_0.read;
   2:magmax_snd_inbyte:=ay8910_1.read;
   4:magmax_snd_inbyte:=ay8910_2.read;
-  6:magmax_snd_inbyte:=(sound_latch shl 1) or ls74_q;
+  6:magmax_snd_inbyte:=(sound_latch shl 1) or byte(ls74_q);
   end;
 end;
 
 procedure magmax_snd_outbyte(puerto:word;valor:byte);
 begin
 case (puerto and $ff) of
-  0:ay8910_0.Control(valor);
-  1:ay8910_0.Write(valor);
-  2:ay8910_1.Control(valor);
-  3:ay8910_1.Write(valor);
-  4:ay8910_2.Control(valor);
-  5:ay8910_2.Write(valor);
+  0:ay8910_0.control(valor);
+  1:ay8910_0.write(valor);
+  2:ay8910_1.control(valor);
+  3:ay8910_1.write(valor);
+  4:ay8910_2.control(valor);
+  5:ay8910_2.write(valor);
 end;
 end;
 
 procedure magmax_sound_update;
 begin
-  ay8910_0.Update;
-  ay8910_1.Update;
-  ay8910_2.Update;
+  ay8910_0.update;
+  ay8910_1.update;
+  ay8910_2.update;
 end;
 
 procedure magmax_porta_w(valor:byte);
@@ -290,8 +293,8 @@ end;
 
 procedure magmax_portb_w(valor:byte);
 begin
-ls74_clr:=valor and 1;
-if (ls74_clr=0) then ls74_q:=0;
+ls74_clr:=(valor and 1)<>0;
+if not(ls74_clr) then ls74_q:=false;
 end;
 
 //Main
@@ -310,8 +313,8 @@ begin
  scroll_x:=0;
  scroll_y:=0;
  sound_latch:=0;
- ls74_clr:=0;
- ls74_q:=0;
+ ls74_clr:=false;
+ ls74_q:=false;
  gain_control:=0;
  redraw_bg:=true;
 end;

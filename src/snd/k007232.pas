@@ -1,6 +1,6 @@
 unit k007232;
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}sound_engine,timer_engine,dialogs;
+uses sound_engine,timer_engine,dialogs,main_engine;
 
 const
    KDAC_A_PCM_MAX=2;

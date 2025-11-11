@@ -1,13 +1,10 @@
 unit superdodgeball_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6502,m6809,m680x,main_engine,controls_engine,ym_3812,gfx_engine,
-     rom_engine,pal_engine,sound_engine,msm5205;
+uses rom_engine;
 
 function iniciar_sdodgeball:boolean;
 
-implementation
 const
         sdodgeball_rom:tipo_roms=(n:'22a-04.139';l:$10000;p:0;crc:$66071fda);
         sdodgeball_snd:tipo_roms=(n:'22j5-0.33';l:$8000;p:$8000;crc:$c31e264e);
@@ -18,8 +15,15 @@ const
         (n:'22a-1.2';l:$20000;p:0;crc:$3bd1c3ec),(n:'22a-2.35';l:$20000;p:$20000;crc:$409e1be1));
         sdodgeball_adpcm:array[0..1] of tipo_roms=(
         (n:'22j6-0.83';l:$10000;p:0;crc:$744a26e3),(n:'22j7-0.82';l:$10000;p:$10000;crc:$2fa1de21));
-        sdodgeball_proms:array[0..1] of tipo_roms=(
-        (n:'mb7132e.158';l:$400;p:0;crc:$7e623722),(n:'mb7122e.159';l:$400;p:$400;crc:$69706e8d));
+        sdodgeball_proms:array[0..2] of tipo_roms=(
+        (n:'mb7132e.158';l:$400;p:0;crc:$7e623722),(n:'mb7122e.159';l:$400;p:$400;crc:$69706e8d),());
+
+
+implementation
+uses m6502,m6809,m680x,main_engine,controls_engine,ym_3812,gfx_engine,
+     pal_engine,sound_engine,msm5205;
+
+const
         sdodgeball_dip_a:def_dip2=(mask:$c0;name:'Difficulty';number:4;val4:($80,$c0,$40,0);name4:('Easy','Normal','Hard','Very Hard'));
         sdodgeball_dip_b:array [0..3] of def_dip2=(
         (mask:7;name:'Coin A';number:8;val8:(0,1,2,7,6,5,4,3);name8:('4C 1C','3C 1C','2C 1C','1C 1C','1C 2C','1C 3C','1C 4C','1C 5C')),
@@ -105,7 +109,6 @@ procedure principal_sdodgeball;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 271 do begin
     case f of

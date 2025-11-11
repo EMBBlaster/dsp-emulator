@@ -1,13 +1,10 @@
 unit gng_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     m6809,nz80,ym_2203,main_engine,controls_engine,gfx_engine,rom_engine,
-     pal_engine,sound_engine,timer_engine,qsnapshot;
+uses rom_engine;
 
 function iniciar_gng:boolean;
 
-implementation
 const
         gng_rom:array[0..2] of tipo_roms=(
         (n:'gg3.bin';l:$8000;p:$8000;crc:$9e01c65e),(n:'gg4.bin';l:$4000;p:$4000;crc:$66606beb),
@@ -17,12 +14,17 @@ const
         (n:'gg11.bin';l:$4000;p:0;crc:$ddd56fa9),(n:'gg10.bin';l:$4000;p:$4000;crc:$7302529d),
         (n:'gg9.bin';l:$4000;p:$8000;crc:$20035bda),(n:'gg8.bin';l:$4000;p:$c000;crc:$f12ba271),
         (n:'gg7.bin';l:$4000;p:$10000;crc:$e525207d),(n:'gg6.bin';l:$4000;p:$14000;crc:$2d77e9b2));
-        gng_sprites:array[0..5] of tipo_roms=(
+        gng_sound:tipo_roms=(n:'gg2.bin';l:$8000;p:0;crc:$615f5b6f);
+        gng_sprites:array[0..6] of tipo_roms=(
         (n:'gg17.bin';l:$4000;p:0;crc:$93e50a8f),(n:'gg16.bin';l:$4000;p:$4000;crc:$06d7e5ca),
         (n:'gg15.bin';l:$4000;p:$8000;crc:$bc1fe02d),(n:'gg14.bin';l:$4000;p:$c000;crc:$6aaf12f9),
-        (n:'gg13.bin';l:$4000;p:$10000;crc:$e80c3fca),(n:'gg12.bin';l:$4000;p:$14000;crc:$7780a925));
-        gng_sound:tipo_roms=(n:'gg2.bin';l:$8000;p:0;crc:$615f5b6f);
-        //Dip
+        (n:'gg13.bin';l:$4000;p:$10000;crc:$e80c3fca),(n:'gg12.bin';l:$4000;p:$14000;crc:$7780a925),());
+
+implementation
+uses m6809,nz80,ym_2203,main_engine,controls_engine,gfx_engine,pal_engine,
+     sound_engine,timer_engine,qsnapshot;
+
+const
         gng_dip_a:array[0..4] of def_dip2=(
         (mask:$f;name:'Coinage';number:16;val16:(2,5,8,4,1,$f,3,7,$e,6,$d,$c,$b,$a,9,0);name16:('4C 1C','3C 1C','2C 1C','3C 2C','4C 3C','1C 1C','3C 4C','2C 3C','1C 2C','2C 5C','1C 3C','1C 4C','1C 5C','1C 6C','1C 7C','Free Play')),
         (mask:$10;name:'Coinage affects';number:2;val2:($10,0);name2:('Coin A','Coin B')),
@@ -95,27 +97,30 @@ end;
 
 procedure eventos_gng;
 begin
-if main_vars.service1 then marcade.dswa:=(marcade.dswa and $bf) else marcade.dswa:=(marcade.dswa or $40);
 if event.arcade then begin
+  if main_vars.service1 then marcade.dswa:=(marcade.dswa and $bf) else marcade.dswa:=(marcade.dswa or $40);
+  marcade.in0:=$ff;
+  marcade.in1:=$ff;
+  marcade.in2:=$ff;
   //P1
-  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe) else marcade.in1:=(marcade.in1 or 1);
-  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd) else marcade.in1:=(marcade.in1 or 2);
-  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb) else marcade.in1:=(marcade.in1 or 4);
-  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7) else marcade.in1:=(marcade.in1 or 8);
-  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef) else marcade.in1:=(marcade.in1 or $10);
-  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df) else marcade.in1:=(marcade.in1 or $20);
+  if arcade_input.right[0] then marcade.in1:=(marcade.in1 and $fe);
+  if arcade_input.left[0] then marcade.in1:=(marcade.in1 and $fd);
+  if arcade_input.down[0] then marcade.in1:=(marcade.in1 and $fb);
+  if arcade_input.up[0] then marcade.in1:=(marcade.in1 and $f7);
+  if arcade_input.but0[0] then marcade.in1:=(marcade.in1 and $ef);
+  if arcade_input.but1[0] then marcade.in1:=(marcade.in1 and $df);
   //P2
-  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe) else marcade.in2:=(marcade.in2 or 1);
-  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd) else marcade.in2:=(marcade.in2 or 2);
-  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb) else marcade.in2:=(marcade.in2 or 4);
-  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7) else marcade.in2:=(marcade.in2 or 8);
-  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef) else marcade.in2:=(marcade.in2 or $10);
-  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df) else marcade.in2:=(marcade.in2 or $20);
+  if arcade_input.right[1] then marcade.in2:=(marcade.in2 and $fe);
+  if arcade_input.left[1] then marcade.in2:=(marcade.in2 and $fd);
+  if arcade_input.down[1] then marcade.in2:=(marcade.in2 and $fb);
+  if arcade_input.up[1] then marcade.in2:=(marcade.in2 and $f7);
+  if arcade_input.but0[1] then marcade.in2:=(marcade.in2 and $ef);
+  if arcade_input.but1[1] then marcade.in2:=(marcade.in2 and $df);
   //SYS
-  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe) else marcade.in0:=(marcade.in0 or 1);
-  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd) else marcade.in0:=(marcade.in0 or 2);
-  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf) else marcade.in0:=(marcade.in0 or $40);
-  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f) else marcade.in0:=(marcade.in0 or $80);
+  if arcade_input.start[0] then marcade.in0:=(marcade.in0 and $fe);
+  if arcade_input.start[1] then marcade.in0:=(marcade.in0 and $fd);
+  if arcade_input.coin[0] then marcade.in0:=(marcade.in0 and $bf);
+  if arcade_input.coin[1] then marcade.in0:=(marcade.in0 and $7f);
 end;
 end;
 
@@ -123,7 +128,6 @@ procedure gng_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 261 do begin
     eventos_gng;
@@ -334,13 +338,13 @@ const
     pt_y:array[0..15] of dword=(0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8,
 			8*8, 9*8, 10*8, 11*8, 12*8, 13*8, 14*8, 15*8);
 begin
+iniciar_gng:=false;
 llamadas_maquina.bucle_general:=gng_principal;
 llamadas_maquina.reset:=reset_gng;
 llamadas_maquina.fps_max:=12000000/2/384/262;
 llamadas_maquina.scanlines:=262;
 llamadas_maquina.save_qsnap:=gng_qsave;
 llamadas_maquina.load_qsnap:=gng_qload;
-iniciar_gng:=false;
 iniciar_audio(false);
 screen_init(1,512,512); //Background
 screen_init(2,512,512,true); //Foreground

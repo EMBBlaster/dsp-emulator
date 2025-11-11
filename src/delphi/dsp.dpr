@@ -60,7 +60,6 @@ uses
   tap_tzx in '..\misc\tap_tzx.pas',
   timer_engine in '..\misc\timer_engine.pas',
   amstrad_cpc in '..\ordenadores\amstrad_cpc.pas',
-  poke_spectrum in '..\ordenadores\misc\poke_spectrum.pas',
   spectrum_3 in '..\ordenadores\spectrum_3.pas',
   spectrum_48k in '..\ordenadores\spectrum_48k.pas',
   spectrum_128k in '..\ordenadores\spectrum_128k.pas',
@@ -87,7 +86,6 @@ uses
   config in 'config.pas' {ConfigSP},
   config_general in 'config_general.pas' {MConfig},
   LoadRom in 'LoadRom.pas' {FLoadRom},
-  poke_memoria in 'poke_memoria.pas' {poke_spec},
   nes_ppu in '..\CONSOLAS\nes_ppu.pas',
   principal in 'principal.pas' {principal1},
   m680x in '..\cpu\m680x.pas',
@@ -213,7 +211,6 @@ uses
   outrun_hw in '..\arcade\outrun_hw.pas',
   taitosj_hw in '..\arcade\taitosj_hw.pas',
   fd1089 in '..\devices\fd1089.pas',
-  vars_hide in '..\misc\vars_hide.pas',
   vulgus_hw in '..\arcade\vulgus_hw.pas',
   ddragon3_hw in '..\arcade\ddragon3_hw.pas',
   blockout_hw in '..\arcade\blockout_hw.pas',
@@ -236,7 +233,6 @@ uses
   tmnt_hw in '..\arcade\tmnt_hw.pas',
   eepromser in '..\devices\eepromser.pas',
   gradius3_hw in '..\arcade\gradius3_hw.pas',
-  rom_export in '..\misc\rom_export.pas',
   config_cpc in 'config_cpc.pas' {ConfigCPC},
   spaceinvaders_hw in '..\arcade\spaceinvaders_hw.pas',
   centipede_hw in '..\arcade\centipede_hw.pas',
@@ -375,7 +371,11 @@ uses
   principal_misc in '..\misc\principal_misc.pas',
   configgeneral_misc in '..\misc\configgeneral_misc.pas',
   arcadeconfig_misc in '..\misc\arcadeconfig_misc.pas',
-  msx1 in '..\ordenadores\msx1.pas';
+  msx1 in '..\ordenadores\msx1.pas',
+  spectrumconfig_misc in '..\misc\spectrumconfig_misc.pas',
+  cpcconfig_misc in '..\misc\cpcconfig_misc.pas',
+  drmicro_hw in '..\arcade\drmicro_hw.pas',
+  loadrom_misc in '..\misc\loadrom_misc.pas';
 
 {$R *.res}
 begin

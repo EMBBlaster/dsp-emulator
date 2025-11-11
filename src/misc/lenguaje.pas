@@ -5,7 +5,7 @@ uses {$ifdef windows}windows{$else}sysutils{$endif};
 
 const
       MAX_IDIOMAS=7-1;
-      lng_txt:array[0..MAX_IDIOMAS,0..79] of string=(
+      lng_txt:array[0..MAX_IDIOMAS,0..80] of string=(
       //Español
       ('Archivo','Idioma','Lista de ROMS','Salir','Acerca de...','Opciones','Sonido','Video','Desconectado','Máquina','Ordenadores 8bits','Arcade',
        'Consolas','Acción','Ejecutar','Reiniciar','Pausa','Nombre','Longitud','Cabecera','Bytes','Datos','Bytes Turbo','Tono Puro','Secuencia Pulsos',
@@ -15,7 +15,7 @@ const
        'Velocidad máxima','Configurar DSP','Configurar ordenador/consola','Cargar Cinta/Snapshot','Cargar Disco','Guardar Snapshot','Poke Memoria','Capturar Imagen',
        'FlashLoad ON/OFF','Play cassette virtual','Stop cassette virtual','Cerrar cassette virtual','Nombre cassette virtual','Contenido del cassette virtual','Configurar dipswitch',
        'Mostrar lista de juegos','Configuración','Fichero no encontrado','Cargar Juego','Ejecutar el último juego al inicio','Mostrar errores de las ROMS','Centrar pantalla principal',
-       'CONSOLAS: Mostrar menú de carga de juegos al inicio','Conectado','Abrir','Carpetas'),
+       'CONSOLAS: Mostrar menú de carga de juegos al inicio','Conectado','Abrir','Carpetas','Cargar Cartucho ROM'),
        //English
       ('File','Language','ROMS list','Exit','About...','Options','Sound','Video','Disabled','Machine','8bits Computers','Arcade','Consoles','Action','Run',
        'Reset','Pause','Name','Size','Header','Bytes','Data','Turbo Bytes','Pure Tone','Pulse Sequence','Pure Data','Direct Recording','Stop the tape','Pause',
@@ -24,7 +24,7 @@ const
        'Emulation speed: 25%, 50%, 75% or 100%','Fastest speed','Configure DSP','Configure computer/console','Load Tape/Snapshot','Load Disk','Save Snapshot',
        'Poke Memory','Take Snapshot','FlashLoad ON/OFF','Play virtual tape','Stop virtual tape','Close virtual tape','Virtual tape name','Virtual tape content',
        'Configure dipswitch','Show game list','Configuration','File not found','Load Game','Run last game at start-up','Show ROMs errors','Center main screen',
-       'CONSOLES: Show game loading menu at startup','Enabled','Open','Folders'),
+       'CONSOLES: Show game loading menu at startup','Enabled','Open','Folders','Load ROM Cartridge'),
        //Català
       ('Arxiu','Idioma','Llista de ROMS','Sortida','Acerca de...','Opcions','So','Video','Desconectat','Màquina','Ordinadors 8bits','Arcade','Consolas',
        'Acció','Executar','Reiniciar','Pausa','Nom','Longitud','Capçalera','Bytes','Dades','Bytes Turbo','To Pur','Seqüència Pulsos','Dades Purs','Gravació Directa',
@@ -34,7 +34,7 @@ const
        'Configurar ordinador/consola','Carregar Cinta/Snapshot','Carregar Disc','Guardar Snapshot','Poke Memoria','Guardar imatge','FlashLoad ON/OFF','Play cassette virtual',
        'Stop cassette virtual','Tancar el cassette virtual','Nom del cassette virtual','Contigut del cassette virtual','Configurar dipswitch','Mostrar la llista de jocs',
        'Configuració','No es troba el fitxer','Carregar Joc','Carregar l''ultim joc a l''inici','Mostrar errors en les ROMs','Centrar la pantalla principal',
-       'CONSOLES: Mostra menú de càrrega de jocs a l''inici','Conectat','Obrir','Carpetes'),
+       'CONSOLES: Mostra menú de càrrega de jocs a l''inici','Conectat','Obrir','Carpetes','Carregar cartutx ROM'),
        //French
       ('Fichier','Langage','Liste de ROMS','Quitter','A propos de ...','Options','Du Son','Vidéo','Désactivé','Machine','Ordinateurs 8 bits','Arcade','Consoles',
        'Action','Exécuter','Reset','Pause','Nom','Taille','Entête','Octets','Données','Turbo Bytes','Tonalité pure','Séquence pulsée','Données pures','Enregistrement direct',
@@ -44,7 +44,7 @@ const
        'Configurer l''ordinateur/console','Charge Tape/Snapshot','Charge Disk','Enregistrer Snapshot','Poke Memory','Enregistrer l''image','FlashLoad ON/OFF',
        'Lancer la cassette virtuelle','Arrêter la cassette virtuelle','Fermer la cassette virtuelle','Nom cassette virtuelle','Contenu cassette virtuelle',
        'Configurer dipswitch','Liste de jeux','Configuration','Fichier non trouvé','Chargement du Jeu','Lancer le dernier jeu au démarrage','Afficher les erreurs de ROM',
-       'Écran principal central','CONSOLES: Afficher le menu de chargement du jeu au démarrage','Activé','Ouvrir','Dossiers'),
+       'Écran principal central','CONSOLES: Afficher le menu de chargement du jeu au démarrage','Activé','Ouvrir','Dossiers','Charger la cartouche ROM'),
        //German
       ('Datei','Sprache','ROMS Liste','Beenden','Über...','Optionen','Klang','Video','Deaktiviert','Maschine','8-Bit-Computer','Spielhallenmaschinen','Konsolen',
        'Aktion','Laufen','Zurücksetzen','Pause','Name','Größe','Kopf','Bytes','Daten','Turbo-Bytes','Pure Tone','Pulssequenz','Pure Data','Direktaufnahme',
@@ -54,7 +54,7 @@ const
        'DSP konfigurieren','Konfigurieren Computer/Konsole','Lade Band/Schnappschuß','Lade Diskette','Speichere Schnappschuß','Speicher-Poke','Bild speichern',
        'TAP nach TZX konvertieren','Virtuelles Band abspielen','Virtuelles Band stoppen','Virtuelles Band schließen','Name des virtuellen Bands','Inhalt des virtuellen Bands',
        'Konfigurieren dipswitch','Spielliste','Konfiguration','Die Datei wurde nicht gefunden','Spiel laden','Letztes Spiel beim Start ausführen','ROM-Fehler anzeigen',
-       'Hauptbildschirm zentrieren','KONSOLEN: Spiellademenü beim Start anzeigen','Aktiviert','öffnen','Ordner'),
+       'Hauptbildschirm zentrieren','KONSOLEN: Spiellademenü beim Start anzeigen','Aktiviert','öffnen','Ordner','Laden Sie die ROM-Kassette'),
        //Brazil
       ('Arquivo','Indioma','Lista de ROMS','Salir','Sobre...','Opções','Som','Video','Desativado','Máquina','Ordenadores 8bits','Arcade','Consoles','Ação','Executar',
        'Reiniciar','Pausar','Nome','Longitude','Cabeça','Bytes','Dados','Bytes Turbo','Tone Puro','Sequencía Pulsos','Dados Pulos','Gravação Direta','Para a tela',
@@ -63,7 +63,7 @@ const
        'Reset','Executar emulação','Pausar emulação','Velocidade emulação 25%, 50%, 75% o 100%','Velocidade máxima','Configurar DSP','Configurar ordenador/consola',
        'Carregar Cinta/Snapshot','Carregar Disco','Guardar Snapshot','Poke Memoria','Guardar imagen','FlashLoad ON/OFF','Executar cassette virtual','Parar cassette virtual',
        'Encerrar cassette virtual','Nome cassette virtual','Conteudo do cassette virtual','Configurar dipswitch','Lista de jogos','Configuração','Arquivo não encontrado','Carregar Jogo',
-       'Executar o último jogo na inicialização','Mostrar erros de ROMs','Tela principal central','CONSOLES: Mostra o menu de carregamento do jogo na inicialização','Ativado','Abrir','Pasta'),
+       'Executar o último jogo na inicialização','Mostrar erros de ROMs','Tela principal central','CONSOLES: Mostra o menu de carregamento do jogo na inicialização','Ativado','Abrir','Pasta','Carregar cartucho ROM'),
        //Italiano
       ('File','Lingua','Elenco di ROMS','Esci','Informazioni...','Opzioni','Suono','Video','Disabilitato','Piattaforma','Computer a 8bit','Salagiochi','Console','Controllo',
        'Esegui','Riavvia','Sospendi','Nome','Dimensione','Intestazione','Byte','Dati','Turbo Byte','Impulsi semplici','Sequenza a impulsi','Dati semplici','Registrazione diretta',
@@ -73,7 +73,7 @@ const
        'Configurare computer/console','Carica una cassetta o uno Snapshot','Carica un Disco','Salva uno Snapshot','Poke Memory','Salva immagine','FlashLoad ON/OFF','Avvia la cassetta virtuale',
        'Ferma la cassetta virtuale','Chiudi la cassetta virtuale','Nome di la cassetta virtuale','Contenuto del cassetta virtuale','Configurare dipswitch','Lista dei giochi',
        'Configurazione','File non trovato','Caricare il Gioco','Esegui l''ultimo gioco all''avvio','Mostra errori ROM','Schermata principale centrale','CONSOLE: mostra il menu di caricamento del gioco all''avvio',
-       'Abilitato','Aprire','Cartella'));
+       'Abilitato','Aprire','Cartella','Caricare la cartuccia ROM'));
 
 type
       tlenguaje=record
@@ -82,7 +82,7 @@ type
           errores:array[0..2] of string;
           avisos:array[0..5] of string;
           mensajes:array[0..9] of string;
-          hints:array[0..3] of string;
+          hints:array[0..4] of string;
       end;
 
 var
@@ -144,6 +144,7 @@ begin
   leng.hints[1]:=lng_txt[idioma,52];
   leng.hints[2]:=lng_txt[idioma,58];
   leng.hints[3]:=lng_txt[idioma,72];
+  leng.hints[4]:=lng_txt[idioma,80];
 end;
 
 procedure principal_idioma;
@@ -184,7 +185,6 @@ begin
   principal1.BitBtn9.Hint:=lng_txt[main_vars.idioma_sel,57];
   principal1.BitBtn10.Hint:=lng_txt[main_vars.idioma_sel,58];
   principal1.BitBtn11.Hint:=lng_txt[main_vars.idioma_sel,59];
-  principal1.BitBtn12.Hint:=lng_txt[main_vars.idioma_sel,60];
   principal1.BitBtn14.Hint:=lng_txt[main_vars.idioma_sel,62];
 end;
 

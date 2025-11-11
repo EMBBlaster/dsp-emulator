@@ -1,24 +1,50 @@
-unit thenewzealandstory_hw;
+﻿unit thenewzealandstory_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,ym_2203,gfx_engine,rom_engine,pal_engine,
-     sound_engine,seta_sprites,mcs48;
+uses rom_engine;
 
 function iniciar_tnzs:boolean;
 
-implementation
 const
         //The NewZealand Story
         tnzs_rom:tipo_roms=(n:'b53-24.1';l:$20000;p:0;crc:$d66824c6);
         tnzs_sub:tipo_roms=(n:'b53-25.3';l:$10000;p:0;crc:$d6ac4e71);
         tnzs_audio:tipo_roms=(n:'b53-26.34';l:$10000;p:0;crc:$cfd5649c);
-        tnzs_gfx:array[0..7] of tipo_roms=(
+        tnzs_gfx:array[0..8] of tipo_roms=(
         (n:'b53-16.8';l:$20000;p:0;crc:$c3519c2a),(n:'b53-17.7';l:$20000;p:$20000;crc:$2bf199e8),
         (n:'b53-18.6';l:$20000;p:$40000;crc:$92f35ed9),(n:'b53-19.5';l:$20000;p:$60000;crc:$edbb9581),
         (n:'b53-22.4';l:$20000;p:$80000;crc:$59d2aef6),(n:'b53-23.3';l:$20000;p:$a0000;crc:$74acfb9b),
-        (n:'b53-20.2';l:$20000;p:$c0000;crc:$095d0dc0),(n:'b53-21.1';l:$20000;p:$e0000;crc:$9800c54d));
-        //Dip
+        (n:'b53-20.2';l:$20000;p:$c0000;crc:$095d0dc0),(n:'b53-21.1';l:$20000;p:$e0000;crc:$9800c54d),());
+        //Insector X
+        insectorx_rom:tipo_roms=(n:'b97-03.u32';l:$20000;p:0;crc:$18eef387);
+        insectorx_sub:tipo_roms=(n:'b97-07.u38';l:$10000;p:0;crc:$324b28c9);
+        insectorx_gfx:array[0..2] of tipo_roms=(
+        (n:'b97-01.u1';l:$80000;p:0;crc:$d00294b1),(n:'b97-02.u2';l:$80000;p:$80000;crc:$db5a7434),());
+        //Extermination
+        extrmatn_rom:array[0..1] of tipo_roms=(
+        (n:'b06-05.11c';l:$10000;p:0;crc:$918e1fe3),(n:'b06-06.9c';l:$10000;p:$10000;crc:$8842e105));
+        extrmatn_sub:tipo_roms=(n:'b06-19.4e';l:$10000;p:0;crc:$8de43ed9);
+        extrmatn_mcu:tipo_roms=(n:'b06__14.1g';l:$800;p:0;crc:$28907072);
+        extrmatn_gfx:array[0..3] of tipo_roms=(
+        (n:'b06-01.13a';l:$20000;p:0;crc:$d2afbf7e),(n:'b06-02.10a';l:$20000;p:$20000;crc:$e0c2757a),
+        (n:'b06-03.7a';l:$20000;p:$40000;crc:$ee80ab9d),(n:'b06-04.4a';l:$20000;p:$60000;crc:$3697ace4));
+        extrmatn_pal:array[0..2] of tipo_roms=(
+        (n:'b06-09.15f';l:$200;p:0;crc:$f388b361),(n:'b06-08.17f';l:$200;p:$200;crc:$10c9aac3),());
+        //Arkanoid II
+        {arknoid2_rom:tipo_roms=(n:'b08__05.11c';l:$10000;p:0;crc:$136edf9d);
+        arknoid2_sub:tipo_roms=(n:'b08__13.3e';l:$10000;p:0;crc:$e8035ef1);
+        arknoid2_mcu:tipo_roms=(n:'b53-09.u46';l:$800;p:0;crc:$a4bfce19);
+        arknoid2_gfx:array[0..3] of tipo_roms=(
+        (n:'b08-01.13a';l:$20000;p:0;crc:$2ccc86b4),(n:'b08-02.10a';l:$20000;p:$20000;crc:$056a985f),
+        (n:'b08-03.7a';l:$20000;p:$40000;crc:$274a795f),(n:'b08-04.4a';l:$20000;p:$60000;crc:$9754f703));
+        arknoid2_pal:array[0..1] of tipo_roms=(
+        (n:'b08-08.15f';l:$200;p:0;crc:$a4f7ebd9),(n:'b08-07.16f';l:$200;p:$200;crc:$ea34d9f7));}
+
+implementation
+uses nz80,main_engine,controls_engine,ym_2203,gfx_engine,pal_engine,
+     sound_engine,seta_sprites,mcs48;
+
+const
         tnzs_dip_a:array [0..4] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Cocktail')),
         (mask:2;name:'Flip_Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -30,12 +56,6 @@ const
         (mask:$c;name:'Bonus Life';number:4;val4:(0,$c,4,8);name4:('50K 150K 150K+','70K 200K 200K+','100K 250K 250K+','200K 300K 300K+')),
         (mask:$30;name:'Lives';number:4;val4:($20,$30,0,$10);name4:('2','3','4','5')),
         (mask:$40;name:'Allow Continue';number:2;val2:(0,$40);name2:('No','Yes')));
-        //Insector X
-        insectorx_rom:tipo_roms=(n:'b97-03.u32';l:$20000;p:0;crc:$18eef387);
-        insectorx_sub:tipo_roms=(n:'b97-07.u38';l:$10000;p:0;crc:$324b28c9);
-        insectorx_gfx:array[0..1] of tipo_roms=(
-        (n:'b97-01.u1';l:$80000;p:0;crc:$d00294b1),(n:'b97-02.u2';l:$80000;p:$80000;crc:$db5a7434));
-        //Dip
         insectorx_dip_a:array [0..4] of def_dip2=(
         (mask:1;name:'Cabinet';number:2;val2:(0,1);name2:('Upright','Cocktail')),
         (mask:2;name:'Flip_Screen';number:2;val2:(2,0);name2:('Off','On')),
@@ -46,16 +66,6 @@ const
         (mask:3;name:'Difficulty';number:4;val4:(1,3,2,0);name4:('Easy','Medium','Hard','Hardest')),
         (mask:$c;name:'Bonus Life';number:4;val4:(8,$c,4,0);name4:('40K 240K 200K+','60K 360K 300K+','100K 500K 400K+','150K 650K 500K+')),
         (mask:$30;name:'Lives';number:4;val4:(0,$10,$30,$20);name4:('1','2','3','4')));
-        //Extermination
-        extrmatn_rom:array[0..1] of tipo_roms=(
-        (n:'b06-05.11c';l:$10000;p:0;crc:$918e1fe3),(n:'b06-06.9c';l:$10000;p:$10000;crc:$8842e105));
-        extrmatn_sub:tipo_roms=(n:'b06-19.4e';l:$10000;p:0;crc:$8de43ed9);
-        extrmatn_mcu:tipo_roms=(n:'b06__14.1g';l:$800;p:0;crc:$28907072);
-        extrmatn_gfx:array[0..3] of tipo_roms=(
-        (n:'b06-01.13a';l:$20000;p:0;crc:$d2afbf7e),(n:'b06-02.10a';l:$20000;p:$20000;crc:$e0c2757a),
-        (n:'b06-03.7a';l:$20000;p:$40000;crc:$ee80ab9d),(n:'b06-04.4a';l:$20000;p:$60000;crc:$3697ace4));
-        extrmatn_pal:array[0..1] of tipo_roms=(
-        (n:'b06-09.15f';l:$200;p:0;crc:$f388b361),(n:'b06-08.17f';l:$200;p:$200;crc:$10c9aac3));
         extrmatn_dip_a:array [0..2] of def_dip2=(
         (mask:2;name:'Flip_Screen';number:2;val2:(2,0);name2:('Off','On')),
         (mask:$30;name:'Coin A';number:4;val4:($10,$30,0,$20);name4:('2C 1C','1C 1C','2C 3C','1C 2C')),
@@ -63,15 +73,6 @@ const
         extrmatn_dip_b:array [0..1] of def_dip2=(
         (mask:3;name:'Difficulty';number:4;val4:(2,3,1,0);name4:('Easy','Medium','Hard','Hardest')),
         (mask:$c0;name:'Damage Multiplier';number:4;val4:($c0,$80,$40,0);name4:('x1','x1.5','x2','x3')));
-        //Arkanoid II
-        {arknoid2_rom:tipo_roms=(n:'b08__05.11c';l:$10000;p:0;crc:$136edf9d);
-        arknoid2_sub:tipo_roms=(n:'b08__13.3e';l:$10000;p:0;crc:$e8035ef1);
-        arknoid2_mcu:tipo_roms=(n:'b53-09.u46';l:$800;p:0;crc:$a4bfce19);
-        arknoid2_gfx:array[0..3] of tipo_roms=(
-        (n:'b08-01.13a';l:$20000;p:0;crc:$2ccc86b4),(n:'b08-02.10a';l:$20000;p:$20000;crc:$056a985f),
-        (n:'b08-03.7a';l:$20000;p:$40000;crc:$274a795f),(n:'b08-04.4a';l:$20000;p:$60000;crc:$9754f703));
-        arknoid2_pal:array[0..1] of tipo_roms=(
-        (n:'b08-08.15f';l:$200;p:0;crc:$a4f7ebd9),(n:'b08-07.16f';l:$200;p:$200;crc:$ea34d9f7));}
         //Madre mia!!
         CPU_SYNC=24;
 
@@ -119,7 +120,6 @@ procedure tnzs_principal;
 var
   f,h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_tnzs;
@@ -289,7 +289,6 @@ procedure insectorx_principal;
 var
   f,h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_insectorx;
@@ -398,7 +397,6 @@ procedure extrmatn_principal_mcu;
 var
   f,h:byte;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to $ff do begin
     eventos_extrmatn;

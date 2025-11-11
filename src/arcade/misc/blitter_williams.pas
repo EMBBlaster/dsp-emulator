@@ -1,8 +1,7 @@
 unit blitter_williams;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     main_engine,cpu_misc,m6809;
+uses main_engine,cpu_misc,m6809;
 
 type
   williams_blitter=class

@@ -32,9 +32,8 @@ unit m68000;
 25/03/24   Corregido divs (corrige Space Harrier), mejorados timings, corregidos excepciones de privilegios en 'stop', 'move to sr' y 'move from sr'
 }
 interface
+uses sysutils,dialogs,cpu_misc,timer_engine,main_engine;
 
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     sysutils,dialogs,cpu_misc,timer_engine,vars_hide,main_engine;
 type
         band_m68000=record
                 t,s,i,x,n,z,v,c:boolean;

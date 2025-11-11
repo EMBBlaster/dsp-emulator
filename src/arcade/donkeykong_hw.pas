@@ -1,13 +1,10 @@
 unit donkeykong_hw;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     nz80,main_engine,controls_engine,gfx_engine,samples,rom_engine,
-     pal_engine,sound_engine,n2a03;
+uses rom_engine,samples;
 
 function iniciar_dkong:boolean;
 
-implementation
 const
         //Donkey Kong
         dkong_rom:array[0..3] of tipo_roms=(
@@ -18,10 +15,10 @@ const
         (n:'v-5e.bpr';l:$100;p:$200;crc:$b869b8f5));
         dkong_char:array[0..1] of tipo_roms=(
         (n:'v_5h_b.bin';l:$800;p:0;crc:$12c8c95d),(n:'v_3pt.bin';l:$800;p:$800;crc:$15e9c5e9));
-        dkong_sprites:array[0..3] of tipo_roms=(
+        dkong_sprites:array[0..4] of tipo_roms=(
         (n:'l_4m_b.bin';l:$800;p:0;crc:$59f8054d),(n:'l_4n_b.bin';l:$800;p:$800;crc:$672e4714),
-        (n:'l_4r_b.bin';l:$800;p:$1000;crc:$feaa59ee),(n:'l_4s_b.bin';l:$800;p:$1800;crc:$20f2ef7e));
-        dk_samples:array[0..24] of tipo_nombre_samples=(
+        (n:'l_4r_b.bin';l:$800;p:$1000;crc:$feaa59ee),(n:'l_4s_b.bin';l:$800;p:$1800;crc:$20f2ef7e),());
+        dkong_samples:array[0..25] of tipo_nombre_samples=(
         (nombre:'death.wav'),(nombre:'tune01.wav'),(nombre:'tune02.wav'),
         (nombre:'tune03.wav';restart:true),(nombre:'tune04.wav';restart:false;loop:true),
         (nombre:'tune05.wav'),(nombre:'tune06.wav'),(nombre:'tune07.wav'),
@@ -30,12 +27,7 @@ const
         (nombre:'tune11_1.wav'),(nombre:'tune11_2.wav';restart:false;loop:true),
         (nombre:'tune12.wav'),(nombre:'tune13.wav'),(nombre:'tune14.wav'),(nombre:'tune15.wav'),
         (nombre:'ef01_1.wav'),(nombre:'ef01_2.wav'),(nombre:'ef02.wav'),
-        (nombre:'ef03.wav';restart:true),(nombre:'ef04.wav'),(nombre:'ef05.wav'),(nombre:'ef06.wav'));
-        dk_dip_a:array [0..4] of def_dip=(
-        (mask:$3;name:'Lives';number:4;dip:((dip_val:0;dip_name:'3'),(dip_val:$1;dip_name:'4'),(dip_val:$2;dip_name:'5'),(dip_val:$3;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$0;dip_name:'7k'),(dip_val:$4;dip_name:'10k'),(dip_val:$8;dip_name:'15k'),(dip_val:$c;dip_name:'20k'),(),(),(),(),(),(),(),(),(),(),(),())),
-        (mask:$70;name:'Coinage';number:8;dip:((dip_val:$70;dip_name:'5C 1C'),(dip_val:$50;dip_name:'4C 1C'),(dip_val:$30;dip_name:'3C 1C'),(dip_val:$10;dip_name:'2C 1C'),(dip_val:$0;dip_name:'1C 1C'),(dip_val:$20;dip_name:'1C 2C'),(dip_val:$40;dip_name:'1C 3C'),(dip_val:$40;dip_name:'1C 4C'),(),(),(),(),(),(),(),())),
-        (mask:$80;name:'Cabinet';number:2;dip:((dip_val:$80;dip_name:'Upright'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
+        (nombre:'ef03.wav';restart:true),(nombre:'ef04.wav'),(nombre:'ef05.wav'),(nombre:'ef06.wav'),());
         //Donkey Kong Jr.
         dkongjr_rom:array[0..2] of tipo_roms=(
         (n:'dkj.5b';l:$2000;p:0;crc:$dea28158),(n:'dkj.5c';l:$2000;p:$2000;crc:$6fb5faf6),
@@ -45,17 +37,18 @@ const
         (n:'v-2n.bpr';l:$100;p:$200;crc:$dbf185bf));
         dkongjr_char:array[0..1] of tipo_roms=(
         (n:'dkj.3n';l:$1000;p:0;crc:$8d51aca9),(n:'dkj.3p';l:$1000;p:$1000;crc:$4ef64ba5));
-        dkongjr_sprites:array[0..3] of tipo_roms=(
+        dkongjr_sprites:array[0..4] of tipo_roms=(
         (n:'v_7c.bin';l:$800;p:0;crc:$dc7f4164),(n:'v_7d.bin';l:$800;p:$800;crc:$0ce7dcf6),
-        (n:'v_7e.bin';l:$800;p:$1000;crc:$24d1ff17),(n:'v_7f.bin';l:$800;p:$1800;crc:$0f8c083f));
-        dkjr_samples:array[0..21] of tipo_nombre_samples=(
+        (n:'v_7e.bin';l:$800;p:$1000;crc:$24d1ff17),(n:'v_7f.bin';l:$800;p:$1800;crc:$0f8c083f),());
+        dkongjr_samples:array[0..22] of tipo_nombre_samples=(
         (nombre:'death.wav'),(nombre:'tune01.wav';restart:false;loop:true),
         (nombre:'tune02.wav'),(nombre:'tune03.wav'),(nombre:'tune04.wav'),
         (nombre:'tune05.wav'),(nombre:'tune06.wav'),(nombre:'tune07.wav'),
         (nombre:'tune08.wav'),(nombre:'tune09.wav'),(nombre:'tune10.wav'),
         (nombre:'tune11.wav'),(nombre:'tune12.wav'),(nombre:'tune13.wav'),
-        (nombre:'tune14.wav'),(nombre:'ef01.wav';restart:true),(nombre:'ef02.wav';restart:true),(nombre:'ef03.wav';restart:true),
-        (nombre:'ef04.wav'),(nombre:'ef05.wav'),(nombre:'ef06.wav'),(nombre:'ef07.wav'));
+        (nombre:'tune14.wav'),(nombre:'ef01.wav';restart:true),(nombre:'ef02.wav';restart:true),
+        (nombre:'ef03.wav';restart:true),(nombre:'ef04.wav'),(nombre:'ef05.wav'),
+        (nombre:'ef06.wav'),(nombre:'ef07.wav'),());
         //Donkey Kong 3
         dkong3_rom:array[0..3] of tipo_roms=(
         (n:'dk3c.7b';l:$2000;p:0;crc:$38d5f38e),(n:'dk3c.7c';l:$2000;p:$2000;crc:$c9134379),
@@ -69,7 +62,17 @@ const
         (n:'dk3v.7c';l:$1000;p:0;crc:$8ffa1737),(n:'dk3v.7d';l:$1000;p:$1000;crc:$9ac84686),
         (n:'dk3v.7e';l:$1000;p:$2000;crc:$0c0af3fb),(n:'dk3v.7f';l:$1000;p:$3000;crc:$55c58662));
         dkong3_snd1:tipo_roms=(n:'dk3c.5l';l:$2000;p:$e000;crc:$7ff88885);
-        dkong3_snd2:tipo_roms=(n:'dk3c.6h';l:$2000;p:$e000;crc:$36d7200c);
+        dkong3_snd2:array[0..1] of tipo_roms=((n:'dk3c.6h';l:$2000;p:$e000;crc:$36d7200c),());
+
+implementation
+uses nz80,main_engine,controls_engine,gfx_engine,pal_engine,sound_engine,n2a03;
+
+const
+        dk_dip_a:array [0..4] of def_dip=(
+        (mask:$3;name:'Lives';number:4;dip:((dip_val:0;dip_name:'3'),(dip_val:$1;dip_name:'4'),(dip_val:$2;dip_name:'5'),(dip_val:$3;dip_name:'6'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$c;name:'Bonus Life';number:4;dip:((dip_val:$0;dip_name:'7k'),(dip_val:$4;dip_name:'10k'),(dip_val:$8;dip_name:'15k'),(dip_val:$c;dip_name:'20k'),(),(),(),(),(),(),(),(),(),(),(),())),
+        (mask:$70;name:'Coinage';number:8;dip:((dip_val:$70;dip_name:'5C 1C'),(dip_val:$50;dip_name:'4C 1C'),(dip_val:$30;dip_name:'3C 1C'),(dip_val:$10;dip_name:'2C 1C'),(dip_val:$0;dip_name:'1C 1C'),(dip_val:$20;dip_name:'1C 2C'),(dip_val:$40;dip_name:'1C 3C'),(dip_val:$40;dip_name:'1C 4C'),(),(),(),(),(),(),(),())),
+        (mask:$80;name:'Cabinet';number:2;dip:((dip_val:$80;dip_name:'Upright'),(dip_val:$0;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
         dk3_dip_a:array [0..2] of def_dip=(
         (mask:$7;name:'Coinage';number:8;dip:((dip_val:$2;dip_name:'3C 1C'),(dip_val:$4;dip_name:'2C 1C'),(dip_val:$0;dip_name:'1C 1C'),(dip_val:$6;dip_name:'1C 2C'),(dip_val:$1;dip_name:'1C 3C'),(dip_val:$3;dip_name:'1C 4C'),(dip_val:$5;dip_name:'1C 5C'),(dip_val:$7;dip_name:'1C 6C'),(),(),(),(),(),(),(),())),
         (mask:$80;name:'Cabinet';number:2;dip:((dip_val:$0;dip_name:'Upright'),(dip_val:$80;dip_name:'Cocktail'),(),(),(),(),(),(),(),(),(),(),(),(),(),())),());
@@ -146,7 +149,6 @@ procedure dkong_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_dkong;
@@ -366,7 +368,6 @@ procedure dkong3_principal;
 var
   f:word;
 begin
-init_controls(false,false,false,true);
 while EmuStatus=EsRunning do begin
   for f:=0 to 263 do begin
     eventos_dkong3;
@@ -589,7 +590,7 @@ case main_vars.tipo_maquina of
         //cargar roms
         if not(roms_load(@memoria,dkong_rom)) then exit;
         //samples
-        if load_samples(dk_samples) then z80_0.init_sound(dkong_sound_update);
+        if load_samples(dkong_samples) then z80_0.init_sound(dkong_sound_update);
         audio_tunes:=dkong_tune_sound;
         audio_effects:=dkong_effects_sound;
         //convertir chars
@@ -623,7 +624,7 @@ case main_vars.tipo_maquina of
         copymemory(@memoria[$5000],@memoria_temp[$5000],$800);
         copymemory(@memoria[$1800],@memoria_temp[$5800],$800);
         //samples
-        if load_samples(dkjr_samples) then z80_0.init_sound(dkong_sound_update);
+        if load_samples(dkongjr_samples) then z80_0.init_sound(dkong_sound_update);
         audio_tunes:=dkongjr_tune_sound;
         audio_effects:=dkongjr_effects_sound;
         //convertir chars

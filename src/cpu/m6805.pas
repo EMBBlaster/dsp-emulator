@@ -1,8 +1,8 @@
 unit m6805;
 
 interface
-uses {$IFDEF WINDOWS}windows,{$ENDIF}
-     dialogs,sysutils,timer_engine,main_engine,cpu_misc;
+uses dialogs,sysutils,timer_engine,main_engine,cpu_misc;
+
 const
   tipo_m6805=0;
   tipo_m68705=1;
